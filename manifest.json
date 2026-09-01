@@ -1,6 +1,6 @@
 {
-  "name": "Reabbly — Gestione abbonamenti",
-  "short_name": "Reabbly",
+  "name": "Hubbo — Gestione abbonamenti",
+  "short_name": "Hubbo",
   "description": "Tieni sotto controllo tutti i tuoi abbonamenti: quanto spendi al mese, quando si rinnovano, quali puoi tagliare.",
   "start_url": "./index.html",
   "scope": "./",
@@ -9,7 +9,11 @@
   "background_color": "#0A0B10",
   "theme_color": "#0A0B10",
   "lang": "it",
-  "categories": ["finance", "productivity", "utilities"],
+  "categories": [
+    "finance",
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",

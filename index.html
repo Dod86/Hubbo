@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>Reabbly - Gestione abbonamenti</title>
+<title>Hubbo - Gestione abbonamenti</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#0A0B10" />
 <meta name="description" content="Tieni sotto controllo tutti i tuoi abbonamenti: quanto spendi al mese, quando si rinnovano, quali puoi tagliare." />
@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Reabbly" />
+<meta name="apple-mobile-web-app-title" content="Hubbo" />
 <meta name="mobile-web-app-capable" content="yes" />
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -27,7 +27,7 @@
 <div id="root"></div>
 <script>
 if (!window.storage) {
-  const PREFIX = "reabbly_store_";
+  const PREFIX = "hubbo_store_";
   window.storage = {
     async get(key) { const raw = localStorage.getItem(PREFIX + key); if (raw === null) throw new Error("Key not found: " + key); return { key, value: raw, shared: false }; },
     async set(key, value) { localStorage.setItem(PREFIX + key, value); return { key, value, shared: false }; },
@@ -165,6 +165,8 @@ const LANGUAGES = [
 ];
 
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
+
+const APP_VERSION = "0.9.0";
 
 const FREE_LIMIT = 10;
 
@@ -552,9 +554,10 @@ const COMMON_SERVICES = [
 
 const STRINGS = {
   it: {
-    appName: "Reabbly",
+    appName: "Hubbo",
     subtitle: "I tuoi abbonamenti",
     subtitleCalendar: "Quando paghi",
+    version: "versione",
     exitHint: "Premi di nuovo indietro per uscire",
     monthlySpend: "Spesa mensile stimata",
     perYear: (amount, n) => `${amount} stimati all'anno · ${n} attivi`,
@@ -632,8 +635,8 @@ const STRINGS = {
     sortLabel: "Ordina",
     sortRenewal: "Rinnovo",
     sortName: "Nome A-Z",
-    sortCostDesc: "Costo ↓",
-    sortCostAsc: "Costo ↑",
+    sortCostDesc: "Costo mensile ↓",
+    sortCostAsc: "Costo mensile ↑",
     categories: { streaming: "Streaming", telefonia: "Telefonia", software: "Cloud & Software", gaming: "Gaming", sicurezza: "Sicurezza & VPN", creativita: "Creatività", business: "Business & Shop", ai: "AI & Assistenti", social: "Social", sport: "Palestra & Sport", altro: "Altro" },
     sharedSectionLabel: "Abbonamento condiviso",
     notShared: "Solo mio",
@@ -700,7 +703,7 @@ const STRINGS = {
     importConfirmYes: "Importa",
     importDone: (n) => `${n} abbonamenti importati.`,
     importNothing: "Nessun nuovo abbonamento da importare.",
-    importError: "File non valido: non sembra un backup di Reabbly.",
+    importError: "File non valido: non sembra un backup di Hubbo.",
     currencyOfSub: "Valuta",
     ratesNote: "I totali convertono le altre valute con tassi indicativi fissi. Per importi precisi usa la stessa valuta ovunque.",
     ratesLive: (d) => `Cambi aggiornati${d ? " al " + d : ""}. I totali convertono automaticamente le altre valute.`,
@@ -710,9 +713,10 @@ const STRINGS = {
     priceIncreased: (from, pct) => `Aumentato da ${from} (+${pct}%)`,
   },
   en: {
-    appName: "Reabbly",
+    appName: "Hubbo",
     subtitle: "Your subscriptions",
     subtitleCalendar: "When you pay",
+    version: "version",
     exitHint: "Press back again to exit",
     monthlySpend: "Estimated monthly spend",
     perYear: (amount, n) => `${amount} estimated per year · ${n} active`,
@@ -790,8 +794,8 @@ const STRINGS = {
     sortLabel: "Sort",
     sortRenewal: "Renewal",
     sortName: "Name A-Z",
-    sortCostDesc: "Cost ↓",
-    sortCostAsc: "Cost ↑",
+    sortCostDesc: "Monthly cost ↓",
+    sortCostAsc: "Monthly cost ↑",
     categories: { streaming: "Streaming", telefonia: "Phone & Internet", software: "Cloud & Software", gaming: "Gaming", sicurezza: "Security & VPN", creativita: "Creative", business: "Business & Shop", ai: "AI & Assistants", social: "Social", sport: "Gym & Sport", altro: "Other" },
     sharedSectionLabel: "Shared subscription",
     notShared: "Just mine",
@@ -858,7 +862,7 @@ const STRINGS = {
     importConfirmYes: "Import",
     importDone: (n) => `${n} subscriptions imported.`,
     importNothing: "No new subscriptions to import.",
-    importError: "Invalid file: this doesn't look like a Reabbly backup.",
+    importError: "Invalid file: this doesn't look like a Hubbo backup.",
     currencyOfSub: "Currency",
     ratesNote: "Totals convert other currencies using fixed indicative rates. For exact amounts, use the same currency throughout.",
     ratesLive: (d) => `Rates updated${d ? " on " + d : ""}. Totals convert other currencies automatically.`,
@@ -868,9 +872,10 @@ const STRINGS = {
     priceIncreased: (from, pct) => `Up from ${from} (+${pct}%)`,
   },
   es: {
-    appName: "Reabbly",
+    appName: "Hubbo",
     subtitle: "Tus suscripciones",
     subtitleCalendar: "Cuándo pagas",
+    version: "versión",
     exitHint: "Pulsa atrás otra vez para salir",
     monthlySpend: "Gasto mensual estimado",
     perYear: (amount, n) => `${amount} estimados al año · ${n} activas`,
@@ -948,8 +953,8 @@ const STRINGS = {
     sortLabel: "Ordenar",
     sortRenewal: "Renovación",
     sortName: "Nombre A-Z",
-    sortCostDesc: "Coste ↓",
-    sortCostAsc: "Coste ↑",
+    sortCostDesc: "Coste mensual ↓",
+    sortCostAsc: "Coste mensual ↑",
     categories: { streaming: "Streaming", telefonia: "Móvil e Internet", software: "Nube y Software", gaming: "Videojuegos", sicurezza: "Seguridad y VPN", creativita: "Creatividad", business: "Negocio y Tienda", ai: "IA y Asistentes", social: "Redes sociales", sport: "Gimnasio y Deporte", altro: "Otros" },
     sharedSectionLabel: "Suscripción compartida",
     notShared: "Solo mía",
@@ -1016,7 +1021,7 @@ const STRINGS = {
     importConfirmYes: "Importar",
     importDone: (n) => `${n} suscripciones importadas.`,
     importNothing: "No hay suscripciones nuevas que importar.",
-    importError: "Archivo no válido: no parece una copia de Reabbly.",
+    importError: "Archivo no válido: no parece una copia de Hubbo.",
     currencyOfSub: "Moneda",
     ratesNote: "Los totales convierten otras monedas con tasas fijas orientativas. Para importes exactos, usa la misma moneda en todo.",
     ratesLive: (d) => `Tipos actualizados${d ? " el " + d : ""}. Los totales convierten automáticamente otras monedas.`,
@@ -1026,9 +1031,10 @@ const STRINGS = {
     priceIncreased: (from, pct) => `Subió desde ${from} (+${pct}%)`,
   },
   fr: {
-    appName: "Reabbly",
+    appName: "Hubbo",
     subtitle: "Vos abonnements",
     subtitleCalendar: "Quand vous payez",
+    version: "version",
     exitHint: "Appuyez à nouveau pour quitter",
     monthlySpend: "Dépense mensuelle estimée",
     perYear: (amount, n) => `${amount} estimés par an · ${n} actifs`,
@@ -1106,8 +1112,8 @@ const STRINGS = {
     sortLabel: "Trier",
     sortRenewal: "Renouvellement",
     sortName: "Nom A-Z",
-    sortCostDesc: "Coût ↓",
-    sortCostAsc: "Coût ↑",
+    sortCostDesc: "Coût mensuel ↓",
+    sortCostAsc: "Coût mensuel ↑",
     categories: { streaming: "Streaming", telefonia: "Mobile et Internet", software: "Cloud et Logiciels", gaming: "Jeux vidéo", sicurezza: "Sécurité et VPN", creativita: "Création", business: "Business et Boutique", ai: "IA et Assistants", social: "Réseaux sociaux", sport: "Sport et Fitness", altro: "Autre" },
     sharedSectionLabel: "Abonnement partagé",
     notShared: "Juste le mien",
@@ -1174,7 +1180,7 @@ const STRINGS = {
     importConfirmYes: "Importer",
     importDone: (n) => `${n} abonnements importés.`,
     importNothing: "Aucun nouvel abonnement à importer.",
-    importError: "Fichier invalide : cela ne ressemble pas à une sauvegarde Reabbly.",
+    importError: "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo.",
     currencyOfSub: "Devise",
     ratesNote: "Les totaux convertissent les autres devises avec des taux fixes indicatifs. Pour des montants exacts, utilisez la même devise partout.",
     ratesLive: (d) => `Taux mis à jour${d ? " le " + d : ""}. Les totaux convertissent automatiquement les autres devises.`,
@@ -1184,9 +1190,10 @@ const STRINGS = {
     priceIncreased: (from, pct) => `En hausse depuis ${from} (+${pct} %)`,
   },
   de: {
-    appName: "Reabbly",
+    appName: "Hubbo",
     subtitle: "Deine Abos",
     subtitleCalendar: "Wann du zahlst",
+    version: "Version",
     exitHint: "Nochmal Zurück zum Beenden",
     monthlySpend: "Geschätzte Monatsausgaben",
     perYear: (amount, n) => `${amount} geschätzt pro Jahr · ${n} aktiv`,
@@ -1264,8 +1271,8 @@ const STRINGS = {
     sortLabel: "Sortieren",
     sortRenewal: "Verlängerung",
     sortName: "Name A-Z",
-    sortCostDesc: "Kosten ↓",
-    sortCostAsc: "Kosten ↑",
+    sortCostDesc: "Monatskosten ↓",
+    sortCostAsc: "Monatskosten ↑",
     categories: { streaming: "Streaming", telefonia: "Mobilfunk & Internet", software: "Cloud & Software", gaming: "Gaming", sicurezza: "Sicherheit & VPN", creativita: "Kreativ", business: "Business & Shop", ai: "KI & Assistenten", social: "Social Media", sport: "Fitness & Sport", altro: "Sonstiges" },
     sharedSectionLabel: "Geteiltes Abo",
     notShared: "Nur meins",
@@ -1332,7 +1339,7 @@ const STRINGS = {
     importConfirmYes: "Importieren",
     importDone: (n) => `${n} Abos importiert.`,
     importNothing: "Keine neuen Abos zum Importieren.",
-    importError: "Ungültige Datei: Das sieht nicht nach einem Reabbly-Backup aus.",
+    importError: "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus.",
     currencyOfSub: "Währung",
     ratesNote: "Summen rechnen andere Währungen mit festen Richtkursen um. Für exakte Beträge überall dieselbe Währung verwenden.",
     ratesLive: (d) => `Kurse aktualisiert${d ? " am " + d : ""}. Summen rechnen andere Währungen automatisch um.`,
@@ -1450,17 +1457,41 @@ function formatDate(dateStr, locale) {
   return d.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
 }
 
+function Wordmark({ colors, size = 21 }) {
+  const ring = Math.round(size * 0.72);
+  return (
+    <div
+      className="flex items-baseline select-none"
+      style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, fontSize: size, color: colors.textPrimary, letterSpacing: "-0.01em" }}
+      aria-label="Hubbo"
+    >
+      <span>Hubb</span>
+      <svg
+        width={ring}
+        height={ring}
+        viewBox="0 0 40 40"
+        aria-hidden="true"
+        style={{ margin: `0 ${size * 0.045}px`, transform: `translateY(${size * 0.045}px)` }}
+      >
+        <circle cx="20" cy="20" r="15" fill="none" stroke={colors.border} strokeWidth="6" />
+        <path d="M 20 5 A 15 15 0 1 1 7.4 27.2" fill="none" stroke={ACCENT.amber} strokeWidth="6" strokeLinecap="round" />
+        <circle cx="20" cy="20" r="4.5" fill={ACCENT.amber} />
+      </svg>
+    </div>
+  );
+}
+
 function RingIcon({ progress, ringColor, ended, colors, size = 52 }) {
-  const r = 20;
+  const r = 21;
   const c = 2 * Math.PI * r;
   const offset = c * (1 - progress);
   const color = ended ? colors.textFaint : ringColor;
   return (
     <svg width={size} height={size} viewBox="0 0 48 48">
-      <circle cx="24" cy="24" r={r} fill="none" stroke={colors.surface2} strokeWidth="3.5" />
+      <circle cx="24" cy="24" r={r} fill="none" stroke={colors.border} strokeWidth="3" />
       <circle
         cx="24" cy="24" r={r} fill="none"
-        stroke={color} strokeWidth="3.5" strokeLinecap="round"
+        stroke={color} strokeWidth="3" strokeLinecap="round"
         strokeDasharray={c} strokeDashoffset={ended ? 0 : offset}
         transform="rotate(-90 24 24)"
         style={{ transition: "stroke-dashoffset 0.6s ease" }}
@@ -1474,7 +1505,38 @@ function RingIcon({ progress, ringColor, ended, colors, size = 52 }) {
 // and the bundled icon or category glyph covers offline use.
 const remoteLogoFailed = {};
 
-function ServiceLogo({ icon, category, domain, letter, color, size = 22 }) {
+// Brands whose mark is white or near-white: on a light chip they'd disappear,
+// so they get a dark chip instead.
+const LIGHT_LOGO_DOMAINS = new Set([
+  "dazn.com",
+  "x.com",
+  "tidal.com",
+  "notion.so",
+  "obsidian.md",
+  "medium.com",
+  "substack.com",
+  "ghost.org",
+  "vercel.com",
+  "framer.com",
+  "apple.com",
+  "tv.apple.com",
+  "music.apple.com",
+  "openai.com",
+  "midjourney.com",
+  "elevenlabs.io",
+  "linear.app",
+  "mullvad.net",
+  "prestashop.com",
+  "nowtv.it",
+]);
+
+const LIGHT_LOGO_ICONS = new Set([
+  "dazn", "x", "tidal", "notion", "obsidian", "medium", "substack",
+  "ghost", "vercel", "framer", "appletv", "applemusic", "threads",
+  "tiktok", "elevenlabs", "linear", "now",
+]);
+
+function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
   const brandColor = (icon && BRAND_COLORS[icon]) || color;
   const fallbackIconName = CATEGORY_FALLBACK_ICON[category] || "package";
@@ -1482,47 +1544,53 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22 }) {
   const [remoteFailed, setRemoteFailed] = useState(() => (domain ? !!remoteLogoFailed[domain] : true));
   const useRemote = !path && !!domain && !remoteFailed;
 
+  const needsDarkChip =
+    (domain && LIGHT_LOGO_DOMAINS.has(domain)) || (icon && LIGHT_LOGO_ICONS.has(icon));
+
+  // The chip picks up a whisper of the brand colour instead of being a hard
+  // white disc: it separates from the page in both themes and gives each
+  // service a little identity of its own.
+  const chip = needsDarkChip
+    ? { background: "#1B1E29", border: "1px solid rgba(255,255,255,0.10)" }
+    : plain
+    ? { background: "transparent", border: "none" }
+    : { background: `${brandColor}1F`, border: `1px solid ${brandColor}2E` };
+
   if (useRemote) {
     return (
-      <img
-        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=128`}
-        alt=""
-        loading="lazy"
-        onError={() => {
-          remoteLogoFailed[domain] = true;
-          setRemoteFailed(true);
-        }}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: 999,
-          background: "#FFFFFF",
-          border: "1px solid rgba(0,0,0,0.06)",
-          objectFit: "contain",
-          padding: Math.round(size * 0.16),
-          flexShrink: 0,
-        }}
-      />
+      <div
+        style={{ width: size, height: size, borderRadius: 999, ...chip }}
+        className="flex items-center justify-center flex-shrink-0 overflow-hidden"
+      >
+        <img
+          src={`https://www.google.com/s2/favicons?domain=${domain}&sz=128`}
+          alt=""
+          loading="lazy"
+          onError={() => {
+            remoteLogoFailed[domain] = true;
+            setRemoteFailed(true);
+          }}
+          style={{ width: size * 0.62, height: size * 0.62, objectFit: "contain" }}
+        />
+      </div>
     );
   }
 
   return (
     <div
-      style={{ width: size, height: size, borderRadius: 999, background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
+      style={{ width: size, height: size, borderRadius: 999, ...chip }}
       className="flex items-center justify-center flex-shrink-0"
     >
       {path ? (
-        <svg viewBox="0 0 24 24" width={size * 0.55} height={size * 0.55} fill={brandColor}>
+        <svg viewBox="0 0 24 24" width={size * 0.55} height={size * 0.55} fill={needsDarkChip ? "#F2F1ED" : brandColor}>
           <path d={path} />
         </svg>
       ) : (
-        <Icon name={fallbackIconName} size={size * 0.55} color={brandColor} strokeWidth={2.2} />
+        <Icon name={fallbackIconName} size={size * 0.55} color={needsDarkChip ? "#F2F1ED" : brandColor} strokeWidth={2.2} />
       )}
     </div>
   );
 }
-
-const notifiedToday = new Set();
 
 const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9 };
@@ -1545,7 +1613,7 @@ function useSystemPrefersDark() {
   return prefersDark;
 }
 
-function ReabblyApp() {
+function HubboApp() {
   const [subs, setSubs] = useState(null);
   const [settings, setSettings] = useState(defaultSettings);
   const [showForm, setShowForm] = useState(false);
@@ -1672,6 +1740,7 @@ function ReabblyApp() {
   }
 
   const agendaRef = useRef(null);
+  const closingRef = useRef(null);
   const viewScrollRef = useRef({ list: 0, calendar: 0 });
   // Live exchange rates, refreshed once a day and cached so the app keeps
   // converting correctly offline. Falls back to the built-in reference rates.
@@ -1844,7 +1913,7 @@ function ReabblyApp() {
 
   async function handleExport() {
     const payload = {
-      app: "reabbly",
+      app: "hubbo",
       version: 1,
       exportedAt: new Date().toISOString(),
       settings,
@@ -1852,7 +1921,7 @@ function ReabblyApp() {
       trash,
     };
     const json = JSON.stringify(payload, null, 2);
-    const filename = `reabbly-backup-${todayISO}.json`;
+    const filename = `hubbo-backup-${todayISO}.json`;
 
     // Prefer the system "save as" dialog so the user picks the destination;
     // fall back to a plain download where the API is unavailable.
@@ -1890,7 +1959,7 @@ function ReabblyApp() {
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
-        if (!data || data.app !== "reabbly" || !Array.isArray(data.subscriptions)) {
+        if (!data || data.app !== "hubbo" || !Array.isArray(data.subscriptions)) {
           setImportMessage(t.importError);
           return;
         }
@@ -2011,7 +2080,7 @@ function ReabblyApp() {
                 body: t.notifBody(s.name, when),
                 icon: "icons/icon-192.png",
                 badge: "icons/icon-192.png",
-                tag: "reabbly-" + s.id,
+                tag: "hubbo-" + s.id,
               });
             } catch {
               // ignore
@@ -2049,11 +2118,17 @@ function ReabblyApp() {
       if (a.isEnded !== b.isEnded) return a.isEnded ? 1 : -1;
       if (!!a.paused !== !!b.paused) return a.paused ? 1 : -1;
       if (sortBy === "name") return a.name.localeCompare(b.name);
-      if (sortBy === "costDesc") return b.cost - a.cost;
-      if (sortBy === "costAsc") return a.cost - b.cost;
+      // Costs are compared as monthly amounts in the main currency, so a yearly
+      // plan doesn't get ranked as if it were a monthly one.
+      const monthlyOf = (s) => {
+        const v = convertAmount(s.cost, s.currency || settings.currency, settings.currency, rates);
+        return s.frequency === "annual" ? v / 12 : v;
+      };
+      if (sortBy === "costDesc") return monthlyOf(b) - monthlyOf(a);
+      if (sortBy === "costAsc") return monthlyOf(a) - monthlyOf(b);
       return a.daysLeft - b.daysLeft;
     });
-  }, [enriched, filterCategory, hideEnded, sortBy, listSearch]);
+  }, [enriched, filterCategory, hideEnded, sortBy, listSearch, rates, settings.currency]);
 
   // Totals reflect the currently selected category filter (always excluding ended subs)
   const totalsBase = useMemo(
@@ -2273,10 +2348,18 @@ function ReabblyApp() {
 
   // Closing a sheet waits for its exit animation before unmounting it.
   function closeSheet(key, apply) {
-    if (closingSheet) return;
+    if (closingRef.current === key) return;
+    if (closingRef.current) {
+      // Another sheet is still animating out: apply immediately rather than
+      // dropping this dismissal on the floor.
+      apply();
+      return;
+    }
+    closingRef.current = key;
     setClosingSheet(key);
     setTimeout(() => {
       apply();
+      closingRef.current = null;
       setClosingSheet(null);
     }, 240);
   }
@@ -2299,21 +2382,40 @@ function ReabblyApp() {
     requestAnimationFrame(() => window.scrollTo(0, target));
   }
 
-  // Topmost dismissable layer, in the order they stack visually.
+  // Topmost dismissable layer, in the order they stack visually. A layer that
+  // is already animating out is skipped, so a rapid second Back reaches the
+  // layer underneath instead of being swallowed.
   function dismissTopLayer() {
-    if (optionPicker) return closeSheet("option", () => setOptionPicker(null)), true;
-    if (confirmPurge) return closeSheet("cpurge", () => setConfirmPurge(null)), true;
-    if (confirmDelete) return closeSheet("cdel", () => setConfirmDelete(null)), true;
-    if (pendingImport) return closeSheet("import", () => setPendingImport(null)), true;
-    if (pickerOpen) return setPickerOpen(false), true;
-    if (showForm) return closeSheet("form", () => { setShowForm(false); setEditingId(null); }), true;
-    if (showMonthPicker) return closeSheet("month", () => setShowMonthPicker(false)), true;
-    if (detailSub) return closeSheet("detail", () => setDetailSub(null)), true;
-    if (showTrash) return closeSheet("trash", () => setShowTrash(false)), true;
-    if (showPaywall) return closeSheet("paywall", () => setShowPaywall(false)), true;
-    if (showSettings) return closeSheet("settings", () => setShowSettings(false)), true;
-    if (selectedDay) return setSelectedDay(null), true;
-    if (view !== "list") return switchView("list"), true;
+    const busy = closingRef.current;
+    const layers = [
+      ["option", optionPicker, () => setOptionPicker(null)],
+      ["cpurge", confirmPurge, () => setConfirmPurge(null)],
+      ["cdel", confirmDelete, () => setConfirmDelete(null)],
+      ["import", pendingImport, () => setPendingImport(null)],
+      ["picker", pickerOpen, () => setPickerOpen(false), true],
+      ["form", showForm, () => { setShowForm(false); setEditingId(null); }],
+      ["month", showMonthPicker, () => setShowMonthPicker(false)],
+      ["detail", detailSub, () => setDetailSub(null)],
+      ["trash", showTrash, () => setShowTrash(false)],
+      ["paywall", showPaywall, () => setShowPaywall(false)],
+      ["settings", showSettings, () => setShowSettings(false)],
+    ];
+
+    for (const [key, open, apply, immediate] of layers) {
+      if (!open || busy === key) continue;
+      if (immediate) apply();
+      else closeSheet(key, apply);
+      return true;
+    }
+
+    if (selectedDay) {
+      setSelectedDay(null);
+      return true;
+    }
+    if (view !== "list") {
+      switchView("list");
+      return true;
+    }
     return false;
   }
 
@@ -2334,18 +2436,29 @@ function ReabblyApp() {
     let exitTimer = null;
 
     const onPop = () => {
+      // Restore the guard entry first thing: a rapid double Back would otherwise
+      // pop past it and drop the user out of the app mid-dismissal.
+      window.history.pushState({ rbGuard: true }, "");
+
       const handled = dismissRef.current();
       if (handled) {
-        window.history.pushState({ rbGuard: true }, "");
+        exitArmed = false;
+        setExitHint(false);
+        clearTimeout(exitTimer);
         return;
       }
+
       if (exitArmed) {
-        // Let this Back through: the browser/OS leaves the app.
+        exitArmed = false;
+        setExitHint(false);
+        clearTimeout(exitTimer);
+        // Step past both the guard entry and the sentinel to actually leave.
+        window.history.go(-2);
         return;
       }
+
       exitArmed = true;
       setExitHint(true);
-      window.history.pushState({ rbGuard: true }, "");
       clearTimeout(exitTimer);
       exitTimer = setTimeout(() => {
         exitArmed = false;
@@ -2384,12 +2497,7 @@ function ReabblyApp() {
       {/* Header */}
       <div className="px-5 pt-8 pb-2">
         <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2">
-            <div style={{ width: 8, height: 8, borderRadius: 999, background: ACCENT.amber }} />
-            <span style={{ color: colors.textFaint, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs tracking-widest uppercase">
-              {t.appName}
-            </span>
-          </div>
+          <Wordmark colors={colors} />
           <button onClick={() => setShowSettings(true)} style={{ color: colors.textSecondary }} aria-label={t.settings} className="p-1">
             <Icon name="settings" size={18} />
           </button>
@@ -2428,7 +2536,7 @@ function ReabblyApp() {
         </div>
       </div>
       {/* Quick search (only when the list gets long enough to need it) */}
-      {enriched.length > 8 && (
+      {enriched.length > 0 && (
         <div className="px-5 mt-4">
           <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3 py-2 flex items-center gap-2">
             <Icon name="search" size={14} color={colors.textFaint} />
@@ -2545,11 +2653,7 @@ function ReabblyApp() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate mb-0.5">{s.name}</div>
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-base font-semibold mb-0.5">
-                      {money(s.cost, s.currency)}
-                      <span style={{ color: colors.textFaint }} className="font-normal text-xs">{s.frequency === "annual" ? t.perYearShort : t.perMonthShort}</span>
-                    </div>
+                    <div className="font-medium text-sm truncate mb-1">{s.name}</div>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {s.isEnded ? (
                         <span style={{ color: colors.textFaint }} className="text-xs">
@@ -2576,7 +2680,14 @@ function ReabblyApp() {
                       )}
                     </div>
                   </div>
-                  <Icon name="chevronRight" size={16} color={colors.textFaint} className="flex-shrink-0" />
+                  <div className="flex-shrink-0 text-right">
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-base font-semibold whitespace-nowrap">
+                      {money(s.cost, s.currency)}
+                    </div>
+                    <div style={{ color: colors.textFaint }} className="text-xs">
+                      {s.frequency === "annual" ? t.perYearShort : t.perMonthShort}
+                    </div>
+                  </div>
                 </button>
               );
             })}
@@ -2826,7 +2937,6 @@ function ReabblyApp() {
                   <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="flex-1 rounded-xl px-3 py-2 flex items-center gap-2">
                     <Icon name="search" size={14} color={colors.textFaint} />
                     <input
-                      autoFocus
                       value={serviceSearch}
                       onChange={(e) => setServiceSearch(e.target.value)}
                       placeholder={t.searchService}
@@ -3135,7 +3245,7 @@ function ReabblyApp() {
       {/* Settings modal */}
       {showSettings && (
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex justify-end z-50 ${closingSheet === "settings" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("settings", () => setShowSettings(false))}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.bg, borderLeft: `1px solid ${colors.border}`, overscrollBehavior: "contain" }} className={`w-full h-full overflow-y-auto ${closingSheet === "settings" ? "rb-panel-right-out" : "rb-panel-right"}`}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.bg, borderLeft: `1px solid ${colors.border}`, overscrollBehavior: "contain", width: "min(86%, 380px)" }} className={`h-full overflow-y-auto ${closingSheet === "settings" ? "rb-panel-right-out" : "rb-panel-right"}`}>
             <div
               style={{ background: colors.bg, borderBottom: `1px solid ${colors.border}` }}
               className="sticky top-0 z-10 px-5 py-4 flex items-center justify-between"
@@ -3364,6 +3474,9 @@ function ReabblyApp() {
                 </button>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-3 px-1 leading-relaxed">
                   {rates ? t.ratesLive(ratesDate ? dateFmt(ratesDate) : "") : t.ratesNote}
+                </p>
+                <p style={{ color: colors.textFaint }} className="text-xs mt-5 mb-1 text-center">
+                  {t.appName} · {t.version} {APP_VERSION}
                 </p>
               </div>
             </div>
@@ -3779,13 +3892,11 @@ function ReabblyApp() {
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<ReabblyApp />);
+root.render(<HubboApp />);
 </script>
 <script>
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  });
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
 }
 </script>
 </body>
