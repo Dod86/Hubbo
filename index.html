@@ -154,9 +154,10 @@ const RATES_TO_EUR = {
   CHF: 1.06,
 };
 
-function convertAmount(amount, from, to) {
-  const f = RATES_TO_EUR[from] || 1;
-  const tRate = RATES_TO_EUR[to] || 1;
+function convertAmount(amount, from, to, liveRates) {
+  const table = liveRates || RATES_TO_EUR;
+  const f = table[from] || RATES_TO_EUR[from] || 1;
+  const tRate = table[to] || RATES_TO_EUR[to] || 1;
   return (amount * f) / tRate;
 }
 
@@ -415,143 +416,143 @@ const BRAND_ICONS = {
 
 
 const COMMON_SERVICES = [
-  { name: "Netflix", category: "streaming", icon: "netflix" },
-  { name: "Disney+", category: "streaming", icon: null },
-  { name: "Amazon Prime Video", category: "streaming", icon: null },
-  { name: "Now", category: "streaming", icon: "now" },
-  { name: "Sky", category: "streaming", icon: "sky" },
-  { name: "DAZN", category: "streaming", icon: "dazn" },
-  { name: "Infinity+", category: "streaming", icon: null },
-  { name: "Spotify", category: "streaming", icon: "spotify" },
-  { name: "Apple Music", category: "streaming", icon: "applemusic" },
-  { name: "YouTube Premium", category: "streaming", icon: "youtube" },
-  { name: "YouTube Music", category: "streaming", icon: null },
-  { name: "Audible", category: "streaming", icon: "audible" },
-  { name: "Deezer", category: "streaming", icon: "deezer" },
-  { name: "Tidal", category: "streaming", icon: "tidal" },
-  { name: "Crunchyroll", category: "streaming", icon: "crunchyroll" },
-  { name: "Paramount+", category: "streaming", icon: "paramountplus" },
-  { name: "Apple TV+", category: "streaming", icon: "appletv" },
-  { name: "TIM", category: "telefonia", icon: null },
-  { name: "Vodafone", category: "telefonia", icon: "vodafone" },
-  { name: "WindTre", category: "telefonia", icon: null },
-  { name: "Iliad", category: "telefonia", icon: null },
-  { name: "Fastweb", category: "telefonia", icon: null },
-  { name: "PosteMobile", category: "telefonia", icon: null },
-  { name: "ho. Mobile", category: "telefonia", icon: null },
-  { name: "Kena Mobile", category: "telefonia", icon: null },
-  { name: "CoopVoce", category: "telefonia", icon: null },
-  { name: "Very Mobile", category: "telefonia", icon: null },
-  { name: "PEC", category: "software", icon: null },
-  { name: "iCloud", category: "software", icon: "icloud" },
-  { name: "Google One", category: "software", icon: "google" },
-  { name: "Microsoft 365", category: "software", icon: null },
-  { name: "Dropbox", category: "software", icon: "dropbox" },
-  { name: "Adobe Creative Cloud", category: "software", icon: null },
-  { name: "Notion", category: "software", icon: "notion" },
-  { name: "Trello", category: "software", icon: "trello" },
-  { name: "Asana", category: "software", icon: "asana" },
-  { name: "Zoom", category: "software", icon: "zoom" },
-  { name: "1Password", category: "software", icon: "1password" },
-  { name: "Bitwarden", category: "software", icon: "bitwarden" },
-  { name: "LastPass", category: "software", icon: "lastpass" },
-  { name: "GitHub", category: "software", icon: "github" },
-  { name: "Todoist", category: "software", icon: "todoist" },
-  { name: "Evernote", category: "software", icon: "evernote" },
-  { name: "Obsidian", category: "software", icon: "obsidian" },
-  { name: "Airtable", category: "software", icon: "airtable" },
-  { name: "ClickUp", category: "software", icon: "clickup" },
-  { name: "Linear", category: "software", icon: "linear" },
-  { name: "Grammarly", category: "software", icon: "grammarly" },
-  { name: "WeTransfer", category: "software", icon: "wetransfer" },
-  { name: "Backblaze", category: "software", icon: "backblaze" },
-  { name: "MEGA", category: "software", icon: "mega" },
-  { name: "Norton", category: "sicurezza", icon: "norton" },
-  { name: "McAfee", category: "sicurezza", icon: "mcafee" },
-  { name: "Bitdefender", category: "sicurezza", icon: "bitdefender" },
-  { name: "Kaspersky", category: "sicurezza", icon: "kaspersky" },
-  { name: "Avast", category: "sicurezza", icon: "avast" },
-  { name: "AVG", category: "sicurezza", icon: null },
-  { name: "Malwarebytes", category: "sicurezza", icon: "malwarebytes" },
-  { name: "ESET", category: "sicurezza", icon: null },
-  { name: "NordVPN", category: "sicurezza", icon: "nordvpn" },
-  { name: "ExpressVPN", category: "sicurezza", icon: "expressvpn" },
-  { name: "Surfshark", category: "sicurezza", icon: "surfshark" },
-  { name: "Proton VPN", category: "sicurezza", icon: "protonvpn" },
-  { name: "Proton Mail", category: "sicurezza", icon: "protonmail" },
-  { name: "Mullvad VPN", category: "sicurezza", icon: "mullvad" },
-  { name: "Adobe Photoshop", category: "creativita", icon: null },
-  { name: "Adobe Lightroom", category: "creativita", icon: null },
-  { name: "Adobe Premiere Pro", category: "creativita", icon: null },
-  { name: "Adobe Illustrator", category: "creativita", icon: null },
-  { name: "Canva Pro", category: "creativita", icon: null },
-  { name: "CapCut Pro", category: "creativita", icon: null },
-  { name: "Figma", category: "creativita", icon: "figma" },
-  { name: "Framer", category: "creativita", icon: "framer" },
-  { name: "Sketch", category: "creativita", icon: "sketch" },
-  { name: "Affinity", category: "creativita", icon: null },
-  { name: "DaVinci Resolve", category: "creativita", icon: "davinciresolve" },
-  { name: "Blender Studio", category: "creativita", icon: "blender" },
-  { name: "Autodesk", category: "creativita", icon: "autodesk" },
-  { name: "Shopify", category: "business", icon: "shopify" },
-  { name: "Etsy Plus", category: "business", icon: "etsy" },
-  { name: "eBay Negozio", category: "business", icon: "ebay" },
-  { name: "Amazon Seller", category: "business", icon: null },
-  { name: "Wix", category: "business", icon: "wix" },
-  { name: "Squarespace", category: "business", icon: "squarespace" },
-  { name: "WooCommerce", category: "business", icon: "woocommerce" },
-  { name: "PrestaShop", category: "business", icon: "prestashop" },
-  { name: "BigCommerce", category: "business", icon: "bigcommerce" },
-  { name: "WordPress", category: "business", icon: "wordpress" },
-  { name: "Mailchimp", category: "business", icon: "mailchimp" },
-  { name: "HubSpot", category: "business", icon: "hubspot" },
-  { name: "Calendly", category: "business", icon: "calendly" },
-  { name: "QuickBooks", category: "business", icon: "quickbooks" },
-  { name: "Xero", category: "business", icon: "xero" },
-  { name: "Aruba Hosting", category: "business", icon: null },
-  { name: "GoDaddy", category: "business", icon: "godaddy" },
-  { name: "Namecheap", category: "business", icon: "namecheap" },
-  { name: "Cloudflare", category: "business", icon: "cloudflare" },
-  { name: "DigitalOcean", category: "business", icon: "digitalocean" },
-  { name: "Vercel", category: "business", icon: "vercel" },
-  { name: "Netlify", category: "business", icon: "netlify" },
-  { name: "Substack", category: "business", icon: "substack" },
-  { name: "Ghost", category: "business", icon: "ghost" },
-  { name: "ChatGPT Plus", category: "ai", icon: null },
-  { name: "Claude Pro", category: "ai", icon: "claude" },
-  { name: "Perplexity Pro", category: "ai", icon: "perplexity" },
-  { name: "Gemini Advanced", category: "ai", icon: null },
-  { name: "Midjourney", category: "ai", icon: null },
-  { name: "ElevenLabs", category: "ai", icon: "elevenlabs" },
-  { name: "DeepL Pro", category: "ai", icon: "deepl" },
-  { name: "PlayStation Plus", category: "gaming", icon: "playstation" },
-  { name: "Xbox Game Pass", category: "gaming", icon: null },
-  { name: "GeForce NOW", category: "gaming", icon: "nvidia" },
-  { name: "Nintendo Switch Online", category: "gaming", icon: null },
-  { name: "EA Play", category: "gaming", icon: "ea" },
-  { name: "Ubisoft+", category: "gaming", icon: "ubisoft" },
-  { name: "Twitch Turbo", category: "gaming", icon: "twitch" },
-  { name: "Apple Arcade", category: "gaming", icon: "applearcade" },
-  { name: "Google Play Pass", category: "gaming", icon: "googleplay" },
-  { name: "Humble Choice", category: "gaming", icon: "humblebundle" },
-  { name: "Epic Games", category: "gaming", icon: "epicgames" },
-  { name: "Telegram Premium", category: "social", icon: "telegram" },
-  { name: "Discord Nitro", category: "social", icon: "discord" },
-  { name: "Snapchat+", category: "social", icon: "snapchat" },
-  { name: "Tinder Gold", category: "social", icon: "tinder" },
-  { name: "X Premium", category: "social", icon: "x" },
-  { name: "Meta Verified", category: "social", icon: "meta" },
-  { name: "LinkedIn Premium", category: "social", icon: null },
-  { name: "Palestra", category: "sport", icon: null },
-  { name: "Peloton", category: "sport", icon: "peloton" },
-  { name: "Strava", category: "sport", icon: "strava" },
-  { name: "Amazon Prime", category: "altro", icon: null },
-  { name: "Duolingo Plus", category: "altro", icon: "duolingo" },
-  { name: "Coursera Plus", category: "altro", icon: "coursera" },
-  { name: "Udemy", category: "altro", icon: "udemy" },
-  { name: "Skillshare", category: "altro", icon: "skillshare" },
-  { name: "Patreon", category: "altro", icon: "patreon" },
-  { name: "Medium", category: "altro", icon: "medium" },
+  { name: "Netflix", category: "streaming", icon: "netflix" , domain: "netflix.com" },
+  { name: "Disney+", category: "streaming", icon: null , domain: "disneyplus.com" },
+  { name: "Amazon Prime Video", category: "streaming", icon: null , domain: "primevideo.com" },
+  { name: "Now", category: "streaming", icon: "now" , domain: "nowtv.it" },
+  { name: "Sky", category: "streaming", icon: "sky" , domain: "sky.it" },
+  { name: "DAZN", category: "streaming", icon: "dazn" , domain: "dazn.com" },
+  { name: "Infinity+", category: "streaming", icon: null , domain: "infinitytv.it" },
+  { name: "Spotify", category: "streaming", icon: "spotify" , domain: "spotify.com" },
+  { name: "Apple Music", category: "streaming", icon: "applemusic" , domain: "music.apple.com" },
+  { name: "YouTube Premium", category: "streaming", icon: "youtube" , domain: "youtube.com" },
+  { name: "YouTube Music", category: "streaming", icon: null , domain: "music.youtube.com" },
+  { name: "Audible", category: "streaming", icon: "audible" , domain: "audible.it" },
+  { name: "Deezer", category: "streaming", icon: "deezer" , domain: "deezer.com" },
+  { name: "Tidal", category: "streaming", icon: "tidal" , domain: "tidal.com" },
+  { name: "Crunchyroll", category: "streaming", icon: "crunchyroll" , domain: "crunchyroll.com" },
+  { name: "Paramount+", category: "streaming", icon: "paramountplus" , domain: "paramountplus.com" },
+  { name: "Apple TV+", category: "streaming", icon: "appletv" , domain: "tv.apple.com" },
+  { name: "TIM", category: "telefonia", icon: null , domain: "tim.it" },
+  { name: "Vodafone", category: "telefonia", icon: "vodafone" , domain: "vodafone.it" },
+  { name: "WindTre", category: "telefonia", icon: null , domain: "windtre.it" },
+  { name: "Iliad", category: "telefonia", icon: null , domain: "iliad.it" },
+  { name: "Fastweb", category: "telefonia", icon: null , domain: "fastweb.it" },
+  { name: "PosteMobile", category: "telefonia", icon: null , domain: "postemobile.it" },
+  { name: "ho. Mobile", category: "telefonia", icon: null , domain: "ho-mobile.it" },
+  { name: "Kena Mobile", category: "telefonia", icon: null , domain: "kenamobile.it" },
+  { name: "CoopVoce", category: "telefonia", icon: null , domain: "coopvoce.it" },
+  { name: "Very Mobile", category: "telefonia", icon: null , domain: "verymobile.it" },
+  { name: "PEC", category: "software", icon: null , domain: "pec.it" },
+  { name: "iCloud", category: "software", icon: "icloud" , domain: "icloud.com" },
+  { name: "Google One", category: "software", icon: "google" , domain: "one.google.com" },
+  { name: "Microsoft 365", category: "software", icon: null , domain: "microsoft.com" },
+  { name: "Dropbox", category: "software", icon: "dropbox" , domain: "dropbox.com" },
+  { name: "Adobe Creative Cloud", category: "software", icon: null , domain: "adobe.com" },
+  { name: "Notion", category: "software", icon: "notion" , domain: "notion.so" },
+  { name: "Trello", category: "software", icon: "trello" , domain: "trello.com" },
+  { name: "Asana", category: "software", icon: "asana" , domain: "asana.com" },
+  { name: "Zoom", category: "software", icon: "zoom" , domain: "zoom.us" },
+  { name: "1Password", category: "software", icon: "1password" , domain: "1password.com" },
+  { name: "Bitwarden", category: "software", icon: "bitwarden" , domain: "bitwarden.com" },
+  { name: "LastPass", category: "software", icon: "lastpass" , domain: "lastpass.com" },
+  { name: "GitHub", category: "software", icon: "github" , domain: "github.com" },
+  { name: "Todoist", category: "software", icon: "todoist" , domain: "todoist.com" },
+  { name: "Evernote", category: "software", icon: "evernote" , domain: "evernote.com" },
+  { name: "Obsidian", category: "software", icon: "obsidian" , domain: "obsidian.md" },
+  { name: "Airtable", category: "software", icon: "airtable" , domain: "airtable.com" },
+  { name: "ClickUp", category: "software", icon: "clickup" , domain: "clickup.com" },
+  { name: "Linear", category: "software", icon: "linear" , domain: "linear.app" },
+  { name: "Grammarly", category: "software", icon: "grammarly" , domain: "grammarly.com" },
+  { name: "WeTransfer", category: "software", icon: "wetransfer" , domain: "wetransfer.com" },
+  { name: "Backblaze", category: "software", icon: "backblaze" , domain: "backblaze.com" },
+  { name: "MEGA", category: "software", icon: "mega" , domain: "mega.nz" },
+  { name: "Norton", category: "sicurezza", icon: "norton" , domain: "norton.com" },
+  { name: "McAfee", category: "sicurezza", icon: "mcafee" , domain: "mcafee.com" },
+  { name: "Bitdefender", category: "sicurezza", icon: "bitdefender" , domain: "bitdefender.com" },
+  { name: "Kaspersky", category: "sicurezza", icon: "kaspersky" , domain: "kaspersky.it" },
+  { name: "Avast", category: "sicurezza", icon: "avast" , domain: "avast.com" },
+  { name: "AVG", category: "sicurezza", icon: null , domain: "avg.com" },
+  { name: "Malwarebytes", category: "sicurezza", icon: "malwarebytes" , domain: "malwarebytes.com" },
+  { name: "ESET", category: "sicurezza", icon: null , domain: "eset.com" },
+  { name: "NordVPN", category: "sicurezza", icon: "nordvpn" , domain: "nordvpn.com" },
+  { name: "ExpressVPN", category: "sicurezza", icon: "expressvpn" , domain: "expressvpn.com" },
+  { name: "Surfshark", category: "sicurezza", icon: "surfshark" , domain: "surfshark.com" },
+  { name: "Proton VPN", category: "sicurezza", icon: "protonvpn" , domain: "protonvpn.com" },
+  { name: "Proton Mail", category: "sicurezza", icon: "protonmail" , domain: "proton.me" },
+  { name: "Mullvad VPN", category: "sicurezza", icon: "mullvad" , domain: "mullvad.net" },
+  { name: "Adobe Photoshop", category: "creativita", icon: null , domain: "adobe.com" },
+  { name: "Adobe Lightroom", category: "creativita", icon: null , domain: "adobe.com" },
+  { name: "Adobe Premiere Pro", category: "creativita", icon: null , domain: "adobe.com" },
+  { name: "Adobe Illustrator", category: "creativita", icon: null , domain: "adobe.com" },
+  { name: "Canva Pro", category: "creativita", icon: null , domain: "canva.com" },
+  { name: "CapCut Pro", category: "creativita", icon: null , domain: "capcut.com" },
+  { name: "Figma", category: "creativita", icon: "figma" , domain: "figma.com" },
+  { name: "Framer", category: "creativita", icon: "framer" , domain: "framer.com" },
+  { name: "Sketch", category: "creativita", icon: "sketch" , domain: "sketch.com" },
+  { name: "Affinity", category: "creativita", icon: null , domain: "affinity.serif.com" },
+  { name: "DaVinci Resolve", category: "creativita", icon: "davinciresolve" , domain: "blackmagicdesign.com" },
+  { name: "Blender Studio", category: "creativita", icon: "blender" , domain: "blender.org" },
+  { name: "Autodesk", category: "creativita", icon: "autodesk" , domain: "autodesk.com" },
+  { name: "Shopify", category: "business", icon: "shopify" , domain: "shopify.com" },
+  { name: "Etsy Plus", category: "business", icon: "etsy" , domain: "etsy.com" },
+  { name: "eBay Negozio", category: "business", icon: "ebay" , domain: "ebay.it" },
+  { name: "Amazon Seller", category: "business", icon: null , domain: "sell.amazon.it" },
+  { name: "Wix", category: "business", icon: "wix" , domain: "wix.com" },
+  { name: "Squarespace", category: "business", icon: "squarespace" , domain: "squarespace.com" },
+  { name: "WooCommerce", category: "business", icon: "woocommerce" , domain: "woocommerce.com" },
+  { name: "PrestaShop", category: "business", icon: "prestashop" , domain: "prestashop.com" },
+  { name: "BigCommerce", category: "business", icon: "bigcommerce" , domain: "bigcommerce.com" },
+  { name: "WordPress", category: "business", icon: "wordpress" , domain: "wordpress.com" },
+  { name: "Mailchimp", category: "business", icon: "mailchimp" , domain: "mailchimp.com" },
+  { name: "HubSpot", category: "business", icon: "hubspot" , domain: "hubspot.com" },
+  { name: "Calendly", category: "business", icon: "calendly" , domain: "calendly.com" },
+  { name: "QuickBooks", category: "business", icon: "quickbooks" , domain: "quickbooks.intuit.com" },
+  { name: "Xero", category: "business", icon: "xero" , domain: "xero.com" },
+  { name: "Aruba Hosting", category: "business", icon: null , domain: "aruba.it" },
+  { name: "GoDaddy", category: "business", icon: "godaddy" , domain: "godaddy.com" },
+  { name: "Namecheap", category: "business", icon: "namecheap" , domain: "namecheap.com" },
+  { name: "Cloudflare", category: "business", icon: "cloudflare" , domain: "cloudflare.com" },
+  { name: "DigitalOcean", category: "business", icon: "digitalocean" , domain: "digitalocean.com" },
+  { name: "Vercel", category: "business", icon: "vercel" , domain: "vercel.com" },
+  { name: "Netlify", category: "business", icon: "netlify" , domain: "netlify.com" },
+  { name: "Substack", category: "business", icon: "substack" , domain: "substack.com" },
+  { name: "Ghost", category: "business", icon: "ghost" , domain: "ghost.org" },
+  { name: "ChatGPT Plus", category: "ai", icon: null , domain: "openai.com" },
+  { name: "Claude Pro", category: "ai", icon: "claude" , domain: "claude.ai" },
+  { name: "Perplexity Pro", category: "ai", icon: "perplexity" , domain: "perplexity.ai" },
+  { name: "Gemini Advanced", category: "ai", icon: null , domain: "gemini.google.com" },
+  { name: "Midjourney", category: "ai", icon: null , domain: "midjourney.com" },
+  { name: "ElevenLabs", category: "ai", icon: "elevenlabs" , domain: "elevenlabs.io" },
+  { name: "DeepL Pro", category: "ai", icon: "deepl" , domain: "deepl.com" },
+  { name: "PlayStation Plus", category: "gaming", icon: "playstation" , domain: "playstation.com" },
+  { name: "Xbox Game Pass", category: "gaming", icon: null , domain: "xbox.com" },
+  { name: "GeForce NOW", category: "gaming", icon: "nvidia" , domain: "nvidia.com" },
+  { name: "Nintendo Switch Online", category: "gaming", icon: null , domain: "nintendo.it" },
+  { name: "EA Play", category: "gaming", icon: "ea" , domain: "ea.com" },
+  { name: "Ubisoft+", category: "gaming", icon: "ubisoft" , domain: "ubisoft.com" },
+  { name: "Twitch Turbo", category: "gaming", icon: "twitch" , domain: "twitch.tv" },
+  { name: "Apple Arcade", category: "gaming", icon: "applearcade" , domain: "apple.com" },
+  { name: "Google Play Pass", category: "gaming", icon: "googleplay" , domain: "play.google.com" },
+  { name: "Humble Choice", category: "gaming", icon: "humblebundle" , domain: "humblebundle.com" },
+  { name: "Epic Games", category: "gaming", icon: "epicgames" , domain: "epicgames.com" },
+  { name: "Telegram Premium", category: "social", icon: "telegram" , domain: "telegram.org" },
+  { name: "Discord Nitro", category: "social", icon: "discord" , domain: "discord.com" },
+  { name: "Snapchat+", category: "social", icon: "snapchat" , domain: "snapchat.com" },
+  { name: "Tinder Gold", category: "social", icon: "tinder" , domain: "tinder.com" },
+  { name: "X Premium", category: "social", icon: "x" , domain: "x.com" },
+  { name: "Meta Verified", category: "social", icon: "meta" , domain: "meta.com" },
+  { name: "LinkedIn Premium", category: "social", icon: null , domain: "linkedin.com" },
+  { name: "Palestra", category: "sport", icon: null , domain: null },
+  { name: "Peloton", category: "sport", icon: "peloton" , domain: "onepeloton.com" },
+  { name: "Strava", category: "sport", icon: "strava" , domain: "strava.com" },
+  { name: "Amazon Prime", category: "altro", icon: null , domain: "amazon.it" },
+  { name: "Duolingo Plus", category: "altro", icon: "duolingo" , domain: "duolingo.com" },
+  { name: "Coursera Plus", category: "altro", icon: "coursera" , domain: "coursera.org" },
+  { name: "Udemy", category: "altro", icon: "udemy" , domain: "udemy.com" },
+  { name: "Skillshare", category: "altro", icon: "skillshare" , domain: "skillshare.com" },
+  { name: "Patreon", category: "altro", icon: "patreon" , domain: "patreon.com" },
+  { name: "Medium", category: "altro", icon: "medium" , domain: "medium.com" },
 ];
 
 const STRINGS = {
@@ -669,7 +670,14 @@ const STRINGS = {
     notifTitle: "Notifiche",
     notifOff: "Disattivate",
     notifOn: "Attive",
-    notifDaysLabel: "Giorni di anticipo",
+    notifDaysLabel: "Preavviso",
+    notifTimeLabel: "Orario avviso",
+    advSameDay: "Il giorno stesso",
+    advOneDay: "1 giorno prima",
+    advDays: (n) => `${n} giorni prima`,
+    advWeek: "1 settimana prima",
+    advTwoWeeks: "2 settimane prima",
+    notifBody: (name, when) => `${name} si rinnova ${when}`,
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -700,6 +708,7 @@ const STRINGS = {
     importError: "File non valido: non sembra un backup di Reabbly.",
     currencyOfSub: "Valuta",
     ratesNote: "I totali convertono le altre valute con tassi indicativi fissi. Per importi precisi usa la stessa valuta ovunque.",
+    ratesLive: (d) => `Cambi aggiornati${d ? " al " + d : ""}. I totali convertono automaticamente le altre valute.`,
     convertedNote: "converte in",
     monthTotalLabel: "Spesa totale",
     monthPayments: (n) => (n === 1 ? "1 pagamento" : `${n} pagamenti`),
@@ -819,7 +828,14 @@ const STRINGS = {
     notifTitle: "Notifications",
     notifOff: "Off",
     notifOn: "On",
-    notifDaysLabel: "Days ahead",
+    notifDaysLabel: "Advance notice",
+    notifTimeLabel: "Reminder time",
+    advSameDay: "Same day",
+    advOneDay: "1 day before",
+    advDays: (n) => `${n} days before`,
+    advWeek: "1 week before",
+    advTwoWeeks: "2 weeks before",
+    notifBody: (name, when) => `${name} renews ${when}`,
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -850,6 +866,7 @@ const STRINGS = {
     importError: "Invalid file: this doesn't look like a Reabbly backup.",
     currencyOfSub: "Currency",
     ratesNote: "Totals convert other currencies using fixed indicative rates. For exact amounts, use the same currency throughout.",
+    ratesLive: (d) => `Rates updated${d ? " on " + d : ""}. Totals convert other currencies automatically.`,
     convertedNote: "converts to",
     monthTotalLabel: "Total spend",
     monthPayments: (n) => (n === 1 ? "1 payment" : `${n} payments`),
@@ -969,7 +986,14 @@ const STRINGS = {
     notifTitle: "Notificaciones",
     notifOff: "Desactivadas",
     notifOn: "Activadas",
-    notifDaysLabel: "Días de antelación",
+    notifDaysLabel: "Antelación",
+    notifTimeLabel: "Hora del aviso",
+    advSameDay: "El mismo día",
+    advOneDay: "1 día antes",
+    advDays: (n) => `${n} días antes`,
+    advWeek: "1 semana antes",
+    advTwoWeeks: "2 semanas antes",
+    notifBody: (name, when) => `${name} se renueva ${when}`,
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1000,6 +1024,7 @@ const STRINGS = {
     importError: "Archivo no válido: no parece una copia de Reabbly.",
     currencyOfSub: "Moneda",
     ratesNote: "Los totales convierten otras monedas con tasas fijas orientativas. Para importes exactos, usa la misma moneda en todo.",
+    ratesLive: (d) => `Tipos actualizados${d ? " el " + d : ""}. Los totales convierten automáticamente otras monedas.`,
     convertedNote: "convierte a",
     monthTotalLabel: "Gasto total",
     monthPayments: (n) => (n === 1 ? "1 pago" : `${n} pagos`),
@@ -1119,7 +1144,14 @@ const STRINGS = {
     notifTitle: "Notifications",
     notifOff: "Désactivées",
     notifOn: "Activées",
-    notifDaysLabel: "Jours à l'avance",
+    notifDaysLabel: "Préavis",
+    notifTimeLabel: "Heure du rappel",
+    advSameDay: "Le jour même",
+    advOneDay: "1 jour avant",
+    advDays: (n) => `${n} jours avant`,
+    advWeek: "1 semaine avant",
+    advTwoWeeks: "2 semaines avant",
+    notifBody: (name, when) => `${name} se renouvelle ${when}`,
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1150,6 +1182,7 @@ const STRINGS = {
     importError: "Fichier invalide : cela ne ressemble pas à une sauvegarde Reabbly.",
     currencyOfSub: "Devise",
     ratesNote: "Les totaux convertissent les autres devises avec des taux fixes indicatifs. Pour des montants exacts, utilisez la même devise partout.",
+    ratesLive: (d) => `Taux mis à jour${d ? " le " + d : ""}. Les totaux convertissent automatiquement les autres devises.`,
     convertedNote: "converti en",
     monthTotalLabel: "Dépense totale",
     monthPayments: (n) => (n === 1 ? "1 paiement" : `${n} paiements`),
@@ -1269,7 +1302,14 @@ const STRINGS = {
     notifTitle: "Benachrichtigungen",
     notifOff: "Aus",
     notifOn: "An",
-    notifDaysLabel: "Tage im Voraus",
+    notifDaysLabel: "Vorlaufzeit",
+    notifTimeLabel: "Uhrzeit der Erinnerung",
+    advSameDay: "Am selben Tag",
+    advOneDay: "1 Tag vorher",
+    advDays: (n) => `${n} Tage vorher`,
+    advWeek: "1 Woche vorher",
+    advTwoWeeks: "2 Wochen vorher",
+    notifBody: (name, when) => `${name} verlängert sich ${when}`,
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -1300,6 +1340,7 @@ const STRINGS = {
     importError: "Ungültige Datei: Das sieht nicht nach einem Reabbly-Backup aus.",
     currencyOfSub: "Währung",
     ratesNote: "Summen rechnen andere Währungen mit festen Richtkursen um. Für exakte Beträge überall dieselbe Währung verwenden.",
+    ratesLive: (d) => `Kurse aktualisiert${d ? " am " + d : ""}. Summen rechnen andere Währungen automatisch um.`,
     convertedNote: "umgerechnet in",
     monthTotalLabel: "Gesamtausgaben",
     monthPayments: (n) => (n === 1 ? "1 Zahlung" : `${n} Zahlungen`),
@@ -1433,10 +1474,42 @@ function RingIcon({ progress, ringColor, ended, colors, size = 52 }) {
   );
 }
 
-function ServiceLogo({ icon, category, letter, color, size = 22 }) {
+// Brands without a bundled vector (Disney+, Canva, Adobe...) get their real
+// logo fetched by domain; failures are remembered so we don't retry endlessly,
+// and the bundled icon or category glyph covers offline use.
+const remoteLogoFailed = {};
+
+function ServiceLogo({ icon, category, domain, letter, color, size = 22 }) {
   const path = icon && BRAND_ICONS[icon];
   const brandColor = (icon && BRAND_COLORS[icon]) || color;
   const fallbackIconName = CATEGORY_FALLBACK_ICON[category] || "package";
+
+  const [remoteFailed, setRemoteFailed] = useState(() => (domain ? !!remoteLogoFailed[domain] : true));
+  const useRemote = !path && !!domain && !remoteFailed;
+
+  if (useRemote) {
+    return (
+      <img
+        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=128`}
+        alt=""
+        loading="lazy"
+        onError={() => {
+          remoteLogoFailed[domain] = true;
+          setRemoteFailed(true);
+        }}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: 999,
+          background: "#FFFFFF",
+          border: "1px solid rgba(0,0,0,0.06)",
+          objectFit: "contain",
+          padding: Math.round(size * 0.16),
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
 
   return (
     <div
@@ -1457,7 +1530,7 @@ function ServiceLogo({ icon, category, letter, color, size = 22 }) {
 const notifiedToday = new Set();
 
 const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false };
-const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3 };
+const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9 };
 
 function useSystemPrefersDark() {
   const [prefersDark, setPrefersDark] = useState(
@@ -1512,6 +1585,8 @@ function ReabblyApp() {
   const [detailSub, setDetailSub] = useState(null);
   const [closingSheet, setClosingSheet] = useState(null);
   const [exitHint, setExitHint] = useState(false);
+  const [rates, setRates] = useState(null);
+  const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState("left");
   const [optionPicker, setOptionPicker] = useState(null);
   const [pendingImport, setPendingImport] = useState(null);
@@ -1527,11 +1602,15 @@ function ReabblyApp() {
   const CATEGORIES = CATEGORY_META.map((c) => ({ ...c, label: t.categories[c.id] }));
   const money = (n, code) => formatMoney(n, symbolFor(code || settings.currency), locale);
   // Amount converted into the user's main currency, for totals
-  const inMainCurrency = (sub) => convertAmount(sub.cost, sub.currency || settings.currency, settings.currency);
+  const inMainCurrency = (sub) => convertAmount(sub.cost, sub.currency || settings.currency, settings.currency, rates);
   const dateFmt = (d) => formatDate(d, locale);
   const serviceIcon = (name) => {
     const svc = COMMON_SERVICES.find((s) => s.name === name);
     return svc ? svc.icon : null;
+  };
+  const serviceDomain = (name) => {
+    const svc = COMMON_SERVICES.find((s) => s.name === name);
+    return svc ? svc.domain : null;
   };
 
   useEffect(() => {
@@ -1598,6 +1677,57 @@ function ReabblyApp() {
   }
 
   const agendaRef = useRef(null);
+  const viewScrollRef = useRef({ list: 0, calendar: 0 });
+  // Live exchange rates, refreshed once a day and cached so the app keeps
+  // converting correctly offline. Falls back to the built-in reference rates.
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const cachedRaw = await window.storage.get("abbly:rates", false);
+        if (cachedRaw && !cancelled) {
+          const cached = JSON.parse(cachedRaw.value);
+          if (cached && cached.rates) {
+            setRates(cached.rates);
+            setRatesDate(cached.date || null);
+            const age = Date.now() - (cached.fetchedAt || 0);
+            if (age < 24 * 60 * 60 * 1000) return;
+          }
+        }
+      } catch {
+        // no cache yet
+      }
+
+      try {
+        const res = await fetch("https://api.frankfurter.app/latest?from=EUR");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data || !data.rates || cancelled) return;
+        // Normalise to "how many EUR is one unit of X", matching RATES_TO_EUR.
+        const toEur = { EUR: 1 };
+        CURRENCIES.forEach(({ code }) => {
+          if (code === "EUR") return;
+          const perEur = data.rates[code];
+          if (perEur) toEur[code] = 1 / perEur;
+        });
+        setRates(toEur);
+        setRatesDate(data.date || null);
+        await window.storage.set(
+          "abbly:rates",
+          JSON.stringify({ rates: toEur, date: data.date, fetchedAt: Date.now() }),
+          false
+        );
+      } catch {
+        // offline or blocked: the built-in reference rates stay in use
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const settingsRef = useRef(settings);
   useEffect(() => {
     settingsRef.current = settings;
@@ -1860,31 +1990,52 @@ function ReabblyApp() {
 
   useEffect(() => {
     if (!settings.notifEnabled || typeof Notification === "undefined") return;
-    (async () => {
+
+    let cancelled = false;
+
+    async function fire() {
       try {
         let permission = Notification.permission;
-        if (permission === "default") {
-          permission = await Notification.requestPermission();
-        }
-        if (permission !== "granted") return;
-        activeSubs.filter((s) => s.daysLeft <= settings.notifDays && s.daysLeft >= 0).forEach((s) => {
-          const key = todayISO + ":" + s.id;
-          if (notifiedToday.has(key)) return;
-          notifiedToday.add(key);
-          try {
-            new Notification(t.appName, {
-              body: `${s.name}: ${s.daysLeft === 0 ? t.renewToday.toLowerCase() : t.renewIn(s.daysLeft).toLowerCase()}`,
-            });
-          } catch {
-            // ignore
-          }
-        });
+        if (permission === "default") permission = await Notification.requestPermission();
+        if (permission !== "granted" || cancelled) return;
+
+        // Hold the reminders until the hour the user picked; before that, do nothing.
+        const now = new Date();
+        if (now.getHours() < settings.notifHour) return;
+
+        activeSubs
+          .filter((s) => s.daysLeft <= settings.notifDays && s.daysLeft >= 0)
+          .forEach((s) => {
+            const key = todayISO + ":" + s.id;
+            if (notifiedToday.has(key)) return;
+            notifiedToday.add(key);
+            const when =
+              s.daysLeft === 0 ? t.todayWord : s.daysLeft === 1 ? t.tomorrowWord : t.inDays(s.daysLeft);
+            try {
+              new Notification(t.appName, {
+                body: t.notifBody(s.name, when),
+                icon: "icons/icon-192.png",
+                badge: "icons/icon-192.png",
+                tag: "reabbly-" + s.id,
+              });
+            } catch {
+              // ignore
+            }
+          });
       } catch {
         // Notification API unavailable or blocked (e.g. inside a sandboxed preview)
       }
-    })();
+    }
+
+    fire();
+    // Re-check periodically so a session left open still fires at the chosen hour.
+    const timer = setInterval(fire, 5 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.notifEnabled, settings.notifDays]);
+  }, [settings.notifEnabled, settings.notifDays, settings.notifHour, activeSubs.length]);
 
   const usedCategories = useMemo(() => {
     const set = new Set(enriched.map((s) => s.category));
@@ -1917,7 +2068,7 @@ function ReabblyApp() {
 
   const monthlyTotal = useMemo(
     () => totalsBase.reduce((sum, s) => sum + (s.frequency === "annual" ? inMainCurrency(s) / 12 : inMainCurrency(s)), 0),
-    [totalsBase]
+    [totalsBase, rates, settings.currency]
   );
   const annualTotal = monthlyTotal * 12;
 
@@ -1928,7 +2079,7 @@ function ReabblyApp() {
       map[s.category] = (map[s.category] || 0) + m;
     });
     return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 })).filter((c) => c.total > 0);
-  }, [totalsBase, settings.language]);
+  }, [totalsBase, settings.language, rates, settings.currency]);
 
   const calendarMonthDate = useMemo(() => new Date(today.getFullYear(), today.getMonth() + calendarOffset, 1), [calendarOffset]);
 
@@ -1966,7 +2117,7 @@ function ReabblyApp() {
     let count = 0;
     Object.values(byDay).forEach((arr) => {
       arr.forEach((s) => {
-        total += convertAmount(s.cost, s.currency || settings.currency, settings.currency);
+        total += convertAmount(s.cost, s.currency || settings.currency, settings.currency, rates);
         count++;
       });
     });
@@ -1980,7 +2131,7 @@ function ReabblyApp() {
       current: buildMonthView(calendarOffset),
       next: buildMonthView(calendarOffset + 1),
     }),
-    [calendarOffset, activeSubs]
+    [calendarOffset, activeSubs, rates, settings.currency]
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
@@ -2135,10 +2286,22 @@ function ReabblyApp() {
     }, 240);
   }
 
+  function advanceLabel(d) {
+    if (d === 0) return t.advSameDay;
+    if (d === 1) return t.advOneDay;
+    if (d === 7) return t.advWeek;
+    if (d === 14) return t.advTwoWeeks;
+    return t.advDays(d);
+  }
+
   function switchView(next) {
     if (next === view) return;
+    // Each tab keeps its own scroll position, like separate screens.
+    viewScrollRef.current[view] = window.scrollY || window.pageYOffset || 0;
     setViewDirection(next === "calendar" ? "left" : "right");
     setView(next);
+    const target = viewScrollRef.current[next] || 0;
+    requestAnimationFrame(() => window.scrollTo(0, target));
   }
 
   // Topmost dismissable layer, in the order they stack visually.
@@ -2383,7 +2546,7 @@ function ReabblyApp() {
                   <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
                     <RingIcon progress={s.progress} ringColor={brandColor} ended={s.isEnded || s.paused} colors={colors} />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <ServiceLogo icon={icon} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
+                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -2440,6 +2603,7 @@ function ReabblyApp() {
             <div style={{ color: colors.textSecondary }} className="text-xs">{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
           <div className="flex items-center justify-between mb-3">
+            <span style={{ width: 46 }} className="flex-shrink-0" />
             <button
               onClick={() => { if (slideDirection === 0) setSlideDirection(-1); }}
               style={{ color: colors.textSecondary }}
@@ -2465,6 +2629,18 @@ function ReabblyApp() {
               aria-label="Next month"
             >
               ›
+            </button>
+            <button
+              onClick={goToToday}
+              disabled={calendarOffset === 0}
+              style={{
+                color: ACCENT.indigo,
+                visibility: calendarOffset === 0 ? "hidden" : "visible",
+                width: 46,
+              }}
+              className="text-xs font-medium flex-shrink-0 text-right"
+            >
+              {t.today}
             </button>
           </div>
 
@@ -2566,7 +2742,7 @@ function ReabblyApp() {
                               style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
                               className="rounded-xl p-3 flex items-center gap-3 w-full text-left transition-transform active:scale-[0.98]"
                             >
-                              <ServiceLogo icon={icon} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
+                              <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
                               <span className="flex-1 text-sm font-medium truncate">{s.name}</span>
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold whitespace-nowrap">
                                 {money(s.cost, s.currency)}
@@ -2681,7 +2857,7 @@ function ReabblyApp() {
                         onClick={() => { setForm({ ...form, name: s.name, category: s.category }); setPickerOpen(false); }}
                         className="flex items-center gap-3 rounded-xl px-2 py-2"
                       >
-                        <ServiceLogo icon={s.icon} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
+                        <ServiceLogo icon={s.icon} domain={s.domain} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
                         <span style={{ color: colors.textPrimary }} className="text-sm">{s.name}</span>
                       </button>
                     );
@@ -2711,6 +2887,7 @@ function ReabblyApp() {
                 <>
                   <ServiceLogo
                     icon={form.name === "__custom__" ? null : serviceIcon(form.name)}
+                    domain={form.name === "__custom__" ? null : serviceDomain(form.name)}
                     category={form.category}
                     letter={(form.name === "__custom__" ? form.customName || "?" : form.name).charAt(0).toUpperCase()}
                     color={(CATEGORIES.find((c) => c.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).color}
@@ -3088,25 +3265,50 @@ function ReabblyApp() {
                   </button>
 
                   {settings.notifEnabled && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOptionPicker({
-                          title: t.notifDaysLabel,
-                          value: settings.notifDays,
-                          options: [1, 2, 3, 5, 7, 14].map((d) => ({ value: d, label: t.inDays(d) })),
-                          onSelect: (v) => persistSettings({ ...settingsRef.current, notifDays: v }),
-                        })
-                      }
-                      style={{ borderTop: `1px solid ${colors.border}` }}
-                      className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
-                    >
-                      <span>{t.notifDaysLabel}</span>
-                      <span style={{ color: colors.textSecondary }} className="flex items-center gap-1.5">
-                        {t.inDays(settings.notifDays)}
-                        <Icon name="chevronRight" size={15} />
-                      </span>
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOptionPicker({
+                            title: t.notifDaysLabel,
+                            value: settings.notifDays,
+                            options: [0, 1, 2, 3, 5, 7, 14].map((d) => ({ value: d, label: advanceLabel(d) })),
+                            onSelect: (v) => persistSettings({ ...settingsRef.current, notifDays: v }),
+                          })
+                        }
+                        style={{ borderTop: `1px solid ${colors.border}` }}
+                        className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
+                      >
+                        <span>{t.notifDaysLabel}</span>
+                        <span style={{ color: colors.textSecondary }} className="flex items-center gap-1.5">
+                          {advanceLabel(settings.notifDays)}
+                          <Icon name="chevronRight" size={15} />
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOptionPicker({
+                            title: t.notifTimeLabel,
+                            value: settings.notifHour,
+                            options: Array.from({ length: 24 }, (_, h) => ({
+                              value: h,
+                              label: `${String(h).padStart(2, "0")}:00`,
+                            })),
+                            onSelect: (v) => persistSettings({ ...settingsRef.current, notifHour: v }),
+                          })
+                        }
+                        style={{ borderTop: `1px solid ${colors.border}` }}
+                        className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
+                      >
+                        <span>{t.notifTimeLabel}</span>
+                        <span style={{ color: colors.textSecondary }} className="flex items-center gap-1.5">
+                          {String(settings.notifHour).padStart(2, "0")}:00
+                          <Icon name="chevronRight" size={15} />
+                        </span>
+                      </button>
+                    </>
                   )}
                 </div>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-2 px-1 leading-relaxed">{t.notifNote}</p>
@@ -3172,7 +3374,9 @@ function ReabblyApp() {
                 >
                   {t.upgrade}
                 </button>
-                <p style={{ color: colors.textFaint }} className="text-xs mt-3 px-1 leading-relaxed">{t.ratesNote}</p>
+                <p style={{ color: colors.textFaint }} className="text-xs mt-3 px-1 leading-relaxed">
+                  {rates ? t.ratesLive(ratesDate ? dateFmt(ratesDate) : "") : t.ratesNote}
+                </p>
               </div>
             </div>
           </div>
@@ -3323,7 +3527,7 @@ function ReabblyApp() {
                     return (
                       <div key={s.id} style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl p-3">
                         <div className="flex items-center gap-2.5 mb-2">
-                          <ServiceLogo icon={icon} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={26} />
+                          <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={26} />
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium truncate">{s.name}</div>
                             <div style={{ color: colors.textFaint }} className="text-xs">
@@ -3384,7 +3588,7 @@ function ReabblyApp() {
                   <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
                     <RingIcon progress={s.progress} ringColor={brandColor} ended={s.isEnded || s.paused} colors={colors} />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <ServiceLogo icon={icon} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
+                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
                     </div>
                   </div>
                   <div className="min-w-0">
@@ -3593,9 +3797,7 @@ root.render(<ReabblyApp />);
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {
-      // Offline support is a bonus: the app still runs without it.
-    });
+    navigator.serviceWorker.register("sw.js").catch(() => {});
   });
 }
 </script>
