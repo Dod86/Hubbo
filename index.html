@@ -18,12 +18,7 @@
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body {
-    margin: 0;
-    -webkit-tap-highlight-color: transparent;
-    background: #0A0B10;
-    overscroll-behavior-y: none;
-  }
+  body { margin: 0; -webkit-tap-highlight-color: transparent; background: #0A0B10; overscroll-behavior-y: none; }
   ::-webkit-scrollbar { display: none; }
   #root { padding-top: env(safe-area-inset-top); }
 </style>
@@ -2603,7 +2598,7 @@ function ReabblyApp() {
             <div style={{ color: colors.textSecondary }} className="text-xs">{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
           <div className="flex items-center justify-between mb-3">
-            <span style={{ width: 46 }} className="flex-shrink-0" />
+            <span style={{ width: 54 }} className="flex-shrink-0" />
             <button
               onClick={() => { if (slideDirection === 0) setSlideDirection(-1); }}
               style={{ color: colors.textSecondary }}
@@ -2630,31 +2625,24 @@ function ReabblyApp() {
             >
               ›
             </button>
-            <button
-              onClick={goToToday}
-              disabled={calendarOffset === 0}
-              style={{
-                color: ACCENT.indigo,
-                visibility: calendarOffset === 0 ? "hidden" : "visible",
-                width: 46,
-              }}
-              className="text-xs font-medium flex-shrink-0 text-right"
-            >
-              {t.today}
-            </button>
-          </div>
-
-          {calendarOffset !== 0 && (
-            <div className="flex justify-center mb-3">
+            <div style={{ width: 54 }} className="flex-shrink-0 flex justify-end">
               <button
                 onClick={goToToday}
-                style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: ACCENT.indigo }}
-                className="rounded-full px-4 py-1.5 text-xs font-medium"
+                disabled={calendarOffset === 0}
+                style={{
+                  background: colors.surface2,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.textSecondary,
+                  opacity: calendarOffset === 0 ? 0 : 1,
+                  pointerEvents: calendarOffset === 0 ? "none" : "auto",
+                  transition: "opacity 0.2s ease",
+                }}
+                className="rounded-full px-2.5 py-1 text-xs font-medium"
               >
-                ↺ {t.today}
+                {t.today}
               </button>
             </div>
-          )}
+          </div>
 
           <div className="grid grid-cols-7 gap-1 mb-1">
             {weekdayLabels.map((w, i) => (
@@ -2843,7 +2831,7 @@ function ReabblyApp() {
                       onChange={(e) => setServiceSearch(e.target.value)}
                       placeholder={t.searchService}
                       style={{ background: "transparent", color: colors.textPrimary, border: "none", outline: "none", width: "100%" }}
-                      className="text-sm"
+                      className="text-base"
                     />
                   </div>
                 </div>
@@ -2855,22 +2843,22 @@ function ReabblyApp() {
                         key={s.name}
                         type="button"
                         onClick={() => { setForm({ ...form, name: s.name, category: s.category }); setPickerOpen(false); }}
-                        className="flex items-center gap-3 rounded-xl px-2 py-2"
+                        className="flex items-center gap-3.5 rounded-xl px-2 py-2.5"
                       >
-                        <ServiceLogo icon={s.icon} domain={s.domain} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
-                        <span style={{ color: colors.textPrimary }} className="text-sm">{s.name}</span>
+                        <ServiceLogo icon={s.icon} domain={s.domain} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={40} />
+                        <span style={{ color: colors.textPrimary }} className="text-base">{s.name}</span>
                       </button>
                     );
                   })}
                   <button
                     type="button"
                     onClick={() => { setForm({ ...form, name: "__custom__" }); setPickerOpen(false); }}
-                    className="flex items-center gap-3 rounded-xl px-2 py-2"
+                    className="flex items-center gap-3.5 rounded-xl px-2 py-2.5"
                   >
-                    <div style={{ width: 30, height: 30, borderRadius: 999, background: colors.surface2 }} className="flex items-center justify-center flex-shrink-0">
-                      <Icon name="plus" size={14} color={colors.textSecondary} />
+                    <div style={{ width: 40, height: 40, borderRadius: 999, background: colors.surface2 }} className="flex items-center justify-center flex-shrink-0">
+                      <Icon name="plus" size={18} color={colors.textSecondary} />
                     </div>
-                    <span style={{ color: colors.textPrimary }} className="text-sm">{t.customService}</span>
+                    <span style={{ color: colors.textPrimary }} className="text-base">{t.customService}</span>
                   </button>
                 </div>
               </div>
@@ -3793,7 +3781,6 @@ function ReabblyApp() {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<ReabblyApp />);
 </script>
-
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

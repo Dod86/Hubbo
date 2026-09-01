@@ -1,6 +1,6 @@
 // Bump this string whenever you upload a new version of the app:
 // it forces every installed copy to fetch the updated files.
-const CACHE = "reabbly-v2";
+const CACHE = "reabbly-v3";
 
 const CORE = [
   "./",
