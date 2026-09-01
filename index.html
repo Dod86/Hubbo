@@ -1401,7 +1401,9 @@ function nextRenewalInfo(sub, today) {
     safety++;
   }
 
-  const previous = addPeriods(anchor, sub.frequency, Math.max(0, steps - 1));
+  // One period before the upcoming renewal — may sit before the anchor date,
+  // which is what makes the ring fill correctly on the very first cycle.
+  const previous = addPeriods(anchor, sub.frequency, steps - 1);
   const daysLeft = daysBetween(parseLocalDate(today), parseLocalDate(renewal));
   const cycleDays = Math.max(1, daysBetween(parseLocalDate(previous), parseLocalDate(renewal)));
   const progress = 1 - daysLeft / cycleDays;
