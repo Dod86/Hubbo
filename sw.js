@@ -1,6 +1,5 @@
-// Bump this string whenever you upload a new version of the app:
-// it forces every installed copy to fetch the updated files.
-const CACHE = "hubbo-v4";
+// Bump this string whenever you upload a new version of the app.
+const CACHE = "hubbo-v5";
 
 const CORE = [
   "./",
@@ -13,7 +12,18 @@ const CORE = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting())
+    caches.open(CACHE).then((cache) =>
+      // `cache: "reload"` bypasses the browser's HTTP cache, otherwise a stale
+      // copy of index.html can be baked into the new cache and the update never
+      // actually reaches the device.
+      Promise.all(
+        CORE.map((url) =>
+          fetch(new Request(url, { cache: "reload" }))
+            .then((res) => (res && res.ok ? cache.put(url, res) : null))
+            .catch(() => null)
+        )
+      )
+    ).then(() => self.skipWaiting())
   );
 });
 
@@ -26,6 +36,10 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+self.addEventListener("message", (event) => {
+  if (event.data === "skipWaiting") self.skipWaiting();
+});
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
@@ -33,28 +47,26 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
 
-  // App shell: serve from cache first so it opens instantly and works offline,
-  // refreshing the copy in the background.
-  if (sameOrigin) {
+  // The page itself is fetched network-first: online you always get the newest
+  // build, offline you still get the cached one.
+  const isDocument = req.mode === "navigate" || (sameOrigin && url.pathname.endsWith(".html"));
+
+  if (isDocument) {
     event.respondWith(
-      caches.match(req).then((cached) => {
-        const network = fetch(req)
-          .then((res) => {
-            if (res && res.status === 200) {
-              const copy = res.clone();
-              caches.open(CACHE).then((c) => c.put(req, copy));
-            }
-            return res;
-          })
-          .catch(() => cached);
-        return cached || network;
-      })
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req).then((cached) => cached || caches.match("./index.html")))
     );
     return;
   }
 
-  // Third-party assets (React, Tailwind, fonts): cache them on first success so
-  // the app keeps working without a connection.
+  // Everything else (icons, libraries, fonts) is fine cache-first.
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
