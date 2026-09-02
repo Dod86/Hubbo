@@ -168,7 +168,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v5";
+const APP_VERSION = "v6";
 
 const FREE_LIMIT = 10;
 
@@ -1718,6 +1718,7 @@ function HubboApp() {
   const [exitHint, setExitHint] = useState(false);
   const [rates, setRates] = useState(null);
   const [notifTest, setNotifTest] = useState("");
+  const [backCount, setBackCount] = useState(0);
   const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
@@ -2531,37 +2532,62 @@ function HubboApp() {
   dismissRef.current = dismissTopLayer;
 
   useEffect(() => {
-    // A sentinel history entry lets the hardware Back button close the topmost
-    // layer instead of leaving the app. Only from the bare home screen does a
-    // second Back within 2s actually exit.
+    // Sentinel history entries let the hardware Back button close the topmost
+    // layer instead of leaving the app. Several are kept in reserve because
+    // some Android builds pop more than one entry per gesture; only from the
+    // bare home screen does a second Back within 2s actually exit.
     if (typeof window === "undefined" || !window.history) return;
+
+    const GUARDS = 3;
+    let guards = 0;
+
+    const addGuard = () => {
+      try {
+        window.history.pushState({ rbGuard: Date.now() }, "");
+        guards++;
+      } catch {
+        // history is unavailable: back handling simply won't engage
+      }
+    };
+
+    const topUp = () => {
+      while (guards < GUARDS) addGuard();
+    };
+
     if (!window.history.state || !window.history.state.rbRoot) {
-      window.history.replaceState({ rbRoot: true }, "");
+      try {
+        window.history.replaceState({ rbRoot: true }, "");
+      } catch {
+        // ignore
+      }
     }
-    window.history.pushState({ rbGuard: true }, "");
+    topUp();
 
     let exitArmed = false;
     let exitTimer = null;
 
-    const onPop = () => {
-      // Restore the guard entry first thing: a rapid double Back would otherwise
-      // pop past it and drop the user out of the app mid-dismissal.
-      window.history.pushState({ rbGuard: true }, "");
+    const disarm = () => {
+      exitArmed = false;
+      setExitHint(false);
+      clearTimeout(exitTimer);
+    };
 
+    const onPop = () => {
+      setBackCount((n) => n + 1);
+      guards = Math.max(0, guards - 1);
       const handled = dismissRef.current();
+      topUp();
+
       if (handled) {
-        exitArmed = false;
-        setExitHint(false);
-        clearTimeout(exitTimer);
+        disarm();
         return;
       }
-
       if (exitArmed) {
         exitArmed = false;
         setExitHint(false);
         clearTimeout(exitTimer);
-        // Step past both the guard entry and the sentinel to actually leave.
-        window.history.go(-2);
+        // Walk back past every guard plus the sentinel to actually leave.
+        window.history.go(-(guards + 1));
         return;
       }
 
@@ -2574,9 +2600,15 @@ function HubboApp() {
       }, 2000);
     };
 
+    const onVisible = () => {
+      if (document.visibilityState === "visible") topUp();
+    };
+
     window.addEventListener("popstate", onPop);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       window.removeEventListener("popstate", onPop);
+      document.removeEventListener("visibilitychange", onVisible);
       clearTimeout(exitTimer);
     };
   }, []);
@@ -3606,7 +3638,7 @@ function HubboApp() {
                   {t.appName} · {t.version} {APP_VERSION}
                 </p>
                 <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
-                  {t.installedOn} {dateFmt(todayISO)}
+                  {t.installedOn} {dateFmt(todayISO)} · back {backCount}
                 </p>
               </div>
             </div>
