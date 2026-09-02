@@ -670,6 +670,12 @@ const STRINGS = {
     notifOn: "Attive",
     notifDaysLabel: "Preavviso",
     notifTimeLabel: "Orario avviso",
+    notifTest: "Invia una notifica di prova",
+    notifTestBody: "Se leggi questo, le notifiche funzionano.",
+    notifTestSent: "Notifica inviata.",
+    notifTestFailed: "Invio non riuscito su questo dispositivo.",
+    notifDenied: "Permesso negato. Attiva le notifiche nelle impostazioni del telefono.",
+    notifUnsupported: "Questo dispositivo non supporta le notifiche.",
     advSameDay: "Il giorno stesso",
     advOneDay: "1 giorno prima",
     advDays: (n) => `${n} giorni prima`,
@@ -829,6 +835,12 @@ const STRINGS = {
     notifOn: "On",
     notifDaysLabel: "Advance notice",
     notifTimeLabel: "Reminder time",
+    notifTest: "Send a test notification",
+    notifTestBody: "If you can read this, notifications work.",
+    notifTestSent: "Notification sent.",
+    notifTestFailed: "Could not send on this device.",
+    notifDenied: "Permission denied. Enable notifications in your phone settings.",
+    notifUnsupported: "This device doesn't support notifications.",
     advSameDay: "Same day",
     advOneDay: "1 day before",
     advDays: (n) => `${n} days before`,
@@ -988,6 +1000,12 @@ const STRINGS = {
     notifOn: "Activadas",
     notifDaysLabel: "Antelación",
     notifTimeLabel: "Hora del aviso",
+    notifTest: "Enviar una notificación de prueba",
+    notifTestBody: "Si lees esto, las notificaciones funcionan.",
+    notifTestSent: "Notificación enviada.",
+    notifTestFailed: "No se ha podido enviar en este dispositivo.",
+    notifDenied: "Permiso denegado. Activa las notificaciones en los ajustes del teléfono.",
+    notifUnsupported: "Este dispositivo no admite notificaciones.",
     advSameDay: "El mismo día",
     advOneDay: "1 día antes",
     advDays: (n) => `${n} días antes`,
@@ -1147,6 +1165,12 @@ const STRINGS = {
     notifOn: "Activées",
     notifDaysLabel: "Préavis",
     notifTimeLabel: "Heure du rappel",
+    notifTest: "Envoyer une notification de test",
+    notifTestBody: "Si vous lisez ceci, les notifications fonctionnent.",
+    notifTestSent: "Notification envoyée.",
+    notifTestFailed: "Envoi impossible sur cet appareil.",
+    notifDenied: "Permission refusée. Activez les notifications dans les réglages du téléphone.",
+    notifUnsupported: "Cet appareil ne prend pas en charge les notifications.",
     advSameDay: "Le jour même",
     advOneDay: "1 jour avant",
     advDays: (n) => `${n} jours avant`,
@@ -1306,6 +1330,12 @@ const STRINGS = {
     notifOn: "An",
     notifDaysLabel: "Vorlaufzeit",
     notifTimeLabel: "Uhrzeit der Erinnerung",
+    notifTest: "Testbenachrichtigung senden",
+    notifTestBody: "Wenn du das liest, funktionieren Benachrichtigungen.",
+    notifTestSent: "Benachrichtigung gesendet.",
+    notifTestFailed: "Senden auf diesem Gerät nicht möglich.",
+    notifDenied: "Berechtigung verweigert. Aktiviere Benachrichtigungen in den Telefoneinstellungen.",
+    notifUnsupported: "Dieses Gerät unterstützt keine Benachrichtigungen.",
     advSameDay: "Am selben Tag",
     advOneDay: "1 Tag vorher",
     advDays: (n) => `${n} Tage vorher`,
@@ -1360,6 +1390,33 @@ function parseLocalDate(value) {
   if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   const d = new Date(value);
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+async function showNotification(title, options) {
+  try {
+    if ("serviceWorker" in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg && reg.showNotification) {
+        await reg.showNotification(title, options);
+        return true;
+      }
+    }
+  } catch {
+    // fall through to the direct constructor
+  }
+  try {
+    new Notification(title, options);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function toLocalISO(d) {
+  // toISOString() reports UTC, so late evening in UTC+2 would already read as
+  // tomorrow. The app always works with the device's own calendar day.
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 function daysBetween(a, b) {
@@ -1651,13 +1708,38 @@ function HubboApp() {
   const [closingSheet, setClosingSheet] = useState(null);
   const [exitHint, setExitHint] = useState(false);
   const [rates, setRates] = useState(null);
+  const [notifTest, setNotifTest] = useState("");
   const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState("left");
   const [optionPicker, setOptionPicker] = useState(null);
   const [pendingImport, setPendingImport] = useState(null);
   const [importMessage, setImportMessage] = useState("");
-  const today = new Date();
-  const todayISO = today.toISOString().slice(0, 10);
+  const [todayISO, setTodayISO] = useState(() => toLocalISO(new Date()));
+  const today = useMemo(() => parseLocalDate(todayISO), [todayISO]);
+
+  // Roll the app over to the new day as soon as midnight passes, so labels like
+  // "renews tomorrow" don't stay stale while the app is left open.
+  useEffect(() => {
+    let timer;
+    const schedule = () => {
+      const now = new Date();
+      const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+      timer = setTimeout(() => {
+        setTodayISO(toLocalISO(new Date()));
+        schedule();
+      }, nextMidnight - now);
+    };
+    schedule();
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setTodayISO(toLocalISO(new Date()));
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
 
   const t = STRINGS[settings.language];
   const systemPrefersDark = useSystemPrefersDark();
@@ -2077,16 +2159,12 @@ function HubboApp() {
             notifiedToday.add(key);
             const when =
               s.daysLeft === 0 ? t.todayWord : s.daysLeft === 1 ? t.tomorrowWord : t.inDays(s.daysLeft);
-            try {
-              new Notification(t.appName, {
-                body: t.notifBody(s.name, when),
-                icon: "icons/icon-192.png",
-                badge: "icons/icon-192.png",
-                tag: "hubbo-" + s.id,
-              });
-            } catch {
-              // ignore
-            }
+            showNotification(t.appName, {
+              body: t.notifBody(s.name, when),
+              icon: "icons/icon-192.png",
+              badge: "icons/icon-192.png",
+              tag: "hubbo-" + s.id,
+            });
           });
       } catch {
         // Notification API unavailable or blocked (e.g. inside a sandboxed preview)
@@ -2364,6 +2442,25 @@ function HubboApp() {
       closingRef.current = null;
       setClosingSheet(null);
     }, 240);
+  }
+
+  async function testNotification() {
+    if (typeof Notification === "undefined") {
+      setNotifTest(t.notifUnsupported);
+      return;
+    }
+    let permission = Notification.permission;
+    if (permission === "default") permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      setNotifTest(t.notifDenied);
+      return;
+    }
+    const ok = await showNotification(t.appName, {
+      body: t.notifTestBody,
+      icon: "icons/icon-192.png",
+      tag: "hubbo-test",
+    });
+    setNotifTest(ok ? t.notifTestSent : t.notifTestFailed);
   }
 
   function advanceLabel(d) {
@@ -3411,6 +3508,19 @@ function HubboApp() {
                     </>
                   )}
                 </div>
+                {settings.notifEnabled && (
+                  <button
+                    type="button"
+                    onClick={testNotification}
+                    style={{ color: ACCENT.indigo }}
+                    className="text-xs font-medium mt-2 px-1"
+                  >
+                    {t.notifTest}
+                  </button>
+                )}
+                {notifTest && (
+                  <p style={{ color: colors.textSecondary }} className="text-xs mt-1 px-1">{notifTest}</p>
+                )}
                 <p style={{ color: colors.textFaint }} className="text-xs mt-2 px-1 leading-relaxed">{t.notifNote}</p>
               </div>
 
@@ -3722,7 +3832,7 @@ function HubboApp() {
                 <div className="flex items-center justify-between px-3.5 py-2.5">
                   <span style={{ color: colors.textSecondary }} className="text-xs">{t.detailRenewal}</span>
                   <span style={{ color: s.isEnded ? colors.textFaint : colors.textPrimary }} className="text-xs font-medium">
-                    {s.isEnded ? `${t.endedOn} ${dateFmt(s.endDate)}` : `${dateFmt(s.renewal.toISOString().slice(0, 10))} · ${s.daysLeft === 0 ? t.todayWord : s.daysLeft === 1 ? t.tomorrowWord : t.inDays(s.daysLeft)}`}
+                    {s.isEnded ? `${t.endedOn} ${dateFmt(s.endDate)}` : `${dateFmt(toLocalISO(s.renewal))} · ${s.daysLeft === 0 ? t.todayWord : s.daysLeft === 1 ? t.tomorrowWord : t.inDays(s.daysLeft)}`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between px-3.5 py-2.5" style={{ borderTop: `1px solid ${colors.border}` }}>
