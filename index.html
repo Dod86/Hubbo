@@ -166,7 +166,9 @@ const LANGUAGES = [
 
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 
-const APP_VERSION = "0.9.0";
+// Keep this in step with the CACHE name in sw.js: it is how you can tell at a
+// glance whether an update actually landed on the device.
+const APP_VERSION = "v4";
 
 const FREE_LIMIT = 10;
 
@@ -181,6 +183,7 @@ const ANIMATIONS = `
 @keyframes rb-slide-out-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
 @keyframes rb-pop-in { from { opacity: 0; transform: scale(0.96) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes rb-pop-out { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.96) translateY(12px); } }
+@keyframes rb-toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes rb-view-in-left { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes rb-view-in-right { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
 
@@ -192,12 +195,13 @@ const ANIMATIONS = `
 .rb-panel-right-out { animation: rb-slide-out-right 0.24s cubic-bezier(0.55, 0, 0.9, 0.3) forwards; }
 .rb-dialog { animation: rb-pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1); }
 .rb-dialog-out { animation: rb-pop-out 0.2s ease-in forwards; }
+.rb-toast { animation: rb-toast-in 0.2s ease-out; }
 .rb-view-left { animation: rb-view-in-left 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
 .rb-view-right { animation: rb-view-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
 
 @media (prefers-reduced-motion: reduce) {
   .rb-overlay, .rb-overlay-out, .rb-sheet, .rb-sheet-out, .rb-panel-right,
-  .rb-panel-right-out, .rb-dialog, .rb-dialog-out, .rb-view-left, .rb-view-right { animation: none; }
+  .rb-panel-right-out, .rb-dialog, .rb-dialog-out, .rb-toast, .rb-view-left, .rb-view-right { animation: none; }
 }
 `;
 
@@ -558,6 +562,7 @@ const STRINGS = {
     subtitle: "I tuoi abbonamenti",
     subtitleCalendar: "Quando paghi",
     version: "versione",
+    installedOn: "aggiornata al",
     exitHint: "Premi di nuovo indietro per uscire",
     monthlySpend: "Spesa mensile stimata",
     perYear: (amount, n) => `${amount} stimati all'anno · ${n} attivi`,
@@ -723,6 +728,7 @@ const STRINGS = {
     subtitle: "Your subscriptions",
     subtitleCalendar: "When you pay",
     version: "version",
+    installedOn: "updated on",
     exitHint: "Press back again to exit",
     monthlySpend: "Estimated monthly spend",
     perYear: (amount, n) => `${amount} estimated per year · ${n} active`,
@@ -888,6 +894,7 @@ const STRINGS = {
     subtitle: "Tus suscripciones",
     subtitleCalendar: "Cuándo pagas",
     version: "versión",
+    installedOn: "actualizada el",
     exitHint: "Pulsa atrás otra vez para salir",
     monthlySpend: "Gasto mensual estimado",
     perYear: (amount, n) => `${amount} estimados al año · ${n} activas`,
@@ -1053,6 +1060,7 @@ const STRINGS = {
     subtitle: "Vos abonnements",
     subtitleCalendar: "Quand vous payez",
     version: "version",
+    installedOn: "mise à jour le",
     exitHint: "Appuyez à nouveau pour quitter",
     monthlySpend: "Dépense mensuelle estimée",
     perYear: (amount, n) => `${amount} estimés par an · ${n} actifs`,
@@ -1218,6 +1226,7 @@ const STRINGS = {
     subtitle: "Deine Abos",
     subtitleCalendar: "Wann du zahlst",
     version: "Version",
+    installedOn: "aktualisiert am",
     exitHint: "Nochmal Zurück zum Beenden",
     monthlySpend: "Geschätzte Monatsausgaben",
     perYear: (amount, n) => `${amount} geschätzt pro Jahr · ${n} aktiv`,
@@ -1710,7 +1719,7 @@ function HubboApp() {
   const [rates, setRates] = useState(null);
   const [notifTest, setNotifTest] = useState("");
   const [ratesDate, setRatesDate] = useState(null);
-  const [viewDirection, setViewDirection] = useState("left");
+  const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
   const [pendingImport, setPendingImport] = useState(null);
   const [importMessage, setImportMessage] = useState("");
@@ -2608,7 +2617,7 @@ function HubboApp() {
 
       {/* View switch (list / calendar) */}
       {view === "list" && (
-      <div key="view-list" className={viewDirection === "right" ? "rb-view-right" : "rb-view-left"}>
+      <div key="view-list" className={viewDirection === null ? "" : viewDirection === "right" ? "rb-view-right" : "rb-view-left"}>
       <div className="px-5 pt-4">
         {/* Total card */}
         <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
@@ -2798,7 +2807,7 @@ function HubboApp() {
       )}
 
       {view === "calendar" && (
-      <div key="view-calendar" className={viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
+      <div key="view-calendar" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4">
           <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4">
             <div style={{ color: colors.textSecondary }} className="text-xs mb-1 capitalize">{t.monthTotalLabel} · {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}</div>
@@ -2960,17 +2969,25 @@ function HubboApp() {
       )}
 
       {exitHint && (
-        <div
-          style={{ background: colors.textPrimary, color: colors.bg }}
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 rounded-full px-4 py-2 text-xs font-medium z-40 rb-dialog whitespace-nowrap"
-        >
-          {t.exitHint}
+        <div className="fixed inset-x-0 bottom-24 z-40 flex justify-center pointer-events-none px-6">
+          <div
+            style={{ background: colors.textPrimary, color: colors.bg }}
+            className="rounded-full px-4 py-2 text-xs font-medium whitespace-nowrap rb-toast shadow-lg"
+          >
+            {t.exitHint}
+          </div>
         </div>
       )}
 
       {/* Bottom tab bar (list / add / calendar) */}
       <div
-        style={{ background: colors.surface, borderTop: `1px solid ${colors.border}` }}
+        style={{
+          background: colors.surface,
+          borderTop: `1px solid ${colors.border}`,
+          paddingBottom: "env(safe-area-inset-bottom)",
+          transform: "translateZ(0)",
+          willChange: "transform",
+        }}
         className="fixed bottom-0 left-0 right-0 flex items-center z-30"
       >
         <button
@@ -3508,16 +3525,14 @@ function HubboApp() {
                     </>
                   )}
                 </div>
-                {settings.notifEnabled && (
-                  <button
-                    type="button"
-                    onClick={testNotification}
-                    style={{ color: ACCENT.indigo }}
-                    className="text-xs font-medium mt-2 px-1"
-                  >
-                    {t.notifTest}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={testNotification}
+                  style={{ color: ACCENT.indigo }}
+                  className="text-xs font-medium mt-2 px-1"
+                >
+                  {t.notifTest}
+                </button>
                 {notifTest && (
                   <p style={{ color: colors.textSecondary }} className="text-xs mt-1 px-1">{notifTest}</p>
                 )}
@@ -3589,6 +3604,9 @@ function HubboApp() {
                 </p>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-5 mb-1 text-center">
                   {t.appName} · {t.version} {APP_VERSION}
+                </p>
+                <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
+                  {t.installedOn} {dateFmt(todayISO)}
                 </p>
               </div>
             </div>

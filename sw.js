@@ -1,6 +1,6 @@
 // Bump this string whenever you upload a new version of the app:
 // it forces every installed copy to fetch the updated files.
-const CACHE = "hubbo-v3";
+const CACHE = "hubbo-v4";
 
 const CORE = [
   "./",
