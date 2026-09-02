@@ -229,7 +229,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v11";
+const APP_VERSION = "v12";
 
 const FREE_LIMIT = 10;
 
@@ -1579,6 +1579,51 @@ function formatDate(dateStr, locale) {
   return d.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
 }
 
+// Bottom sheets can be flicked down to close: the hardware Back button is not
+// reliably delivered to installed PWAs on every Android build, so the gesture
+// gives a dependable way out that doesn't depend on the system.
+function useSheetDrag(onClose) {
+  const [dragY, setDragY] = useState(0);
+  const startRef = useRef(null);
+
+  const onTouchStart = (e) => {
+    const el = e.currentTarget;
+    // Only start a dismiss drag when the sheet is scrolled to the top.
+    if (el.scrollTop > 0) return;
+    startRef.current = e.touches[0].clientY;
+  };
+
+  const onTouchMove = (e) => {
+    if (startRef.current === null) return;
+    const dy = e.touches[0].clientY - startRef.current;
+    setDragY(dy > 0 ? dy : 0);
+  };
+
+  const onTouchEnd = () => {
+    if (startRef.current === null) return;
+    const shouldClose = dragY > 90;
+    startRef.current = null;
+    setDragY(0);
+    if (shouldClose) onClose();
+  };
+
+  return {
+    handlers: { onTouchStart, onTouchMove, onTouchEnd, onTouchCancel: onTouchEnd },
+    style: dragY
+      ? { transform: `translateY(${dragY}px)`, transition: "none" }
+      : undefined,
+    dragging: dragY > 0,
+  };
+}
+
+function SheetHandle({ colors }) {
+  return (
+    <div className="flex justify-center pb-3 pt-1">
+      <span style={{ background: colors.border, width: 38, height: 4, borderRadius: 999 }} />
+    </div>
+  );
+}
+
 function Wordmark({ colors, size = 21 }) {
   const ring = Math.round(size * 0.72);
   return (
@@ -1771,7 +1816,11 @@ function HubboApp() {
   const [closingSheet, setClosingSheet] = useState(null);
   const [rates, setRates] = useState(null);
   const [notifTest, setNotifTest] = useState("");
-  const [backDiag, setBackDiag] = useState("");
+
+  const detailDrag = useSheetDrag(() => closeSheet("detail", () => setDetailSub(null)));
+  const formDrag = useSheetDrag(() => closeSheet("form", () => { setShowForm(false); setEditingId(null); }));
+  const trashDrag = useSheetDrag(() => closeSheet("trash", () => setShowTrash(false)));
+  const optionDrag = useSheetDrag(() => closeSheet("option", () => setOptionPicker(null)));
   const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
@@ -2580,19 +2629,6 @@ function HubboApp() {
   }
 
   useEffect(() => {
-    if (!showSettings || typeof window === "undefined") return;
-    const tick = setInterval(() => {
-      const b = window.__hubboBack;
-      setBackDiag(
-        b
-          ? `back ${b.count} · ${b.lastEvent} · riserva ${b.depth}`
-          : "shim assente"
-      );
-    }, 400);
-    return () => clearInterval(tick);
-  }, [showSettings]);
-
-  useEffect(() => {
     if (typeof window === "undefined" || !window.__hubboBack) return;
     window.__hubboBack.handler = dismissTopLayer;
     return () => {
@@ -3033,13 +3069,15 @@ function HubboApp() {
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex z-50 ${closingSheet === "form" ? "rb-overlay-out" : "rb-overlay"} ${pickerOpen ? "items-start" : "items-end"}`} onClick={() => closeSheet("form", () => { setShowForm(false); setEditingId(null); })}>
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain" }}
+            {...(pickerOpen ? {} : formDrag.handlers)}
+            style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...(pickerOpen ? {} : formDrag.style) }}
             className={
               pickerOpen
                 ? `w-full h-full p-5 pb-8 overflow-y-auto ${closingSheet === "form" ? "rb-panel-right-out" : "rb-panel-right"}`
                 : `w-full rounded-t-3xl p-5 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "form" ? "rb-sheet-out" : "rb-sheet"}`
             }
           >
+            {!pickerOpen && <SheetHandle colors={colors} />}
             <div className={`flex items-center justify-between mb-4 ${pickerOpen ? "hidden" : ""}`}>
               <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">
                 {editingId ? t.editSub : t.newSub}
@@ -3616,9 +3654,6 @@ function HubboApp() {
                 <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
                   {t.installedOn} {dateFmt(todayISO)}
                 </p>
-                <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-60 mt-1">
-                  {backDiag}
-                </p>
               </div>
             </div>
           </div>
@@ -3634,9 +3669,11 @@ function HubboApp() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
-            className={`w-full rounded-t-3xl p-5 pb-8 max-h-[70vh] overflow-y-auto ${closingSheet === "option" ? "rb-sheet-out" : "rb-sheet"}`}
+            {...optionDrag.handlers}
+            style={{ background: colors.surface, border: `1px solid ${colors.border}`, ...optionDrag.style }}
+            className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[70vh] overflow-y-auto ${closingSheet === "option" ? "rb-sheet-out" : "rb-sheet"}`}
           >
+            <SheetHandle colors={colors} />
             <div className="flex items-center justify-between mb-4">
               <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">{optionPicker.title}</h2>
               <button type="button" onClick={() => closeSheet("option", () => setOptionPicker(null))} style={{ color: colors.textSecondary }}>
@@ -3749,7 +3786,13 @@ function HubboApp() {
       {/* Trash modal */}
       {showTrash && (
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-50 ${closingSheet === "trash" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("trash", () => setShowTrash(false))}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain" }} className={`w-full rounded-t-3xl p-5 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "trash" ? "rb-sheet-out" : "rb-sheet"}`}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            {...trashDrag.handlers}
+            style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...trashDrag.style }}
+            className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "trash" ? "rb-sheet-out" : "rb-sheet"}`}
+          >
+            <SheetHandle colors={colors} />
             <div className="flex items-center justify-between mb-4">
               <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">{t.trash}</h2>
               <button type="button" onClick={() => closeSheet("trash", () => setShowTrash(false))} style={{ color: colors.textSecondary }}>
@@ -3824,7 +3867,13 @@ function HubboApp() {
         const yearly = s.frequency === "annual" ? s.cost : s.cost * 12;
         return (
           <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-50 ${closingSheet === "detail" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("detail", () => setDetailSub(null))}>
-            <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain" }} className={`w-full rounded-t-3xl p-5 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "detail" ? "rb-sheet-out" : "rb-sheet"}`}>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              {...detailDrag.handlers}
+              style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...detailDrag.style }}
+              className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "detail" ? "rb-sheet-out" : "rb-sheet"}`}
+            >
+              <SheetHandle colors={colors} />
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
