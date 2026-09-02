@@ -43,19 +43,25 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-" };
     }
   }
 
+  var lastAt = 0;
+
   function onBack(evt) {
+    // A single hardware Back fires both popstate and hashchange; without this
+    // guard the app would dismiss two layers per press.
+    var now = Date.now();
+    if (now - lastAt < 350) return;
+    lastAt = now;
+
     window.__hubboBack.count++;
     window.__hubboBack.lastEvent = evt && evt.type ? evt.type : "?";
-    var handled = false;
     try {
-      handled = window.__hubboBack.handler ? window.__hubboBack.handler() : false;
+      if (window.__hubboBack.handler) window.__hubboBack.handler();
     } catch (e) {
-      handled = false;
+      /* ignore */
     }
-    // Always restore the guard: leaving the app is the system's job, and only
-    // happens when there is no layer left and the guard is gone.
-    if (handled) addGuard();
-    else addGuard();
+    // Restore the guard so the next Back is caught as well; leaving the app is
+    // the system's job once nothing is left to close.
+    addGuard();
   }
 
   addGuard();
@@ -210,7 +216,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v9";
+const APP_VERSION = "v10";
 
 const FREE_LIMIT = 10;
 
