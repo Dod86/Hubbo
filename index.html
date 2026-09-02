@@ -229,7 +229,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v15";
+const APP_VERSION = "v16";
 
 const FREE_LIMIT = 10;
 
@@ -1717,13 +1717,19 @@ const LIGHT_LOGO_ICONS = new Set([
 // yellow already contrasts well on dark.
 const YELLOW_LOGO_ICONS = new Set(["norton", "sketch", "mailchimp", "snapchat"]);
 
+// Google's favicon service almost never fails outright (onError rarely
+// fires) — for domains with no real favicon it just serves a generic blank
+// globe instead of erroring, so the initial-letter fallback never kicks in.
+// These domains skip the remote fetch entirely and go straight to it.
+const NO_REMOTE_LOGO_DOMAINS = new Set(["postemobile.it"]);
+
 function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
   const brandColor = (icon && BRAND_COLORS[icon]) || color;
   const fallbackIconName = CATEGORY_FALLBACK_ICON[category] || "package";
 
   const [remoteFailed, setRemoteFailed] = useState(() => (domain ? !!remoteLogoFailed[domain] : true));
-  const useRemote = !path && !!domain && !remoteFailed;
+  const useRemote = !path && !!domain && !remoteFailed && !NO_REMOTE_LOGO_DOMAINS.has(domain);
 
   const isYellowLogo = icon && YELLOW_LOGO_ICONS.has(icon);
   const needsDarkChip =
