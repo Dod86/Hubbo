@@ -229,7 +229,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v14";
+const APP_VERSION = "v15";
 
 const FREE_LIMIT = 10;
 
@@ -1711,6 +1711,12 @@ const LIGHT_LOGO_ICONS = new Set([
   "tiktok", "elevenlabs", "linear", "now",
 ]);
 
+// These brand marks are bright yellow, which barely reads against the usual
+// pale brand-tinted chip. They get a near-black chip instead, but keep their
+// own colour (unlike LIGHT_LOGO_ICONS, whose marks turn off-white) since
+// yellow already contrasts well on dark.
+const YELLOW_LOGO_ICONS = new Set(["norton", "sketch", "mailchimp", "snapchat"]);
+
 function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
   const brandColor = (icon && BRAND_COLORS[icon]) || color;
@@ -1719,13 +1725,16 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
   const [remoteFailed, setRemoteFailed] = useState(() => (domain ? !!remoteLogoFailed[domain] : true));
   const useRemote = !path && !!domain && !remoteFailed;
 
+  const isYellowLogo = icon && YELLOW_LOGO_ICONS.has(icon);
   const needsDarkChip =
-    (domain && LIGHT_LOGO_DOMAINS.has(domain)) || (icon && LIGHT_LOGO_ICONS.has(icon));
+    (domain && LIGHT_LOGO_DOMAINS.has(domain)) || (icon && LIGHT_LOGO_ICONS.has(icon)) || isYellowLogo;
 
   // The chip picks up a whisper of the brand colour instead of being a hard
   // white disc: it separates from the page in both themes and gives each
   // service a little identity of its own.
-  const chip = needsDarkChip
+  const chip = isYellowLogo
+    ? { background: "#1C1C1E", border: "1px solid rgba(255,255,255,0.08)" }
+    : needsDarkChip
     ? { background: "#1B1E29", border: "1px solid rgba(255,255,255,0.10)" }
     : plain
     ? { background: "transparent", border: "none" }
@@ -1751,17 +1760,28 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
     );
   }
 
+  // Yellow marks keep their own colour even on the dark chip; every other
+  // mark that needs a dark chip switches to an off-white tint instead.
+  const glyphColor = needsDarkChip ? (isYellowLogo ? brandColor : "#F2F1ED") : brandColor;
+
   return (
     <div
       style={{ width: size, height: size, borderRadius: 999, ...chip }}
       className="flex items-center justify-center flex-shrink-0"
     >
       {path ? (
-        <svg viewBox="0 0 24 24" width={size * 0.55} height={size * 0.55} fill={needsDarkChip ? "#F2F1ED" : brandColor}>
+        <svg viewBox="0 0 24 24" width={size * 0.55} height={size * 0.55} fill={glyphColor}>
           <path d={path} />
         </svg>
+      ) : letter ? (
+        // No vector mark and no working remote favicon: an initial reads far
+        // better than a generic category icon that every other unmatched
+        // service would show as well.
+        <span style={{ fontSize: size * 0.44, fontWeight: 600, color: glyphColor, lineHeight: 1 }}>
+          {letter}
+        </span>
       ) : (
-        <Icon name={fallbackIconName} size={size * 0.55} color={needsDarkChip ? "#F2F1ED" : brandColor} strokeWidth={2.2} />
+        <Icon name={fallbackIconName} size={size * 0.55} color={glyphColor} strokeWidth={2.2} />
       )}
     </div>
   );
@@ -3117,7 +3137,9 @@ function HubboApp() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 mb-2">
-                  {COMMON_SERVICES.filter((s) => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).map((s) => {
+                  {COMMON_SERVICES.filter((s) => s.name.toLowerCase().includes(serviceSearch.toLowerCase()))
+                    .sort((a, b) => a.name.localeCompare(b.name, "it", { sensitivity: "base" }))
+                    .map((s) => {
                     const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
                     return (
                       <button
