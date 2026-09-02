@@ -168,7 +168,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v6";
+const APP_VERSION = "v7";
 
 const FREE_LIMIT = 10;
 
@@ -2532,39 +2532,27 @@ function HubboApp() {
   dismissRef.current = dismissTopLayer;
 
   useEffect(() => {
-    // Sentinel history entries let the hardware Back button close the topmost
-    // layer instead of leaving the app. Several are kept in reserve because
-    // some Android builds pop more than one entry per gesture; only from the
-    // bare home screen does a second Back within 2s actually exit.
+    // Hardware Back is intercepted through hash-based history entries: plain
+    // pushState guards are silently consumed on some Android builds without
+    // ever firing popstate, while a hash change is reported reliably.
     if (typeof window === "undefined" || !window.history) return;
 
-    const GUARDS = 3;
-    let guards = 0;
-
-    const addGuard = () => {
-      try {
-        window.history.pushState({ rbGuard: Date.now() }, "");
-        guards++;
-      } catch {
-        // history is unavailable: back handling simply won't engage
-      }
-    };
-
-    const topUp = () => {
-      while (guards < GUARDS) addGuard();
-    };
-
-    if (!window.history.state || !window.history.state.rbRoot) {
-      try {
-        window.history.replaceState({ rbRoot: true }, "");
-      } catch {
-        // ignore
-      }
-    }
-    topUp();
-
+    const GUARD_HASH = "#v";
     let exitArmed = false;
     let exitTimer = null;
+
+    const hasGuard = () => window.location.hash === GUARD_HASH;
+
+    const addGuard = () => {
+      if (hasGuard()) return;
+      try {
+        window.history.pushState(null, "", GUARD_HASH);
+      } catch {
+        // history unavailable: Back will simply behave as the system default
+      }
+    };
+
+    addGuard();
 
     const disarm = () => {
       exitArmed = false;
@@ -2572,25 +2560,32 @@ function HubboApp() {
       clearTimeout(exitTimer);
     };
 
-    const onPop = () => {
+    let leaving = false;
+
+    const onBack = () => {
+      if (leaving) return;
       setBackCount((n) => n + 1);
-      guards = Math.max(0, guards - 1);
+
       const handled = dismissRef.current();
-      topUp();
 
       if (handled) {
+        addGuard();
         disarm();
         return;
       }
       if (exitArmed) {
-        exitArmed = false;
-        setExitHint(false);
-        clearTimeout(exitTimer);
-        // Walk back past every guard plus the sentinel to actually leave.
-        window.history.go(-(guards + 1));
+        // Nothing left to close: don't restore the guard, let this Back leave.
+        leaving = true;
+        disarm();
+        try {
+          window.history.back();
+        } catch {
+          // ignore
+        }
         return;
       }
 
+      addGuard();
       exitArmed = true;
       setExitHint(true);
       clearTimeout(exitTimer);
@@ -2601,13 +2596,15 @@ function HubboApp() {
     };
 
     const onVisible = () => {
-      if (document.visibilityState === "visible") topUp();
+      if (document.visibilityState === "visible") addGuard();
     };
 
-    window.addEventListener("popstate", onPop);
+    window.addEventListener("popstate", onBack);
+    window.addEventListener("hashchange", onBack);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
-      window.removeEventListener("popstate", onPop);
+      window.removeEventListener("popstate", onBack);
+      window.removeEventListener("hashchange", onBack);
       document.removeEventListener("visibilitychange", onVisible);
       clearTimeout(exitTimer);
     };
