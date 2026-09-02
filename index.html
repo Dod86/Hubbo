@@ -229,7 +229,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v12";
+const APP_VERSION = "v14";
 
 const FREE_LIMIT = 10;
 
@@ -239,7 +239,7 @@ const ANIMATIONS = `
 @keyframes rb-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rb-fade-out { from { opacity: 1; } to { opacity: 0; } }
 @keyframes rb-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-@keyframes rb-slide-down { from { transform: translateY(0); } to { transform: translateY(100%); } }
+@keyframes rb-slide-down { from { transform: translateY(var(--rb-drag-y, 0px)); } to { transform: translateY(100%); } }
 @keyframes rb-slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes rb-slide-out-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
 @keyframes rb-pop-in { from { opacity: 0; transform: scale(0.96) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -1585,6 +1585,7 @@ function formatDate(dateStr, locale) {
 function useSheetDrag(onClose) {
   const [dragY, setDragY] = useState(0);
   const startRef = useRef(null);
+  const elRef = useRef(null);
 
   const onTouchStart = (e) => {
     const el = e.currentTarget;
@@ -1603,11 +1604,18 @@ function useSheetDrag(onClose) {
     if (startRef.current === null) return;
     const shouldClose = dragY > 90;
     startRef.current = null;
+    if (shouldClose && elRef.current) {
+      // Hand off to the CSS close animation from the exact spot the drag
+      // left the sheet, so it continues the motion instead of snapping
+      // back to fully open for a frame before sliding away.
+      elRef.current.style.setProperty("--rb-drag-y", `${dragY}px`);
+    }
     setDragY(0);
     if (shouldClose) onClose();
   };
 
   return {
+    ref: elRef,
     handlers: { onTouchStart, onTouchMove, onTouchEnd, onTouchCancel: onTouchEnd },
     style: dragY
       ? { transform: `translateY(${dragY}px)`, transition: "none" }
@@ -1737,7 +1745,7 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
             remoteLogoFailed[domain] = true;
             setRemoteFailed(true);
           }}
-          style={{ width: size * 0.62, height: size * 0.62, objectFit: "contain" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </div>
     );
@@ -3070,6 +3078,7 @@ function HubboApp() {
           <div
             onClick={(e) => e.stopPropagation()}
             {...(pickerOpen ? {} : formDrag.handlers)}
+            ref={pickerOpen ? undefined : formDrag.ref}
             style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...(pickerOpen ? {} : formDrag.style) }}
             className={
               pickerOpen
@@ -3670,6 +3679,7 @@ function HubboApp() {
           <div
             onClick={(e) => e.stopPropagation()}
             {...optionDrag.handlers}
+            ref={optionDrag.ref}
             style={{ background: colors.surface, border: `1px solid ${colors.border}`, ...optionDrag.style }}
             className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[70vh] overflow-y-auto ${closingSheet === "option" ? "rb-sheet-out" : "rb-sheet"}`}
           >
@@ -3789,6 +3799,7 @@ function HubboApp() {
           <div
             onClick={(e) => e.stopPropagation()}
             {...trashDrag.handlers}
+            ref={trashDrag.ref}
             style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...trashDrag.style }}
             className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "trash" ? "rb-sheet-out" : "rb-sheet"}`}
           >
@@ -3870,6 +3881,7 @@ function HubboApp() {
             <div
               onClick={(e) => e.stopPropagation()}
               {...detailDrag.handlers}
+              ref={detailDrag.ref}
               style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...detailDrag.style }}
               className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "detail" ? "rb-sheet-out" : "rb-sheet"}`}
             >
