@@ -29,46 +29,59 @@
 // Back-button plumbing lives outside React so it is attached before the app
 // mounts and can never be torn down by a re-render. React only supplies the
 // handler that decides what the current top layer is.
-window.__hubboBack = { handler: null, count: 0, lastEvent: "-" };
+window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0 };
 (function () {
   var GUARD = "#v";
+  var TARGET = 4;      // spare history entries kept in reserve
+  var depth = 0;       // how many we believe are still on the stack
+  var lastAt = 0;
 
-  function addGuard() {
+  function pushGuard() {
     try {
-      if (window.location.hash !== GUARD) {
-        window.history.pushState(null, "", GUARD);
-      }
+      window.history.pushState({ rb: Date.now() }, "", GUARD);
+      depth++;
+      window.__hubboBack.depth = depth;
     } catch (e) {
       /* history unavailable */
     }
   }
 
-  var lastAt = 0;
+  function topUp() {
+    // A single hardware Back can consume more than one entry on some Android
+    // builds, so a small buffer is kept rather than a single guard.
+    var tries = 0;
+    while (depth < TARGET && tries < TARGET + 2) {
+      pushGuard();
+      tries++;
+    }
+  }
 
   function onBack(evt) {
-    // A single hardware Back fires both popstate and hashchange; without this
-    // guard the app would dismiss two layers per press.
+    // One physical Back fires both popstate and hashchange; treat them as one.
     var now = Date.now();
     if (now - lastAt < 350) return;
     lastAt = now;
 
+    depth = Math.max(0, depth - 1);
     window.__hubboBack.count++;
     window.__hubboBack.lastEvent = evt && evt.type ? evt.type : "?";
+    window.__hubboBack.depth = depth;
+
     try {
       if (window.__hubboBack.handler) window.__hubboBack.handler();
     } catch (e) {
       /* ignore */
     }
-    // Restore the guard so the next Back is caught as well; leaving the app is
-    // the system's job once nothing is left to close.
-    addGuard();
+
+    // Refill once the browser has finished the navigation.
+    setTimeout(topUp, 0);
   }
 
-  addGuard();
+  topUp();
   window.addEventListener("popstate", onBack);
   window.addEventListener("hashchange", onBack);
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") addGuard();
+    if (document.visibilityState === "visible") setTimeout(topUp, 0);
   });
 })();
 </script>
@@ -216,7 +229,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v10";
+const APP_VERSION = "v11";
 
 const FREE_LIMIT = 10;
 
@@ -2572,7 +2585,7 @@ function HubboApp() {
       const b = window.__hubboBack;
       setBackDiag(
         b
-          ? `back ${b.count} · ${b.lastEvent} · hash "${window.location.hash || "-"}"`
+          ? `back ${b.count} · ${b.lastEvent} · riserva ${b.depth}`
           : "shim assente"
       );
     }, 400);
