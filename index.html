@@ -26,6 +26,48 @@
 <body>
 <div id="root"></div>
 <script>
+// Back-button plumbing lives outside React so it is attached before the app
+// mounts and can never be torn down by a re-render. React only supplies the
+// handler that decides what the current top layer is.
+window.__hubboBack = { handler: null, count: 0, lastEvent: "-" };
+(function () {
+  var GUARD = "#v";
+
+  function addGuard() {
+    try {
+      if (window.location.hash !== GUARD) {
+        window.history.pushState(null, "", GUARD);
+      }
+    } catch (e) {
+      /* history unavailable */
+    }
+  }
+
+  function onBack(evt) {
+    window.__hubboBack.count++;
+    window.__hubboBack.lastEvent = evt && evt.type ? evt.type : "?";
+    var handled = false;
+    try {
+      handled = window.__hubboBack.handler ? window.__hubboBack.handler() : false;
+    } catch (e) {
+      handled = false;
+    }
+    // Always restore the guard: leaving the app is the system's job, and only
+    // happens when there is no layer left and the guard is gone.
+    if (handled) addGuard();
+    else addGuard();
+  }
+
+  addGuard();
+  window.addEventListener("popstate", onBack);
+  window.addEventListener("hashchange", onBack);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") addGuard();
+  });
+})();
+</script>
+
+<script>
 if (!window.storage) {
   const PREFIX = "hubbo_store_";
   window.storage = {
@@ -168,7 +210,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v8";
+const APP_VERSION = "v9";
 
 const FREE_LIMIT = 10;
 
@@ -1710,6 +1752,7 @@ function HubboApp() {
   const [closingSheet, setClosingSheet] = useState(null);
   const [rates, setRates] = useState(null);
   const [notifTest, setNotifTest] = useState("");
+  const [backDiag, setBackDiag] = useState("");
   const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
@@ -2481,6 +2524,62 @@ function HubboApp() {
     const target = viewScrollRef.current[next] || 0;
     requestAnimationFrame(() => window.scrollTo(0, target));
   }
+
+  // The page-level Back shim asks this which layer is on top. Returning true
+  // means "handled, stay in the app"; false lets the system close it.
+  function dismissTopLayer() {
+    const busy = closingRef.current;
+    const layers = [
+      ["option", optionPicker, () => setOptionPicker(null)],
+      ["cpurge", confirmPurge, () => setConfirmPurge(null)],
+      ["cdel", confirmDelete, () => setConfirmDelete(null)],
+      ["import", pendingImport, () => setPendingImport(null)],
+      ["picker", pickerOpen, () => setPickerOpen(false), true],
+      ["form", showForm, () => { setShowForm(false); setEditingId(null); }],
+      ["month", showMonthPicker, () => setShowMonthPicker(false)],
+      ["detail", detailSub, () => setDetailSub(null)],
+      ["trash", showTrash, () => setShowTrash(false)],
+      ["paywall", showPaywall, () => setShowPaywall(false)],
+      ["settings", showSettings, () => setShowSettings(false)],
+    ];
+
+    for (const [key, open, apply, immediate] of layers) {
+      if (!open || busy === key) continue;
+      if (immediate) apply();
+      else closeSheet(key, apply);
+      return true;
+    }
+    if (selectedDay) {
+      setSelectedDay(null);
+      return true;
+    }
+    if (view !== "list") {
+      switchView("list");
+      return true;
+    }
+    return false;
+  }
+
+  useEffect(() => {
+    if (!showSettings || typeof window === "undefined") return;
+    const tick = setInterval(() => {
+      const b = window.__hubboBack;
+      setBackDiag(
+        b
+          ? `back ${b.count} · ${b.lastEvent} · hash "${window.location.hash || "-"}"`
+          : "shim assente"
+      );
+    }, 400);
+    return () => clearInterval(tick);
+  }, [showSettings]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.__hubboBack) return;
+    window.__hubboBack.handler = dismissTopLayer;
+    return () => {
+      if (window.__hubboBack) window.__hubboBack.handler = null;
+    };
+  });
 
   if (subs === null) {
     return (
@@ -3497,6 +3596,9 @@ function HubboApp() {
                 </p>
                 <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
                   {t.installedOn} {dateFmt(todayISO)}
+                </p>
+                <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-60 mt-1">
+                  {backDiag}
                 </p>
               </div>
             </div>
