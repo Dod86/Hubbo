@@ -229,7 +229,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v17";
+const APP_VERSION = "v18";
 
 const FREE_LIMIT = 10;
 
@@ -647,6 +647,10 @@ const STRINGS = {
     trash: "Cestino",
     trashEmpty: "Il cestino è vuoto.",
     trashHint: "Gli abbonamenti eliminati restano qui finché non li elimini definitivamente.",
+    paymentsLedger: "Registro pagamenti",
+    paymentsLedgerEmpty: "Nessun pagamento negli ultimi 12 mesi.",
+    paymentsLedgerHint: "Calcolato dalle date di rinnovo di ogni abbonamento.",
+    paymentsLedgerTotal: "Totale",
     restore: "Ripristina",
     deleteForever: "Elimina definitivamente",
     deletedOn: "Eliminato il",
@@ -812,6 +816,10 @@ const STRINGS = {
     trash: "Trash",
     trashEmpty: "The trash is empty.",
     trashHint: "Deleted subscriptions stay here until you delete them permanently.",
+    paymentsLedger: "Payment history",
+    paymentsLedgerEmpty: "No payments in the last 12 months.",
+    paymentsLedgerHint: "Calculated from each subscription's renewal date.",
+    paymentsLedgerTotal: "Total",
     restore: "Restore",
     deleteForever: "Delete permanently",
     deletedOn: "Deleted on",
@@ -977,6 +985,10 @@ const STRINGS = {
     trash: "Papelera",
     trashEmpty: "La papelera está vacía.",
     trashHint: "Las suscripciones eliminadas permanecen aquí hasta que las borres definitivamente.",
+    paymentsLedger: "Historial de pagos",
+    paymentsLedgerEmpty: "Sin pagos en los últimos 12 meses.",
+    paymentsLedgerHint: "Calculado a partir de la fecha de renovación de cada suscripción.",
+    paymentsLedgerTotal: "Total",
     restore: "Restaurar",
     deleteForever: "Eliminar definitivamente",
     deletedOn: "Eliminada el",
@@ -1142,6 +1154,10 @@ const STRINGS = {
     trash: "Corbeille",
     trashEmpty: "La corbeille est vide.",
     trashHint: "Les abonnements supprimés restent ici jusqu'à leur suppression définitive.",
+    paymentsLedger: "Historique des paiements",
+    paymentsLedgerEmpty: "Aucun paiement au cours des 12 derniers mois.",
+    paymentsLedgerHint: "Calculé à partir de la date de renouvellement de chaque abonnement.",
+    paymentsLedgerTotal: "Total",
     restore: "Restaurer",
     deleteForever: "Supprimer définitivement",
     deletedOn: "Supprimé le",
@@ -1307,6 +1323,10 @@ const STRINGS = {
     trash: "Papierkorb",
     trashEmpty: "Der Papierkorb ist leer.",
     trashHint: "Gelöschte Abos bleiben hier, bis du sie endgültig löschst.",
+    paymentsLedger: "Zahlungsverlauf",
+    paymentsLedgerEmpty: "Keine Zahlungen in den letzten 12 Monaten.",
+    paymentsLedgerHint: "Berechnet aus dem Verlängerungsdatum jedes Abos.",
+    paymentsLedgerTotal: "Gesamt",
     restore: "Wiederherstellen",
     deleteForever: "Endgültig löschen",
     deletedOn: "Gelöscht am",
@@ -1821,6 +1841,7 @@ function HubboApp() {
   const [showSettings, setShowSettings] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
+  const [showLedger, setShowLedger] = useState(false);
   const [trash, setTrash] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [confirmPurge, setConfirmPurge] = useState(null);
@@ -1854,6 +1875,7 @@ function HubboApp() {
   const detailDrag = useSheetDrag(() => closeSheet("detail", () => setDetailSub(null)));
   const formDrag = useSheetDrag(() => closeSheet("form", () => { setShowForm(false); setEditingId(null); }));
   const trashDrag = useSheetDrag(() => closeSheet("trash", () => setShowTrash(false)));
+  const ledgerDrag = useSheetDrag(() => closeSheet("ledger", () => setShowLedger(false)));
   const optionDrag = useSheetDrag(() => closeSheet("option", () => setOptionPicker(null)));
   const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState(null);
@@ -2246,7 +2268,7 @@ function HubboApp() {
   const pausedCount = useMemo(() => enriched.filter((s) => s.paused && !s.isEnded).length, [enriched]);
 
   const anyModalOpen =
-    showForm || showSettings || showPaywall || showTrash || showMonthPicker ||
+    showForm || showSettings || showPaywall || showTrash || showLedger || showMonthPicker ||
     !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker;
 
   useEffect(() => {
@@ -2376,6 +2398,35 @@ function HubboApp() {
     });
     return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 })).filter((c) => c.total > 0);
   }, [totalsBase, settings.language, rates, settings.currency]);
+
+  // Payments ledger: the last 12 calendar months of occurrences that have
+  // actually happened (today or earlier), computed from each subscription's
+  // renewal-date cycle — the same math the calendar view already uses.
+  // Paused subscriptions still contribute past occurrences since there's no
+  // record of exactly when a pause started; this is a deliberate, honest
+  // simplification rather than a guess.
+  const paymentsLedger = useMemo(() => {
+    const months = [];
+    for (let offset = 0; offset >= -11; offset--) {
+      const monthDate = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+      const items = [];
+      enriched.forEach((s) => {
+        occurrencesInMonth(s.renewalDate, s.frequency, monthDate).forEach((occDate) => {
+          if (occDate > today) return;
+          if (s.endDate && occDate > parseLocalDate(s.endDate)) return;
+          items.push({ sub: s, date: occDate });
+        });
+      });
+      if (items.length === 0) continue;
+      items.sort((a, b) => b.date - a.date);
+      const total = items.reduce(
+        (sum, it) => sum + convertAmount(it.sub.cost, it.sub.currency || settings.currency, settings.currency, rates),
+        0
+      );
+      months.push({ monthDate, items, total });
+    }
+    return months;
+  }, [enriched, rates, settings.currency, today]);
 
   const calendarMonthDate = useMemo(() => new Date(today.getFullYear(), today.getMonth() + calendarOffset, 1), [calendarOffset]);
 
@@ -2641,6 +2692,7 @@ function HubboApp() {
       ["month", showMonthPicker, () => setShowMonthPicker(false)],
       ["detail", detailSub, () => setDetailSub(null)],
       ["trash", showTrash, () => setShowTrash(false)],
+      ["ledger", showLedger, () => setShowLedger(false)],
       ["paywall", showPaywall, () => setShowPaywall(false)],
       ["settings", showSettings, () => setShowSettings(false)],
     ];
@@ -3646,6 +3698,15 @@ function HubboApp() {
                   </label>
                   <button
                     type="button"
+                    onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowLedger(true); })}
+                    style={{ borderTop: `1px solid ${colors.border}` }}
+                    className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
+                  >
+                    <span>{t.paymentsLedger}</span>
+                    <Icon name="chevronRight" size={15} color={colors.textSecondary} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowTrash(true); })}
                     style={{ borderTop: `1px solid ${colors.border}` }}
                     className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
@@ -3896,7 +3957,69 @@ function HubboApp() {
         </div>
       )}
 
-      {/* Subscription detail sheet */}
+      {/* Payments ledger modal */}
+      {showLedger && (
+        <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-50 ${closingSheet === "ledger" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("ledger", () => setShowLedger(false))}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            {...ledgerDrag.handlers}
+            ref={ledgerDrag.ref}
+            style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...ledgerDrag.style }}
+            className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "ledger" ? "rb-sheet-out" : "rb-sheet"}`}
+          >
+            <SheetHandle colors={colors} />
+            <div className="flex items-center justify-between mb-4">
+              <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">{t.paymentsLedger}</h2>
+              <button type="button" onClick={() => closeSheet("ledger", () => setShowLedger(false))} style={{ color: colors.textSecondary }}>
+                <Icon name="x" size={20} />
+              </button>
+            </div>
+
+            {paymentsLedger.length === 0 ? (
+              <p style={{ color: colors.textSecondary }} className="text-sm text-center py-8">{t.paymentsLedgerEmpty}</p>
+            ) : (
+              <>
+                <p style={{ color: colors.textFaint }} className="text-xs mb-4">{t.paymentsLedgerHint}</p>
+                <div className="flex flex-col gap-5">
+                  {paymentsLedger.map(({ monthDate, items, total }) => (
+                    <div key={monthDate.toISOString()}>
+                      <div className="flex items-center justify-between mb-2 px-1">
+                        <span style={{ color: colors.textSecondary }} className="text-xs font-medium uppercase tracking-wide">
+                          {monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}
+                        </span>
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold">
+                          {t.paymentsLedgerTotal} {money(total, settings.currency)}
+                        </span>
+                      </div>
+                      <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl divide-y overflow-hidden">
+                        {items.map((it, idx) => {
+                          const s = it.sub;
+                          const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                          const icon = serviceIcon(s.name);
+                          return (
+                            <div key={`${s.id}-${it.date.toISOString()}-${idx}`} style={idx > 0 ? { borderTop: `1px solid ${colors.border}` } : undefined} className="flex items-center gap-2.5 px-3 py-2.5">
+                              <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={26} />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium truncate">{s.name}</div>
+                                <div style={{ color: colors.textFaint }} className="text-xs">
+                                  {it.date.toLocaleDateString(locale, { day: "numeric", month: "short" })}
+                                </div>
+                              </div>
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold">
+                                {money(s.cost, s.currency)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
       {detailSub && (() => {
         const s = enriched.find((x) => x.id === detailSub.id) || detailSub;
         const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
