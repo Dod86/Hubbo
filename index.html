@@ -232,7 +232,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v22";
+const APP_VERSION = "v23";
 
 const FREE_LIMIT = 10;
 
@@ -1493,6 +1493,16 @@ const LEDGER_STRINGS = {
     historyEmptyHint: "Indica da quando sei abbonato a un servizio e lo storico si popolerà da solo.",
     historyTotalSpent: "Speso in totale",
     historyThisYear: "Quest'anno",
+    historyPeriodYear: "Quest'anno",
+    historyPeriod12m: "Ultimi 12 mesi",
+    historyPeriodAll: "Tutto",
+    historyAllServices: "Tutti i servizi",
+    historyAllCategories: "Tutte le categorie",
+    historyServiceLabel: "Servizio",
+    historyCategoryLabel: "Categoria",
+    historyPaymentsCount: "Pagamenti",
+    historyResetFilters: "Azzera filtri",
+    historyNoResults: "Nessun pagamento con questi filtri.",
     historyMonthTotal: "Totale",
     historySkipped: "Non pagato",
     historyMarkSkipped: "Segna come non pagato",
@@ -1517,6 +1527,16 @@ const LEDGER_STRINGS = {
     historyEmptyHint: "Set when a subscription started and its history will fill in on its own.",
     historyTotalSpent: "Spent in total",
     historyThisYear: "This year",
+    historyPeriodYear: "This year",
+    historyPeriod12m: "Last 12 months",
+    historyPeriodAll: "All time",
+    historyAllServices: "All services",
+    historyAllCategories: "All categories",
+    historyServiceLabel: "Service",
+    historyCategoryLabel: "Category",
+    historyPaymentsCount: "Payments",
+    historyResetFilters: "Clear filters",
+    historyNoResults: "No payments match these filters.",
     historyMonthTotal: "Total",
     historySkipped: "Not paid",
     historyMarkSkipped: "Mark as not paid",
@@ -1541,6 +1561,16 @@ const LEDGER_STRINGS = {
     historyEmptyHint: "Indica desde cuándo tienes una suscripción y su historial se completará solo.",
     historyTotalSpent: "Gastado en total",
     historyThisYear: "Este año",
+    historyPeriodYear: "Este año",
+    historyPeriod12m: "Últimos 12 meses",
+    historyPeriodAll: "Todo",
+    historyAllServices: "Todos los servicios",
+    historyAllCategories: "Todas las categorías",
+    historyServiceLabel: "Servicio",
+    historyCategoryLabel: "Categoría",
+    historyPaymentsCount: "Pagos",
+    historyResetFilters: "Borrar filtros",
+    historyNoResults: "Ningún pago coincide con estos filtros.",
     historyMonthTotal: "Total",
     historySkipped: "No pagado",
     historyMarkSkipped: "Marcar como no pagado",
@@ -1565,6 +1595,16 @@ const LEDGER_STRINGS = {
     historyEmptyHint: "Indiquez depuis quand vous êtes abonné et l'historique se remplira tout seul.",
     historyTotalSpent: "Dépensé au total",
     historyThisYear: "Cette année",
+    historyPeriodYear: "Cette année",
+    historyPeriod12m: "12 derniers mois",
+    historyPeriodAll: "Tout",
+    historyAllServices: "Tous les services",
+    historyAllCategories: "Toutes les catégories",
+    historyServiceLabel: "Service",
+    historyCategoryLabel: "Catégorie",
+    historyPaymentsCount: "Paiements",
+    historyResetFilters: "Effacer les filtres",
+    historyNoResults: "Aucun paiement ne correspond à ces filtres.",
     historyMonthTotal: "Total",
     historySkipped: "Non payé",
     historyMarkSkipped: "Marquer comme non payé",
@@ -1589,6 +1629,16 @@ const LEDGER_STRINGS = {
     historyEmptyHint: "Gib an, seit wann ein Abo läuft, dann füllt sich der Verlauf von selbst.",
     historyTotalSpent: "Insgesamt ausgegeben",
     historyThisYear: "Dieses Jahr",
+    historyPeriodYear: "Dieses Jahr",
+    historyPeriod12m: "Letzte 12 Monate",
+    historyPeriodAll: "Gesamt",
+    historyAllServices: "Alle Dienste",
+    historyAllCategories: "Alle Kategorien",
+    historyServiceLabel: "Dienst",
+    historyCategoryLabel: "Kategorie",
+    historyPaymentsCount: "Zahlungen",
+    historyResetFilters: "Filter zurücksetzen",
+    historyNoResults: "Keine Zahlungen passen zu diesen Filtern.",
     historyMonthTotal: "Gesamt",
     historySkipped: "Nicht bezahlt",
     historyMarkSkipped: "Als nicht bezahlt markieren",
@@ -2029,6 +2079,9 @@ function HubboApp() {
   const [showTrash, setShowTrash] = useState(false);
   const [payments, setPayments] = useState([]);
   const [paymentsLoaded, setPaymentsLoaded] = useState(false);
+  const [historyPeriod, setHistoryPeriod] = useState("all");
+  const [historySub, setHistorySub] = useState("all");
+  const [historyCat, setHistoryCat] = useState("all");
   const [trash, setTrash] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [confirmPurge, setConfirmPurge] = useState(null);
@@ -2697,9 +2750,53 @@ function HubboApp() {
       ? p.baseAmount
       : convertAmount(p.amount, p.currency, settings.currency, rates);
 
-  const historyMonths = useMemo(() => {
+  // The filter options are built from the payments themselves, so the pickers
+  // only ever offer years, services and categories that actually occur.
+  const historyYears = useMemo(() => {
+    const years = new Set(payments.map((p) => p.date.slice(0, 4)));
+    years.delete(String(today.getFullYear()));
+    return Array.from(years).sort().reverse();
+  }, [payments, todayISO]);
+
+  const historyServices = useMemo(() => {
     const map = new Map();
     payments.forEach((p) => {
+      if (!map.has(p.subId)) map.set(p.subId, p.name);
+    });
+    return Array.from(map.entries())
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
+  }, [payments]);
+
+  const historyCategories = useMemo(() => {
+    const present = new Set(payments.map((p) => p.category));
+    return CATEGORIES.filter((c) => present.has(c.id));
+  }, [payments, settings.language]);
+
+  const filteredPayments = useMemo(() => {
+    const currentYear = String(today.getFullYear());
+    const from12 = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    return payments.filter((p) => {
+      if (historySub !== "all" && p.subId !== historySub) return false;
+      if (historyCat !== "all" && p.category !== historyCat) return false;
+      if (historyPeriod === "year") return p.date.startsWith(currentYear);
+      if (historyPeriod === "12m") return parseLocalDate(p.date) >= from12;
+      if (/^\d{4}$/.test(historyPeriod)) return p.date.startsWith(historyPeriod);
+      return true;
+    });
+  }, [payments, historyPeriod, historySub, historyCat, todayISO]);
+
+  const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCat !== "all";
+
+  const historyPeriodLabel =
+    historyPeriod === "year" ? t.historyPeriodYear
+    : historyPeriod === "12m" ? t.historyPeriod12m
+    : historyPeriod === "all" ? t.historyTotalSpent
+    : historyPeriod;
+
+  const historyMonths = useMemo(() => {
+    const map = new Map();
+    filteredPayments.forEach((p) => {
       const key = p.date.slice(0, 7);
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(p);
@@ -2712,20 +2809,18 @@ function HubboApp() {
         items: items.slice().sort((a, b) => (a.date < b.date ? 1 : -1)),
         total: items.reduce((sum, p) => sum + (p.status === "skipped" ? 0 : paymentInBase(p)), 0),
       }));
-  }, [payments, settings.currency, rates]);
+  }, [filteredPayments, settings.currency, rates]);
 
   const historyTotals = useMemo(() => {
-    const year = String(today.getFullYear());
-    let all = 0;
-    let thisYear = 0;
-    payments.forEach((p) => {
+    let total = 0;
+    let count = 0;
+    filteredPayments.forEach((p) => {
       if (p.status === "skipped") return;
-      const v = paymentInBase(p);
-      all += v;
-      if (p.date.startsWith(year)) thisYear += v;
+      total += paymentInBase(p);
+      count++;
     });
-    return { all, thisYear };
-  }, [payments, settings.currency, rates, todayISO]);
+    return { total, count };
+  }, [filteredPayments, settings.currency, rates]);
 
   const missingStartCount = useMemo(
     () => (subs || []).filter((s) => !s.startDate && !s.endDate).length,
@@ -3430,20 +3525,94 @@ function HubboApp() {
       {view === "history" && (
       <div key="view-history" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pb-28">
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-4 flex gap-4">
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-3 flex gap-4">
             <div className="flex-1 min-w-0">
-              <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.historyTotalSpent}</div>
+              <div style={{ color: colors.textSecondary }} className="text-xs mb-1 truncate">{historyPeriodLabel}</div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xl font-semibold truncate">
-                {money(historyTotals.all, settings.currency)}
+                {money(historyTotals.total, settings.currency)}
               </div>
             </div>
             <div style={{ borderLeft: `1px solid ${colors.border}` }} className="flex-1 min-w-0 pl-4">
-              <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.historyThisYear}</div>
+              <div style={{ color: colors.textSecondary }} className="text-xs mb-1 truncate">{t.historyPaymentsCount}</div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xl font-semibold truncate">
-                {money(historyTotals.thisYear, settings.currency)}
+                {historyTotals.count}
               </div>
             </div>
           </div>
+
+          {payments.length > 0 && (
+            <div className="mb-4">
+              <div className="flex gap-2 overflow-x-auto pb-1 mb-2" style={{ scrollbarWidth: "none" }}>
+                {[
+                  { value: "all", label: t.historyPeriodAll },
+                  { value: "year", label: t.historyPeriodYear },
+                  { value: "12m", label: t.historyPeriod12m },
+                  ...historyYears.map((y) => ({ value: y, label: y })),
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setHistoryPeriod(opt.value)}
+                    style={{
+                      background: historyPeriod === opt.value ? colors.textPrimary : colors.surface2,
+                      color: historyPeriod === opt.value ? colors.bg : colors.textSecondary,
+                      border: `1px solid ${historyPeriod === opt.value ? colors.textPrimary : colors.border}`,
+                    }}
+                    className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap flex-shrink-0"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setOptionPicker({
+                      title: t.historyServiceLabel,
+                      value: historySub,
+                      options: [{ value: "all", label: t.historyAllServices }, ...historyServices],
+                      onSelect: (v) => setHistorySub(v),
+                    })
+                  }
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historySub === "all" ? colors.textSecondary : colors.textPrimary }}
+                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
+                >
+                  <span className="truncate">
+                    {historySub === "all" ? t.historyAllServices : (historyServices.find((s) => s.value === historySub) || {}).label || t.historyAllServices}
+                  </span>
+                  <span style={{ fontSize: 9 }}>▾</span>
+                </button>
+
+                <button
+                  onClick={() =>
+                    setOptionPicker({
+                      title: t.historyCategoryLabel,
+                      value: historyCat,
+                      options: [{ value: "all", label: t.historyAllCategories }, ...historyCategories.map((c) => ({ value: c.id, label: c.label }))],
+                      onSelect: (v) => setHistoryCat(v),
+                    })
+                  }
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCat === "all" ? colors.textSecondary : colors.textPrimary }}
+                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
+                >
+                  <span className="truncate">
+                    {historyCat === "all" ? t.historyAllCategories : (historyCategories.find((c) => c.id === historyCat) || {}).label || t.historyAllCategories}
+                  </span>
+                  <span style={{ fontSize: 9 }}>▾</span>
+                </button>
+              </div>
+
+              {historyFiltered && (
+                <button
+                  onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); }}
+                  style={{ color: colors.textFaint }}
+                  className="text-xs font-medium mt-2"
+                >
+                  {t.historyResetFilters}
+                </button>
+              )}
+            </div>
+          )}
 
           {missingStartCount > 0 && (
             <div style={{ background: "rgba(227,168,87,0.10)", border: `1px solid rgba(227,168,87,0.30)` }} className="rounded-xl px-3.5 py-3 mb-4">
@@ -3454,8 +3623,14 @@ function HubboApp() {
 
           {historyMonths.length === 0 ? (
             <div className="text-center py-12">
-              <p style={{ color: colors.textSecondary }} className="text-sm mb-1.5">{t.historyEmpty}</p>
-              <p style={{ color: colors.textFaint }} className="text-xs leading-relaxed">{t.historyEmptyHint}</p>
+              {historyFiltered ? (
+                <p style={{ color: colors.textSecondary }} className="text-sm">{t.historyNoResults}</p>
+              ) : (
+                <>
+                  <p style={{ color: colors.textSecondary }} className="text-sm mb-1.5">{t.historyEmpty}</p>
+                  <p style={{ color: colors.textFaint }} className="text-xs leading-relaxed">{t.historyEmptyHint}</p>
+                </>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-5">
