@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v39";
+const APP_VERSION = "v40";
 
 const FREE_LIMIT = 10;
 
@@ -1877,6 +1877,45 @@ const LEDGER_STRINGS = {
 function parseAmount(value) {
   if (value === null || value === undefined) return NaN;
   return parseFloat(String(value).replace(",", "."));
+}
+
+// The price series shown in the detail sheet.
+//
+// Explicit price changes are only recorded from v39 onwards, so on their own
+// they would leave every existing subscription with an empty section. The
+// recorded payments already carry the amount charged on each date, which is a
+// better source anyway: it reflects reality, including any manual correction
+// made in the history. Both are merged and runs of the same price collapse
+// into a single point.
+function buildPriceSeries(sub, payments) {
+  const points = [];
+  if (Array.isArray(sub.priceHistory)) {
+    sub.priceHistory.forEach((p) => {
+      if (p && typeof p.cost === "number" && p.date) {
+        points.push({ cost: p.cost, currency: p.currency || sub.currency, date: p.date });
+      }
+    });
+  }
+  (payments || []).forEach((p) => {
+    if (p.subId === sub.id && p.status !== "skipped") {
+      points.push({ cost: p.amount, currency: p.currency || sub.currency, date: p.date });
+    }
+  });
+  if (points.length === 0) return [];
+
+  points.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const out = [];
+  points.forEach((pt) => {
+    const last = out[out.length - 1];
+    if (last && last.cost === pt.cost) return;
+    if (last && last.date === pt.date) {
+      // Same day, different price: the later reading wins.
+      out[out.length - 1] = pt;
+      return;
+    }
+    out.push(pt);
+  });
+  return out;
 }
 
 function toLocalISO(d) {
@@ -5320,7 +5359,7 @@ function HubboApp() {
                 </div>
               )}
               {(() => {
-                const hist = Array.isArray(s.priceHistory) ? s.priceHistory : [];
+                const hist = buildPriceSeries(s, payments);
                 if (hist.length < 2) return null;
                 const first = hist[0];
                 const last = hist[hist.length - 1];
