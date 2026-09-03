@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v53";
+const APP_VERSION = "v54";
 
 const FREE_LIMIT = 10;
 
@@ -810,6 +810,10 @@ const STRINGS = {
     upgrade: "Sblocca Premium · pagamento unico (presto disponibile)",
     maybeLater: "Forse più tardi",
     filterAll: "Tutti",
+    filterAllCategories: "Tutte le categorie",
+    filterNCategories: (n) => `${n} categorie`,
+    filterDone: "Fatto",
+    filterClear: "Azzera",
     hideEnded: "Nascondi terminati",
     showEnded: "Mostra terminati",
     sortLabel: "Ordina",
@@ -982,6 +986,10 @@ const STRINGS = {
     upgrade: "Unlock Premium · one-time payment (coming soon)",
     maybeLater: "Maybe later",
     filterAll: "All",
+    filterAllCategories: "All categories",
+    filterNCategories: (n) => `${n} categories`,
+    filterDone: "Done",
+    filterClear: "Clear",
     hideEnded: "Hide ended",
     showEnded: "Show ended",
     sortLabel: "Sort",
@@ -1154,6 +1162,10 @@ const STRINGS = {
     upgrade: "Desbloquear Premium · pago único (muy pronto)",
     maybeLater: "Quizá más tarde",
     filterAll: "Todas",
+    filterAllCategories: "Todas las categorías",
+    filterNCategories: (n) => `${n} categorías`,
+    filterDone: "Hecho",
+    filterClear: "Borrar",
     hideEnded: "Ocultar finalizadas",
     showEnded: "Mostrar finalizadas",
     sortLabel: "Ordenar",
@@ -1326,6 +1338,10 @@ const STRINGS = {
     upgrade: "Débloquer Premium · paiement unique (bientôt)",
     maybeLater: "Plus tard",
     filterAll: "Tous",
+    filterAllCategories: "Toutes les catégories",
+    filterNCategories: (n) => `${n} catégories`,
+    filterDone: "Terminé",
+    filterClear: "Effacer",
     hideEnded: "Masquer terminés",
     showEnded: "Afficher terminés",
     sortLabel: "Trier",
@@ -1498,6 +1514,10 @@ const STRINGS = {
     upgrade: "Premium freischalten · Einmalzahlung (bald)",
     maybeLater: "Vielleicht später",
     filterAll: "Alle",
+    filterAllCategories: "Alle Kategorien",
+    filterNCategories: (n) => `${n} Kategorien`,
+    filterDone: "Fertig",
+    filterClear: "Zurücksetzen",
     hideEnded: "Beendete ausblenden",
     showEnded: "Beendete anzeigen",
     sortLabel: "Sortieren",
@@ -2002,8 +2022,27 @@ function nextRenewalInfo(sub, today) {
   return { renewal, daysLeft, progress: Math.min(Math.max(progress, 0), 1), cycleDays, isEnded };
 }
 
+// Grouping is done by hand rather than through the browser's locale data,
+// which on some Android builds ships without it and silently returns
+// "1319,54" instead of "1.319,54".
+const NUMBER_SEPARATORS = {
+  it: { group: ".", decimal: "," },
+  en: { group: ",", decimal: "." },
+  es: { group: ".", decimal: "," },
+  fr: { group: "\u202F", decimal: "," },
+  de: { group: ".", decimal: "," },
+};
+
 function formatMoney(n, symbol, locale) {
-  const num = n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const sep = NUMBER_SEPARATORS[String(locale || "en").slice(0, 2)] || NUMBER_SEPARATORS.en;
+  const value = Number(n);
+  const safe = Number.isFinite(value) ? value : 0;
+  const fixed = Math.abs(safe).toFixed(2);
+  const dot = fixed.indexOf(".");
+  const whole = fixed.slice(0, dot);
+  const cents = fixed.slice(dot + 1);
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, sep.group);
+  const num = `${safe < 0 ? "-" : ""}${grouped}${sep.decimal}${cents}`;
   return symbol.length > 1 ? `${num} ${symbol}` : `${symbol} ${num}`;
 }
 
@@ -2211,54 +2250,61 @@ function ScrollingLabel({ children, className = "", style }) {
 // The renewal ring is the app's signature, so the spend totals wear it too:
 // one arc per category, sized by its share. The ring is deliberately open in
 // the top-left quarter, which is where the amount sits and breaks out of it.
-function CategoryRing({ segments, total, colors, size = 128, stroke = 13 }) {
+// An annular sector with slightly rounded corners. Stroke line caps only offer
+// fully round or fully square ends, so the band is drawn as a filled shape
+// instead: that way the amount of rounding is a number we control.
+function annularSectorPath(cx, cy, ri, ro, a0, a1, k) {
+  const at = (radius, angle) => [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
+  const span = a1 - a0;
+  if (span <= 0) return "";
+  const corner = Math.min(k, (ro - ri) / 2.2, (span * ri) / 2.2);
+  const to = Math.min(corner / ro, span / 2.2);
+  const ti = Math.min(corner / ri, span / 2.2);
+  const [x1, y1] = at(ro, a0 + to);
+  const [x2, y2] = at(ro, a1 - to);
+  const [x3, y3] = at(ro - corner, a1);
+  const [x4, y4] = at(ri + corner, a1);
+  const [x5, y5] = at(ri, a1 - ti);
+  const [x6, y6] = at(ri, a0 + ti);
+  const [x7, y7] = at(ri + corner, a0);
+  const [x8, y8] = at(ro - corner, a0);
+  const bigOuter = span - 2 * to > Math.PI ? 1 : 0;
+  const bigInner = span - 2 * ti > Math.PI ? 1 : 0;
+  return [
+    `M ${x1} ${y1}`,
+    `A ${ro} ${ro} 0 ${bigOuter} 1 ${x2} ${y2}`,
+    `A ${corner} ${corner} 0 0 1 ${x3} ${y3}`,
+    `L ${x4} ${y4}`,
+    `A ${corner} ${corner} 0 0 1 ${x5} ${y5}`,
+    `A ${ri} ${ri} 0 ${bigInner} 0 ${x6} ${y6}`,
+    `A ${corner} ${corner} 0 0 1 ${x7} ${y7}`,
+    `L ${x8} ${y8}`,
+    `A ${corner} ${corner} 0 0 1 ${x1} ${y1}`,
+    "Z",
+  ].join(" ");
+}
+
+function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner = 3 }) {
   const r = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * r;
+  const ri = r - stroke / 2;
+  const ro = r + stroke / 2;
+  const cx = size / 2;
+  const cy = size / 2;
   const SWEEP = 0.75;
-  const arc = circumference * SWEEP;
-  const cap = stroke / 2;
-  const gap = segments.length > 1 ? 3 : 0;
-  // Round ends stick out by half a stroke, so every dash is shortened by a
-  // full stroke and pushed forward by half: the ink then lands exactly on the
-  // slice it represents instead of overflowing into its neighbour.
-  const trackDrawn = Math.max(0.01, arc - stroke);
+  const sweepAngle = 2 * Math.PI * SWEEP;
+  const gapAngle = segments.length > 1 ? 4 / r : 0;
   let cursor = 0;
   return (
     <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke={colors.surface2}
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={`${trackDrawn} ${circumference - trackDrawn}`}
-        strokeDashoffset={-cap}
-      />
+      <path d={annularSectorPath(cx, cy, ri, ro, 0, sweepAngle, corner)} fill={colors.surface2} />
       {total > 0 &&
         segments.map((seg) => {
-          const len = (seg.total / total) * arc;
-          const start = cursor + gap / 2;
-          const visible = Math.max(0, len - gap);
-          cursor += len;
-          // A slice too short to absorb its own round ends becomes a dot: it
-          // still shows, without pretending to be bigger than it is.
-          const drawn = Math.max(0.01, visible - stroke);
-          return (
-            <circle
-              key={seg.id}
-              cx={size / 2}
-              cy={size / 2}
-              r={r}
-              fill="none"
-              stroke={seg.color}
-              strokeWidth={stroke}
-              strokeLinecap="round"
-              strokeDasharray={`${drawn} ${circumference - drawn}`}
-              strokeDashoffset={-(start + cap)}
-            />
-          );
+          const slice = (seg.total / total) * sweepAngle;
+          const a0 = cursor + gapAngle / 2;
+          const a1 = cursor + slice - gapAngle / 2;
+          cursor += slice;
+          if (a1 <= a0) return null;
+          return <path key={seg.id} d={annularSectorPath(cx, cy, ri, ro, a0, a1, corner)} fill={seg.color} />;
         })}
     </svg>
   );
@@ -2538,7 +2584,7 @@ function HubboApp() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterCategories, setFilterCategories] = useState([]);
   const [hideEnded, setHideEnded] = useState(false);
   const [sortBy, setSortBy] = useState("renewal");
   const [view, setView] = useState("list");
@@ -3135,7 +3181,7 @@ function HubboApp() {
 
   const visibleSubs = useMemo(() => {
     let list = enriched;
-    if (filterCategory !== "all") list = list.filter((s) => s.category === filterCategory);
+    if (filterCategories.length > 0) list = list.filter((s) => filterCategories.includes(s.category));
     if (hideEnded) list = list.filter((s) => !s.isEnded);
     if (listSearch.trim()) {
       const q = listSearch.trim().toLowerCase();
@@ -3155,12 +3201,12 @@ function HubboApp() {
       if (sortBy === "costAsc") return monthlyOf(a) - monthlyOf(b);
       return a.daysLeft - b.daysLeft;
     });
-  }, [enriched, filterCategory, hideEnded, sortBy, listSearch, rates, settings.currency]);
+  }, [enriched, filterCategories, hideEnded, sortBy, listSearch, rates, settings.currency]);
 
   // Totals reflect the currently selected category filter (always excluding ended subs)
   const totalsBase = useMemo(
-    () => (filterCategory === "all" ? activeSubs : activeSubs.filter((s) => s.category === filterCategory)),
-    [activeSubs, filterCategory]
+    () => (filterCategories.length === 0 ? activeSubs : activeSubs.filter((s) => filterCategories.includes(s.category))),
+    [activeSubs, filterCategories]
   );
 
   const monthlyTotal = useMemo(
@@ -3769,16 +3815,18 @@ function HubboApp() {
                   runs into the arc. */}
               {(() => {
                 const txt = money(monthlyTotal);
+    const lead = (categoryTotals[0] || {}).color || colors.textPrimary;
                 return (
                   <div
                     style={{
                       position: "absolute",
                       left: -10,
-                      top: 30,
+                      top: 50,
                       whiteSpace: "nowrap",
                       pointerEvents: "none",
                       fontFamily: "'JetBrains Mono', monospace",
                       fontWeight: 700,
+                      color: lead,
                       fontSize: txt.length > 10 ? 16 : txt.length > 9 ? 19 : 22,
                     }}
                     className="leading-none"
@@ -3827,33 +3875,40 @@ function HubboApp() {
       {/* Filters + sort */}
       {enriched.length > 0 && (
         <div className="px-5 mt-4">
-          <div className="flex gap-2 overflow-x-auto pb-1 mb-2.5" style={{ scrollbarWidth: "none" }}>
-            <button
-              onClick={() => setFilterCategory("all")}
-              style={{
-                background: filterCategory === "all" ? colors.textPrimary : colors.surface2,
-                color: filterCategory === "all" ? colors.bg : colors.textSecondary,
-                border: `1px solid ${filterCategory === "all" ? colors.textPrimary : colors.border}`,
-              }}
-              className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap flex-shrink-0"
-            >
-              {t.filterAll}
-            </button>
-            {usedCategories.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setFilterCategory(c.id)}
-                style={{
-                  background: filterCategory === c.id ? c.color : colors.surface2,
-                  color: filterCategory === c.id ? "#0A0B10" : colors.textSecondary,
-                  border: `1px solid ${filterCategory === c.id ? c.color : colors.border}`,
-                }}
-                className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap flex-shrink-0"
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
+          <button
+            onClick={() =>
+              setOptionPicker({
+                title: t.filterAllCategories,
+                multi: true,
+                options: usedCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
+              })
+            }
+            style={{
+              background: colors.surface2,
+              border: `1px solid ${colors.border}`,
+              color: filterCategories.length > 0 ? colors.textPrimary : colors.textSecondary,
+            }}
+            className="w-full rounded-xl px-3 py-2.5 text-xs font-medium flex items-center justify-between gap-2 mb-2.5"
+          >
+            <span className="truncate">
+              {filterCategories.length === 0
+                ? t.filterAllCategories
+                : filterCategories.length === 1
+                ? (usedCategories.find((c) => c.id === filterCategories[0]) || {}).label
+                : t.filterNCategories(filterCategories.length)}
+            </span>
+            <span className="flex items-center gap-2 flex-shrink-0">
+              {filterCategories.length > 0 && (
+                <span className="flex items-center gap-1">
+                  {filterCategories.slice(0, 4).map((id) => {
+                    const c = usedCategories.find((x) => x.id === id);
+                    return c ? <span key={id} style={{ background: c.color, width: 8, height: 8, borderRadius: 999 }} /> : null;
+                  })}
+                </span>
+              )}
+              <span style={{ fontSize: 9 }}>▾</span>
+            </span>
+          </button>
 
           <div className="flex items-center justify-between gap-2 mb-1">
             <button
@@ -3988,16 +4043,18 @@ function HubboApp() {
                     runs into the arc. */}
                 {(() => {
                   const txt = money(calendarMonthStats.total);
+    const lead = ((calendarMonthStats.byCategory || [])[0] || {}).color || colors.textPrimary;
                   return (
                     <div
                       style={{
                         position: "absolute",
                         left: -10,
-                        top: 30,
+                        top: 50,
                         whiteSpace: "nowrap",
                         pointerEvents: "none",
                         fontFamily: "'JetBrains Mono', monospace",
                         fontWeight: 700,
+                        color: lead,
                         fontSize: txt.length > 10 ? 16 : txt.length > 9 ? 19 : 22,
                       }}
                       className="leading-none"
@@ -5330,12 +5387,22 @@ function HubboApp() {
               {optionPicker.options
                 .filter((o) => !optionPicker.searchable || String(o.label).toLowerCase().includes(optionSearch.toLowerCase()))
                 .map((o) => {
-                const active = o.value === optionPicker.value;
+                // In multi mode the selection lives in the list's own state, so
+                // the sheet reads it directly and stays open while you tick.
+                const active = optionPicker.multi
+                  ? filterCategories.includes(o.value)
+                  : o.value === optionPicker.value;
                 return (
                   <button
                     key={String(o.value)}
                     type="button"
                     onClick={() => {
+                      if (optionPicker.multi) {
+                        setFilterCategories((current) =>
+                          current.includes(o.value) ? current.filter((x) => x !== o.value) : [...current, o.value]
+                        );
+                        return;
+                      }
                       optionPicker.onSelect(o.value);
                       closeSheet("option", () => setOptionPicker(null));
                     }}
@@ -5364,6 +5431,29 @@ function HubboApp() {
                 );
               })}
             </div>
+
+            {optionPicker.multi && (
+              <div className="flex items-center gap-2 mt-4">
+                {filterCategories.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setFilterCategories([])}
+                    style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                    className="flex-1 rounded-xl py-2.5 text-sm font-medium"
+                  >
+                    {t.filterClear}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => closeSheet("option", () => setOptionPicker(null))}
+                  style={{ background: ACCENT.amber, color: "#1A1305" }}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold"
+                >
+                  {t.filterDone}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
