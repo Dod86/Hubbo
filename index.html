@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v32";
+const APP_VERSION = "v33";
 
 const FREE_LIMIT = 10;
 
@@ -249,6 +249,8 @@ const ANIMATIONS = `
 @keyframes rb-fade-out { from { opacity: 1; } to { opacity: 0; } }
 @keyframes rb-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes rb-slide-down { from { transform: translateY(var(--rb-drag-y, 0px)); } to { transform: translateY(100%); } }
+@keyframes rb-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.rb-toast { animation: rb-toast-in 0.2s ease-out; }
 @keyframes rb-slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes rb-slide-out-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
 @keyframes rb-pop-in { from { opacity: 0; transform: scale(0.96) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -1598,6 +1600,7 @@ const LEDGER_STRINGS = {
     historyPeriodAll: "Tutto",
     historyPeriodLabelTitle: "Periodo",
     historyShowYear: (y) => `Mostra ${y}`,
+    historyYearSkipped: (y) => `Anno ${y} saltato: nessun pagamento`,
     historyPeriodCustom: "Personalizzato",
     historyFrom: "Da",
     historyTo: "Al",
@@ -1650,6 +1653,7 @@ const LEDGER_STRINGS = {
     historyPeriodAll: "All time",
     historyPeriodLabelTitle: "Period",
     historyShowYear: (y) => `Show ${y}`,
+    historyYearSkipped: (y) => `${y} skipped: no payments`,
     historyPeriodCustom: "Custom",
     historyFrom: "From",
     historyTo: "To",
@@ -1702,6 +1706,7 @@ const LEDGER_STRINGS = {
     historyPeriodAll: "Todo",
     historyPeriodLabelTitle: "Periodo",
     historyShowYear: (y) => `Mostrar ${y}`,
+    historyYearSkipped: (y) => `Año ${y} omitido: sin pagos`,
     historyPeriodCustom: "Personalizado",
     historyFrom: "Desde",
     historyTo: "Hasta",
@@ -1754,6 +1759,7 @@ const LEDGER_STRINGS = {
     historyPeriodAll: "Tout",
     historyPeriodLabelTitle: "Période",
     historyShowYear: (y) => `Afficher ${y}`,
+    historyYearSkipped: (y) => `Année ${y} ignorée : aucun paiement`,
     historyPeriodCustom: "Personnalisé",
     historyFrom: "Du",
     historyTo: "Au",
@@ -1806,6 +1812,7 @@ const LEDGER_STRINGS = {
     historyPeriodAll: "Gesamt",
     historyPeriodLabelTitle: "Zeitraum",
     historyShowYear: (y) => `${y} anzeigen`,
+    historyYearSkipped: (y) => `${y} übersprungen: keine Zahlungen`,
     historyPeriodCustom: "Benutzerdefiniert",
     historyFrom: "Von",
     historyTo: "Bis",
@@ -2284,6 +2291,8 @@ function HubboApp() {
   const [historyFrom, setHistoryFrom] = useState("");
   const [historyTo, setHistoryTo] = useState("");
   const [historyShownYears, setHistoryShownYears] = useState(1);
+  const [toasts, setToasts] = useState([]);
+  const toastIdRef = useRef(0);
   const [paymentAction, setPaymentAction] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentScope, setPaymentScope] = useState("one");
@@ -3043,6 +3052,25 @@ function HubboApp() {
   }, [historyMonths, historyYearList, historyShownYears]);
 
   const nextOlderYear = historyYearList[historyShownYears];
+
+  function pushToast(text) {
+    const id = ++toastIdRef.current;
+    setToasts((list) => [...list, { id, text }]);
+    setTimeout(() => setToasts((list) => list.filter((x) => x.id !== id)), 2600);
+  }
+
+  // Revealing the next year can jump over years with nothing in them. Those
+  // gaps are called out one notice each, so a two-year jump reads as two
+  // distinct skips rather than one vague message.
+  function revealOlderYear() {
+    const oldestShown = historyYearList[historyShownYears - 1];
+    const next = historyYearList[historyShownYears];
+    if (!next) return;
+    for (let y = Number(oldestShown) - 1; y > Number(next); y--) {
+      pushToast(t.historyYearSkipped(String(y)));
+    }
+    setHistoryShownYears((n) => n + 1);
+  }
 
   const historyTotals = useMemo(() => {
     let total = 0;
@@ -4006,7 +4034,7 @@ function HubboApp() {
 
               {nextOlderYear && (
                 <button
-                  onClick={() => setHistoryShownYears((n) => n + 1)}
+                  onClick={revealOlderYear}
                   style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textSecondary }}
                   className="w-full rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-1.5"
                 >
@@ -4033,6 +4061,23 @@ function HubboApp() {
           </div>
         </div>
       </div>
+      )}
+
+      {toasts.length > 0 && (
+        <div
+          className="fixed left-0 right-0 z-[80] flex flex-col items-center gap-2 px-5 pointer-events-none"
+          style={{ bottom: "calc(78px + env(safe-area-inset-bottom))" }}
+        >
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textSecondary, boxShadow: "0 6px 20px rgba(0,0,0,0.28)" }}
+              className="rb-toast rounded-xl px-3.5 py-2.5 text-xs font-medium text-center w-full max-w-xs"
+            >
+              {toast.text}
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Bottom tab bar (list / calendar / add / history / savings) */}
