@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v52";
+const APP_VERSION = "v53";
 
 const FREE_LIMIT = 10;
 
@@ -2211,32 +2211,18 @@ function ScrollingLabel({ children, className = "", style }) {
 // The renewal ring is the app's signature, so the spend totals wear it too:
 // one arc per category, sized by its share. The ring is deliberately open in
 // the top-left quarter, which is where the amount sits and breaks out of it.
-// Picks whichever of ink or paper reads better on a given fill, so the amount
-// stays legible whatever colour the capsule takes — including the neutral one
-// it falls back to when there is nothing to show yet.
-function readableOn(hex) {
-  const h = String(hex).replace("#", "");
-  if (h.length !== 6) return "#15130E";
-  const channel = (i) => {
-    const v = parseInt(h.substr(i, 2), 16) / 255;
-    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-  };
-  const luminance = 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
-  const contrast = (other) => {
-    const hi = Math.max(luminance, other);
-    const lo = Math.min(luminance, other);
-    return (hi + 0.05) / (lo + 0.05);
-  };
-  return contrast(0.0064) >= contrast(1) ? "#15130E" : "#FFFFFF";
-}
-
-function CategoryRing({ segments, total, colors, size = 128, stroke = 11 }) {
+function CategoryRing({ segments, total, colors, size = 128, stroke = 13 }) {
   const r = (size - stroke) / 2;
   const circumference = 2 * Math.PI * r;
   const SWEEP = 0.75;
   const arc = circumference * SWEEP;
-  const gap = segments.length > 1 ? 4 : 0;
-  let offset = 0;
+  const cap = stroke / 2;
+  const gap = segments.length > 1 ? 3 : 0;
+  // Round ends stick out by half a stroke, so every dash is shortened by a
+  // full stroke and pushed forward by half: the ink then lands exactly on the
+  // slice it represents instead of overflowing into its neighbour.
+  const trackDrawn = Math.max(0.01, arc - stroke);
+  let cursor = 0;
   return (
     <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
       <circle
@@ -2247,13 +2233,19 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 11 }) {
         stroke={colors.surface2}
         strokeWidth={stroke}
         strokeLinecap="round"
-        strokeDasharray={`${arc} ${circumference - arc}`}
+        strokeDasharray={`${trackDrawn} ${circumference - trackDrawn}`}
+        strokeDashoffset={-cap}
       />
       {total > 0 &&
         segments.map((seg) => {
           const len = (seg.total / total) * arc;
-          const drawn = Math.max(0, len - gap);
-          const el = (
+          const start = cursor + gap / 2;
+          const visible = Math.max(0, len - gap);
+          cursor += len;
+          // A slice too short to absorb its own round ends becomes a dot: it
+          // still shows, without pretending to be bigger than it is.
+          const drawn = Math.max(0.01, visible - stroke);
+          return (
             <circle
               key={seg.id}
               cx={size / 2}
@@ -2262,12 +2254,11 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 11 }) {
               fill="none"
               stroke={seg.color}
               strokeWidth={stroke}
+              strokeLinecap="round"
               strokeDasharray={`${drawn} ${circumference - drawn}`}
-              strokeDashoffset={-offset}
+              strokeDashoffset={-(start + cap)}
             />
           );
-          offset += len;
-          return el;
         })}
     </svg>
   );
@@ -3773,40 +3764,31 @@ function HubboApp() {
           <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
           <div className="flex items-center gap-3">
             <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
-              {/* Capsule and ring are one continuous band: the capsule's height is
-                  the ring's stroke and its right cap is centred on the arc's start
-                  at twelve o'clock. Drawn first, so the arc emerges from it. */}
+              {/* Sits in the ring's open quarter and reaches out past its left
+                  edge; the size steps down for longer figures so it never
+                  runs into the arc. */}
               {(() => {
-                const lead = (categoryTotals[0] || {}).color || colors.surface2;
                 const txt = money(monthlyTotal);
                 return (
                   <div
                     style={{
                       position: "absolute",
-                      left: -14,
-                      top: 20,
-                      width: 117.5,
-                      height: 27,
-                      paddingLeft: 11,
-                      paddingRight: 13,
-                      display: "flex",
-                      alignItems: "center",
-                      background: lead,
-                      color: readableOn(lead),
-                      borderRadius: 999,
+                      left: -10,
+                      top: 30,
                       whiteSpace: "nowrap",
                       pointerEvents: "none",
                       fontFamily: "'JetBrains Mono', monospace",
                       fontWeight: 700,
-                      fontSize: txt.length > 10 ? 12 : txt.length > 9 ? 14 : 17,
+                      fontSize: txt.length > 10 ? 16 : txt.length > 9 ? 19 : 22,
                     }}
+                    className="leading-none"
                   >
                     {txt}
                   </div>
                 );
               })()}
               <div style={{ position: "absolute", left: 30, top: 20 }}>
-                <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} size={120} stroke={27} />
+                <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} size={120} stroke={13} />
               </div>
             </div>
             <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} />
@@ -4001,40 +3983,31 @@ function HubboApp() {
             </div>
             <div className="flex items-center gap-3">
               <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
-                {/* Capsule and ring are one continuous band: the capsule's height is
-                    the ring's stroke and its right cap is centred on the arc's start
-                    at twelve o'clock. Drawn first, so the arc emerges from it. */}
+                {/* Sits in the ring's open quarter and reaches out past its left
+                    edge; the size steps down for longer figures so it never
+                    runs into the arc. */}
                 {(() => {
-                  const lead = ((calendarMonthStats.byCategory || [])[0] || {}).color || colors.surface2;
                   const txt = money(calendarMonthStats.total);
                   return (
                     <div
                       style={{
                         position: "absolute",
-                        left: -14,
-                        top: 20,
-                        width: 117.5,
-                        height: 27,
-                        paddingLeft: 11,
-                        paddingRight: 13,
-                        display: "flex",
-                        alignItems: "center",
-                        background: lead,
-                        color: readableOn(lead),
-                        borderRadius: 999,
+                        left: -10,
+                        top: 30,
                         whiteSpace: "nowrap",
                         pointerEvents: "none",
                         fontFamily: "'JetBrains Mono', monospace",
                         fontWeight: 700,
-                        fontSize: txt.length > 10 ? 12 : txt.length > 9 ? 14 : 17,
+                        fontSize: txt.length > 10 ? 16 : txt.length > 9 ? 19 : 22,
                       }}
+                      className="leading-none"
                     >
                       {txt}
                     </div>
                   );
                 })()}
                 <div style={{ position: "absolute", left: 30, top: 20 }}>
-                  <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} size={120} stroke={27} />
+                  <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} size={120} stroke={13} />
                 </div>
               </div>
               <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
