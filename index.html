@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v33";
+const APP_VERSION = "v34";
 
 const FREE_LIMIT = 10;
 
@@ -1631,6 +1631,7 @@ const LEDGER_STRINGS = {
     renewalDayLabel: "Giorno di rinnovo",
     missingStart: (n) => (n === 1 ? "1 abbonamento senza data di inizio" : `${n} abbonamenti senza data di inizio`),
     missingStartHint: "Apri l'abbonamento e compila «Abbonato dal» per ricostruirne lo storico.",
+    noStartBadge: "manca inizio",
     startDateLabel: "Abbonato dal",
     addStartDate: "+ Aggiungi data di inizio",
     startDateHint: "Serve a ricostruire lo storico dei pagamenti.",
@@ -1684,6 +1685,7 @@ const LEDGER_STRINGS = {
     renewalDayLabel: "Renewal day",
     missingStart: (n) => (n === 1 ? "1 subscription with no start date" : `${n} subscriptions with no start date`),
     missingStartHint: "Open the subscription and fill in \u201CSubscribed since\u201D to rebuild its history.",
+    noStartBadge: "no start date",
     startDateLabel: "Subscribed since",
     addStartDate: "+ Add start date",
     startDateHint: "Used to rebuild your payment history.",
@@ -1737,6 +1739,7 @@ const LEDGER_STRINGS = {
     renewalDayLabel: "Día de renovación",
     missingStart: (n) => (n === 1 ? "1 suscripción sin fecha de inicio" : `${n} suscripciones sin fecha de inicio`),
     missingStartHint: "Abre la suscripción y rellena «Suscrito desde» para reconstruir su historial.",
+    noStartBadge: "sin fecha inicio",
     startDateLabel: "Suscrito desde",
     addStartDate: "+ Añadir fecha de inicio",
     startDateHint: "Sirve para reconstruir el historial de pagos.",
@@ -1790,6 +1793,7 @@ const LEDGER_STRINGS = {
     renewalDayLabel: "Jour de renouvellement",
     missingStart: (n) => (n === 1 ? "1 abonnement sans date de début" : `${n} abonnements sans date de début`),
     missingStartHint: "Ouvrez l'abonnement et renseignez « Abonné depuis » pour reconstituer son historique.",
+    noStartBadge: "début manquant",
     startDateLabel: "Abonné depuis",
     addStartDate: "+ Ajouter une date de début",
     startDateHint: "Sert à reconstituer l'historique des paiements.",
@@ -1843,6 +1847,7 @@ const LEDGER_STRINGS = {
     renewalDayLabel: "Verlängerungstag",
     missingStart: (n) => (n === 1 ? "1 Abo ohne Startdatum" : `${n} Abos ohne Startdatum`),
     missingStartHint: "Öffne das Abo und trage „Abonniert seit“ ein, um den Verlauf zu rekonstruieren.",
+    noStartBadge: "Start fehlt",
     startDateLabel: "Abonniert seit",
     addStartDate: "+ Startdatum hinzufügen",
     startDateHint: "Dient dazu, den Zahlungsverlauf zu rekonstruieren.",
@@ -2177,11 +2182,12 @@ const LIGHT_LOGO_ICONS = new Set([
 // yellow already contrasts well on dark.
 const YELLOW_LOGO_ICONS = new Set(["norton", "sketch", "mailchimp", "snapchat"]);
 
-// Google's favicon service almost never fails outright (onError rarely
-// fires) — for domains with no real favicon it just serves a generic blank
-// globe instead of erroring, so the initial-letter fallback never kicks in.
-// These domains skip the remote fetch entirely and go straight to it.
-const NO_REMOTE_LOGO_DOMAINS = new Set(["postemobile.it"]);
+// Icons come from a source that returns a genuine 404 for domains it has no
+// icon for. The previous one answered with a generic globe instead, which
+// counts as success and so never let the initial-letter fallback run — the
+// reason several services showed a blank mark rather than their logo.
+// Domains listed here skip the remote fetch entirely.
+const NO_REMOTE_LOGO_DOMAINS = new Set([]);
 
 function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
@@ -2213,7 +2219,7 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
         className="flex items-center justify-center flex-shrink-0 overflow-hidden"
       >
         <img
-          src={`https://www.google.com/s2/favicons?domain=${domain}&sz=128`}
+          src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
           alt=""
           loading="lazy"
           onError={() => {
@@ -2617,7 +2623,7 @@ function HubboApp() {
         frequency: form.frequency,
         category: form.category,
         renewalDate: form.renewalDate,
-        startDate: form.hasStartDate && form.startDate ? form.startDate : null,
+        startDate: form.startDate || null,
         endDate: form.hasEndDate ? form.endDate : null,
         note: form.note.trim() || null,
         lastIncrease,
@@ -3640,6 +3646,14 @@ function HubboApp() {
                           · {s.sharedPeople}×
                         </span>
                       )}
+                      {!s.startDate && (
+                        // Without a start date this subscription contributes
+                        // nothing to the history, which is invisible from here
+                        // unless it is called out.
+                        <span style={{ color: ACCENT.amber }} className="text-xs font-medium" title={t.missingStartHint}>
+                          · {t.noStartBadge}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex-shrink-0 text-right">
@@ -4390,92 +4404,85 @@ function HubboApp() {
               className="w-full rounded-xl px-3.5 py-2.5 text-sm mb-3.5 outline-none"
             />
 
-            <button
-              type="button"
-              onClick={() =>
-                setForm(
-                  form.isPast
-                    ? { ...form, isPast: false }
-                    : { ...form, isPast: true, hasStartDate: true, hasEndDate: true }
-                )
-              }
-              style={{
-                background: form.isPast ? ACCENT.indigo : colors.surface2,
-                color: form.isPast ? "#0A0B10" : colors.textSecondary,
-                border: `1px solid ${form.isPast ? ACCENT.indigo : colors.border}`,
-              }}
-              className="rounded-full px-3 py-1.5 text-xs font-medium mb-3.5"
-            >
-              {t.pastSubToggle}
-            </button>
+            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.startDateLabel}</label>
+            <input
+              value={form.startDate}
+              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+              type="date"
+              max={todayISO}
+              style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
+            />
+            <p style={{ color: colors.textFaint }} className="text-xs mt-1.5 mb-3.5">{t.startDateHint}</p>
+
+            {(() => {
+              const align = cycleAlignment(form.startDate, form.renewalDate, form.frequency);
+              if (!align || !align.first) return null;
+              return (
+                <div style={{ background: "rgba(227,168,87,0.10)", border: `1px solid rgba(227,168,87,0.30)` }} className="rounded-xl px-3 py-2.5 mb-3.5">
+                  <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-2">
+                    {t.startMismatch(dateFmt(toLocalISO(align.first)))}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, startDate: toLocalISO(align.suggested) })}
+                    style={{ color: ACCENT.amber }}
+                    className="text-xs font-semibold"
+                  >
+                    {t.startMismatchFix(dateFmt(toLocalISO(align.suggested)))}
+                  </button>
+                </div>
+              );
+            })()}
+
+            <div className="flex flex-wrap gap-2 mb-3.5">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm(
+                    form.isPast
+                      ? { ...form, isPast: false }
+                      : { ...form, isPast: true, hasEndDate: true }
+                  )
+                }
+                style={{
+                  background: form.isPast ? ACCENT.indigo : colors.surface2,
+                  color: form.isPast ? "#0A0B10" : colors.textSecondary,
+                  border: `1px solid ${form.isPast ? ACCENT.indigo : colors.border}`,
+                }}
+                className="rounded-full px-3 py-1.5 text-xs font-medium"
+              >
+                {t.pastSubToggle}
+              </button>
+
+              {!form.isPast && !form.hasEndDate && (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, hasEndDate: true })}
+                  style={{ background: colors.surface2, color: colors.textSecondary, border: `1px solid ${colors.border}` }}
+                  className="rounded-full px-3 py-1.5 text-xs font-medium"
+                >
+                  {t.addEndDate}
+                </button>
+              )}
+
+              {!form.noteOpen && (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, noteOpen: true })}
+                  style={{ background: colors.surface2, color: colors.textSecondary, border: `1px solid ${colors.border}` }}
+                  className="rounded-full px-3 py-1.5 text-xs font-medium"
+                >
+                  {t.addNote}
+                </button>
+              )}
+            </div>
 
             {form.isPast && (
               <p style={{ color: colors.textFaint }} className="text-xs mb-3.5 leading-relaxed">{t.pastSubHint}</p>
             )}
 
-            {!form.hasStartDate ? (
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, hasStartDate: true })}
-                style={{ color: colors.textSecondary }}
-                className="text-xs font-medium mb-3.5 block"
-              >
-                {t.addStartDate}
-              </button>
-            ) : (
-              <div className="mb-3.5">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label style={{ color: colors.textSecondary }} className="text-xs">{t.startDateLabel}</label>
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, hasStartDate: false, startDate: "" })}
-                    style={{ color: colors.textFaint }}
-                    className="text-xs"
-                  >
-                    {t.removeNote}
-                  </button>
-                </div>
-                <input
-                  value={form.startDate}
-                  onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                  type="date"
-                  max={todayISO}
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-                  className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-                />
-                <p style={{ color: colors.textFaint }} className="text-xs mt-1.5">{t.startDateHint}</p>
-                {(() => {
-                  const align = cycleAlignment(form.startDate, form.renewalDate, form.frequency);
-                  if (!align || !align.first) return null;
-                  return (
-                    <div style={{ background: "rgba(227,168,87,0.10)", border: `1px solid rgba(227,168,87,0.30)` }} className="rounded-xl px-3 py-2.5 mt-2">
-                      <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-2">
-                        {t.startMismatch(dateFmt(toLocalISO(align.first)))}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setForm({ ...form, startDate: toLocalISO(align.suggested) })}
-                        style={{ color: ACCENT.amber }}
-                        className="text-xs font-semibold"
-                      >
-                        {t.startMismatchFix(dateFmt(toLocalISO(align.suggested)))}
-                      </button>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-
-            {!form.hasEndDate ? (
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, hasEndDate: true })}
-                style={{ color: colors.textSecondary }}
-                className="text-xs font-medium mb-3.5 block"
-              >
-                {t.addEndDate}
-              </button>
-            ) : (
+            {form.hasEndDate && (
               <div className="mb-3.5">
                 <div className="flex items-center justify-between mb-1.5">
                   <label style={{ color: colors.textSecondary }} className="text-xs">{t.endDateLabel}</label>
@@ -4499,16 +4506,7 @@ function HubboApp() {
               </div>
             )}
 
-            {!form.noteOpen ? (
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, noteOpen: true })}
-                style={{ color: colors.textSecondary }}
-                className="text-xs font-medium mb-5"
-              >
-                {t.addNote}
-              </button>
-            ) : (
+            {form.noteOpen && (
               <div className="mb-5">
                 <div className="flex items-center justify-between mb-1.5">
                   <label style={{ color: colors.textSecondary }} className="text-xs">{t.noteLabel}</label>
@@ -4549,7 +4547,7 @@ function HubboApp() {
                 style={{ background: ACCENT.amber, color: "#1A1305" }}
                 className="w-full rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2"
               >
-                {saving ? <Icon name="loader2" className="animate-spin" size={16} /> : <Icon name="repeat" size={16} />}
+                {saving ? <Icon name="loader2" className="animate-spin" size={16} /> : <Icon name={editingId ? "check" : "plus"} size={16} />}
                 {editingId ? t.saveChanges : t.addSub}
               </button>
             </div>
