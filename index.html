@@ -232,7 +232,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v19";
+const APP_VERSION = "v20";
 
 const FREE_LIMIT = 10;
 
@@ -2597,7 +2597,9 @@ function HubboApp() {
   // rewrite what you already paid. Existing records are never touched again,
   // which also preserves any paid/not-paid correction made by hand.
   useEffect(() => {
-    if (!paymentsLoaded) return;
+    // `subs` is null until the first load resolves, so nothing is recorded
+    // before the real subscriptions are in hand.
+    if (!paymentsLoaded || !subs) return;
     const base = settings.currency;
     const byId = new Map(payments.map((p) => [p.id, p]));
     const valid = new Set();
@@ -2683,7 +2685,7 @@ function HubboApp() {
   }, [payments, settings.currency, rates, todayISO]);
 
   const missingStartCount = useMemo(
-    () => subs.filter((s) => !s.startDate && !s.endDate).length,
+    () => (subs || []).filter((s) => !s.startDate && !s.endDate).length,
     [subs]
   );
 
