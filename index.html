@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v38";
+const APP_VERSION = "v39";
 
 const FREE_LIMIT = 10;
 
@@ -893,7 +893,9 @@ const STRINGS = {
     convertedNote: "converte in",
     monthTotalLabel: "Spesa totale",
     monthPayments: (n) => (n === 1 ? "1 pagamento" : `${n} pagamenti`),
-    priceIncreased: (from, pct) => `Aumentato da ${from} (+${pct}%)`,
+    priceHistoryTitle: "Storico prezzi",
+    priceSinceFirst: (d) => `dal ${d}`,
+    priceFrom: (d) => `dal ${d}`,
   },
   en: {
     appName: "Hubbo",
@@ -1058,7 +1060,9 @@ const STRINGS = {
     convertedNote: "converts to",
     monthTotalLabel: "Total spend",
     monthPayments: (n) => (n === 1 ? "1 payment" : `${n} payments`),
-    priceIncreased: (from, pct) => `Up from ${from} (+${pct}%)`,
+    priceHistoryTitle: "Price history",
+    priceSinceFirst: (d) => `since ${d}`,
+    priceFrom: (d) => `from ${d}`,
   },
   es: {
     appName: "Hubbo",
@@ -1223,7 +1227,9 @@ const STRINGS = {
     convertedNote: "convierte a",
     monthTotalLabel: "Gasto total",
     monthPayments: (n) => (n === 1 ? "1 pago" : `${n} pagos`),
-    priceIncreased: (from, pct) => `Subió desde ${from} (+${pct}%)`,
+    priceHistoryTitle: "Historial de precios",
+    priceSinceFirst: (d) => `desde ${d}`,
+    priceFrom: (d) => `desde ${d}`,
   },
   fr: {
     appName: "Hubbo",
@@ -1388,7 +1394,9 @@ const STRINGS = {
     convertedNote: "converti en",
     monthTotalLabel: "Dépense totale",
     monthPayments: (n) => (n === 1 ? "1 paiement" : `${n} paiements`),
-    priceIncreased: (from, pct) => `En hausse depuis ${from} (+${pct} %)`,
+    priceHistoryTitle: "Historique des prix",
+    priceSinceFirst: (d) => `depuis le ${d}`,
+    priceFrom: (d) => `depuis le ${d}`,
   },
   de: {
     appName: "Hubbo",
@@ -1553,7 +1561,9 @@ const STRINGS = {
     convertedNote: "umgerechnet in",
     monthTotalLabel: "Gesamtausgaben",
     monthPayments: (n) => (n === 1 ? "1 Zahlung" : `${n} Zahlungen`),
-    priceIncreased: (from, pct) => `Erhöht von ${from} (+${pct} %)`,
+    priceHistoryTitle: "Preisverlauf",
+    priceSinceFirst: (d) => `seit ${d}`,
+    priceFrom: (d) => `ab ${d}`,
   },
 };
 
@@ -2677,6 +2687,23 @@ function HubboApp() {
       if (prevSub && effectiveCost !== prevSub.cost) {
         lastIncrease = effectiveCost > prevSub.cost ? { from: prevSub.cost, to: effectiveCost, date: todayISO } : null;
       }
+
+      // Every price the subscription has ever had, oldest first. Subscriptions
+      // created before this existed get seeded with their current price so the
+      // series always has a starting point to measure against.
+      const priceHistory = (() => {
+        if (!prevSub) {
+          return [{ cost: effectiveCost, currency: form.currency || settings.currency, date: form.startDate || todayISO }];
+        }
+        const base = Array.isArray(prevSub.priceHistory) && prevSub.priceHistory.length > 0
+          ? prevSub.priceHistory
+          : [{ cost: prevSub.cost, currency: prevSub.currency || settings.currency, date: prevSub.startDate || todayISO }];
+        if (effectiveCost === prevSub.cost) return base;
+        // A second change on the same day replaces the first rather than
+        // stacking two entries with an identical date.
+        const trimmed = base.length > 1 && base[base.length - 1].date === todayISO ? base.slice(0, -1) : base;
+        return [...trimmed, { cost: effectiveCost, currency: form.currency || settings.currency, date: todayISO }];
+      })();
       const subData = {
         name: finalName,
         cost: effectiveCost,
@@ -2690,6 +2717,7 @@ function HubboApp() {
         endDate: form.hasEndDate ? form.endDate : null,
         note: form.note.trim() || null,
         lastIncrease,
+        priceHistory,
       };
       const next = editingId
         ? subs.map((s) => (s.id === editingId ? { ...s, ...subData } : s))
@@ -5291,11 +5319,52 @@ function HubboApp() {
                   {t.paused}
                 </div>
               )}
-              {s.lastIncrease && s.lastIncrease.to === s.cost && (
-                <div style={{ background: "rgba(227,168,87,0.12)", color: ACCENT.amber }} className="rounded-xl px-3.5 py-2 text-xs font-medium mb-3">
-                  ⬆ {t.priceIncreased(money(s.lastIncrease.from, s.currency), Math.round(((s.lastIncrease.to - s.lastIncrease.from) / s.lastIncrease.from) * 100))}
-                </div>
-              )}
+              {(() => {
+                const hist = Array.isArray(s.priceHistory) ? s.priceHistory : [];
+                if (hist.length < 2) return null;
+                const first = hist[0];
+                const last = hist[hist.length - 1];
+                const totalPct = first.cost > 0 ? Math.round(((last.cost - first.cost) / first.cost) * 100) : 0;
+                const up = totalPct > 0;
+                return (
+                  <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3.5 py-3 mb-3">
+                    <div className="flex items-center justify-between mb-2.5 gap-2">
+                      <span style={{ color: colors.textSecondary }} className="text-xs font-medium">{t.priceHistoryTitle}</span>
+                      {totalPct !== 0 && (
+                        <span style={{ color: up ? ACCENT.amber : "#5FBFA8" }} className="text-xs font-semibold whitespace-nowrap">
+                          {up ? "⬆" : "⬇"} {totalPct > 0 ? "+" : ""}{totalPct}% {t.priceSinceFirst(dateFmt(first.date))}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      {hist.slice().reverse().map((entry, idx, list) => {
+                        // Each row is compared with the price that preceded it.
+                        const previous = list[idx + 1];
+                        const pct = previous && previous.cost > 0
+                          ? Math.round(((entry.cost - previous.cost) / previous.cost) * 100)
+                          : null;
+                        return (
+                          <div key={`${entry.date}-${idx}`} className="flex items-center justify-between gap-2">
+                            <span style={{ color: colors.textFaint }} className="text-xs">
+                              {t.priceFrom(dateFmt(entry.date))}
+                            </span>
+                            <span className="flex items-center gap-1.5 whitespace-nowrap">
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold">
+                                {money(entry.cost, entry.currency || s.currency)}
+                              </span>
+                              {pct !== null && pct !== 0 && (
+                                <span style={{ color: pct > 0 ? ACCENT.amber : "#5FBFA8" }} className="text-xs font-medium">
+                                  {pct > 0 ? "+" : ""}{pct}%
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl divide-y mb-3" >
                 <div className="flex items-center justify-between px-3.5 py-2.5">
