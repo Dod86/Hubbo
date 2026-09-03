@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v51";
+const APP_VERSION = "v52";
 
 const FREE_LIMIT = 10;
 
@@ -3792,7 +3792,7 @@ function HubboApp() {
                       display: "flex",
                       alignItems: "center",
                       background: lead,
-          color: readableOn(lead),
+                      color: readableOn(lead),
                       borderRadius: 999,
                       whiteSpace: "nowrap",
                       pointerEvents: "none",
@@ -3806,7 +3806,7 @@ function HubboApp() {
                 );
               })()}
               <div style={{ position: "absolute", left: 30, top: 20 }}>
-                <CategoryRing segments={categoryTotals} total={money(monthlyTotal)} colors={colors} size={120} stroke={27} />
+                <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} size={120} stroke={27} />
               </div>
             </div>
             <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} />
@@ -4020,7 +4020,7 @@ function HubboApp() {
                         display: "flex",
                         alignItems: "center",
                         background: lead,
-          color: readableOn(lead),
+                        color: readableOn(lead),
                         borderRadius: 999,
                         whiteSpace: "nowrap",
                         pointerEvents: "none",
@@ -4034,7 +4034,7 @@ function HubboApp() {
                   );
                 })()}
                 <div style={{ position: "absolute", left: 30, top: 20 }}>
-                  <CategoryRing segments={calendarMonthStats.byCategory || []} total={money(calendarMonthStats.total)} colors={colors} size={120} stroke={27} />
+                  <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} size={120} stroke={27} />
                 </div>
               </div>
               <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
