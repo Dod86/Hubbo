@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v40";
+const APP_VERSION = "v41";
 
 const FREE_LIMIT = 10;
 
@@ -5367,15 +5367,20 @@ function HubboApp() {
                 const up = totalPct > 0;
                 return (
                   <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3.5 py-3 mb-3">
-                    <div className="flex items-center justify-between mb-2.5 gap-2">
-                      <span style={{ color: colors.textSecondary }} className="text-xs font-medium">{t.priceHistoryTitle}</span>
+                    <div className="mb-3">
+                      <span style={{ color: colors.textSecondary }} className="text-sm font-medium">{t.priceHistoryTitle}</span>
                       {totalPct !== 0 && (
-                        <span style={{ color: up ? ACCENT.amber : "#5FBFA8" }} className="text-xs font-semibold whitespace-nowrap">
-                          {up ? "⬆" : "⬇"} {totalPct > 0 ? "+" : ""}{totalPct}% {t.priceSinceFirst(dateFmt(first.date))}
-                        </span>
+                        <div className="flex items-baseline gap-1.5 mt-1">
+                          <span style={{ color: up ? ACCENT.amber : "#4CAF7D" }} className="text-base font-bold whitespace-nowrap">
+                            {up ? "⬆" : "⬇"} {totalPct > 0 ? "+" : ""}{totalPct}%
+                          </span>
+                          <span style={{ color: colors.textFaint }} className="text-xs truncate">
+                            {t.priceSinceFirst(dateFmt(first.date))}
+                          </span>
+                        </div>
                       )}
                     </div>
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-2">
                       {hist.slice().reverse().map((entry, idx, list) => {
                         // Each row is compared with the price that preceded it.
                         const previous = list[idx + 1];
@@ -5384,15 +5389,15 @@ function HubboApp() {
                           : null;
                         return (
                           <div key={`${entry.date}-${idx}`} className="flex items-center justify-between gap-2">
-                            <span style={{ color: colors.textFaint }} className="text-xs">
+                            <span style={{ color: colors.textSecondary }} className="text-sm truncate">
                               {t.priceFrom(dateFmt(entry.date))}
                             </span>
-                            <span className="flex items-center gap-1.5 whitespace-nowrap">
-                              <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold">
+                            <span className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold">
                                 {money(entry.cost, entry.currency || s.currency)}
                               </span>
                               {pct !== null && pct !== 0 && (
-                                <span style={{ color: pct > 0 ? ACCENT.amber : "#5FBFA8" }} className="text-xs font-medium">
+                                <span style={{ color: pct > 0 ? ACCENT.amber : "#4CAF7D" }} className="text-sm font-bold">
                                   {pct > 0 ? "+" : ""}{pct}%
                                 </span>
                               )}
