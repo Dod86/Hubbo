@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v48";
+const APP_VERSION = "v51";
 
 const FREE_LIMIT = 10;
 
@@ -2211,6 +2211,25 @@ function ScrollingLabel({ children, className = "", style }) {
 // The renewal ring is the app's signature, so the spend totals wear it too:
 // one arc per category, sized by its share. The ring is deliberately open in
 // the top-left quarter, which is where the amount sits and breaks out of it.
+// Picks whichever of ink or paper reads better on a given fill, so the amount
+// stays legible whatever colour the capsule takes — including the neutral one
+// it falls back to when there is nothing to show yet.
+function readableOn(hex) {
+  const h = String(hex).replace("#", "");
+  if (h.length !== 6) return "#15130E";
+  const channel = (i) => {
+    const v = parseInt(h.substr(i, 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const luminance = 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+  const contrast = (other) => {
+    const hi = Math.max(luminance, other);
+    const lo = Math.min(luminance, other);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  return contrast(0.0064) >= contrast(1) ? "#15130E" : "#FFFFFF";
+}
+
 function CategoryRing({ segments, total, colors, size = 128, stroke = 11 }) {
   const r = (size - stroke) / 2;
   const circumference = 2 * Math.PI * r;
@@ -3753,36 +3772,42 @@ function HubboApp() {
         <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
           <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
           <div className="flex items-center gap-3">
-            <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
-              <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} />
-              {/* Sits in the ring's open quarter and spills out to its left */}
-              {/* Tied to the ring rather than floating over it: the serif of the
-                  wordmark, and a wash of the largest category's colour behind.
-                  Sized to the number's length so it never reaches the arc. */}
+            <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
+              {/* Capsule and ring are one continuous band: the capsule's height is
+                  the ring's stroke and its right cap is centred on the arc's start
+                  at twelve o'clock. Drawn first, so the arc emerges from it. */}
               {(() => {
-                const lead = (categoryTotals[0] || {}).color || ACCENT.amber;
+                const lead = (categoryTotals[0] || {}).color || colors.surface2;
                 const txt = money(monthlyTotal);
                 return (
                   <div
                     style={{
                       position: "absolute",
-                      left: -10,
-                      top: 32,
+                      left: -14,
+                      top: 20,
+                      width: 117.5,
+                      height: 27,
+                      paddingLeft: 11,
+                      paddingRight: 13,
+                      display: "flex",
+                      alignItems: "center",
+                      background: lead,
+          color: readableOn(lead),
+                      borderRadius: 999,
                       whiteSpace: "nowrap",
                       pointerEvents: "none",
-                      fontFamily: "'Fraunces', serif",
-                      fontWeight: 600,
-                      fontSize: txt.length > 9 ? 18 : 22,
-                      background: `${lead}24`,
-                      padding: "4px 9px",
-                      borderRadius: 999,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontWeight: 700,
+                      fontSize: txt.length > 10 ? 12 : txt.length > 9 ? 14 : 17,
                     }}
-                    className="leading-none"
                   >
                     {txt}
                   </div>
                 );
               })()}
+              <div style={{ position: "absolute", left: 30, top: 20 }}>
+                <CategoryRing segments={categoryTotals} total={money(monthlyTotal)} colors={colors} size={120} stroke={27} />
+              </div>
             </div>
             <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} />
           </div>
@@ -3975,32 +4000,42 @@ function HubboApp() {
               {t.monthTotalLabel} · {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}
             </div>
             <div className="flex items-center gap-3">
-              <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
-                <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
+              <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
+                {/* Capsule and ring are one continuous band: the capsule's height is
+                    the ring's stroke and its right cap is centred on the arc's start
+                    at twelve o'clock. Drawn first, so the arc emerges from it. */}
                 {(() => {
-                  const lead = ((calendarMonthStats.byCategory || [])[0] || {}).color || ACCENT.amber;
+                  const lead = ((calendarMonthStats.byCategory || [])[0] || {}).color || colors.surface2;
                   const txt = money(calendarMonthStats.total);
                   return (
                     <div
                       style={{
                         position: "absolute",
-                        left: -10,
-                        top: 32,
+                        left: -14,
+                        top: 20,
+                        width: 117.5,
+                        height: 27,
+                        paddingLeft: 11,
+                        paddingRight: 13,
+                        display: "flex",
+                        alignItems: "center",
+                        background: lead,
+          color: readableOn(lead),
+                        borderRadius: 999,
                         whiteSpace: "nowrap",
                         pointerEvents: "none",
-                        fontFamily: "'Fraunces', serif",
-                        fontWeight: 600,
-                        fontSize: txt.length > 9 ? 18 : 22,
-                        background: `${lead}24`,
-                        padding: "4px 9px",
-                        borderRadius: 999,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontWeight: 700,
+                        fontSize: txt.length > 10 ? 12 : txt.length > 9 ? 14 : 17,
                       }}
-                      className="leading-none"
                     >
                       {txt}
                     </div>
                   );
                 })()}
+                <div style={{ position: "absolute", left: 30, top: 20 }}>
+                  <CategoryRing segments={calendarMonthStats.byCategory || []} total={money(calendarMonthStats.total)} colors={colors} size={120} stroke={27} />
+                </div>
               </div>
               <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
             </div>
