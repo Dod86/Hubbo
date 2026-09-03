@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v47";
+const APP_VERSION = "v48";
 
 const FREE_LIMIT = 10;
 
@@ -3756,21 +3756,33 @@ function HubboApp() {
             <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
               <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} />
               {/* Sits in the ring's open quarter and spills out to its left */}
-              {/* Sized to the number's length so it never reaches the arc */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: -8,
-                  top: 22,
-                  whiteSpace: "nowrap",
-                  pointerEvents: "none",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: money(monthlyTotal).length > 9 ? 18 : 22,
-                }}
-                className="font-bold leading-none"
-              >
-                {money(monthlyTotal)}
-              </div>
+              {/* Tied to the ring rather than floating over it: the serif of the
+                  wordmark, and a wash of the largest category's colour behind.
+                  Sized to the number's length so it never reaches the arc. */}
+              {(() => {
+                const lead = (categoryTotals[0] || {}).color || ACCENT.amber;
+                const txt = money(monthlyTotal);
+                return (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: -10,
+                      top: 32,
+                      whiteSpace: "nowrap",
+                      pointerEvents: "none",
+                      fontFamily: "'Fraunces', serif",
+                      fontWeight: 600,
+                      fontSize: txt.length > 9 ? 18 : 22,
+                      background: `${lead}24`,
+                      padding: "4px 9px",
+                      borderRadius: 999,
+                    }}
+                    className="leading-none"
+                  >
+                    {txt}
+                  </div>
+                );
+              })()}
             </div>
             <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} />
           </div>
@@ -3965,20 +3977,30 @@ function HubboApp() {
             <div className="flex items-center gap-3">
               <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
                 <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
-                <div
-                  style={{
-                    position: "absolute",
-                    left: -8,
-                    top: 22,
-                    whiteSpace: "nowrap",
-                    pointerEvents: "none",
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: money(calendarMonthStats.total).length > 9 ? 18 : 22,
-                  }}
-                  className="font-bold leading-none"
-                >
-                  {money(calendarMonthStats.total)}
-                </div>
+                {(() => {
+                  const lead = ((calendarMonthStats.byCategory || [])[0] || {}).color || ACCENT.amber;
+                  const txt = money(calendarMonthStats.total);
+                  return (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: -10,
+                        top: 32,
+                        whiteSpace: "nowrap",
+                        pointerEvents: "none",
+                        fontFamily: "'Fraunces', serif",
+                        fontWeight: 600,
+                        fontSize: txt.length > 9 ? 18 : 22,
+                        background: `${lead}24`,
+                        padding: "4px 9px",
+                        borderRadius: 999,
+                      }}
+                      className="leading-none"
+                    >
+                      {txt}
+                    </div>
+                  );
+                })()}
               </div>
               <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
             </div>
@@ -4870,7 +4892,7 @@ function HubboApp() {
       {/* Settings modal */}
       {showSettings && (
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex justify-end z-50 ${closingSheet === "settings" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("settings", () => setShowSettings(false))}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.bg, borderLeft: `1px solid ${colors.border}`, overscrollBehavior: "contain", width: "min(86%, 380px)" }} className={`h-full overflow-y-auto ${closingSheet === "settings" ? "rb-panel-right-out" : "rb-panel-right"}`}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.bg, borderLeft: `1px solid ${colors.border}`, overscrollBehavior: "contain", width: "min(78%, 340px)" }} className={`h-full overflow-y-auto ${closingSheet === "settings" ? "rb-panel-right-out" : "rb-panel-right"}`}>
             <div
               style={{ background: colors.bg, borderBottom: `1px solid ${colors.border}` }}
               className="sticky top-0 z-10 px-5 py-4 flex items-center justify-between"
