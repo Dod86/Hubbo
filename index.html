@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v44";
+const APP_VERSION = "v47";
 
 const FREE_LIMIT = 10;
 
@@ -737,7 +737,6 @@ const STRINGS = {
     version: "versione",
     installedOn: "aggiornata al",
     monthlySpend: "Spesa mensile stimata",
-    moreCategories: (n) => `+${n} altre`,
     perYear: (amount, n) => `${amount} stimati all'anno · ${n} attivi`,
     freeBadge: (n, limit) => `${n}/${limit} nel piano gratuito`,
     emptyTitle: "Nessun abbonamento ancora.",
@@ -800,6 +799,9 @@ const STRINGS = {
     dataTrustBody: "Nel piano gratuito i tuoi abbonamenti sono salvati solo qui, sul tuo telefono: nessun account richiesto, nessun dato condiviso con terzi. Con Premium potrai superare il limite di 10 abbonamenti e sincronizzarli anche su altri dispositivi.",
     errNoService: 'Scegli un servizio dal menu (o scrivi il nome in "Altro").',
     errNoCost: "Inserisci un costo valido.",
+    errRenewalPast: "Il prossimo rinnovo non può essere una data passata. Se l'abbonamento è finito, attiva «Abbonamento già terminato».",
+    errStartFuture: "La data di inizio non può essere futura.",
+    errStartAfterEnd: "La data di inizio deve precedere quella di fine.",
     errNoRenewal: "Inserisci la data del prossimo rinnovo.",
     errNoEndDate: "Inserisci la data di fine abbonamento, oppure disattiva l'opzione.",
     errUnexpected: "Errore imprevisto: ",
@@ -907,7 +909,6 @@ const STRINGS = {
     version: "version",
     installedOn: "updated on",
     monthlySpend: "Estimated monthly spend",
-    moreCategories: (n) => `+${n} more`,
     perYear: (amount, n) => `${amount} estimated per year · ${n} active`,
     freeBadge: (n, limit) => `${n}/${limit} on free plan`,
     emptyTitle: "No subscriptions yet.",
@@ -970,6 +971,9 @@ const STRINGS = {
     dataTrustBody: "On the free plan, your subscriptions are stored only here, on your phone: no account needed, nothing shared with third parties. With Premium you can go beyond the 10-subscription limit and sync across other devices too.",
     errNoService: 'Choose a service from the list (or type a name under "Other").',
     errNoCost: "Enter a valid cost.",
+    errRenewalPast: "The next renewal cannot be in the past. If the subscription has ended, turn on \"Already ended\".",
+    errStartFuture: "The start date cannot be in the future.",
+    errStartAfterEnd: "The start date must come before the end date.",
     errNoRenewal: "Enter the next renewal date.",
     errNoEndDate: "Enter the end date, or turn off the option.",
     errUnexpected: "Unexpected error: ",
@@ -1077,7 +1081,6 @@ const STRINGS = {
     version: "versión",
     installedOn: "actualizada el",
     monthlySpend: "Gasto mensual estimado",
-    moreCategories: (n) => `+${n} más`,
     perYear: (amount, n) => `${amount} estimados al año · ${n} activas`,
     freeBadge: (n, limit) => `${n}/${limit} en el plan gratuito`,
     emptyTitle: "Aún no hay suscripciones.",
@@ -1140,6 +1143,9 @@ const STRINGS = {
     dataTrustBody: "En el plan gratuito, tus suscripciones se guardan solo aquí, en tu teléfono: sin cuenta y sin compartir nada con terceros. Con Premium podrás superar el límite de 10 suscripciones y sincronizarlas en otros dispositivos.",
     errNoService: 'Elige un servicio de la lista (o escribe un nombre en "Otro").',
     errNoCost: "Introduce un coste válido.",
+    errRenewalPast: "La próxima renovación no puede ser una fecha pasada. Si la suscripción ha terminado, activa «Ya finalizada».",
+    errStartFuture: "La fecha de inicio no puede ser futura.",
+    errStartAfterEnd: "La fecha de inicio debe ser anterior a la de fin.",
     errNoRenewal: "Introduce la fecha de la próxima renovación.",
     errNoEndDate: "Introduce la fecha de fin o desactiva la opción.",
     errUnexpected: "Error inesperado: ",
@@ -1247,7 +1253,6 @@ const STRINGS = {
     version: "version",
     installedOn: "mise à jour le",
     monthlySpend: "Dépense mensuelle estimée",
-    moreCategories: (n) => `+${n} autres`,
     perYear: (amount, n) => `${amount} estimés par an · ${n} actifs`,
     freeBadge: (n, limit) => `${n}/${limit} dans l'offre gratuite`,
     emptyTitle: "Aucun abonnement pour l'instant.",
@@ -1310,6 +1315,9 @@ const STRINGS = {
     dataTrustBody: "Avec l'offre gratuite, vos abonnements sont enregistrés uniquement ici, sur votre téléphone : aucun compte requis, rien n'est partagé avec des tiers. Avec Premium, vous pourrez dépasser la limite de 10 abonnements et les synchroniser sur d'autres appareils.",
     errNoService: 'Choisissez un service dans la liste (ou saisissez un nom sous « Autre »).',
     errNoCost: "Saisissez un coût valide.",
+    errRenewalPast: "Le prochain renouvellement ne peut pas être une date passée. Si l'abonnement est terminé, activez « Déjà terminé ».",
+    errStartFuture: "La date de début ne peut pas être dans le futur.",
+    errStartAfterEnd: "La date de début doit précéder la date de fin.",
     errNoRenewal: "Saisissez la date du prochain renouvellement.",
     errNoEndDate: "Saisissez la date de fin ou désactivez l'option.",
     errUnexpected: "Erreur inattendue : ",
@@ -1417,7 +1425,6 @@ const STRINGS = {
     version: "Version",
     installedOn: "aktualisiert am",
     monthlySpend: "Geschätzte Monatsausgaben",
-    moreCategories: (n) => `+${n} weitere`,
     perYear: (amount, n) => `${amount} geschätzt pro Jahr · ${n} aktiv`,
     freeBadge: (n, limit) => `${n}/${limit} im Gratis-Tarif`,
     emptyTitle: "Noch keine Abos.",
@@ -1480,6 +1487,9 @@ const STRINGS = {
     dataTrustBody: "Im Gratis-Tarif werden deine Abos nur hier auf deinem Handy gespeichert: kein Konto nötig, nichts wird an Dritte weitergegeben. Mit Premium kannst du das Limit von 10 Abos überschreiten und sie auch auf anderen Geräten synchronisieren.",
     errNoService: 'Wähle einen Dienst aus der Liste (oder gib unter „Anderer“ einen Namen ein).',
     errNoCost: "Gib gültige Kosten ein.",
+    errRenewalPast: "Die nächste Verlängerung kann nicht in der Vergangenheit liegen. Ist das Abo beendet, aktiviere „Bereits beendet“.",
+    errStartFuture: "Das Startdatum kann nicht in der Zukunft liegen.",
+    errStartAfterEnd: "Das Startdatum muss vor dem Enddatum liegen.",
     errNoRenewal: "Gib das Datum der nächsten Verlängerung ein.",
     errNoEndDate: "Gib das Enddatum ein oder deaktiviere die Option.",
     errUnexpected: "Unerwarteter Fehler: ",
@@ -2244,16 +2254,14 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 11 }) {
   );
 }
 
-// Reads the ring for you: without it the colours mean nothing. Only the first
-// few categories are listed, since beyond that the card grows more than the
-// information is worth.
-function CategoryLegend({ segments, total, colors, money, moreLabel, max = 5 }) {
+// Reads the ring for you: without it the colours mean nothing. Every category
+// making up the total is listed — hiding any of them would leave an unexplained
+// arc in the ring, which is exactly what the legend exists to prevent.
+function CategoryLegend({ segments, total, colors }) {
   if (!segments || segments.length === 0 || total <= 0) return null;
-  const shown = segments.slice(0, max);
-  const hidden = segments.length - shown.length;
   return (
-    <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-      {shown.map((seg) => (
+    <div className="flex-1 min-w-0 flex flex-col gap-1">
+      {segments.map((seg) => (
         <div key={seg.id} className="flex items-center gap-2 min-w-0">
           <span style={{ background: seg.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
           <span style={{ color: colors.textSecondary }} className="text-xs truncate flex-1">{seg.label}</span>
@@ -2262,21 +2270,18 @@ function CategoryLegend({ segments, total, colors, money, moreLabel, max = 5 }) 
           </span>
         </div>
       ))}
-      {hidden > 0 && (
-        <div style={{ color: colors.textFaint }} className="text-xs pl-[17px]">{moreLabel(hidden)}</div>
-      )}
     </div>
   );
 }
 
 // The add button echoes the app icon: same ring, with a plus where the dot is.
 // Drawn in the dark ink colour because the button itself is amber.
-function AddRingIcon({ size = 26, color = "#1A1305" }) {
+function AddRingIcon({ size = 40, colors }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      <circle cx="20" cy="20" r="15" fill="none" stroke={color} strokeOpacity="0.28" strokeWidth="5" />
-      <path d="M 20 5 A 15 15 0 1 1 7.4 27.2" fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" />
-      <path d="M 20 13.5 L 20 26.5 M 13.5 20 L 26.5 20" stroke={color} strokeWidth="5" strokeLinecap="round" />
+      <circle cx="20" cy="20" r="15.5" fill="none" stroke={colors.border} strokeWidth="4" />
+      <path d="M 20 4.5 A 15.5 15.5 0 1 1 7 27.8" fill="none" stroke={ACCENT.amber} strokeWidth="4" strokeLinecap="round" />
+      <path d="M 20 12.6 L 20 27.4 M 12.6 20 L 27.4 20" stroke={ACCENT.amber} strokeWidth="4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -2814,6 +2819,23 @@ function HubboApp() {
         setFormError(t.errNoEndDate);
         return;
       }
+      // A next renewal in the past only makes sense for a closed subscription.
+      // On edit the check applies only if the date was actually touched, so an
+      // old subscription whose stored anchor has long passed stays editable.
+      const previous = editingId ? subs.find((x) => x.id === editingId) : null;
+      const renewalTouched = !previous || previous.renewalDate !== form.renewalDate;
+      if (!form.isPast && renewalTouched && form.renewalDate < todayISO) {
+        setFormError(t.errRenewalPast);
+        return;
+      }
+      if (form.startDate && form.startDate > todayISO) {
+        setFormError(t.errStartFuture);
+        return;
+      }
+      if (form.startDate && form.hasEndDate && form.endDate && form.startDate > form.endDate) {
+        setFormError(t.errStartAfterEnd);
+        return;
+      }
       const people = form.isShared ? parseInt(form.peopleCount, 10) : null;
       if (form.isShared && (!people || people < 2)) {
         setFormError(t.errNoPeople);
@@ -3143,7 +3165,9 @@ function HubboApp() {
       const m = s.frequency === "annual" ? inMainCurrency(s) / 12 : inMainCurrency(s);
       map[s.category] = (map[s.category] || 0) + m;
     });
-    return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 })).filter((c) => c.total > 0);
+    return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }))
+      .filter((c) => c.total > 0)
+      .sort((a, b) => b.total - a.total);
   }, [totalsBase, settings.language, rates, settings.currency]);
 
   // Payments are *recorded*, not recalculated. Each billing date that passes
@@ -3421,7 +3445,9 @@ function HubboApp() {
         catMap[s.category] = (catMap[s.category] || 0) + value;
       });
     });
-    const byCategory = CATEGORIES.map((c) => ({ ...c, total: catMap[c.id] || 0 })).filter((c) => c.total > 0);
+    const byCategory = CATEGORIES.map((c) => ({ ...c, total: catMap[c.id] || 0 }))
+      .filter((c) => c.total > 0)
+      .sort((a, b) => b.total - a.total);
 
     return { monthDate, days, byDay, stats: { total, count, byCategory } };
   }
@@ -3699,14 +3725,22 @@ function HubboApp() {
       <style>{FONT_IMPORT + ANIMATIONS}</style>
 
       {/* Header */}
-      <div className="px-5 pt-8 pb-2">
+      <div
+        className="px-5 pt-7 pb-3 sticky top-0 z-30"
+        style={{
+          // Matches the top of the page gradient: a flat fill would show as a
+          // rectangle against it once the header is pinned.
+          background: colors.bgGradTop,
+          borderBottom: `1px solid ${colors.border}`,
+        }}
+      >
         <div className="flex items-center justify-between mb-1">
-          <Wordmark colors={colors} />
+          <Wordmark colors={colors} size={25} />
           <button onClick={() => setShowSettings(true)} style={{ color: colors.textSecondary }} aria-label={t.settings} className="p-1">
             <Icon name="settings" size={18} />
           </button>
         </div>
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }} className="text-2xl mb-4">
+        <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }} className="text-2xl">
           {view === "calendar" ? t.subtitleCalendar : view === "history" ? t.subtitleHistory : view === "savings" ? t.subtitleSavings : t.subtitle}
         </h1>
       </div>
@@ -3722,14 +3756,23 @@ function HubboApp() {
             <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
               <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} />
               {/* Sits in the ring's open quarter and spills out to its left */}
+              {/* Sized to the number's length so it never reaches the arc */}
               <div
-                style={{ position: "absolute", left: -6, top: 16, whiteSpace: "nowrap", pointerEvents: "none", fontFamily: "'JetBrains Mono', monospace" }}
-                className="text-2xl font-semibold leading-none"
+                style={{
+                  position: "absolute",
+                  left: -8,
+                  top: 22,
+                  whiteSpace: "nowrap",
+                  pointerEvents: "none",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: money(monthlyTotal).length > 9 ? 18 : 22,
+                }}
+                className="font-bold leading-none"
               >
                 {money(monthlyTotal)}
               </div>
             </div>
-            <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} money={money} moreLabel={t.moreCategories} />
+            <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} />
           </div>
           <div className="flex items-center gap-1.5 mt-3" style={{ color: colors.textSecondary }}>
             <Icon name="trendingUp" size={14} />
@@ -3923,13 +3966,21 @@ function HubboApp() {
               <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
                 <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
                 <div
-                  style={{ position: "absolute", left: -6, top: 16, whiteSpace: "nowrap", pointerEvents: "none", fontFamily: "'JetBrains Mono', monospace" }}
-                  className="text-2xl font-semibold leading-none"
+                  style={{
+                    position: "absolute",
+                    left: -8,
+                    top: 22,
+                    whiteSpace: "nowrap",
+                    pointerEvents: "none",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: money(calendarMonthStats.total).length > 9 ? 18 : 22,
+                  }}
+                  className="font-bold leading-none"
                 >
                   {money(calendarMonthStats.total)}
                 </div>
               </div>
-              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={money} moreLabel={t.moreCategories} />
+              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
             </div>
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
@@ -4375,11 +4426,11 @@ function HubboApp() {
         <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 68 }}>
           <button
             onClick={openAdd}
-            style={{ background: ACCENT.amber, color: "#1A1305" }}
-            className="rounded-full w-12 h-12 flex items-center justify-center shadow-md"
+            style={{ background: "transparent" }}
+            className="rounded-full w-12 h-12 flex items-center justify-center"
             aria-label={t.addAria}
           >
-            <AddRingIcon size={26} />
+            <AddRingIcon size={40} colors={colors} />
           </button>
         </div>
 
@@ -4653,6 +4704,7 @@ function HubboApp() {
                   value={form.renewalDate}
                   onChange={(e) => setForm({ ...form, renewalDate: e.target.value })}
                   type="date"
+                  min={form.isPast ? undefined : todayISO}
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
                   className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                 />
