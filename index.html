@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v41";
+const APP_VERSION = "v42";
 
 const FREE_LIMIT = 10;
 
@@ -2179,6 +2179,57 @@ function ScrollingLabel({ children, className = "", style }) {
   );
 }
 
+// The renewal ring is the app's signature, so the spend totals wear it too:
+// one arc per category, sized by its share, with the figure sitting inside.
+function CategoryRing({ segments, total, colors, size = 176, stroke = 13, children }) {
+  const r = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * r;
+  const gap = segments.length > 1 ? 3 : 0;
+  let offset = 0;
+  return (
+    <div style={{ width: size, height: size, position: "relative" }} className="flex-shrink-0">
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={colors.surface2} strokeWidth={stroke} />
+        {total > 0 &&
+          segments.map((seg) => {
+            const len = (seg.total / total) * circumference;
+            const drawn = Math.max(0, len - gap);
+            const el = (
+              <circle
+                key={seg.id}
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                stroke={seg.color}
+                strokeWidth={stroke}
+                strokeDasharray={`${drawn} ${circumference - drawn}`}
+                strokeDashoffset={-offset}
+              />
+            );
+            offset += len;
+            return el;
+          })}
+      </svg>
+      <div style={{ position: "absolute", inset: 0 }} className="flex flex-col items-center justify-center px-4 text-center">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// The add button echoes the app icon: same ring, with a plus where the dot is.
+// Drawn in the dark ink colour because the button itself is amber.
+function AddRingIcon({ size = 26, color = "#1A1305" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="15" fill="none" stroke={color} strokeOpacity="0.28" strokeWidth="5" />
+      <path d="M 20 5 A 15 15 0 1 1 7.4 27.2" fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" />
+      <path d="M 20 13.5 L 20 26.5 M 13.5 20 L 26.5 20" stroke={color} strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function SheetHandle({ colors }) {
   return (
     <div className="flex justify-center pb-3 pt-1">
@@ -3310,14 +3361,18 @@ function HubboApp() {
 
     let total = 0;
     let count = 0;
+    const catMap = {};
     Object.values(byDay).forEach((arr) => {
       arr.forEach((s) => {
-        total += convertAmount(s.cost, s.currency || settings.currency, settings.currency, rates);
+        const value = convertAmount(s.cost, s.currency || settings.currency, settings.currency, rates);
+        total += value;
         count++;
+        catMap[s.category] = (catMap[s.category] || 0) + value;
       });
     });
+    const byCategory = CATEGORIES.map((c) => ({ ...c, total: catMap[c.id] || 0 })).filter((c) => c.total > 0);
 
-    return { monthDate, days, byDay, stats: { total, count } };
+    return { monthDate, days, byDay, stats: { total, count, byCategory } };
   }
 
   const monthViews = useMemo(
@@ -3611,22 +3666,18 @@ function HubboApp() {
       <div className="px-5 pt-4">
         {/* Total card */}
         <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
-          <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-4xl font-semibold mb-3">
-            {money(monthlyTotal)}
-          </div>
-          <div className="flex items-center gap-1.5" style={{ color: colors.textSecondary }}>
-            <Icon name="trendingUp" size={14} />
-            <span className="text-xs">{t.perYear(money(annualTotal), totalsBase.length)}</span>
-          </div>
-
-          {categoryTotals.length > 0 && (
-            <div className="mt-4 flex rounded-full overflow-hidden" style={{ height: 6 }}>
-              {categoryTotals.map((c) => (
-                <div key={c.id} style={{ width: `${(c.total / monthlyTotal) * 100}%`, background: c.color }} />
-              ))}
+          <div className="flex flex-col items-center">
+            <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors}>
+              <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-3xl font-semibold leading-none">
+                {money(monthlyTotal)}
+              </div>
+            </CategoryRing>
+            <div className="flex items-center gap-1.5 mt-3.5" style={{ color: colors.textSecondary }}>
+              <Icon name="trendingUp" size={14} />
+              <span className="text-xs">{t.perYear(money(annualTotal), totalsBase.length)}</span>
             </div>
-          )}
+          </div>
           <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-4 pt-3">
             {t.freeBadge(activeSubs.length, FREE_LIMIT)}
             {pausedCount > 0 && ` · ${t.pausedCount(pausedCount)}`}
@@ -3807,12 +3858,16 @@ function HubboApp() {
       {view === "calendar" && (
       <div key="view-calendar" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4">
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4">
-            <div style={{ color: colors.textSecondary }} className="text-xs mb-1 capitalize">{t.monthTotalLabel} · {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-4xl font-semibold mb-1">
-              {money(calendarMonthStats.total)}
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4 flex flex-col items-center">
+            <div style={{ color: colors.textSecondary }} className="text-xs mb-3 capitalize text-center">
+              {t.monthTotalLabel} · {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}
             </div>
-            <div style={{ color: colors.textSecondary }} className="text-xs">{t.monthPayments(calendarMonthStats.count)}</div>
+            <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-3xl font-semibold leading-none">
+                {money(calendarMonthStats.total)}
+              </div>
+              <div style={{ color: colors.textSecondary }} className="text-xs mt-1.5">{t.monthPayments(calendarMonthStats.count)}</div>
+            </CategoryRing>
           </div>
           <div className="flex items-center justify-between mb-3">
             <span style={{ width: 54 }} className="flex-shrink-0" />
@@ -4260,7 +4315,7 @@ function HubboApp() {
             className="rounded-full w-12 h-12 flex items-center justify-center shadow-md"
             aria-label={t.addAria}
           >
-            <Icon name="plus" size={24} />
+            <AddRingIcon size={26} />
           </button>
         </div>
 
