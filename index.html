@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v34";
+const APP_VERSION = "v37";
 
 const FREE_LIMIT = 10;
 
@@ -251,6 +251,15 @@ const ANIMATIONS = `
 @keyframes rb-slide-down { from { transform: translateY(var(--rb-drag-y, 0px)); } to { transform: translateY(100%); } }
 @keyframes rb-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .rb-toast { animation: rb-toast-in 0.2s ease-out; }
+.rb-marquee { overflow: hidden; white-space: nowrap; }
+.rb-marquee > span { display: inline-block; will-change: transform; }
+@keyframes rb-marquee-move {
+  0%, 14% { transform: translateX(0); }
+  50%, 64% { transform: translateX(var(--rb-marquee-dx, 0px)); }
+  100% { transform: translateX(0); }
+}
+.rb-marquee-run { animation-name: rb-marquee-move; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+@media (prefers-reduced-motion: reduce) { .rb-marquee-run { animation: none; } }
 @keyframes rb-slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes rb-slide-out-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
 @keyframes rb-pop-in { from { opacity: 0; transform: scale(0.96) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -1623,7 +1632,6 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Solo questo",
     paymentScopeBefore: "Questo e i precedenti",
     paymentScopeAfter: "Questo e i successivi",
-    paymentSaveCount: (n) => `Salva ${n} pagamenti`,
     paymentOpenSub: "Apri abbonamento",
     paymentSheetHint: "Correggere l'importo cambia solo questo pagamento, non il prezzo dell'abbonamento.",
     pastSubToggle: "Abbonamento già terminato",
@@ -1677,7 +1685,6 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "This one only",
     paymentScopeBefore: "This and earlier",
     paymentScopeAfter: "This and later",
-    paymentSaveCount: (n) => `Save ${n} payments`,
     paymentOpenSub: "Open subscription",
     paymentSheetHint: "Correcting the amount only changes this payment, not the subscription price.",
     pastSubToggle: "Already ended",
@@ -1731,7 +1738,6 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Solo este",
     paymentScopeBefore: "Este y los anteriores",
     paymentScopeAfter: "Este y los siguientes",
-    paymentSaveCount: (n) => `Guardar ${n} pagos`,
     paymentOpenSub: "Abrir suscripción",
     paymentSheetHint: "Corregir el importe solo cambia este pago, no el precio de la suscripción.",
     pastSubToggle: "Ya finalizada",
@@ -1785,7 +1791,6 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Celui-ci uniquement",
     paymentScopeBefore: "Celui-ci et les précédents",
     paymentScopeAfter: "Celui-ci et les suivants",
-    paymentSaveCount: (n) => `Enregistrer ${n} paiements`,
     paymentOpenSub: "Ouvrir l'abonnement",
     paymentSheetHint: "Corriger le montant ne change que ce paiement, pas le prix de l'abonnement.",
     pastSubToggle: "Déjà terminé",
@@ -1839,7 +1844,6 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Nur diese",
     paymentScopeBefore: "Diese und frühere",
     paymentScopeAfter: "Diese und spätere",
-    paymentSaveCount: (n) => `${n} Zahlungen speichern`,
     paymentOpenSub: "Abo öffnen",
     paymentSheetHint: "Eine Betragskorrektur ändert nur diese Zahlung, nicht den Abo-Preis.",
     pastSubToggle: "Bereits beendet",
@@ -2087,6 +2091,43 @@ function useSheetDrag(onClose) {
       : undefined,
     dragging: dragY > 0,
   };
+}
+
+// A label that slides gently back and forth when it is too wide for its slot,
+// so long translations stay fully readable instead of being cut with an
+// ellipsis. It measures first and only animates when the text really overflows.
+function ScrollingLabel({ children, className = "", style }) {
+  const wrapRef = useRef(null);
+  const textRef = useRef(null);
+  const [distance, setDistance] = useState(0);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const text = textRef.current;
+    if (!wrap || !text) return;
+    const overflow = text.scrollWidth - wrap.clientWidth;
+    setDistance(overflow > 1 ? overflow : 0);
+  }, [children]);
+
+  return (
+    <div ref={wrapRef} className={`rb-marquee ${className}`} style={style}>
+      <span
+        ref={textRef}
+        className={distance ? "rb-marquee-run" : ""}
+        style={
+          distance
+            ? {
+                "--rb-marquee-dx": `-${distance + 4}px`,
+                // Longer overhangs get proportionally longer to stay readable.
+                animationDuration: `${Math.max(5, (distance + 4) / 14)}s`,
+              }
+            : undefined
+        }
+      >
+        {children}
+      </span>
+    </div>
+  );
 }
 
 function SheetHandle({ colors }) {
@@ -4395,24 +4436,33 @@ function HubboApp() {
               </>
             )}
 
-            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{form.isPast ? t.renewalDayLabel : t.nextRenewal}</label>
-            <input
-              value={form.renewalDate}
-              onChange={(e) => setForm({ ...form, renewalDate: e.target.value })}
-              type="date"
-              style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm mb-3.5 outline-none"
-            />
-
-            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.startDateLabel}</label>
-            <input
-              value={form.startDate}
-              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-              type="date"
-              max={todayISO}
-              style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-            />
+            <div className="flex items-start gap-2">
+              <div className="flex-1 min-w-0">
+                <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
+                  {form.isPast ? t.renewalDayLabel : t.nextRenewal}
+                </ScrollingLabel>
+                <input
+                  value={form.renewalDate}
+                  onChange={(e) => setForm({ ...form, renewalDate: e.target.value })}
+                  type="date"
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                  className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
+                  {t.startDateLabel}
+                </ScrollingLabel>
+                <input
+                  value={form.startDate}
+                  onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                  type="date"
+                  max={todayISO}
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                  className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                />
+              </div>
+            </div>
             <p style={{ color: colors.textFaint }} className="text-xs mt-1.5 mb-3.5">{t.startDateHint}</p>
 
             {(() => {
@@ -4829,73 +4879,87 @@ function HubboApp() {
             className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[80vh] overflow-y-auto ${closingSheet === "payment" ? "rb-sheet-out" : "rb-sheet"}`}
           >
             <SheetHandle colors={colors} />
-            <div className="flex items-start justify-between mb-4 gap-3">
-              <div className="min-w-0">
+            <div className="flex items-start gap-3 mb-4">
+              <ServiceLogo
+                icon={serviceIcon(paymentAction.name)}
+                domain={serviceDomain(paymentAction.name)}
+                category={paymentAction.category}
+                letter={paymentAction.name.charAt(0).toUpperCase()}
+                color={(CATEGORIES.find((c) => c.id === paymentAction.category) || CATEGORIES[CATEGORIES.length - 1]).color}
+                size={38}
+              />
+              <div className="min-w-0 flex-1">
                 <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium truncate">{paymentAction.name}</h2>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-0.5">
                   {parseLocalDate(paymentAction.date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>
-              <button type="button" onClick={() => closeSheet("payment", () => setPaymentAction(null))} style={{ color: colors.textSecondary }}>
+              <button type="button" onClick={() => closeSheet("payment", () => setPaymentAction(null))} style={{ color: colors.textSecondary }} className="flex-shrink-0">
                 <Icon name="x" size={20} />
               </button>
             </div>
 
-            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.paymentAmountLabel}</label>
-            <div className="flex items-center gap-2 mb-3">
-              <input
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
-                onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
-                type="text"
-                inputMode="decimal"
-                style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }}
-                className="flex-1 min-w-0 rounded-xl px-3 py-2.5 text-sm outline-none"
-              />
-              <span style={{ color: colors.textSecondary }} className="text-sm flex-shrink-0">{symbolFor(paymentAction.currency)}</span>
-            </div>
+            {/* Amount, scope and save read as one operation, so they share a card */}
+            <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-2xl p-3.5 mb-4">
+              <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.paymentAmountLabel}</label>
+              <div className="flex items-center gap-2 mb-3">
+                <input
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                  type="text"
+                  inputMode="decimal"
+                  style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }}
+                  className="flex-1 min-w-0 rounded-xl px-3 py-2.5 text-sm outline-none"
+                />
+                <span style={{ color: colors.textSecondary }} className="text-sm flex-shrink-0">{symbolFor(paymentAction.currency)}</span>
+              </div>
 
-            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.paymentApplyTo}</label>
-            <div className="flex gap-2 overflow-x-auto pb-1 mb-3" style={{ scrollbarWidth: "none" }}>
-              {[
-                { value: "one", label: t.paymentScopeOne },
-                { value: "before", label: t.paymentScopeBefore },
-                { value: "after", label: t.paymentScopeAfter },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setPaymentScope(opt.value)}
-                  style={{
-                    background: paymentScope === opt.value ? colors.textPrimary : colors.surface2,
-                    color: paymentScope === opt.value ? colors.bg : colors.textSecondary,
-                    border: `1px solid ${paymentScope === opt.value ? colors.textPrimary : colors.border}`,
-                  }}
-                  className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap flex-shrink-0"
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+              <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.paymentApplyTo}</label>
+              {/* Stacked rather than side by side: the labels are long enough to
+                  be clipped in a row, and each one now carries its own count. */}
+              <div className="flex flex-col gap-1.5 mb-3">
+                {[
+                  { value: "one", label: t.paymentScopeOne },
+                  { value: "before", label: t.paymentScopeBefore },
+                  { value: "after", label: t.paymentScopeAfter },
+                ].map((opt) => {
+                  const active = paymentScope === opt.value;
+                  const count = paymentsInScope(paymentAction, opt.value).length;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setPaymentScope(opt.value)}
+                      style={{
+                        background: active ? colors.textPrimary : colors.surface,
+                        color: active ? colors.bg : colors.textSecondary,
+                        border: `1px solid ${active ? colors.textPrimary : colors.border}`,
+                      }}
+                      className="rounded-xl px-3 py-2.5 text-xs font-medium flex items-center justify-between gap-2 text-left"
+                    >
+                      <span className="truncate">{opt.label}</span>
+                      <span style={{ opacity: 0.65 }} className="flex-shrink-0">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-            {(() => {
-              const affected = paymentsInScope(paymentAction, paymentScope).length;
-              const invalid = !(parseAmount(paymentAmount) > 0);
-              return (
-                <button
-                  type="button"
-                  disabled={invalid}
-                  onClick={async () => {
-                    await savePaymentAmount(paymentAction, paymentAmount, paymentScope);
-                    closeSheet("payment", () => setPaymentAction(null));
-                  }}
-                  style={{ background: ACCENT.amber, color: "#1A1305", opacity: invalid ? 0.4 : 1 }}
-                  className="w-full rounded-xl py-2.5 text-sm font-semibold mb-4"
-                >
-                  {affected > 1 ? t.paymentSaveCount(affected) : t.paymentSaveAmount}
-                </button>
-              );
-            })()}
+              <button
+                type="button"
+                disabled={!(parseAmount(paymentAmount) > 0)}
+                onClick={async () => {
+                  await savePaymentAmount(paymentAction, paymentAmount, paymentScope);
+                  closeSheet("payment", () => setPaymentAction(null));
+                }}
+                style={{ background: ACCENT.amber, color: "#1A1305", opacity: !(parseAmount(paymentAmount) > 0) ? 0.4 : 1 }}
+                className="w-full rounded-xl py-2.5 text-sm font-semibold"
+              >
+                {t.paymentSaveAmount}
+              </button>
+
+              <p style={{ color: colors.textFaint }} className="text-xs mt-2.5 leading-relaxed">{t.paymentSheetHint}</p>
+            </div>
 
             <div className="flex flex-col gap-1.5">
               <button
@@ -4904,8 +4968,8 @@ function HubboApp() {
                   await togglePaymentStatus(paymentAction.id);
                   closeSheet("payment", () => setPaymentAction(null));
                 }}
-                style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
-                className="rounded-xl px-3.5 py-3 text-sm font-medium text-left"
+                style={{ border: `1px solid ${colors.border}` }}
+                className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-left"
               >
                 {paymentAction.status === "skipped" ? t.historyMarkPaid : t.historyMarkSkipped}
               </button>
@@ -4920,15 +4984,13 @@ function HubboApp() {
                       if (target) setDetailSub(target);
                     });
                   }}
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
-                  className="rounded-xl px-3.5 py-3 text-sm font-medium text-left"
+                  style={{ border: `1px solid ${colors.border}` }}
+                  className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-left"
                 >
                   {t.paymentOpenSub}
                 </button>
               )}
             </div>
-
-            <p style={{ color: colors.textFaint }} className="text-xs mt-3 leading-relaxed">{t.paymentSheetHint}</p>
           </div>
         </div>
       )}
