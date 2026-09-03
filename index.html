@@ -232,7 +232,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v25";
+const APP_VERSION = "v26";
 
 const FREE_LIMIT = 10;
 
@@ -1496,6 +1496,7 @@ const LEDGER_STRINGS = {
     historyPeriodYear: "Quest'anno",
     historyPeriod12m: "Ultimi 12 mesi",
     historyPeriodAll: "Tutto",
+    historyPeriodLabelTitle: "Periodo",
     historyPeriodCustom: "Personalizzato",
     historyFrom: "Da",
     historyTo: "Al",
@@ -1533,6 +1534,7 @@ const LEDGER_STRINGS = {
     historyPeriodYear: "This year",
     historyPeriod12m: "Last 12 months",
     historyPeriodAll: "All time",
+    historyPeriodLabelTitle: "Period",
     historyPeriodCustom: "Custom",
     historyFrom: "From",
     historyTo: "To",
@@ -1570,6 +1572,7 @@ const LEDGER_STRINGS = {
     historyPeriodYear: "Este año",
     historyPeriod12m: "Últimos 12 meses",
     historyPeriodAll: "Todo",
+    historyPeriodLabelTitle: "Periodo",
     historyPeriodCustom: "Personalizado",
     historyFrom: "Desde",
     historyTo: "Hasta",
@@ -1607,6 +1610,7 @@ const LEDGER_STRINGS = {
     historyPeriodYear: "Cette année",
     historyPeriod12m: "12 derniers mois",
     historyPeriodAll: "Tout",
+    historyPeriodLabelTitle: "Période",
     historyPeriodCustom: "Personnalisé",
     historyFrom: "Du",
     historyTo: "Au",
@@ -1644,6 +1648,7 @@ const LEDGER_STRINGS = {
     historyPeriodYear: "Dieses Jahr",
     historyPeriod12m: "Letzte 12 Monate",
     historyPeriodAll: "Gesamt",
+    historyPeriodLabelTitle: "Zeitraum",
     historyPeriodCustom: "Benutzerdefiniert",
     historyFrom: "Von",
     historyTo: "Bis",
@@ -1668,6 +1673,15 @@ const LEDGER_STRINGS = {
     startMismatchFix: (d) => `${d} verwenden`,
   },
 };
+
+// Prices are typed on a locale keyboard, where Italian, Spanish, French and
+// German users all get a comma as the decimal key. A native number input
+// silently rejects it and hands back an empty value, so the amount is kept as
+// text and normalised here instead.
+function parseAmount(value) {
+  if (value === null || value === undefined) return NaN;
+  return parseFloat(String(value).replace(",", "."));
+}
 
 function toLocalISO(d) {
   // toISOString() reports UTC, so late evening in UTC+2 would already read as
@@ -2383,7 +2397,7 @@ function HubboApp() {
         setFormError(t.errNoService);
         return;
       }
-      if (!form.cost || parseFloat(form.cost) <= 0) {
+      if (!form.cost || !(parseAmount(form.cost) > 0)) {
         setFormError(t.errNoCost);
         return;
       }
@@ -2402,7 +2416,7 @@ function HubboApp() {
       }
       setFormError("");
       setSaving(true);
-      const rawCost = parseFloat(form.cost);
+      const rawCost = parseAmount(form.cost);
       const effectiveCost = form.isShared ? Math.round((rawCost / people) * 100) / 100 : rawCost;
       const prevSub = editingId ? subs.find((s) => s.id === editingId) : null;
       let lastIncrease = prevSub ? prevSub.lastIncrease || null : null;
@@ -3570,28 +3584,29 @@ function HubboApp() {
 
           {payments.length > 0 && (
             <div className="mb-4">
-              <div className="flex gap-2 overflow-x-auto pb-1 mb-2" style={{ scrollbarWidth: "none" }}>
-                {[
-                  { value: "all", label: t.historyPeriodAll },
-                  { value: "year", label: t.historyPeriodYear },
-                  { value: "12m", label: t.historyPeriod12m },
-                  ...historyYears.map((y) => ({ value: y, label: y })),
-                  { value: "custom", label: t.historyPeriodCustom },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setHistoryPeriod(opt.value)}
-                    style={{
-                      background: historyPeriod === opt.value ? colors.textPrimary : colors.surface2,
-                      color: historyPeriod === opt.value ? colors.bg : colors.textSecondary,
-                      border: `1px solid ${historyPeriod === opt.value ? colors.textPrimary : colors.border}`,
-                    }}
-                    className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap flex-shrink-0"
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
+              <button
+                onClick={() =>
+                  setOptionPicker({
+                    title: t.historyPeriodLabelTitle,
+                    value: historyPeriod,
+                    options: [
+                      { value: "all", label: t.historyPeriodAll },
+                      { value: "year", label: t.historyPeriodYear },
+                      { value: "12m", label: t.historyPeriod12m },
+                      ...historyYears.map((y) => ({ value: y, label: y })),
+                      { value: "custom", label: t.historyPeriodCustom },
+                    ],
+                    onSelect: (v) => setHistoryPeriod(v),
+                  })
+                }
+                style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyPeriod === "all" ? colors.textSecondary : colors.textPrimary }}
+                className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1 mb-2"
+              >
+                <span className="truncate">
+                  {historyPeriod === "all" ? t.historyPeriodAll : historyPeriodLabel}
+                </span>
+                <span style={{ fontSize: 9 }}>▾</span>
+              </button>
 
               {historyPeriod === "custom" && (
                 <div className="flex items-center gap-2 mb-2">
@@ -3976,8 +3991,9 @@ function HubboApp() {
                 <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{form.isShared ? t.totalCostLabel : t.cost}</label>
                 <input
                   value={form.cost}
-                  onChange={(e) => setForm({ ...form, cost: e.target.value })}
-                  type="number" step="0.01" min="0" placeholder="9,99"
+                  onChange={(e) => setForm({ ...form, cost: e.target.value.replace(/[^0-9.,]/g, "") })}
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                  type="text" inputMode="decimal" placeholder="9,99"
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }}
                   className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                 />
@@ -4065,7 +4081,7 @@ function HubboApp() {
                 />
                 {form.cost && form.peopleCount && parseInt(form.peopleCount, 10) >= 2 && (
                   <p style={{ color: colors.textSecondary }} className="text-xs mb-3.5">
-                    {t.yourShare(money(Math.round((parseFloat(form.cost) / parseInt(form.peopleCount, 10)) * 100) / 100, form.currency))}
+                    {t.yourShare(money(Math.round((parseAmount(form.cost) / parseInt(form.peopleCount, 10)) * 100) / 100, form.currency))}
                   </p>
                 )}
               </>
@@ -4486,7 +4502,7 @@ function HubboApp() {
       {optionPicker && (
         <div
           style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }}
-          className={`fixed inset-0 flex items-end z-[70] ${closingSheet === "option" ? "rb-overlay-out" : "rb-overlay"}`}
+          className={`fixed inset-0 flex ${optionPicker.searchable ? "items-start" : "items-end"} z-[70] ${closingSheet === "option" ? "rb-overlay-out" : "rb-overlay"}`}
           onClick={() => closeSheet("option", () => setOptionPicker(null))}
         >
           <div
@@ -4494,9 +4510,13 @@ function HubboApp() {
             {...optionDrag.handlers}
             ref={optionDrag.ref}
             style={{ background: colors.surface, border: `1px solid ${colors.border}`, ...optionDrag.style }}
-            className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[70vh] overflow-y-auto ${closingSheet === "option" ? "rb-sheet-out" : "rb-sheet"}`}
+            className={`w-full px-5 pb-8 overflow-y-auto ${
+              optionPicker.searchable
+                ? "h-full pt-3"
+                : "rounded-t-3xl pt-2 max-h-[70vh]"
+            } ${closingSheet === "option" ? "rb-sheet-out" : "rb-sheet"}`}
           >
-            <SheetHandle colors={colors} />
+            {!optionPicker.searchable && <SheetHandle colors={colors} />}
             <div className="flex items-center justify-between mb-4">
               <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">{optionPicker.title}</h2>
               <button type="button" onClick={() => closeSheet("option", () => setOptionPicker(null))} style={{ color: colors.textSecondary }}>
