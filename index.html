@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v31";
+const APP_VERSION = "v32";
 
 const FREE_LIMIT = 10;
 
@@ -687,6 +687,35 @@ const COMMON_SERVICES = [
   { name: "Dott", category: "trasporti", icon: null , domain: "ridedott.com" },
   { name: "Enjoy", category: "trasporti", icon: null , domain: "enjoy.eni.com" },
   { name: "BlaBlaCar", category: "trasporti", icon: null , domain: "blablacar.it" },
+  { name: "WhatsApp Premium", category: "social", icon: null , domain: "whatsapp.com" },
+  { name: "Reddit Premium", category: "social", icon: null , domain: "reddit.com" },
+  { name: "Bumble Premium", category: "social", icon: null , domain: "bumble.com" },
+  { name: "Hinge+", category: "social", icon: null , domain: "hinge.co" },
+  { name: "Badoo Premium", category: "social", icon: null , domain: "badoo.com" },
+  { name: "Apple One", category: "streaming", icon: null , domain: "apple.com" },
+  { name: "MUBI", category: "streaming", icon: null , domain: "mubi.com" },
+  { name: "Plex Pass", category: "streaming", icon: null , domain: "plex.tv" },
+  { name: "SoundCloud Go+", category: "streaming", icon: null , domain: "soundcloud.com" },
+  { name: "Nebula", category: "streaming", icon: null , domain: "nebula.tv" },
+  { name: "Slack", category: "business", icon: null , domain: "slack.com" },
+  { name: "Google Workspace", category: "business", icon: null , domain: "workspace.google.com" },
+  { name: "JetBrains", category: "software", icon: null , domain: "jetbrains.com" },
+  { name: "Setapp", category: "software", icon: null , domain: "setapp.com" },
+  { name: "Vimeo", category: "creativita", icon: null , domain: "vimeo.com" },
+  { name: "Envato Elements", category: "creativita", icon: null , domain: "elements.envato.com" },
+  { name: "Freepik", category: "creativita", icon: null , domain: "freepik.com" },
+  { name: "Adobe Stock", category: "creativita", icon: null , domain: "stock.adobe.com" },
+  { name: "Chess.com", category: "gaming", icon: null , domain: "chess.com" },
+  { name: "Roblox Premium", category: "gaming", icon: null , domain: "roblox.com" },
+  { name: "Calm", category: "altro", icon: null , domain: "calm.com" },
+  { name: "Headspace", category: "altro", icon: null , domain: "headspace.com" },
+  { name: "Babbel", category: "altro", icon: null , domain: "babbel.com" },
+  { name: "Busuu", category: "altro", icon: null , domain: "busuu.com" },
+  { name: "Blinkist", category: "altro", icon: null , domain: "blinkist.com" },
+  { name: "Kindle Unlimited", category: "altro", icon: null , domain: "amazon.it" },
+  { name: "Storytel", category: "altro", icon: null , domain: "storytel.com" },
+  { name: "MasterClass", category: "altro", icon: null , domain: "masterclass.com" },
+  { name: "LinkedIn Learning", category: "altro", icon: null , domain: "linkedin.com" },
 ];
 
 const STRINGS = {
@@ -1568,7 +1597,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Ultimi 12 mesi",
     historyPeriodAll: "Tutto",
     historyPeriodLabelTitle: "Periodo",
-    historyFiltersTitle: "Filtri",
+    historyShowYear: (y) => `Mostra ${y}`,
     historyPeriodCustom: "Personalizzato",
     historyFrom: "Da",
     historyTo: "Al",
@@ -1620,7 +1649,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Last 12 months",
     historyPeriodAll: "All time",
     historyPeriodLabelTitle: "Period",
-    historyFiltersTitle: "Filters",
+    historyShowYear: (y) => `Show ${y}`,
     historyPeriodCustom: "Custom",
     historyFrom: "From",
     historyTo: "To",
@@ -1672,7 +1701,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Últimos 12 meses",
     historyPeriodAll: "Todo",
     historyPeriodLabelTitle: "Periodo",
-    historyFiltersTitle: "Filtros",
+    historyShowYear: (y) => `Mostrar ${y}`,
     historyPeriodCustom: "Personalizado",
     historyFrom: "Desde",
     historyTo: "Hasta",
@@ -1724,7 +1753,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "12 derniers mois",
     historyPeriodAll: "Tout",
     historyPeriodLabelTitle: "Période",
-    historyFiltersTitle: "Filtres",
+    historyShowYear: (y) => `Afficher ${y}`,
     historyPeriodCustom: "Personnalisé",
     historyFrom: "Du",
     historyTo: "Au",
@@ -1776,7 +1805,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Letzte 12 Monate",
     historyPeriodAll: "Gesamt",
     historyPeriodLabelTitle: "Zeitraum",
-    historyFiltersTitle: "Filter",
+    historyShowYear: (y) => `${y} anzeigen`,
     historyPeriodCustom: "Benutzerdefiniert",
     historyFrom: "Von",
     historyTo: "Bis",
@@ -2254,6 +2283,7 @@ function HubboApp() {
   const [historyCat, setHistoryCat] = useState("all");
   const [historyFrom, setHistoryFrom] = useState("");
   const [historyTo, setHistoryTo] = useState("");
+  const [historyShownYears, setHistoryShownYears] = useState(1);
   const [paymentAction, setPaymentAction] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentScope, setPaymentScope] = useState("one");
@@ -2999,6 +3029,21 @@ function HubboApp() {
       }));
   }, [filteredPayments, settings.currency, rates]);
 
+  // The history only ever renders one year at a time: after a few years of
+  // tracking, drawing every month at once would make the tab heavy to scroll
+  // and slow to paint. Older years are revealed on demand, one tap each.
+  const historyYearList = useMemo(
+    () => Array.from(new Set(historyMonths.map((m) => m.key.slice(0, 4)))).sort().reverse(),
+    [historyMonths]
+  );
+
+  const visibleHistoryMonths = useMemo(() => {
+    const shown = new Set(historyYearList.slice(0, historyShownYears));
+    return historyMonths.filter((m) => shown.has(m.key.slice(0, 4)));
+  }, [historyMonths, historyYearList, historyShownYears]);
+
+  const nextOlderYear = historyYearList[historyShownYears];
+
   const historyTotals = useMemo(() => {
     let total = 0;
     let count = 0;
@@ -3049,6 +3094,10 @@ function HubboApp() {
       )
     );
   }
+
+  useEffect(() => {
+    setHistoryShownYears(1);
+  }, [historyPeriod, historySub, historyCat, historyFrom, historyTo]);
 
   async function togglePaymentStatus(id) {
     await persistPayments(
@@ -3766,10 +3815,8 @@ function HubboApp() {
 
           {payments.length > 0 && (
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span style={{ color: colors.textSecondary }} className="text-xs font-semibold uppercase tracking-wide">
-                  {t.historyFiltersTitle}
-                </span>
+              <div className="flex items-center justify-between mb-1">
+                <label style={{ color: colors.textFaint }} className="text-xs">{t.historyPeriodLabelTitle}</label>
                 {historyFiltered && (
                   <button
                     onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryFrom(""); setHistoryTo(""); }}
@@ -3780,8 +3827,6 @@ function HubboApp() {
                   </button>
                 )}
               </div>
-
-              <label style={{ color: colors.textFaint }} className="text-xs block mb-1">{t.historyPeriodLabelTitle}</label>
               <button
                 onClick={() =>
                   setOptionPicker({
@@ -3913,7 +3958,7 @@ function HubboApp() {
             </div>
           ) : (
             <div className="flex flex-col gap-5">
-              {historyMonths.map(({ key, monthDate, items, total }) => (
+              {visibleHistoryMonths.map(({ key, monthDate, items, total }) => (
                 <div key={key}>
                   <div className="flex items-center justify-between mb-2 px-1">
                     <span style={{ color: colors.textSecondary }} className="text-xs font-medium capitalize">
@@ -3958,6 +4003,17 @@ function HubboApp() {
                   </div>
                 </div>
               ))}
+
+              {nextOlderYear && (
+                <button
+                  onClick={() => setHistoryShownYears((n) => n + 1)}
+                  style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                  className="w-full rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-1.5"
+                >
+                  {t.historyShowYear(nextOlderYear)}
+                  <span style={{ fontSize: 10 }}>▾</span>
+                </button>
+              )}
             </div>
           )}
         </div>
