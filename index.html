@@ -232,7 +232,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v20";
+const APP_VERSION = "v21";
 
 const FREE_LIMIT = 10;
 
@@ -1714,20 +1714,26 @@ function pastOccurrences(sub, today, maxYears = 15) {
   return out.reverse();
 }
 
-function occurrencesInMonth(renewalDateStr, frequency, monthDate) {
+// Occurrences falling inside one calendar month.
+//
+// The anchor (renewalDate) sets the cycle's phase but is normally in the
+// future, so on its own it can only describe months from today onwards. When a
+// start date is known the same cycle is walked backwards to it, which is what
+// lets the calendar show past months instead of drawing them empty.
+function occurrencesInMonth(renewalDateStr, frequency, monthDate, startDateStr) {
   const anchor = parseLocalDate(renewalDateStr);
   const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
-  if (anchor > monthEnd) return [];
+  const lowerBound = startDateStr ? parseLocalDate(startDateStr) : anchor;
+  if (lowerBound > monthEnd) return [];
 
   const steps = periodsBetween(anchor, monthStart, frequency);
   const results = [];
   // A calendar month holds at most one monthly (or yearly) occurrence, but the
   // neighbouring steps are checked so month-length clamping can't drop one.
   for (let k = steps - 1; k <= steps + 1; k++) {
-    if (k < 0) continue;
     const d = addPeriods(anchor, frequency, k);
-    if (d >= monthStart && d <= monthEnd && d >= anchor) {
+    if (d >= monthStart && d <= monthEnd && d >= lowerBound) {
       if (!results.some((r) => r.getTime() === d.getTime())) results.push(d);
     }
   }
@@ -2717,10 +2723,17 @@ function HubboApp() {
     for (let d = 1; d <= daysInMonth; d++) days.push(d);
 
     const byDay = {};
-    activeSubs.forEach((s) => {
-      const occs = occurrencesInMonth(s.renewalDate, s.frequency, monthDate);
+    // Built from every subscription rather than only the active ones: a service
+    // cancelled in June was genuinely being billed in March, and a past month
+    // should show it. Each occurrence is then filtered on its own date.
+    enriched.forEach((s) => {
+      const occs = occurrencesInMonth(s.renewalDate, s.frequency, monthDate, s.startDate);
       occs.forEach((occDate) => {
         if (s.endDate && occDate > parseLocalDate(s.endDate)) return;
+        if (wasPausedOn(s, occDate)) return;
+        // Subscriptions paused before pause dates were recorded have no periods
+        // to check, so they are simply hidden from today onwards.
+        if (s.paused && occDate >= today) return;
         const key = occDate.getDate();
         if (!byDay[key]) byDay[key] = [];
         byDay[key].push(s);
@@ -2745,7 +2758,7 @@ function HubboApp() {
       current: buildMonthView(calendarOffset),
       next: buildMonthView(calendarOffset + 1),
     }),
-    [calendarOffset, activeSubs, rates, settings.currency]
+    [calendarOffset, enriched, rates, settings.currency, todayISO]
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
