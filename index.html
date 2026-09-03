@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v42";
+const APP_VERSION = "v44";
 
 const FREE_LIMIT = 10;
 
@@ -737,6 +737,7 @@ const STRINGS = {
     version: "versione",
     installedOn: "aggiornata al",
     monthlySpend: "Spesa mensile stimata",
+    moreCategories: (n) => `+${n} altre`,
     perYear: (amount, n) => `${amount} stimati all'anno · ${n} attivi`,
     freeBadge: (n, limit) => `${n}/${limit} nel piano gratuito`,
     emptyTitle: "Nessun abbonamento ancora.",
@@ -894,6 +895,8 @@ const STRINGS = {
     monthTotalLabel: "Spesa totale",
     monthPayments: (n) => (n === 1 ? "1 pagamento" : `${n} pagamenti`),
     priceHistoryTitle: "Storico prezzi",
+    priceUnchanged: "Prezzo invariato",
+    priceCurrent: "Prezzo attuale",
     priceSinceFirst: (d) => `dal ${d}`,
     priceFrom: (d) => `dal ${d}`,
   },
@@ -904,6 +907,7 @@ const STRINGS = {
     version: "version",
     installedOn: "updated on",
     monthlySpend: "Estimated monthly spend",
+    moreCategories: (n) => `+${n} more`,
     perYear: (amount, n) => `${amount} estimated per year · ${n} active`,
     freeBadge: (n, limit) => `${n}/${limit} on free plan`,
     emptyTitle: "No subscriptions yet.",
@@ -1061,6 +1065,8 @@ const STRINGS = {
     monthTotalLabel: "Total spend",
     monthPayments: (n) => (n === 1 ? "1 payment" : `${n} payments`),
     priceHistoryTitle: "Price history",
+    priceUnchanged: "Price unchanged",
+    priceCurrent: "Current price",
     priceSinceFirst: (d) => `since ${d}`,
     priceFrom: (d) => `from ${d}`,
   },
@@ -1071,6 +1077,7 @@ const STRINGS = {
     version: "versión",
     installedOn: "actualizada el",
     monthlySpend: "Gasto mensual estimado",
+    moreCategories: (n) => `+${n} más`,
     perYear: (amount, n) => `${amount} estimados al año · ${n} activas`,
     freeBadge: (n, limit) => `${n}/${limit} en el plan gratuito`,
     emptyTitle: "Aún no hay suscripciones.",
@@ -1228,6 +1235,8 @@ const STRINGS = {
     monthTotalLabel: "Gasto total",
     monthPayments: (n) => (n === 1 ? "1 pago" : `${n} pagos`),
     priceHistoryTitle: "Historial de precios",
+    priceUnchanged: "Precio sin cambios",
+    priceCurrent: "Precio actual",
     priceSinceFirst: (d) => `desde ${d}`,
     priceFrom: (d) => `desde ${d}`,
   },
@@ -1238,6 +1247,7 @@ const STRINGS = {
     version: "version",
     installedOn: "mise à jour le",
     monthlySpend: "Dépense mensuelle estimée",
+    moreCategories: (n) => `+${n} autres`,
     perYear: (amount, n) => `${amount} estimés par an · ${n} actifs`,
     freeBadge: (n, limit) => `${n}/${limit} dans l'offre gratuite`,
     emptyTitle: "Aucun abonnement pour l'instant.",
@@ -1395,6 +1405,8 @@ const STRINGS = {
     monthTotalLabel: "Dépense totale",
     monthPayments: (n) => (n === 1 ? "1 paiement" : `${n} paiements`),
     priceHistoryTitle: "Historique des prix",
+    priceUnchanged: "Prix inchangé",
+    priceCurrent: "Prix actuel",
     priceSinceFirst: (d) => `depuis le ${d}`,
     priceFrom: (d) => `depuis le ${d}`,
   },
@@ -1405,6 +1417,7 @@ const STRINGS = {
     version: "Version",
     installedOn: "aktualisiert am",
     monthlySpend: "Geschätzte Monatsausgaben",
+    moreCategories: (n) => `+${n} weitere`,
     perYear: (amount, n) => `${amount} geschätzt pro Jahr · ${n} aktiv`,
     freeBadge: (n, limit) => `${n}/${limit} im Gratis-Tarif`,
     emptyTitle: "Noch keine Abos.",
@@ -1562,6 +1575,8 @@ const STRINGS = {
     monthTotalLabel: "Gesamtausgaben",
     monthPayments: (n) => (n === 1 ? "1 Zahlung" : `${n} Zahlungen`),
     priceHistoryTitle: "Preisverlauf",
+    priceUnchanged: "Preis unverändert",
+    priceCurrent: "Aktueller Preis",
     priceSinceFirst: (d) => `seit ${d}`,
     priceFrom: (d) => `ab ${d}`,
   },
@@ -1901,7 +1916,11 @@ function buildPriceSeries(sub, payments) {
       points.push({ cost: p.amount, currency: p.currency || sub.currency, date: p.date });
     }
   });
-  if (points.length === 0) return [];
+  if (points.length === 0) {
+    // Nothing recorded yet: the section still shows today's price, so it is
+    // never an empty box. The date is omitted when it isn't known.
+    return [{ cost: sub.cost, currency: sub.currency, date: sub.startDate || "" }];
+  }
 
   points.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const out = [];
@@ -2180,40 +2199,72 @@ function ScrollingLabel({ children, className = "", style }) {
 }
 
 // The renewal ring is the app's signature, so the spend totals wear it too:
-// one arc per category, sized by its share, with the figure sitting inside.
-function CategoryRing({ segments, total, colors, size = 176, stroke = 13, children }) {
+// one arc per category, sized by its share. The ring is deliberately open in
+// the top-left quarter, which is where the amount sits and breaks out of it.
+function CategoryRing({ segments, total, colors, size = 128, stroke = 11 }) {
   const r = (size - stroke) / 2;
   const circumference = 2 * Math.PI * r;
-  const gap = segments.length > 1 ? 3 : 0;
+  const SWEEP = 0.75;
+  const arc = circumference * SWEEP;
+  const gap = segments.length > 1 ? 4 : 0;
   let offset = 0;
   return (
-    <div style={{ width: size, height: size, position: "relative" }} className="flex-shrink-0">
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={colors.surface2} strokeWidth={stroke} />
-        {total > 0 &&
-          segments.map((seg) => {
-            const len = (seg.total / total) * circumference;
-            const drawn = Math.max(0, len - gap);
-            const el = (
-              <circle
-                key={seg.id}
-                cx={size / 2}
-                cy={size / 2}
-                r={r}
-                fill="none"
-                stroke={seg.color}
-                strokeWidth={stroke}
-                strokeDasharray={`${drawn} ${circumference - drawn}`}
-                strokeDashoffset={-offset}
-              />
-            );
-            offset += len;
-            return el;
-          })}
-      </svg>
-      <div style={{ position: "absolute", inset: 0 }} className="flex flex-col items-center justify-center px-4 text-center">
-        {children}
-      </div>
+    <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke={colors.surface2}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={`${arc} ${circumference - arc}`}
+      />
+      {total > 0 &&
+        segments.map((seg) => {
+          const len = (seg.total / total) * arc;
+          const drawn = Math.max(0, len - gap);
+          const el = (
+            <circle
+              key={seg.id}
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={seg.color}
+              strokeWidth={stroke}
+              strokeDasharray={`${drawn} ${circumference - drawn}`}
+              strokeDashoffset={-offset}
+            />
+          );
+          offset += len;
+          return el;
+        })}
+    </svg>
+  );
+}
+
+// Reads the ring for you: without it the colours mean nothing. Only the first
+// few categories are listed, since beyond that the card grows more than the
+// information is worth.
+function CategoryLegend({ segments, total, colors, money, moreLabel, max = 5 }) {
+  if (!segments || segments.length === 0 || total <= 0) return null;
+  const shown = segments.slice(0, max);
+  const hidden = segments.length - shown.length;
+  return (
+    <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+      {shown.map((seg) => (
+        <div key={seg.id} className="flex items-center gap-2 min-w-0">
+          <span style={{ background: seg.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
+          <span style={{ color: colors.textSecondary }} className="text-xs truncate flex-1">{seg.label}</span>
+          <span style={{ color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold flex-shrink-0">
+            {Math.round((seg.total / total) * 100)}%
+          </span>
+        </div>
+      ))}
+      {hidden > 0 && (
+        <div style={{ color: colors.textFaint }} className="text-xs pl-[17px]">{moreLabel(hidden)}</div>
+      )}
     </div>
   );
 }
@@ -3666,17 +3717,23 @@ function HubboApp() {
       <div className="px-5 pt-4">
         {/* Total card */}
         <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
-          <div className="flex flex-col items-center">
-            <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors}>
-              <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-3xl font-semibold leading-none">
+          <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
+          <div className="flex items-center gap-3">
+            <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
+              <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} />
+              {/* Sits in the ring's open quarter and spills out to its left */}
+              <div
+                style={{ position: "absolute", left: -6, top: 16, whiteSpace: "nowrap", pointerEvents: "none", fontFamily: "'JetBrains Mono', monospace" }}
+                className="text-2xl font-semibold leading-none"
+              >
                 {money(monthlyTotal)}
               </div>
-            </CategoryRing>
-            <div className="flex items-center gap-1.5 mt-3.5" style={{ color: colors.textSecondary }}>
-              <Icon name="trendingUp" size={14} />
-              <span className="text-xs">{t.perYear(money(annualTotal), totalsBase.length)}</span>
             </div>
+            <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} money={money} moreLabel={t.moreCategories} />
+          </div>
+          <div className="flex items-center gap-1.5 mt-3" style={{ color: colors.textSecondary }}>
+            <Icon name="trendingUp" size={14} />
+            <span className="text-xs">{t.perYear(money(annualTotal), totalsBase.length)}</span>
           </div>
           <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-4 pt-3">
             {t.freeBadge(activeSubs.length, FREE_LIMIT)}
@@ -3858,16 +3915,23 @@ function HubboApp() {
       {view === "calendar" && (
       <div key="view-calendar" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4">
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4 flex flex-col items-center">
-            <div style={{ color: colors.textSecondary }} className="text-xs mb-3 capitalize text-center">
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4">
+            <div style={{ color: colors.textSecondary }} className="text-xs mb-1 capitalize">
               {t.monthTotalLabel} · {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}
             </div>
-            <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-3xl font-semibold leading-none">
-                {money(calendarMonthStats.total)}
+            <div className="flex items-center gap-3">
+              <div style={{ position: "relative", width: 128, height: 128 }} className="flex-shrink-0">
+                <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
+                <div
+                  style={{ position: "absolute", left: -6, top: 16, whiteSpace: "nowrap", pointerEvents: "none", fontFamily: "'JetBrains Mono', monospace" }}
+                  className="text-2xl font-semibold leading-none"
+                >
+                  {money(calendarMonthStats.total)}
+                </div>
               </div>
-              <div style={{ color: colors.textSecondary }} className="text-xs mt-1.5">{t.monthPayments(calendarMonthStats.count)}</div>
-            </CategoryRing>
+              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={money} moreLabel={t.moreCategories} />
+            </div>
+            <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
           <div className="flex items-center justify-between mb-3">
             <span style={{ width: 54 }} className="flex-shrink-0" />
@@ -5415,7 +5479,8 @@ function HubboApp() {
               )}
               {(() => {
                 const hist = buildPriceSeries(s, payments);
-                if (hist.length < 2) return null;
+                if (hist.length === 0) return null;
+                const unchanged = hist.length < 2;
                 const first = hist[0];
                 const last = hist[hist.length - 1];
                 const totalPct = first.cost > 0 ? Math.round(((last.cost - first.cost) / first.cost) * 100) : 0;
@@ -5424,16 +5489,27 @@ function HubboApp() {
                   <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3.5 py-3 mb-3">
                     <div className="mb-3">
                       <span style={{ color: colors.textSecondary }} className="text-sm font-medium">{t.priceHistoryTitle}</span>
-                      {totalPct !== 0 && (
-                        <div className="flex items-baseline gap-1.5 mt-1">
-                          <span style={{ color: up ? ACCENT.amber : "#4CAF7D" }} className="text-base font-bold whitespace-nowrap">
-                            {up ? "⬆" : "⬇"} {totalPct > 0 ? "+" : ""}{totalPct}%
+                      <div className="flex items-baseline gap-1.5 mt-1">
+                        {unchanged ? (
+                          <span style={{ color: colors.textSecondary }} className="text-base font-bold">
+                            {t.priceUnchanged}
                           </span>
-                          <span style={{ color: colors.textFaint }} className="text-xs truncate">
-                            {t.priceSinceFirst(dateFmt(first.date))}
-                          </span>
-                        </div>
-                      )}
+                        ) : (
+                          <>
+                            <span
+                              style={{ color: totalPct === 0 ? colors.textSecondary : up ? ACCENT.amber : "#4CAF7D" }}
+                              className="text-base font-bold whitespace-nowrap"
+                            >
+                              {totalPct === 0 ? "" : up ? "⬆ " : "⬇ "}{totalPct > 0 ? "+" : ""}{totalPct}%
+                            </span>
+                            {first.date && (
+                              <span style={{ color: colors.textFaint }} className="text-xs truncate">
+                                {t.priceSinceFirst(dateFmt(first.date))}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       {hist.slice().reverse().map((entry, idx, list) => {
@@ -5445,7 +5521,7 @@ function HubboApp() {
                         return (
                           <div key={`${entry.date}-${idx}`} className="flex items-center justify-between gap-2">
                             <span style={{ color: colors.textSecondary }} className="text-sm truncate">
-                              {t.priceFrom(dateFmt(entry.date))}
+                              {entry.date ? t.priceFrom(dateFmt(entry.date)) : t.priceCurrent}
                             </span>
                             <span className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold">
