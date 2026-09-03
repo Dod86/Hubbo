@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v30";
+const APP_VERSION = "v31";
 
 const FREE_LIMIT = 10;
 
@@ -1568,6 +1568,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Ultimi 12 mesi",
     historyPeriodAll: "Tutto",
     historyPeriodLabelTitle: "Periodo",
+    historyFiltersTitle: "Filtri",
     historyPeriodCustom: "Personalizzato",
     historyFrom: "Da",
     historyTo: "Al",
@@ -1619,6 +1620,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Last 12 months",
     historyPeriodAll: "All time",
     historyPeriodLabelTitle: "Period",
+    historyFiltersTitle: "Filters",
     historyPeriodCustom: "Custom",
     historyFrom: "From",
     historyTo: "To",
@@ -1670,6 +1672,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Últimos 12 meses",
     historyPeriodAll: "Todo",
     historyPeriodLabelTitle: "Periodo",
+    historyFiltersTitle: "Filtros",
     historyPeriodCustom: "Personalizado",
     historyFrom: "Desde",
     historyTo: "Hasta",
@@ -1721,6 +1724,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "12 derniers mois",
     historyPeriodAll: "Tout",
     historyPeriodLabelTitle: "Période",
+    historyFiltersTitle: "Filtres",
     historyPeriodCustom: "Personnalisé",
     historyFrom: "Du",
     historyTo: "Au",
@@ -1772,6 +1776,7 @@ const LEDGER_STRINGS = {
     historyPeriod12m: "Letzte 12 Monate",
     historyPeriodAll: "Gesamt",
     historyPeriodLabelTitle: "Zeitraum",
+    historyFiltersTitle: "Filter",
     historyPeriodCustom: "Benutzerdefiniert",
     historyFrom: "Von",
     historyTo: "Bis",
@@ -3761,6 +3766,22 @@ function HubboApp() {
 
           {payments.length > 0 && (
             <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span style={{ color: colors.textSecondary }} className="text-xs font-semibold uppercase tracking-wide">
+                  {t.historyFiltersTitle}
+                </span>
+                {historyFiltered && (
+                  <button
+                    onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryFrom(""); setHistoryTo(""); }}
+                    style={{ color: ACCENT.amber }}
+                    className="text-xs font-medium"
+                  >
+                    {t.historyResetFilters}
+                  </button>
+                )}
+              </div>
+
+              <label style={{ color: colors.textFaint }} className="text-xs block mb-1">{t.historyPeriodLabelTitle}</label>
               <button
                 onClick={() =>
                   setOptionPicker({
@@ -3777,7 +3798,7 @@ function HubboApp() {
                   })
                 }
                 style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyPeriod === "all" ? colors.textSecondary : colors.textPrimary }}
-                className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1 mb-2"
+                className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1 mb-2.5"
               >
                 <span className="truncate">
                   {historyPeriod === "all" ? t.historyPeriodAll : historyPeriodLabel}
@@ -3813,7 +3834,9 @@ function HubboApp() {
                 </div>
               )}
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                <label style={{ color: colors.textFaint }} className="text-xs block mb-1">{t.historyServiceLabel}</label>
                 <button
                   onClick={() =>
                     setOptionPicker({
@@ -3837,14 +3860,17 @@ function HubboApp() {
                     })
                   }
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historySub === "all" ? colors.textSecondary : colors.textPrimary }}
-                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
                 >
                   <span className="truncate">
                     {historySub === "all" ? t.historyAllServices : (historyServices.find((s) => s.value === historySub) || {}).label || t.historyAllServices}
                   </span>
                   <span style={{ fontSize: 9 }}>▾</span>
                 </button>
+                </div>
 
+                <div className="flex-1 min-w-0">
+                <label style={{ color: colors.textFaint }} className="text-xs block mb-1">{t.historyCategoryLabel}</label>
                 <button
                   onClick={() =>
                     setOptionPicker({
@@ -3855,24 +3881,15 @@ function HubboApp() {
                     })
                   }
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCat === "all" ? colors.textSecondary : colors.textPrimary }}
-                  className="flex-1 min-w-0 rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
+                  className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
                 >
                   <span className="truncate">
                     {historyCat === "all" ? t.historyAllCategories : (historyCategories.find((c) => c.id === historyCat) || {}).label || t.historyAllCategories}
                   </span>
                   <span style={{ fontSize: 9 }}>▾</span>
                 </button>
+                </div>
               </div>
-
-              {historyFiltered && (
-                <button
-                  onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryFrom(""); setHistoryTo(""); }}
-                  style={{ color: colors.textFaint }}
-                  className="text-xs font-medium mt-2"
-                >
-                  {t.historyResetFilters}
-                </button>
-              )}
             </div>
           )}
 
