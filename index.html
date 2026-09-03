@@ -232,7 +232,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v24";
+const APP_VERSION = "v25";
 
 const FREE_LIMIT = 10;
 
@@ -2124,10 +2124,6 @@ function HubboApp() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [serviceSearch, setServiceSearch] = useState("");
   const [optionSearch, setOptionSearch] = useState("");
-  // The search box is per-opening, so it clears once the sheet is dismissed.
-  useEffect(() => {
-    if (!optionPicker) setOptionSearch("");
-  }, [optionPicker]);
   const [listSearch, setListSearch] = useState("");
   const [detailSub, setDetailSub] = useState(null);
   const [closingSheet, setClosingSheet] = useState(null);
@@ -2141,6 +2137,10 @@ function HubboApp() {
   const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
+  // The search box is per-opening, so it clears once the sheet is dismissed.
+  useEffect(() => {
+    if (!optionPicker) setOptionSearch("");
+  }, [optionPicker]);
   const [pendingImport, setPendingImport] = useState(null);
   const [importMessage, setImportMessage] = useState("");
   const [todayISO, setTodayISO] = useState(() => toLocalISO(new Date()));
