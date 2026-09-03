@@ -238,7 +238,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v37";
+const APP_VERSION = "v38";
 
 const FREE_LIMIT = 10;
 
@@ -2184,7 +2184,9 @@ function RingIcon({ progress, ringColor, ended, colors, size = 52 }) {
 // Brands without a bundled vector (Disney+, Canva, Adobe...) get their real
 // logo fetched by domain; failures are remembered so we don't retry endlessly,
 // and the bundled icon or category glyph covers offline use.
-const remoteLogoFailed = {};
+// Which logo source each domain ended up on, remembered for the session so a
+// domain is probed once rather than on every render.
+const remoteLogoStage = {};
 
 // Brands whose mark is white or near-white: on a light chip they'd disappear,
 // so they get a dark chip instead.
@@ -2223,11 +2225,18 @@ const LIGHT_LOGO_ICONS = new Set([
 // yellow already contrasts well on dark.
 const YELLOW_LOGO_ICONS = new Set(["norton", "sketch", "mailchimp", "snapchat"]);
 
-// Icons come from a source that returns a genuine 404 for domains it has no
-// icon for. The previous one answered with a generic globe instead, which
-// counts as success and so never let the initial-letter fallback run — the
-// reason several services showed a blank mark rather than their logo.
-// Domains listed here skip the remote fetch entirely.
+// Logos are tried against several sources in turn, because neither covers
+// everything: the first returns a genuine 404 when it has nothing (which is
+// what lets the initial-letter fallback work at all), while the second has
+// broader coverage but answers with a generic globe instead of failing. That
+// globe is caught by the size check below, so an unknown domain still ends up
+// as a clean initial rather than a meaningless placeholder.
+const LOGO_SOURCES = [
+  (d) => `https://icons.duckduckgo.com/ip3/${d}.ico`,
+  (d) => `https://www.google.com/s2/favicons?domain=${d}&sz=128`,
+];
+
+// Domains that should skip the remote lookup entirely.
 const NO_REMOTE_LOGO_DOMAINS = new Set([]);
 
 function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain = false }) {
@@ -2235,8 +2244,17 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
   const brandColor = (icon && BRAND_COLORS[icon]) || color;
   const fallbackIconName = CATEGORY_FALLBACK_ICON[category] || "package";
 
-  const [remoteFailed, setRemoteFailed] = useState(() => (domain ? !!remoteLogoFailed[domain] : true));
-  const useRemote = !path && !!domain && !remoteFailed && !NO_REMOTE_LOGO_DOMAINS.has(domain);
+  const [stage, setStage] = useState(() =>
+    domain ? remoteLogoStage[domain] || 0 : LOGO_SOURCES.length
+  );
+  const useRemote =
+    !path && !!domain && stage < LOGO_SOURCES.length && !NO_REMOTE_LOGO_DOMAINS.has(domain);
+
+  const advanceSource = () => {
+    const next = stage + 1;
+    remoteLogoStage[domain] = next;
+    setStage(next);
+  };
 
   const isYellowLogo = icon && YELLOW_LOGO_ICONS.has(icon);
   const needsDarkChip =
@@ -2260,12 +2278,16 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
         className="flex items-center justify-center flex-shrink-0 overflow-hidden"
       >
         <img
-          src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
+          key={stage}
+          src={LOGO_SOURCES[stage](domain)}
           alt=""
           loading="lazy"
-          onError={() => {
-            remoteLogoFailed[domain] = true;
-            setRemoteFailed(true);
+          onError={advanceSource}
+          onLoad={(e) => {
+            // A 16px answer from a source asked for 128px is the generic
+            // placeholder, not a real logo — and even a genuine 16px icon
+            // would look mushy at this size, so the initial reads better.
+            if (e.currentTarget.naturalWidth && e.currentTarget.naturalWidth <= 16) advanceSource();
           }}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
