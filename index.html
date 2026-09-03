@@ -232,7 +232,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v21";
+const APP_VERSION = "v22";
 
 const FREE_LIMIT = 10;
 
@@ -1503,6 +1503,8 @@ const LEDGER_STRINGS = {
     startDateLabel: "Abbonato dal",
     addStartDate: "+ Aggiungi data di inizio",
     startDateHint: "Serve a ricostruire lo storico dei pagamenti.",
+    startMismatch: (first) => `Questa data non cade nel ciclo di rinnovo: il primo pagamento registrato sarà il ${first}.`,
+    startMismatchFix: (d) => `Usa ${d}`,
   },
   en: {
     historyView: "History",
@@ -1525,6 +1527,8 @@ const LEDGER_STRINGS = {
     startDateLabel: "Subscribed since",
     addStartDate: "+ Add start date",
     startDateHint: "Used to rebuild your payment history.",
+    startMismatch: (first) => `This date is not on the renewal cycle: the first recorded payment will be ${first}.`,
+    startMismatchFix: (d) => `Use ${d}`,
   },
   es: {
     historyView: "Historial",
@@ -1547,6 +1551,8 @@ const LEDGER_STRINGS = {
     startDateLabel: "Suscrito desde",
     addStartDate: "+ Añadir fecha de inicio",
     startDateHint: "Sirve para reconstruir el historial de pagos.",
+    startMismatch: (first) => `Esta fecha no cae en el ciclo de renovación: el primer pago registrado será el ${first}.`,
+    startMismatchFix: (d) => `Usar ${d}`,
   },
   fr: {
     historyView: "Historique",
@@ -1569,6 +1575,8 @@ const LEDGER_STRINGS = {
     startDateLabel: "Abonné depuis",
     addStartDate: "+ Ajouter une date de début",
     startDateHint: "Sert à reconstituer l'historique des paiements.",
+    startMismatch: (first) => `Cette date ne tombe pas sur le cycle de renouvellement : le premier paiement enregistré sera le ${first}.`,
+    startMismatchFix: (d) => `Utiliser le ${d}`,
   },
   de: {
     historyView: "Verlauf",
@@ -1591,6 +1599,8 @@ const LEDGER_STRINGS = {
     startDateLabel: "Abonniert seit",
     addStartDate: "+ Startdatum hinzufügen",
     startDateHint: "Dient dazu, den Zahlungsverlauf zu rekonstruieren.",
+    startMismatch: (first) => `Dieses Datum liegt nicht im Verlängerungszyklus: die erste erfasste Zahlung ist der ${first}.`,
+    startMismatchFix: (d) => `${d} verwenden`,
   },
 };
 
@@ -1738,6 +1748,33 @@ function occurrencesInMonth(renewalDateStr, frequency, monthDate, startDateStr) 
     }
   }
   return results.sort((a, b) => a - b);
+}
+
+// Checks whether a start date actually falls on the renewal cycle.
+//
+// A subscription renewing on the 15th cannot have been billed on the 17th, so a
+// start date that misses the cycle silently pushes the first recorded payment
+// to the next one. Rather than guess, the form points this out and offers the
+// nearest date that does line up.
+function cycleAlignment(startDateStr, renewalDateStr, frequency) {
+  if (!startDateStr || !renewalDateStr) return null;
+  const start = parseLocalDate(startDateStr);
+  const anchor = parseLocalDate(renewalDateStr);
+  if (isNaN(start) || isNaN(anchor)) return null;
+
+  const steps = periodsBetween(anchor, start, frequency);
+  let before = null;
+  let after = null;
+  for (let k = steps - 2; k <= steps + 2; k++) {
+    const d = addPeriods(anchor, frequency, k);
+    if (d.getTime() === start.getTime()) return null;
+    if (d < start && (!before || d > before)) before = d;
+    if (d > start && (!after || d < after)) after = d;
+  }
+  if (!before && !after) return null;
+  const suggested =
+    !before ? after : !after ? before : start - before <= after - start ? before : after;
+  return { first: after, suggested };
 }
 
 function formatDate(dateStr, locale) {
@@ -3829,6 +3866,25 @@ function HubboApp() {
                   className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
                 />
                 <p style={{ color: colors.textFaint }} className="text-xs mt-1.5">{t.startDateHint}</p>
+                {(() => {
+                  const align = cycleAlignment(form.startDate, form.renewalDate, form.frequency);
+                  if (!align || !align.first) return null;
+                  return (
+                    <div style={{ background: "rgba(227,168,87,0.10)", border: `1px solid rgba(227,168,87,0.30)` }} className="rounded-xl px-3 py-2.5 mt-2">
+                      <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-2">
+                        {t.startMismatch(dateFmt(toLocalISO(align.first)))}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, startDate: toLocalISO(align.suggested) })}
+                        style={{ color: ACCENT.amber }}
+                        className="text-xs font-semibold"
+                      >
+                        {t.startMismatchFix(dateFmt(toLocalISO(align.suggested)))}
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
