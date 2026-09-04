@@ -251,7 +251,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v65";
+const APP_VERSION = "v68";
 
 const FREE_LIMIT = 10;
 
@@ -2170,6 +2170,7 @@ const TOUR_STRINGS = {
     tourWaitHint: "Tocca la parte illuminata per continuare",
     guideTitle: "Guida",
     guideDesc: "Rivedi il giro guidato",
+    emptyGuideLink: "Serve una mano? Apri la guida",
     tourSteps: {
       welcome: { title: "Benvenuto in Hubbo", text: "Ti mostro in un minuto com'è fatta l'app, poi aggiungiamo insieme il tuo primo abbonamento. Puoi saltare quando vuoi." },
       views: { title: "Le quattro viste", text: "Elenco per vederli tutti insieme, Calendario per sapere quando si paga, Storico per quello che hai già speso, Risparmio per quanto stai risparmiando." },
@@ -2190,6 +2191,7 @@ const TOUR_STRINGS = {
     tourWaitHint: "Tap the highlighted part to continue",
     guideTitle: "Guide",
     guideDesc: "Take the tour again",
+    emptyGuideLink: "Need a hand? Open the guide",
     tourSteps: {
       welcome: { title: "Welcome to Hubbo", text: "A quick look at how the app is laid out, then we'll add your first subscription together. You can skip at any point." },
       views: { title: "The four views", text: "List to see them all at once, Calendar for when you pay, History for what you've already spent, Savings for how much you're saving." },
@@ -2210,6 +2212,7 @@ const TOUR_STRINGS = {
     tourWaitHint: "Toca la parte iluminada para continuar",
     guideTitle: "Guía",
     guideDesc: "Volver a ver la guía",
+    emptyGuideLink: "¿Necesitas ayuda? Abre la guía",
     tourSteps: {
       welcome: { title: "Bienvenido a Hubbo", text: "Un vistazo rápido a cómo está organizada la app y luego añadimos juntos tu primera suscripción. Puedes saltarlo cuando quieras." },
       views: { title: "Las cuatro vistas", text: "Lista para verlas todas, Calendario para saber cuándo se paga, Historial para lo ya gastado y Ahorro para cuánto estás ahorrando." },
@@ -2230,6 +2233,7 @@ const TOUR_STRINGS = {
     tourWaitHint: "Touchez la zone éclairée pour continuer",
     guideTitle: "Guide",
     guideDesc: "Revoir le guide",
+    emptyGuideLink: "Besoin d'aide ? Ouvrir le guide",
     tourSteps: {
       welcome: { title: "Bienvenue dans Hubbo", text: "Un tour rapide de l'application, puis nous ajoutons ensemble votre premier abonnement. Vous pouvez passer à tout moment." },
       views: { title: "Les quatre vues", text: "Liste pour tout voir d'un coup, Calendrier pour savoir quand vous payez, Historique pour ce que vous avez déjà dépensé, Économies pour ce que vous économisez." },
@@ -2250,6 +2254,7 @@ const TOUR_STRINGS = {
     tourWaitHint: "Tippe auf den hellen Bereich, um fortzufahren",
     guideTitle: "Anleitung",
     guideDesc: "Anleitung erneut ansehen",
+    emptyGuideLink: "Brauchst du Hilfe? Anleitung öffnen",
     tourSteps: {
       welcome: { title: "Willkommen bei Hubbo", text: "Ein kurzer Blick auf den Aufbau der App, dann fügen wir gemeinsam dein erstes Abo hinzu. Du kannst jederzeit überspringen." },
       views: { title: "Die vier Ansichten", text: "Liste für alles auf einen Blick, Kalender für die Zahlungstermine, Verlauf für bereits Ausgegebenes, Ersparnis für das, was du sparst." },
@@ -2292,32 +2297,51 @@ function useSpotlightRect(target) {
       setRect(null);
       return;
     }
+    let scrolled = false;
     const read = () => {
       const el = document.querySelector(`[data-tour="${target}"]`);
       if (!el) return setRect(null);
+      // Brought into view the first time it is actually found rather than when
+      // the step begins: the closing step starts while the form sheet is still
+      // on screen, and a scroll aimed at something covered goes nowhere.
+      if (!scrolled) {
+        scrolled = true;
+        try {
+          el.scrollIntoView({ block: "center", behavior: "smooth" });
+        } catch {
+          el.scrollIntoView();
+        }
+      }
       const r = el.getBoundingClientRect();
+      const vw = window.innerWidth;
       const vh = window.innerHeight;
       // Collapsed, or scrolled entirely off screen: no hole beats a wrong one.
       if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > vh) return setRect(null);
+      // The padding is trimmed on any side where the element already reaches
+      // the edge of the screen. The bottom bar runs the full width and sits on
+      // the very bottom, so padding it evenly pushed two of its four sides out
+      // of sight and left the ring looking off-centre.
+      const left = Math.max(0, r.left - TOUR_PAD);
+      const top = Math.max(0, r.top - TOUR_PAD);
+      const next = {
+        top,
+        left,
+        width: Math.min(vw, r.right + TOUR_PAD) - left,
+        height: Math.min(vh, r.bottom + TOUR_PAD) - top,
+        vh,
+      };
       setRect((prev) =>
         prev &&
-        Math.abs(prev.top - r.top) < 0.5 &&
-        Math.abs(prev.left - r.left) < 0.5 &&
-        Math.abs(prev.width - r.width) < 0.5 &&
-        Math.abs(prev.height - r.height) < 0.5
+        Math.abs(prev.top - next.top) < 0.5 &&
+        Math.abs(prev.left - next.left) < 0.5 &&
+        Math.abs(prev.width - next.width) < 0.5 &&
+        Math.abs(prev.height - next.height) < 0.5 &&
+        prev.vh === next.vh
           ? prev
-          : { top: r.top, left: r.left, width: r.width, height: r.height }
+          : next
       );
     };
 
-    const el = document.querySelector(`[data-tour="${target}"]`);
-    if (el && el.scrollIntoView) {
-      try {
-        el.scrollIntoView({ block: "center", behavior: "smooth" });
-      } catch {
-        el.scrollIntoView();
-      }
-    }
     read();
     // Sheet and keyboard animations keep moving things for a few hundred
     // milliseconds after a step changes. Re-reading on a timer is steadier
@@ -2348,17 +2372,11 @@ function useSpotlightRect(target) {
 
 function TourSpotlight({ index, colors, t, onNext, onEnd }) {
   const step = TOUR_STEPS[index];
-  const rect = useSpotlightRect(step.target);
-  const vh = typeof window !== "undefined" ? window.innerHeight : 0;
+  const hole = useSpotlightRect(step.target);
+  // Read off the same measurement as the hole, so the card is never placed
+  // against a viewport height the hole no longer agrees with.
+  const vh = hole ? hole.vh : typeof window !== "undefined" ? window.innerHeight : 0;
   const dim = "rgba(6,7,11,0.82)";
-  const hole = rect
-    ? {
-        top: Math.max(0, rect.top - TOUR_PAD),
-        left: Math.max(0, rect.left - TOUR_PAD),
-        width: rect.width + TOUR_PAD * 2,
-        height: rect.height + TOUR_PAD * 2,
-      }
-    : null;
 
   // The card is pinned by whichever edge faces the hole, never by its own
   // height: that way it can't be placed from a stale measurement of itself,
@@ -3020,7 +3038,7 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
 const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false };
-const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, onboarded: false };
+const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
   const [prefersDark, setPrefersDark] = useState(
@@ -3321,7 +3339,7 @@ function HubboApp() {
 
   function endTour() {
     setTourStep(-1);
-    if (!settings.onboarded) persistSettings({ ...settings, onboarded: true });
+    if (!settings.tourSeen) persistSettings({ ...settings, tourSeen: true });
   }
 
   function startTour() {
@@ -3330,16 +3348,15 @@ function HubboApp() {
     setTourStep(0);
   }
 
-  // First launch only, and only on an empty app: someone who already has
-  // subscriptions does not need to be walked through adding their first.
+  // Starts on an empty app that has never been shown the tour. Someone who
+  // already has subscriptions is simply left alone rather than marked as done:
+  // marking them spent the one chance, so emptying the app later never brought
+  // the tour back. The flag is now set only by actually seeing it through.
   useEffect(() => {
-    if (!subs || settings.onboarded || tourStep >= 0) return;
-    if (subs.length > 0) {
-      persistSettings({ ...settings, onboarded: true });
-      return;
-    }
+    if (!subs || settings.tourSeen || tourStep >= 0) return;
+    if (subs.length > 0) return;
     setTourStep(0);
-  }, [subs, settings.onboarded]);
+  }, [subs, settings.tourSeen]);
 
   useEffect(() => {
     if (tourStep < 0) return;
@@ -3363,8 +3380,11 @@ function HubboApp() {
   // the closing step and not the opening one.
   useEffect(() => {
     if (tourStep < 0 || !subs) return;
-    if (TOUR_STEPS[tourStep].waitFor === "saved" && subs.length > 0) setTourStep(tourStep + 1);
-  }, [subs, tourStep]);
+    // Saved is not enough on its own: the subscription lands in memory a beat
+    // before the sheet closes, and starting the closing step in that gap put
+    // an explanation of the ring on top of the form that was still covering it.
+    if (TOUR_STEPS[tourStep].waitFor === "saved" && subs.length > 0 && !showForm) setTourStep(tourStep + 1);
+  }, [subs, showForm, tourStep]);
 
   async function persistSettings(next) {
     setSettings(next);
@@ -4569,6 +4589,9 @@ function HubboApp() {
         {enriched.length === 0 ? (
           <div style={{ border: `1px dashed ${colors.border}`, color: colors.textSecondary }} className="rounded-2xl p-8 text-center text-sm mt-6">
             {t.emptyTitle}<br />{t.emptySubtitle}
+            <button type="button" onClick={startTour} style={{ color: ACCENT.amber }} className="block mx-auto mt-3 text-xs font-medium">
+              {t.emptyGuideLink}
+            </button>
           </div>
         ) : visibleSubs.length === 0 ? (
           <div style={{ border: `1px dashed ${colors.border}`, color: colors.textSecondary }} className="rounded-2xl p-8 text-center text-sm mt-2">
@@ -5817,10 +5840,22 @@ function HubboApp() {
                     <Icon name="chevronRight" size={15} color={colors.textSecondary} />
                     <input type="file" accept="application/json,.json" onChange={handleImportFile} style={{ display: "none" }} />
                   </label>
+                </div>
+                <p style={{ color: colors.textFaint }} className="text-xs mt-2 px-1 leading-relaxed">{t.exportHint}</p>
+                {importMessage && (
+                  <p style={{ color: importMessage === t.importError ? ACCENT.danger : ACCENT.indigo }} className="text-xs mt-2 px-1">
+                    {importMessage}
+                  </p>
+                )}
+              </div>
+
+              {/* Neither of these is a backup, and sitting inside the data card
+                  they read as if they were. Their own card, one level up. */}
+              <div>
+                <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowTrash(true); })}
-                    style={{ borderTop: `1px solid ${colors.border}` }}
                     className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
                   >
                     <span>{t.trash}</span>
@@ -5842,12 +5877,6 @@ function HubboApp() {
                     </span>
                   </button>
                 </div>
-                <p style={{ color: colors.textFaint }} className="text-xs mt-2 px-1 leading-relaxed">{t.exportHint}</p>
-                {importMessage && (
-                  <p style={{ color: importMessage === t.importError ? ACCENT.danger : ACCENT.indigo }} className="text-xs mt-2 px-1">
-                    {importMessage}
-                  </p>
-                )}
               </div>
 
               {/* Premium + privacy */}
