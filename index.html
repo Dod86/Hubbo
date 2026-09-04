@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v73";
+const APP_VERSION = "v74";
 
 const FREE_LIMIT = 10;
 
@@ -916,6 +916,7 @@ const STRINGS = {
     notifBody: (name, when) => `${name} si rinnova ${when}`,
     notifActionCancel: "Disdici",
     notifActionOpen: "Apri",
+    workerStale: (v) => `servizio fermo alla ${v}`,
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1107,6 +1108,7 @@ const STRINGS = {
     notifBody: (name, when) => `${name} renews ${when}`,
     notifActionCancel: "Cancel it",
     notifActionOpen: "Open",
+    workerStale: (v) => `worker still on ${v}`,
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1298,6 +1300,7 @@ const STRINGS = {
     notifBody: (name, when) => `${name} se renueva ${when}`,
     notifActionCancel: "Dar de baja",
     notifActionOpen: "Abrir",
+    workerStale: (v) => `servicio aún en ${v}`,
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1489,6 +1492,7 @@ const STRINGS = {
     notifBody: (name, when) => `${name} se renouvelle ${when}`,
     notifActionCancel: "Résilier",
     notifActionOpen: "Ouvrir",
+    workerStale: (v) => `service encore en ${v}`,
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1680,6 +1684,7 @@ const STRINGS = {
     notifBody: (name, when) => `${name} verlängert sich ${when}`,
     notifActionCancel: "Kündigen",
     notifActionOpen: "Öffnen",
+    workerStale: (v) => `Worker noch auf ${v}`,
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -3777,9 +3782,19 @@ function HubboApp() {
   // address, when the tap started the app from cold and there was nobody to
   // talk to. Both end up in the same place.
   const [pendingSubId, setPendingSubId] = useState(null);
+  const [pendingCancelId, setPendingCancelId] = useState(null);
+  const [workerVersion, setWorkerVersion] = useState("");
 
   useEffect(() => {
     const fromAddress = () => {
+      // The cancel fallback arrives the same way as an open request, only the
+      // name of the parameter differs.
+      const wantsCancel = window.location.hash.match(/[#&]cancel=([^&]*)/);
+      if (wantsCancel) {
+        setPendingCancelId(decodeURIComponent(wantsCancel[1]));
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        return;
+      }
       const found = window.location.hash.match(/[#&]sub=([^&]+)/);
       if (!found) return;
       setPendingSubId(decodeURIComponent(found[1]));
@@ -3788,9 +3803,19 @@ function HubboApp() {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     };
     const onMessage = (event) => {
-      if (event.data && event.data.type === "hubbo-open-sub") setPendingSubId(event.data.id || null);
+      const message = event.data;
+      if (!message || !message.type) return;
+      if (message.type === "hubbo-open-sub") setPendingSubId(message.id || null);
+      if (message.type === "hubbo-cancel") {
+        if (message.cancelUrl) window.open(message.cancelUrl, "_blank", "noopener");
+        else setPendingCancelId(message.id || null);
+      }
+      if (message.type === "hubbo-sw-version") setWorkerVersion(message.version || "");
     };
     fromAddress();
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage("version");
+    }
     window.addEventListener("hashchange", fromAddress);
     if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", onMessage);
     return () => {
@@ -3807,6 +3832,15 @@ function HubboApp() {
     setPendingSubId(null);
     if (target) setDetailSub(target);
   }, [pendingSubId, subs, enriched]);
+
+  // The fallback that arrives by address carries only the id, so the address
+  // to open has to be rebuilt here once the subscription is known.
+  useEffect(() => {
+    if (!pendingCancelId || !subs) return;
+    const target = enriched.find((x) => x.id === pendingCancelId);
+    setPendingCancelId(null);
+    if (target) window.open(cancelSearchUrl(target.name, settings.language), "_blank", "noopener");
+  }, [pendingCancelId, subs, enriched, settings.language]);
   const pausedCount = useMemo(() => enriched.filter((s) => s.paused && !s.isEnded).length, [enriched]);
 
   const anyModalOpen =
@@ -6059,6 +6093,12 @@ function HubboApp() {
                 </p>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-5 mb-1 text-center">
                   {t.appName} · {t.version} {APP_VERSION}
+                  {workerVersion && workerVersion !== "hubbo-" + APP_VERSION && (
+                    <>
+                      {" · "}
+                      <span style={{ color: ACCENT.danger }}>{t.workerStale(workerVersion.replace("hubbo-", ""))}</span>
+                    </>
+                  )}
                 </p>
                 <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
                   {t.installedOn} {dateFmt(todayISO)}

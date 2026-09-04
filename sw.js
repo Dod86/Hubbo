@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v73";
+const CACHE = "hubbo-v74";
 
 const CORE = [
   "./",
@@ -38,6 +38,12 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("message", (event) => {
   if (event.data === "skipWaiting") self.skipWaiting();
+  // The page has no other way to find out which worker is actually in charge.
+  // When the two versions disagree, the app on screen is new and the worker
+  // handling its notifications is not.
+  if (event.data === "version" && event.source) {
+    event.source.postMessage({ type: "hubbo-sw-version", version: CACHE });
+  }
 });
 
 // Notification buttons are handled here and not in the page, because the
@@ -55,7 +61,32 @@ self.addEventListener("notificationclick", (event) => {
       // The cancellation address is built in the app, where the service name
       // and the chosen language are known, and carried on the notification.
       if (action === "cancel" && data.cancelUrl) {
-        if (self.clients.openWindow) await self.clients.openWindow(data.cancelUrl);
+        try {
+          if (self.clients.openWindow) {
+            await self.clients.openWindow(data.cancelUrl);
+            return;
+          }
+        } catch {
+          // Some Android builds refuse to open an outside address from an
+          // installed app. Rather than silently doing nothing — which looks
+          // exactly like the button being broken — the request is handed to
+          // the app, which can open it from a page context.
+        }
+        const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+        for (const client of windows) {
+          if ("focus" in client) {
+            client.postMessage({ type: "hubbo-cancel", id: data.id || null, cancelUrl: data.cancelUrl });
+            return client.focus();
+          }
+        }
+        try {
+          if (self.clients.openWindow) {
+            await self.clients.openWindow("./#cancel=" + encodeURIComponent(data.id || ""));
+          }
+        } catch {
+          // Out of options. Better a button that does nothing than a worker
+          // that throws and takes the other notifications down with it.
+        }
         return;
       }
 
