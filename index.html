@@ -133,6 +133,10 @@ const LUCIDE_ICONS = {
   newspaper: `<path d="M15 18h-5" /> <path d="M18 14h-8" /> <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" /> <rect width="8" height="4" x="10" y="6" rx="1" />`,
   bus: `<path d="M8 6v6" /> <path d="M15 6v6" /> <path d="M2 12h19.6" /> <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" /> <circle cx="7" cy="18" r="2" /> <path d="M9 18h5" /> <circle cx="16" cy="18" r="2" />`,
   piggyBank: `<path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z" /> <path d="M16 10h.01" />`,
+  coffee: `<path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" />`,
+  beer: `<path d="M17 11h1a3 3 0 0 1 0 6h-1" /> <path d="M9 12v6" /> <path d="M13 12v6" /> <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" /> <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />`,
+  pizza: `<path d="m12 14-1 1" /> <path d="m13.75 18.25-1.25 1.42" /> <path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12" /> <path d="M18.8 9.3a1 1 0 0 0 2.1 7.7" /> <path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z" />`,
+  utensils: `<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /> <path d="M7 2v20" /> <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />`,
   check: `<path d="M20 6 9 17l-5-5" />`,
 };
 
@@ -247,7 +251,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v63";
+const APP_VERSION = "v64";
 
 const FREE_LIMIT = 10;
 
@@ -2175,6 +2179,10 @@ const EQUIVALENT_LABELS = {
 // actually have, and brings the dearer items in only when the sum demands it.
 const EQUIVALENT_MAX = 5;
 
+// Which drawing stands for which reference. Kept apart from EQUIVALENTS so the
+// prices stay readable as a table.
+const EQUIVALENT_ICONS = { coffee: "coffee", beer: "beer", pizza: "pizza", dinner: "utensils" };
+
 function dailyEquivalent(daily, currency, language) {
   if (!Number.isFinite(daily) || daily <= 0) return null;
   const labels = EQUIVALENT_LABELS[language] || EQUIVALENT_LABELS.en;
@@ -2185,8 +2193,8 @@ function dailyEquivalent(daily, currency, language) {
   // nothing. Turned around it still reads: one coffee every so many days.
   if (daily < priceOf(cheapest)) {
     const days = Math.round(priceOf(cheapest) / daily);
-    if (days > 1) return { kind: "everyDays", days, label: labels[cheapest.id][0] };
-    return { kind: "perDay", n: 1, label: labels[cheapest.id][0] };
+    if (days > 1) return { kind: "everyDays", days, id: cheapest.id, label: labels[cheapest.id][0] };
+    return { kind: "perDay", n: 1, id: cheapest.id, label: labels[cheapest.id][0] };
   }
 
   let chosen = EQUIVALENTS[EQUIVALENTS.length - 1];
@@ -2198,7 +2206,7 @@ function dailyEquivalent(daily, currency, language) {
     }
   }
   const n = Math.max(1, Math.round(daily / priceOf(chosen)));
-  return { kind: "perDay", n, label: labels[chosen.id][n === 1 ? 0 : 1] };
+  return { kind: "perDay", n, id: chosen.id, label: labels[chosen.id][n === 1 ? 0 : 1] };
 }
 
 // True when the subscription was paused across that date. Pause periods are
@@ -4063,16 +4071,22 @@ function HubboApp() {
                 </span>
                 <span style={{ color: colors.textSecondary }} className="text-xs">{t.perDay}</span>
               </div>
-              {/* The one line in the card written in the display serif rather
-                  than the interface font: it is a remark, not a reading. */}
+              {/* One drawing per unit, so the count is read before the words are:
+                  two cups is a quantity you feel, "2" is one you parse. Capped
+                  at five by EQUIVALENT_MAX, which is also where a row of them
+                  stops being countable at a glance. */}
               {dailyEquivalence && (
-                <div
-                  style={{ fontFamily: "'Fraunces', serif", fontSize: 13, color: colors.textSecondary }}
-                  className="mt-1"
-                >
-                  {dailyEquivalence.kind === "everyDays"
-                    ? t.equivEveryDays(dailyEquivalence.label, dailyEquivalence.days)
-                    : t.equivPerDay(dailyEquivalence.n, dailyEquivalence.label)}
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="flex items-center gap-1 flex-shrink-0" style={{ color: ACCENT.amber }}>
+                    {Array.from({ length: dailyEquivalence.kind === "perDay" ? dailyEquivalence.n : 1 }).map((_, i) => (
+                      <Icon key={i} name={EQUIVALENT_ICONS[dailyEquivalence.id]} size={19} />
+                    ))}
+                  </span>
+                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 14, color: colors.textPrimary }}>
+                    {dailyEquivalence.kind === "everyDays"
+                      ? t.equivEveryDays(dailyEquivalence.label, dailyEquivalence.days)
+                      : t.equivPerDay(dailyEquivalence.n, dailyEquivalence.label)}
+                  </span>
                 </div>
               )}
             </div>
