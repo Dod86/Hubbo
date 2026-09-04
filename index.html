@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v79";
+const APP_VERSION = "v80";
 
 const FREE_LIMIT = 10;
 
@@ -932,6 +932,8 @@ const STRINGS = {
     yesWord: "sì",
     noWord: "no",
     noUrlWord: "senza indirizzo",
+    reportedWord: (r) => `riferito: ${r}`,
+    ratesChecking: "Controllo i tassi di cambio aggiornati…",
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1139,6 +1141,8 @@ const STRINGS = {
     yesWord: "yes",
     noWord: "no",
     noUrlWord: "no address",
+    reportedWord: (r) => `reported: ${r}`,
+    ratesChecking: "Checking for up-to-date exchange rates…",
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1346,6 +1350,8 @@ const STRINGS = {
     yesWord: "sí",
     noWord: "no",
     noUrlWord: "sin dirección",
+    reportedWord: (r) => `informado: ${r}`,
+    ratesChecking: "Comprobando los tipos de cambio actualizados…",
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1553,6 +1559,8 @@ const STRINGS = {
     yesWord: "oui",
     noWord: "non",
     noUrlWord: "sans adresse",
+    reportedWord: (r) => `signalé : ${r}`,
+    ratesChecking: "Vérification des taux de change à jour…",
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1760,6 +1768,8 @@ const STRINGS = {
     yesWord: "ja",
     noWord: "nein",
     noUrlWord: "ohne Adresse",
+    reportedWord: (r) => `gemeldet: ${r}`,
+    ratesChecking: "Aktuelle Wechselkurse werden geprüft…",
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -3292,6 +3302,10 @@ function HubboApp() {
   const optionDrag = useSheetDrag(() => closeSheet("option", () => setOptionPicker(null)));
   const paymentDrag = useSheetDrag(() => closeSheet("payment", () => setPaymentAction(null)));
   const [ratesDate, setRatesDate] = useState(null);
+  // Distinguishes "still asking" from "asked and failed". Without it the
+  // pessimistic note showed for a moment at every start, and for good when
+  // offline, which made it look permanent.
+  const [ratesSettled, setRatesSettled] = useState(false);
   const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
   const [tourStep, setTourStep] = useState(-1);
@@ -3478,6 +3492,8 @@ function HubboApp() {
         );
       } catch {
         // offline or blocked: the built-in reference rates stay in use
+      } finally {
+        if (!cancelled) setRatesSettled(true);
       }
     })();
 
@@ -3945,12 +3961,10 @@ function HubboApp() {
       } catch {
         // Falls through to whatever the app itself managed to record.
       }
-      try {
-        const res = await window.storage.get("abbly:lastNotif");
-        if (res && !gone) setLastNotification(JSON.parse(res.value));
-      } catch {
-        // Nothing recorded yet.
-      }
+      // No fallback to what the app itself once recorded. That record had no
+      // time on it and never refreshed, so it sat there looking like the
+      // outcome of the last tap when it was the outcome of a much older one.
+      if (!gone) setLastNotification(null);
     };
     read();
     const onVisible = () => {
@@ -4099,10 +4113,11 @@ function HubboApp() {
               // Everything the buttons need, since the worker that handles
               // them cannot read the app's data.
               data: { id: s.id, cancelUrl: cancelSearchUrl(s.name, settings.language) },
-              actions: [
-                { action: "cancel", title: t.notifActionCancel },
-                { action: "open", title: t.notifActionOpen },
-              ],
+              // One button, deliberately. With two, which one had been pressed
+              // was read from the name the phone reports, and that name proved
+              // unreliable on a real device. With one there is nothing to read:
+              // a button is a button, and an empty action is the body.
+              actions: [{ action: "cancel", title: t.notifActionCancel }],
             });
           });
       } catch {
@@ -4647,12 +4662,7 @@ function HubboApp() {
       data: sample
         ? { id: sample.id, cancelUrl: cancelSearchUrl(sample.name, settings.language) }
         : {},
-      actions: sample
-        ? [
-            { action: "cancel", title: t.notifActionCancel },
-            { action: "open", title: t.notifActionOpen },
-          ]
-        : [],
+      actions: sample ? [{ action: "cancel", title: t.notifActionCancel }] : [],
     });
     setNotifTest(ok ? t.notifTestSent : t.notifTestFailed);
   }
@@ -6311,7 +6321,7 @@ function HubboApp() {
                   {t.upgrade}
                 </button>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-3 px-1 leading-relaxed">
-                  {rates ? t.ratesLive(ratesDate ? dateFmt(ratesDate) : "") : t.ratesNote}
+                  {rates ? t.ratesLive(ratesDate ? dateFmt(ratesDate) : "") : ratesSettled ? t.ratesNote : t.ratesChecking}
                 </p>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-5 mb-1 text-center">
                   {t.appName} · {t.version} {APP_VERSION}
@@ -6350,8 +6360,8 @@ function HubboApp() {
                     <br />
                     {t.lastNotifOutcome(
                       lastNotification.opened ? t.yesWord : t.noWord,
-                      lastNotification.failure || (lastNotification.hasUrl === false ? t.noUrlWord : "—"),
-                      lastNotification.at ? new Date(lastNotification.at).toLocaleTimeString(locale) : "—"
+                      lastNotification.failure || (lastNotification.hasUrl === false ? t.noUrlWord : t.reportedWord(lastNotification.reported || "—")),
+                      new Date(lastNotification.at).toLocaleTimeString(locale)
                     )}
                   </p>
                 )}

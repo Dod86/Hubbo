@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v79";
+const CACHE = "hubbo-v80";
 
 const CORE = [
   "./",
@@ -52,7 +52,10 @@ self.addEventListener("message", (event) => {
 // branch and both buttons opened the app. The app knows the subscriptions, so
 // the app decides; all the worker has to get right is the name of the action.
 self.addEventListener("notificationclick", (event) => {
-  const action = event.action || "body";
+  // Any button at all means the only button there is. Only an empty action —
+  // the body of the notification — means "just open the app".
+  const action = event.action ? "cancel" : "body";
+  const reported = event.action || "";
   const data = event.notification.data || {};
   event.notification.close();
 
@@ -88,6 +91,9 @@ self.addEventListener("notificationclick", (event) => {
             JSON.stringify({
               at: Date.now(),
               action,
+              // Kept alongside, so the name the phone actually gives is on the
+              // record even though nothing depends on it any more.
+              reported,
               buttons,
               id: data.id || "",
               hasUrl: !!data.cancelUrl,
