@@ -247,7 +247,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v60";
+const APP_VERSION = "v61";
 
 const FREE_LIMIT = 10;
 
@@ -261,9 +261,9 @@ const ANIMATIONS = `
 @keyframes rb-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .rb-toast { animation: rb-toast-in 0.2s ease-out; }
 @keyframes rb-plus-morph {
-  0%, 30% { transform: scale(1); stroke-width: 4; }
-  50%, 62% { transform: scale(0.04); stroke-width: 9; }
-  82%, 100% { transform: scale(1); stroke-width: 4; }
+  0%, 30% { transform: scale(1); stroke-width: 4.8; }
+  50%, 62% { transform: scale(0.04); stroke-width: 10.8; }
+  82%, 100% { transform: scale(1); stroke-width: 4.8; }
 }
 .rb-plus-morph {
   transform-box: fill-box;
@@ -4229,84 +4229,89 @@ function HubboApp() {
             </div>
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
-          <div className="flex items-center justify-between mb-3">
-            <span style={{ width: 54 }} className="flex-shrink-0" />
-            <button
-              onClick={() => { if (slideDirection === 0) setSlideDirection(-1); }}
-              style={{ color: colors.textSecondary }}
-              className="px-2 text-lg"
-              aria-label="Previous month"
-            >
-              ‹
-            </button>
-            <button
-              onClick={() => {
-                setPickerYear(monthViews.current.monthDate.getFullYear());
-                setShowMonthPicker(true);
-              }}
-              style={{ fontFamily: "'Fraunces', serif", color: colors.textPrimary }}
-              className="text-sm font-medium capitalize px-2 py-1 rounded-lg"
-            >
-              {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })} ⌄
-            </button>
-            <button
-              onClick={() => { if (slideDirection === 0) setSlideDirection(1); }}
-              style={{ color: colors.textSecondary }}
-              className="px-2 text-lg"
-              aria-label="Next month"
-            >
-              ›
-            </button>
-            <div style={{ width: 54 }} className="flex-shrink-0 flex justify-end">
+          {/* The month navigation, weekday header and day grid belong together:
+              without a card of their own they floated on the page while every
+              other block sat in one. */}
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <span style={{ width: 54 }} className="flex-shrink-0" />
               <button
-                onClick={goToToday}
-                disabled={calendarOffset === 0}
-                style={{
-                  background: colors.surface2,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.textSecondary,
-                  opacity: calendarOffset === 0 ? 0 : 1,
-                  pointerEvents: calendarOffset === 0 ? "none" : "auto",
-                  transition: "opacity 0.2s ease",
-                }}
-                className="rounded-full px-2.5 py-1 text-xs font-medium"
+                onClick={() => { if (slideDirection === 0) setSlideDirection(-1); }}
+                style={{ color: colors.textSecondary }}
+                className="px-2 text-lg"
+                aria-label="Previous month"
               >
-                {t.today}
+                ‹
               </button>
+              <button
+                onClick={() => {
+                  setPickerYear(monthViews.current.monthDate.getFullYear());
+                  setShowMonthPicker(true);
+                }}
+                style={{ fontFamily: "'Fraunces', serif", color: colors.textPrimary }}
+                className="text-sm font-medium capitalize px-2 py-1 rounded-lg"
+              >
+                {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })} ⌄
+              </button>
+              <button
+                onClick={() => { if (slideDirection === 0) setSlideDirection(1); }}
+                style={{ color: colors.textSecondary }}
+                className="px-2 text-lg"
+                aria-label="Next month"
+              >
+                ›
+              </button>
+              <div style={{ width: 54 }} className="flex-shrink-0 flex justify-end">
+                <button
+                  onClick={goToToday}
+                  disabled={calendarOffset === 0}
+                  style={{
+                    background: colors.surface2,
+                    border: `1px solid ${colors.border}`,
+                    color: colors.textSecondary,
+                    opacity: calendarOffset === 0 ? 0 : 1,
+                    pointerEvents: calendarOffset === 0 ? "none" : "auto",
+                    transition: "opacity 0.2s ease",
+                  }}
+                  className="rounded-full px-2.5 py-1 text-xs font-medium"
+                >
+                  {t.today}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-7 gap-1 mb-1">
-            {weekdayLabels.map((w, i) => (
-              <div key={i} style={{ color: colors.textFaint }} className="text-center text-[10px] uppercase">
-                {w}
-              </div>
-            ))}
-          </div>
+            <div className="grid grid-cols-7 gap-1 mb-1">
+              {weekdayLabels.map((w, i) => (
+                <div key={i} style={{ color: colors.textFaint }} className="text-center text-[10px] uppercase">
+                  {w}
+                </div>
+              ))}
+            </div>
 
-          <div
-            onTouchStart={handleCalendarTouchStart}
-            onTouchMove={handleCalendarTouchMove}
-            onTouchEnd={handleCalendarTouchEnd}
-            onTouchCancel={resetCalendarDrag}
-            style={{ overflow: "hidden", touchAction: "pan-y" }}
-          >
             <div
-              style={{
-                display: "flex",
-                width: "300%",
-                transform: `translateX(calc(${-33.3333 - slideDirection * 33.3333}% + ${calendarDragOffset}px))`,
-                transition: isDraggingCalendar || noTransition ? "none" : "transform 0.3s ease",
-              }}
+              onTouchStart={handleCalendarTouchStart}
+              onTouchMove={handleCalendarTouchMove}
+              onTouchEnd={handleCalendarTouchEnd}
+              onTouchCancel={resetCalendarDrag}
+              style={{ overflow: "hidden", touchAction: "pan-y" }}
             >
-              <div style={{ width: "33.3333%", flexShrink: 0 }}>
-                {renderMonthDayGrid(monthViews.prev, false)}
-              </div>
-              <div style={{ width: "33.3333%", flexShrink: 0 }}>
-                {renderMonthDayGrid(monthViews.current, true)}
-              </div>
-              <div style={{ width: "33.3333%", flexShrink: 0 }}>
-                {renderMonthDayGrid(monthViews.next, false)}
+              <div
+                style={{
+                  display: "flex",
+                  width: "300%",
+                  transform: `translateX(calc(${-33.3333 - slideDirection * 33.3333}% + ${calendarDragOffset}px))`,
+                  transition: isDraggingCalendar || noTransition ? "none" : "transform 0.3s ease",
+                }}
+              >
+                <div style={{ width: "33.3333%", flexShrink: 0 }}>
+                  {renderMonthDayGrid(monthViews.prev, false)}
+                </div>
+                <div style={{ width: "33.3333%", flexShrink: 0 }}>
+                  {renderMonthDayGrid(monthViews.current, true)}
+                </div>
+                <div style={{ width: "33.3333%", flexShrink: 0 }}>
+                  {renderMonthDayGrid(monthViews.next, false)}
+                </div>
               </div>
             </div>
           </div>
