@@ -247,7 +247,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v56";
+const APP_VERSION = "v58";
 
 const FREE_LIMIT = 10;
 
@@ -776,6 +776,7 @@ const STRINGS = {
     colorSwapNote: "Senza scambio le due categorie avranno lo stesso colore e nell'anello non si distingueranno.",
     categoryColorsHint: "Tocca una categoria per cambiarne il colore. Si aggiorna ovunque: anello, leggenda, filtri.",
     colorReset: "Ripristina colore originale",
+    colorResetAll: "Ripristina tutti i colori originali",
     colorCustom: "modificato",
     back: "Indietro",
     trashEmpty: "Il cestino è vuoto.",
@@ -961,6 +962,7 @@ const STRINGS = {
     colorSwapNote: "Without swapping, both categories share one colour and cannot be told apart in the ring.",
     categoryColorsHint: "Tap a category to change its colour. It updates everywhere: ring, legend, filters.",
     colorReset: "Restore original colour",
+    colorResetAll: "Restore all original colours",
     colorCustom: "changed",
     back: "Back",
     trashEmpty: "The trash is empty.",
@@ -1146,6 +1148,7 @@ const STRINGS = {
     colorSwapNote: "Sin intercambio ambas categorías tendrán el mismo color y no se distinguirán en el anillo.",
     categoryColorsHint: "Toca una categoría para cambiar su color. Se actualiza en todas partes: anillo, leyenda, filtros.",
     colorReset: "Restaurar color original",
+    colorResetAll: "Restaurar todos los colores originales",
     colorCustom: "cambiado",
     back: "Atrás",
     trashEmpty: "La papelera está vacía.",
@@ -1331,6 +1334,7 @@ const STRINGS = {
     colorSwapNote: "Sans échange, les deux catégories auront la même couleur et seront indistinctes dans l'anneau.",
     categoryColorsHint: "Touchez une catégorie pour changer sa couleur. Elle change partout : anneau, légende, filtres.",
     colorReset: "Rétablir la couleur d'origine",
+    colorResetAll: "Rétablir toutes les couleurs d'origine",
     colorCustom: "modifiée",
     back: "Retour",
     trashEmpty: "La corbeille est vide.",
@@ -1516,6 +1520,7 @@ const STRINGS = {
     colorSwapNote: "Ohne Tausch haben beide Kategorien dieselbe Farbe und sind im Ring nicht unterscheidbar.",
     categoryColorsHint: "Tippe auf eine Kategorie, um ihre Farbe zu ändern. Sie gilt überall: Ring, Legende, Filter.",
     colorReset: "Ursprungsfarbe wiederherstellen",
+    colorResetAll: "Alle Ursprungsfarben wiederherstellen",
     colorCustom: "geändert",
     back: "Zurück",
     trashEmpty: "Der Papierkorb ist leer.",
@@ -3290,7 +3295,7 @@ function HubboApp() {
   const usedCategories = useMemo(() => {
     const set = new Set(enriched.map((s) => s.category));
     return CATEGORIES.filter((c) => set.has(c.id));
-  }, [enriched, settings.language]);
+  }, [enriched, settings.language, settings.categoryColors]);
 
   const visibleSubs = useMemo(() => {
     let list = enriched;
@@ -3337,7 +3342,7 @@ function HubboApp() {
     return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }))
       .filter((c) => c.total > 0)
       .sort((a, b) => b.total - a.total);
-  }, [totalsBase, settings.language, rates, settings.currency]);
+  }, [totalsBase, settings.language, rates, settings.currency, settings.categoryColors]);
 
   // Payments are *recorded*, not recalculated. Each billing date that passes
   // gets written once with the amount, currency and converted total frozen as
@@ -3423,7 +3428,7 @@ function HubboApp() {
   const historyCategories = useMemo(() => {
     const present = new Set(payments.map((p) => p.category));
     return CATEGORIES.filter((c) => present.has(c.id));
-  }, [payments, settings.language]);
+  }, [payments, settings.language, settings.categoryColors]);
 
   const filteredPayments = useMemo(() => {
     const currentYear = String(today.getFullYear());
@@ -3627,7 +3632,7 @@ function HubboApp() {
       current: buildMonthView(calendarOffset),
       next: buildMonthView(calendarOffset + 1),
     }),
-    [calendarOffset, enriched, rates, settings.currency, todayISO]
+    [calendarOffset, enriched, rates, settings.currency, todayISO, settings.categoryColors]
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
@@ -3942,7 +3947,7 @@ function HubboApp() {
                       fontFamily: "'JetBrains Mono', monospace",
                       fontWeight: 700,
                       color: lead,
-                      fontSize: txt.length > 10 ? 16 : txt.length > 9 ? 19 : 22,
+                      fontSize: txt.length > 10 ? 19 : txt.length > 9 ? 23 : 26,
                     }}
                     className="leading-none"
                   >
@@ -4190,7 +4195,7 @@ function HubboApp() {
                         fontFamily: "'JetBrains Mono', monospace",
                         fontWeight: 700,
                         color: lead,
-                        fontSize: txt.length > 10 ? 16 : txt.length > 9 ? 19 : 22,
+                        fontSize: txt.length > 10 ? 19 : txt.length > 9 ? 23 : 26,
                       }}
                       className="leading-none"
                     >
@@ -5178,6 +5183,22 @@ function HubboApp() {
                       <Icon name="chevronRight" size={15} />
                     </span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowColors(true); })}
+                    style={{ borderTop: `1px solid ${colors.border}` }}
+                    className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
+                  >
+                    <span>{t.categoryColors}</span>
+                    <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-1">
+                        {CATEGORIES.slice(0, 5).map((c) => (
+                          <span key={c.id} style={{ background: c.color, width: 9, height: 9, borderRadius: 999 }} />
+                        ))}
+                      </span>
+                      <Icon name="chevronRight" size={15} color={colors.textSecondary} />
+                    </span>
+                  </button>
                 </div>
               </div>
 
@@ -5298,22 +5319,6 @@ function HubboApp() {
                     <Icon name="chevronRight" size={15} color={colors.textSecondary} />
                     <input type="file" accept="application/json,.json" onChange={handleImportFile} style={{ display: "none" }} />
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowColors(true); })}
-                    style={{ borderTop: `1px solid ${colors.border}` }}
-                    className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
-                  >
-                    <span>{t.categoryColors}</span>
-                    <span className="flex items-center gap-2">
-                      <span className="flex items-center gap-1">
-                        {CATEGORIES.slice(0, 5).map((c) => (
-                          <span key={c.id} style={{ background: c.color, width: 9, height: 9, borderRadius: 999 }} />
-                        ))}
-                      </span>
-                      <Icon name="chevronRight" size={15} color={colors.textSecondary} />
-                    </span>
-                  </button>
                   <button
                     type="button"
                     onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowTrash(true); })}
@@ -5764,6 +5769,16 @@ function HubboApp() {
             ) : (
               <>
                 <p style={{ color: colors.textFaint }} className="text-xs mb-3 leading-relaxed">{t.categoryColorsHint}</p>
+                {Object.keys(settings.categoryColors || {}).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => persistSettings({ ...settings, categoryColors: {} })}
+                    style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                    className="w-full rounded-xl py-2.5 text-sm font-medium mb-3"
+                  >
+                    {t.colorResetAll}
+                  </button>
+                )}
                 <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl overflow-hidden">
                   {CATEGORIES.map((c, idx) => (
                     <button
