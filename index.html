@@ -247,7 +247,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v61";
+const APP_VERSION = "v63";
 
 const FREE_LIMIT = 10;
 
@@ -758,6 +758,9 @@ const STRINGS = {
     installedOn: "aggiornata al",
     monthlySpend: "Spesa mensile stimata",
     perYear: (amount, n) => `${amount} stimati all'anno · ${n} attivi`,
+    perDay: "al giorno",
+    equivPerDay: (n, item) => `come ${n} ${item}`,
+    equivEveryDays: (item, d) => `come un ${item} ogni ${d} giorni`,
     freeBadge: (n, limit) => `${n}/${limit} nel piano gratuito`,
     emptyTitle: "Nessun abbonamento ancora.",
     emptySubtitle: "Aggiungi il primo per iniziare a tenerli sotto controllo.",
@@ -944,6 +947,9 @@ const STRINGS = {
     installedOn: "updated on",
     monthlySpend: "Estimated monthly spend",
     perYear: (amount, n) => `${amount} estimated per year · ${n} active`,
+    perDay: "a day",
+    equivPerDay: (n, item) => `like ${n} ${item}`,
+    equivEveryDays: (item, d) => `like a ${item} every ${d} days`,
     freeBadge: (n, limit) => `${n}/${limit} on free plan`,
     emptyTitle: "No subscriptions yet.",
     emptySubtitle: "Add your first one to start keeping track.",
@@ -1130,6 +1136,9 @@ const STRINGS = {
     installedOn: "actualizada el",
     monthlySpend: "Gasto mensual estimado",
     perYear: (amount, n) => `${amount} estimados al año · ${n} activas`,
+    perDay: "al día",
+    equivPerDay: (n, item) => `como ${n} ${item}`,
+    equivEveryDays: (item, d) => `como un ${item} cada ${d} días`,
     freeBadge: (n, limit) => `${n}/${limit} en el plan gratuito`,
     emptyTitle: "Aún no hay suscripciones.",
     emptySubtitle: "Añade la primera para empezar a controlarlas.",
@@ -1316,6 +1325,9 @@ const STRINGS = {
     installedOn: "mise à jour le",
     monthlySpend: "Dépense mensuelle estimée",
     perYear: (amount, n) => `${amount} estimés par an · ${n} actifs`,
+    perDay: "par jour",
+    equivPerDay: (n, item) => `comme ${n} ${item}`,
+    equivEveryDays: (item, d) => `comme un ${item} tous les ${d} jours`,
     freeBadge: (n, limit) => `${n}/${limit} dans l'offre gratuite`,
     emptyTitle: "Aucun abonnement pour l'instant.",
     emptySubtitle: "Ajoutez le premier pour commencer à les suivre.",
@@ -1502,6 +1514,9 @@ const STRINGS = {
     installedOn: "aktualisiert am",
     monthlySpend: "Geschätzte Monatsausgaben",
     perYear: (amount, n) => `${amount} geschätzt pro Jahr · ${n} aktiv`,
+    perDay: "pro Tag",
+    equivPerDay: (n, item) => `wie ${n} ${item}`,
+    equivEveryDays: (item, d) => `wie ein ${item} alle ${d} Tage`,
     freeBadge: (n, limit) => `${n}/${limit} im Gratis-Tarif`,
     emptyTitle: "Noch keine Abos.",
     emptySubtitle: "Füge das erste hinzu, um den Überblick zu behalten.",
@@ -2132,6 +2147,58 @@ const CANCEL_QUERY = {
 function cancelSearchUrl(name, language) {
   const build = CANCEL_QUERY[language] || CANCEL_QUERY.en;
   return `https://www.google.com/search?q=${encodeURIComponent(build(name))}`;
+}
+
+// A daily figure is still an abstraction: nobody has a feel for what 3.72 a day
+// means until it is put next to something they actually buy. The reference
+// prices are rough retail averages per currency, not conversions of each other,
+// because a coffee genuinely costs a different amount in each of these places.
+const EQUIVALENTS = [
+  { id: "coffee", price: { EUR: 1.5, USD: 3.5, GBP: 3, CHF: 4.5 } },
+  { id: "beer", price: { EUR: 5, USD: 7, GBP: 5.5, CHF: 7.5 } },
+  { id: "pizza", price: { EUR: 9, USD: 16, GBP: 12, CHF: 20 } },
+  { id: "dinner", price: { EUR: 35, USD: 45, GBP: 40, CHF: 60 } },
+];
+
+// Singular and plural, since every one of the five languages inflects these.
+const EQUIVALENT_LABELS = {
+  it: { coffee: ["caffè", "caffè"], beer: ["birra", "birre"], pizza: ["pizza", "pizze"], dinner: ["cena fuori", "cene fuori"] },
+  en: { coffee: ["coffee", "coffees"], beer: ["beer", "beers"], pizza: ["pizza", "pizzas"], dinner: ["dinner out", "dinners out"] },
+  es: { coffee: ["café", "cafés"], beer: ["cerveza", "cervezas"], pizza: ["pizza", "pizzas"], dinner: ["cena fuera", "cenas fuera"] },
+  fr: { coffee: ["café", "cafés"], beer: ["bière", "bières"], pizza: ["pizza", "pizzas"], dinner: ["dîner au resto", "dîners au resto"] },
+  de: { coffee: ["Kaffee", "Kaffees"], beer: ["Bier", "Biere"], pizza: ["Pizza", "Pizzen"], dinner: ["Abendessen", "Abendessen"] },
+};
+
+// Six of something stops being a picture and goes back to being a number, so
+// the cheapest reference that lands at five or fewer wins. That keeps coffee —
+// the one everybody has priced in their head — covering the budgets people
+// actually have, and brings the dearer items in only when the sum demands it.
+const EQUIVALENT_MAX = 5;
+
+function dailyEquivalent(daily, currency, language) {
+  if (!Number.isFinite(daily) || daily <= 0) return null;
+  const labels = EQUIVALENT_LABELS[language] || EQUIVALENT_LABELS.en;
+  const priceOf = (item) => item.price[currency] || item.price.EUR;
+  const cheapest = EQUIVALENTS[0];
+
+  // Below the price of one coffee the count would round to zero, which says
+  // nothing. Turned around it still reads: one coffee every so many days.
+  if (daily < priceOf(cheapest)) {
+    const days = Math.round(priceOf(cheapest) / daily);
+    if (days > 1) return { kind: "everyDays", days, label: labels[cheapest.id][0] };
+    return { kind: "perDay", n: 1, label: labels[cheapest.id][0] };
+  }
+
+  let chosen = EQUIVALENTS[EQUIVALENTS.length - 1];
+  for (const item of EQUIVALENTS) {
+    const n = Math.round(daily / priceOf(item));
+    if (n >= 1 && n <= EQUIVALENT_MAX) {
+      chosen = item;
+      break;
+    }
+  }
+  const n = Math.max(1, Math.round(daily / priceOf(chosen)));
+  return { kind: "perDay", n, label: labels[chosen.id][n === 1 ? 0 : 1] };
 }
 
 // True when the subscription was paused across that date. Pause periods are
@@ -3350,6 +3417,8 @@ function HubboApp() {
     [totalsBase, rates, settings.currency]
   );
   const annualTotal = monthlyTotal * 12;
+  const dailyTotal = annualTotal / 365;
+  const dailyEquivalence = dailyEquivalent(dailyTotal, settings.currency, settings.language);
 
   const categoryTotals = useMemo(() => {
     const map = {};
@@ -3979,6 +4048,35 @@ function HubboApp() {
             </div>
             <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} />
           </div>
+          {/* The figure the monthly total is meant to make tangible: the
+              same money seen one day at a time. Averaged over a year rather
+              than over the current month, so it does not jump between a
+              28-day and a 31-day month for an unchanged set of subscriptions. */}
+          {monthlyTotal > 0 && (
+            <div className="mt-3">
+              <div className="flex items-baseline gap-1.5">
+                <span
+                  style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: colors.textPrimary }}
+                  className="text-base leading-none"
+                >
+                  ≈ {money(dailyTotal)}
+                </span>
+                <span style={{ color: colors.textSecondary }} className="text-xs">{t.perDay}</span>
+              </div>
+              {/* The one line in the card written in the display serif rather
+                  than the interface font: it is a remark, not a reading. */}
+              {dailyEquivalence && (
+                <div
+                  style={{ fontFamily: "'Fraunces', serif", fontSize: 13, color: colors.textSecondary }}
+                  className="mt-1"
+                >
+                  {dailyEquivalence.kind === "everyDays"
+                    ? t.equivEveryDays(dailyEquivalence.label, dailyEquivalence.days)
+                    : t.equivPerDay(dailyEquivalence.n, dailyEquivalence.label)}
+                </div>
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-1.5 mt-3" style={{ color: colors.textSecondary }}>
             <Icon name="trendingUp" size={14} />
             <span className="text-xs">{t.perYear(money(annualTotal), totalsBase.length)}</span>
