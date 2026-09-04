@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v72";
+const CACHE = "hubbo-v73";
 
 const CORE = [
   "./",
@@ -38,6 +38,42 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("message", (event) => {
   if (event.data === "skipWaiting") self.skipWaiting();
+});
+
+// Notification buttons are handled here and not in the page, because the
+// notification outlives the page: it stays in the tray after the app is
+// closed, and tapping it wakes only this worker. The worker has no access to
+// the app's stored data, so anything a button needs to know travels with the
+// notification itself.
+self.addEventListener("notificationclick", (event) => {
+  const action = event.action;
+  const data = event.notification.data || {};
+  event.notification.close();
+
+  event.waitUntil(
+    (async () => {
+      // The cancellation address is built in the app, where the service name
+      // and the chosen language are known, and carried on the notification.
+      if (action === "cancel" && data.cancelUrl) {
+        if (self.clients.openWindow) await self.clients.openWindow(data.cancelUrl);
+        return;
+      }
+
+      const open = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of open) {
+        if ("focus" in client) {
+          client.postMessage({ type: "hubbo-open-sub", id: data.id || null });
+          return client.focus();
+        }
+      }
+
+      // Nothing open: a fresh page has nobody listening for messages yet, so
+      // the subscription travels in the address instead.
+      if (self.clients.openWindow) {
+        await self.clients.openWindow(data.id ? "./#sub=" + encodeURIComponent(data.id) : "./");
+      }
+    })()
+  );
 });
 
 self.addEventListener("fetch", (event) => {

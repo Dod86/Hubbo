@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v72";
+const APP_VERSION = "v73";
 
 const FREE_LIMIT = 10;
 
@@ -914,6 +914,8 @@ const STRINGS = {
     advWeek: "1 settimana prima",
     advTwoWeeks: "2 settimane prima",
     notifBody: (name, when) => `${name} si rinnova ${when}`,
+    notifActionCancel: "Disdici",
+    notifActionOpen: "Apri",
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1103,6 +1105,8 @@ const STRINGS = {
     advWeek: "1 week before",
     advTwoWeeks: "2 weeks before",
     notifBody: (name, when) => `${name} renews ${when}`,
+    notifActionCancel: "Cancel it",
+    notifActionOpen: "Open",
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1292,6 +1296,8 @@ const STRINGS = {
     advWeek: "1 semana antes",
     advTwoWeeks: "2 semanas antes",
     notifBody: (name, when) => `${name} se renueva ${when}`,
+    notifActionCancel: "Dar de baja",
+    notifActionOpen: "Abrir",
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1481,6 +1487,8 @@ const STRINGS = {
     advWeek: "1 semaine avant",
     advTwoWeeks: "2 semaines avant",
     notifBody: (name, when) => `${name} se renouvelle ${when}`,
+    notifActionCancel: "Résilier",
+    notifActionOpen: "Ouvrir",
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1670,6 +1678,8 @@ const STRINGS = {
     advWeek: "1 Woche vorher",
     advTwoWeeks: "2 Wochen vorher",
     notifBody: (name, when) => `${name} verlängert sich ${when}`,
+    notifActionCancel: "Kündigen",
+    notifActionOpen: "Öffnen",
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -1737,7 +1747,10 @@ async function showNotification(title, options) {
     // fall through to the direct constructor
   }
   try {
-    new Notification(title, options);
+    // The bare constructor refuses a notification carrying actions, so the
+    // fallback drops them: a plain reminder beats no reminder.
+    const { actions, ...plain } = options || {};
+    new Notification(title, plain);
     return true;
   } catch {
     return false;
@@ -3758,6 +3771,42 @@ function HubboApp() {
   }, [subs, todayISO]);
 
   const activeSubs = useMemo(() => enriched.filter((s) => !s.isEnded && !s.paused), [enriched]);
+
+  // A tapped notification reaches the app two different ways: as a message,
+  // when a window was already open and the worker could talk to it, or as an
+  // address, when the tap started the app from cold and there was nobody to
+  // talk to. Both end up in the same place.
+  const [pendingSubId, setPendingSubId] = useState(null);
+
+  useEffect(() => {
+    const fromAddress = () => {
+      const found = window.location.hash.match(/[#&]sub=([^&]+)/);
+      if (!found) return;
+      setPendingSubId(decodeURIComponent(found[1]));
+      // Cleared straight away, and by replacing rather than pushing: the back
+      // button in this app is fragile enough without extra history entries.
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    };
+    const onMessage = (event) => {
+      if (event.data && event.data.type === "hubbo-open-sub") setPendingSubId(event.data.id || null);
+    };
+    fromAddress();
+    window.addEventListener("hashchange", fromAddress);
+    if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("hashchange", fromAddress);
+      if ("serviceWorker" in navigator) navigator.serviceWorker.removeEventListener("message", onMessage);
+    };
+  }, []);
+
+  // Held until the subscriptions have loaded: a cold start has nothing to open
+  // yet, and dropping the request there would lose the tap.
+  useEffect(() => {
+    if (!pendingSubId || !subs) return;
+    const target = enriched.find((x) => x.id === pendingSubId);
+    setPendingSubId(null);
+    if (target) setDetailSub(target);
+  }, [pendingSubId, subs, enriched]);
   const pausedCount = useMemo(() => enriched.filter((s) => s.paused && !s.isEnded).length, [enriched]);
 
   const anyModalOpen =
@@ -3825,6 +3874,13 @@ function HubboApp() {
               icon: "icons/icon-192.png",
               badge: "icons/icon-192.png",
               tag: "hubbo-" + s.id,
+              // Everything the buttons need, since the worker that handles
+              // them cannot read the app's data.
+              data: { id: s.id, cancelUrl: cancelSearchUrl(s.name, settings.language) },
+              actions: [
+                { action: "cancel", title: t.notifActionCancel },
+                { action: "open", title: t.notifActionOpen },
+              ],
             });
           });
       } catch {
@@ -4358,10 +4414,23 @@ function HubboApp() {
       setNotifTest(t.notifDenied);
       return;
     }
+    // The test uses a real subscription when there is one, so the buttons do
+    // something real instead of being a picture of buttons.
+    const sample = activeSubs[0] || null;
     const ok = await showNotification(t.appName, {
-      body: t.notifTestBody,
+      body: sample ? t.notifBody(sample.name, t.inDays(3)) : t.notifTestBody,
       icon: "icons/icon-192.png",
+      badge: "icons/icon-192.png",
       tag: "hubbo-test",
+      data: sample
+        ? { id: sample.id, cancelUrl: cancelSearchUrl(sample.name, settings.language) }
+        : {},
+      actions: sample
+        ? [
+            { action: "cancel", title: t.notifActionCancel },
+            { action: "open", title: t.notifActionOpen },
+          ]
+        : [],
     });
     setNotifTest(ok ? t.notifTestSent : t.notifTestFailed);
   }
