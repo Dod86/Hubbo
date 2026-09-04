@@ -251,7 +251,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v69";
+const APP_VERSION = "v70";
 
 const FREE_LIMIT = 10;
 
@@ -2671,23 +2671,39 @@ function formatDate(dateStr, locale) {
 // Same idea as the vertical sheet drag, for the settings panel that slides in
 // from the right: pushing it back out with a swipe should feel like moving the
 // panel itself, not like pressing a hidden button.
+// A finger running down a long list is never perfectly vertical, and the panel
+// it is scrolling is also the panel that closes on a sideways drag. So the
+// gesture is left alone until it has travelled far enough to say which way it
+// means to go, and from then on it stays on that axis until the finger lifts.
+// Without the lock the horizontal crumbs of an ordinary scroll were enough to
+// pull the panel across.
+const AXIS_LOCK = 10;
+
 function usePanelSwipe(onClose) {
   const [dragX, setDragX] = useState(0);
   const startRef = useRef(null);
   const elRef = useRef(null);
 
   const onTouchStart = (e) => {
-    startRef.current = e.touches[0].clientX;
+    const touch = e.touches[0];
+    startRef.current = { x: touch.clientX, y: touch.clientY, axis: null };
   };
 
   const onTouchMove = (e) => {
-    if (startRef.current === null) return;
-    const dx = e.touches[0].clientX - startRef.current;
+    const start = startRef.current;
+    if (!start) return;
+    const dx = e.touches[0].clientX - start.x;
+    const dy = e.touches[0].clientY - start.y;
+    if (start.axis === null) {
+      if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
+      start.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    }
+    if (start.axis !== "x") return;
     setDragX(dx > 0 ? dx : 0);
   };
 
   const onTouchEnd = () => {
-    if (startRef.current === null) return;
+    if (!startRef.current) return;
     const shouldClose = dragX > 70;
     startRef.current = null;
     if (shouldClose && elRef.current) {
@@ -2713,17 +2729,27 @@ function useSheetDrag(onClose) {
     const el = e.currentTarget;
     // Only start a dismiss drag when the sheet is scrolled to the top.
     if (el.scrollTop > 0) return;
-    startRef.current = e.touches[0].clientY;
+    const touch = e.touches[0];
+    startRef.current = { x: touch.clientX, y: touch.clientY, axis: null };
   };
 
   const onTouchMove = (e) => {
-    if (startRef.current === null) return;
-    const dy = e.touches[0].clientY - startRef.current;
+    const start = startRef.current;
+    if (!start) return;
+    const dx = e.touches[0].clientX - start.x;
+    const dy = e.touches[0].clientY - start.y;
+    // Same lock the side panel uses, the other way round: a sideways swipe
+    // across a sheet shouldn't start pulling it down.
+    if (start.axis === null) {
+      if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
+      start.axis = Math.abs(dy) > Math.abs(dx) ? "y" : "x";
+    }
+    if (start.axis !== "y") return;
     setDragY(dy > 0 ? dy : 0);
   };
 
   const onTouchEnd = () => {
-    if (startRef.current === null) return;
+    if (!startRef.current) return;
     const shouldClose = dragY > 90;
     startRef.current = null;
     if (shouldClose && elRef.current) {
