@@ -251,7 +251,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v64";
+const APP_VERSION = "v65";
 
 const FREE_LIMIT = 10;
 
@@ -2157,6 +2157,301 @@ function cancelSearchUrl(name, language) {
 // means until it is put next to something they actually buy. The reference
 // prices are rough retail averages per currency, not conversions of each other,
 // because a coffee genuinely costs a different amount in each of these places.
+
+// The tour is the one place that has to name parts of the interface out loud,
+// so its wording lives apart from the rest: nine steps, each a title and a
+// sentence, in a shape that makes a missing translation obvious at a glance.
+const TOUR_STRINGS = {
+  it: {
+    tourSkip: "Salta la guida",
+    tourNext: "Avanti",
+    tourDone: "Ho capito",
+    tourStepOf: (i, n) => `${i} di ${n}`,
+    tourWaitHint: "Tocca la parte illuminata per continuare",
+    guideTitle: "Guida",
+    guideDesc: "Rivedi il giro guidato",
+    tourSteps: {
+      welcome: { title: "Benvenuto in Hubbo", text: "Ti mostro in un minuto com'è fatta l'app, poi aggiungiamo insieme il tuo primo abbonamento. Puoi saltare quando vuoi." },
+      views: { title: "Le quattro viste", text: "Elenco per vederli tutti insieme, Calendario per sapere quando si paga, Storico per quello che hai già speso, Risparmio per quanto stai risparmiando." },
+      settings: { title: "Le impostazioni", text: "Lingua, valuta, tema, i colori delle categorie e il backup dei tuoi dati: è tutto qui dentro." },
+      add: { title: "Il pulsante per aggiungere", text: "Toccalo per creare un abbonamento. Fallo adesso, ti seguo passo passo." },
+      service: { title: "Di che servizio si tratta", text: "Scegli dal catalogo: sono oltre duecento, con il logo già pronto. Se il tuo non c'è, puoi scriverlo a mano." },
+      cost: { title: "Quanto e ogni quanto", text: "L'importo, la valuta e la frequenza. Se paghi in una valuta diversa dalla tua, Hubbo la converte ai cambi reali." },
+      when: { title: "Quando si rinnova", text: "La data del prossimo pagamento. Da questa Hubbo calcola i rinnovi, il calendario e i giorni che mancano." },
+      save: { title: "Salvalo", text: "Tocca il pulsante e il tuo primo abbonamento è dentro." },
+      ring: { title: "Ecco a cosa serve l'anello", text: "Mostra come si divide la spesa fra le categorie, e sotto trovi quanto ti costa al giorno." },
+    },
+  },
+  en: {
+    tourSkip: "Skip the tour",
+    tourNext: "Next",
+    tourDone: "Got it",
+    tourStepOf: (i, n) => `${i} of ${n}`,
+    tourWaitHint: "Tap the highlighted part to continue",
+    guideTitle: "Guide",
+    guideDesc: "Take the tour again",
+    tourSteps: {
+      welcome: { title: "Welcome to Hubbo", text: "A quick look at how the app is laid out, then we'll add your first subscription together. You can skip at any point." },
+      views: { title: "The four views", text: "List to see them all at once, Calendar for when you pay, History for what you've already spent, Savings for how much you're saving." },
+      settings: { title: "Settings", text: "Language, currency, theme, category colours and the backup of your data all live in here." },
+      add: { title: "The add button", text: "Tap it to create a subscription. Go ahead — I'll walk you through it." },
+      service: { title: "Which service is it", text: "Pick from the catalogue: over two hundred, logo included. If yours isn't there, you can type it in." },
+      cost: { title: "How much, how often", text: "The amount, the currency and the frequency. Pay in another currency and Hubbo converts it at real rates." },
+      when: { title: "When it renews", text: "The date of the next payment. Everything else — renewals, the calendar, the days left — is worked out from it." },
+      save: { title: "Save it", text: "Tap the button and your first subscription is in." },
+      ring: { title: "What the ring is for", text: "It shows how your spending splits across categories, and underneath is what it costs you per day." },
+    },
+  },
+  es: {
+    tourSkip: "Saltar la guía",
+    tourNext: "Siguiente",
+    tourDone: "Entendido",
+    tourStepOf: (i, n) => `${i} de ${n}`,
+    tourWaitHint: "Toca la parte iluminada para continuar",
+    guideTitle: "Guía",
+    guideDesc: "Volver a ver la guía",
+    tourSteps: {
+      welcome: { title: "Bienvenido a Hubbo", text: "Un vistazo rápido a cómo está organizada la app y luego añadimos juntos tu primera suscripción. Puedes saltarlo cuando quieras." },
+      views: { title: "Las cuatro vistas", text: "Lista para verlas todas, Calendario para saber cuándo se paga, Historial para lo ya gastado y Ahorro para cuánto estás ahorrando." },
+      settings: { title: "Los ajustes", text: "Idioma, moneda, tema, los colores de las categorías y la copia de seguridad de tus datos están todos aquí." },
+      add: { title: "El botón de añadir", text: "Tócalo para crear una suscripción. Hazlo ahora, te guío paso a paso." },
+      service: { title: "Qué servicio es", text: "Elige del catálogo: más de doscientos, con el logo incluido. Si el tuyo no está, puedes escribirlo a mano." },
+      cost: { title: "Cuánto y cada cuánto", text: "El importe, la moneda y la frecuencia. Si pagas en otra moneda, Hubbo la convierte con los cambios reales." },
+      when: { title: "Cuándo se renueva", text: "La fecha del próximo pago. A partir de ella Hubbo calcula las renovaciones, el calendario y los días que faltan." },
+      save: { title: "Guárdala", text: "Toca el botón y tu primera suscripción ya está dentro." },
+      ring: { title: "Para qué sirve el anillo", text: "Muestra cómo se reparte tu gasto entre las categorías, y debajo tienes cuánto te cuesta al día." },
+    },
+  },
+  fr: {
+    tourSkip: "Passer le guide",
+    tourNext: "Suivant",
+    tourDone: "Compris",
+    tourStepOf: (i, n) => `${i} sur ${n}`,
+    tourWaitHint: "Touchez la zone éclairée pour continuer",
+    guideTitle: "Guide",
+    guideDesc: "Revoir le guide",
+    tourSteps: {
+      welcome: { title: "Bienvenue dans Hubbo", text: "Un tour rapide de l'application, puis nous ajoutons ensemble votre premier abonnement. Vous pouvez passer à tout moment." },
+      views: { title: "Les quatre vues", text: "Liste pour tout voir d'un coup, Calendrier pour savoir quand vous payez, Historique pour ce que vous avez déjà dépensé, Économies pour ce que vous économisez." },
+      settings: { title: "Les réglages", text: "Langue, devise, thème, couleurs des catégories et sauvegarde de vos données : tout est ici." },
+      add: { title: "Le bouton d'ajout", text: "Touchez-le pour créer un abonnement. Allez-y, je vous accompagne." },
+      service: { title: "Quel service", text: "Choisissez dans le catalogue : plus de deux cents, logo compris. Si le vôtre n'y est pas, vous pouvez le saisir." },
+      cost: { title: "Combien et à quelle fréquence", text: "Le montant, la devise et la fréquence. Si vous payez dans une autre devise, Hubbo la convertit aux taux réels." },
+      when: { title: "Quand ça se renouvelle", text: "La date du prochain paiement. Tout le reste en découle : renouvellements, calendrier, jours restants." },
+      save: { title: "Enregistrez-le", text: "Touchez le bouton et votre premier abonnement est enregistré." },
+      ring: { title: "À quoi sert l'anneau", text: "Il montre la répartition de vos dépenses par catégorie, et en dessous ce que cela vous coûte par jour." },
+    },
+  },
+  de: {
+    tourSkip: "Anleitung überspringen",
+    tourNext: "Weiter",
+    tourDone: "Verstanden",
+    tourStepOf: (i, n) => `${i} von ${n}`,
+    tourWaitHint: "Tippe auf den hellen Bereich, um fortzufahren",
+    guideTitle: "Anleitung",
+    guideDesc: "Anleitung erneut ansehen",
+    tourSteps: {
+      welcome: { title: "Willkommen bei Hubbo", text: "Ein kurzer Blick auf den Aufbau der App, dann fügen wir gemeinsam dein erstes Abo hinzu. Du kannst jederzeit überspringen." },
+      views: { title: "Die vier Ansichten", text: "Liste für alles auf einen Blick, Kalender für die Zahlungstermine, Verlauf für bereits Ausgegebenes, Ersparnis für das, was du sparst." },
+      settings: { title: "Die Einstellungen", text: "Sprache, Währung, Design, die Farben der Kategorien und die Sicherung deiner Daten stecken alle hier drin." },
+      add: { title: "Die Hinzufügen-Taste", text: "Tippe sie an, um ein Abo anzulegen. Mach es gleich, ich führe dich durch." },
+      service: { title: "Welcher Dienst", text: "Wähle aus dem Katalog: über zweihundert, Logo inklusive. Fehlt deiner, kannst du ihn von Hand eintragen." },
+      cost: { title: "Wie viel und wie oft", text: "Betrag, Währung und Häufigkeit. Zahlst du in einer anderen Währung, rechnet Hubbo sie zu echten Kursen um." },
+      when: { title: "Wann es sich verlängert", text: "Das Datum der nächsten Zahlung. Daraus ergibt sich alles Weitere: Verlängerungen, Kalender, verbleibende Tage." },
+      save: { title: "Speichern", text: "Tippe auf die Taste, und dein erstes Abo ist drin." },
+      ring: { title: "Wozu der Ring dient", text: "Er zeigt, wie sich deine Ausgaben auf die Kategorien verteilen, und darunter steht, was dich das pro Tag kostet." },
+    },
+  },
+};
+
+// The tour points at the live interface rather than at pictures of it, so no
+// position in here is ever written down. Sheets slide, the keyboard shoves the
+// viewport up, the phone rotates: every frame the hole is measured from the
+// real element, and a step whose element has gone missing degrades to a plain
+// centred card rather than a hole cut in the wrong place.
+const TOUR_PAD = 8;
+
+const TOUR_STEPS = [
+  { id: "welcome", target: null },
+  { id: "views", target: "nav" },
+  { id: "settings", target: "settings" },
+  { id: "add", target: "add", waitFor: "form" },
+  { id: "service", target: "formService", waitFor: "service" },
+  { id: "cost", target: "formCost" },
+  { id: "when", target: "formWhen" },
+  { id: "save", target: "formSave", waitFor: "saved" },
+  { id: "ring", target: "totalCard" },
+];
+
+const TOUR_FIRST_FORM_STEP = TOUR_STEPS.findIndex((s) => s.id === "add");
+
+function useSpotlightRect(target) {
+  const [rect, setRect] = useState(null);
+  useEffect(() => {
+    if (!target) {
+      setRect(null);
+      return;
+    }
+    const read = () => {
+      const el = document.querySelector(`[data-tour="${target}"]`);
+      if (!el) return setRect(null);
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      // Collapsed, or scrolled entirely off screen: no hole beats a wrong one.
+      if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > vh) return setRect(null);
+      setRect((prev) =>
+        prev &&
+        Math.abs(prev.top - r.top) < 0.5 &&
+        Math.abs(prev.left - r.left) < 0.5 &&
+        Math.abs(prev.width - r.width) < 0.5 &&
+        Math.abs(prev.height - r.height) < 0.5
+          ? prev
+          : { top: r.top, left: r.left, width: r.width, height: r.height }
+      );
+    };
+
+    const el = document.querySelector(`[data-tour="${target}"]`);
+    if (el && el.scrollIntoView) {
+      try {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+      } catch {
+        el.scrollIntoView();
+      }
+    }
+    read();
+    // Sheet and keyboard animations keep moving things for a few hundred
+    // milliseconds after a step changes. Re-reading on a timer is steadier
+    // than trying to guess when everything has come to rest, and it is one
+    // rectangle read rather than a layout pass over the page.
+    const timer = setInterval(read, 150);
+    const vv = window.visualViewport;
+    window.addEventListener("resize", read);
+    window.addEventListener("scroll", read, true);
+    window.addEventListener("orientationchange", read);
+    if (vv) {
+      vv.addEventListener("resize", read);
+      vv.addEventListener("scroll", read);
+    }
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("resize", read);
+      window.removeEventListener("scroll", read, true);
+      window.removeEventListener("orientationchange", read);
+      if (vv) {
+        vv.removeEventListener("resize", read);
+        vv.removeEventListener("scroll", read);
+      }
+    };
+  }, [target]);
+  return rect;
+}
+
+function TourSpotlight({ index, colors, t, onNext, onEnd }) {
+  const step = TOUR_STEPS[index];
+  const rect = useSpotlightRect(step.target);
+  const vh = typeof window !== "undefined" ? window.innerHeight : 0;
+  const dim = "rgba(6,7,11,0.82)";
+  const hole = rect
+    ? {
+        top: Math.max(0, rect.top - TOUR_PAD),
+        left: Math.max(0, rect.left - TOUR_PAD),
+        width: rect.width + TOUR_PAD * 2,
+        height: rect.height + TOUR_PAD * 2,
+      }
+    : null;
+
+  // The card is pinned by whichever edge faces the hole, never by its own
+  // height: that way it can't be placed from a stale measurement of itself,
+  // and it lands correctly however long the translated text turns out to be.
+  const below = !hole || hole.top + hole.height / 2 < vh / 2;
+  const cardPosition = hole
+    ? below
+      ? { top: hole.top + hole.height + 14 }
+      : { bottom: Math.max(14, vh - hole.top + 14) }
+    : { top: "50%", transform: "translateY(-50%)" };
+
+  const copy = t.tourSteps[step.id];
+  const last = index === TOUR_STEPS.length - 1;
+  const waiting = !!step.waitFor;
+  const blocker = { position: "absolute", pointerEvents: "auto" };
+
+  return (
+    <div className="fixed inset-0 z-[95]" style={{ pointerEvents: "none" }}>
+      {hole ? (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: hole.top,
+              left: hole.left,
+              width: hole.width,
+              height: hole.height,
+              // A hole shaped like its element: the add button is a circle, and a
+              // rounded square cut around it would look like a mistake.
+              borderRadius: Math.abs(hole.width - hole.height) < 6 ? hole.width / 2 : 18,
+              boxShadow: `0 0 0 9999px ${dim}`,
+              border: `2px solid ${ACCENT.amber}`,
+              pointerEvents: "none",
+            }}
+          />
+          {/* Only the lit element stays tappable. The four panels around it
+              swallow stray taps so a step can't be derailed by a mis-hit. */}
+          <div style={{ ...blocker, top: 0, left: 0, right: 0, height: Math.max(0, hole.top) }} />
+          <div style={{ ...blocker, top: hole.top + hole.height, left: 0, right: 0, bottom: 0 }} />
+          <div style={{ ...blocker, top: hole.top, left: 0, width: Math.max(0, hole.left), height: hole.height }} />
+          <div style={{ ...blocker, top: hole.top, left: hole.left + hole.width, right: 0, height: hole.height }} />
+        </>
+      ) : (
+        <div style={{ ...blocker, inset: 0, background: dim }} />
+      )}
+
+      <div
+        style={{
+          position: "absolute",
+          left: 14,
+          right: 14,
+          background: colors.surface,
+          border: `1px solid ${colors.border}`,
+          pointerEvents: "auto",
+          ...cardPosition,
+        }}
+        className="rounded-2xl p-4"
+      >
+        <h3 style={{ fontFamily: "'Fraunces', serif", color: colors.textPrimary }} className="text-base font-medium mb-1">
+          {copy.title}
+        </h3>
+        <p style={{ color: colors.textSecondary }} className="text-sm leading-relaxed">
+          {copy.text}
+        </p>
+        <div className="flex items-center justify-between mt-4">
+          <button type="button" onClick={onEnd} style={{ color: colors.textFaint }} className="text-xs">
+            {t.tourSkip}
+          </button>
+          <div className="flex items-center gap-3">
+            <span style={{ color: colors.textFaint }} className="text-xs">
+              {t.tourStepOf(index + 1, TOUR_STEPS.length)}
+            </span>
+            {/* A step that asks for a real action has no way forward but that
+                action, or the tour would drift out of step with the app. */}
+            {waiting ? (
+              <span style={{ color: ACCENT.amber }} className="text-xs">{t.tourWaitHint}</span>
+            ) : (
+              <button
+                type="button"
+                onClick={last ? onEnd : onNext}
+                style={{ background: ACCENT.amber, color: "#1A1305" }}
+                className="rounded-lg px-4 py-2 text-xs font-semibold"
+              >
+                {last ? t.tourDone : t.tourNext}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const EQUIVALENTS = [
   { id: "coffee", price: { EUR: 1.5, USD: 3.5, GBP: 3, CHF: 4.5 } },
   { id: "beer", price: { EUR: 5, USD: 7, GBP: 5.5, CHF: 7.5 } },
@@ -2725,7 +3020,7 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
 const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false };
-const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {} };
+const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, onboarded: false };
 
 function useSystemPrefersDark() {
   const [prefersDark, setPrefersDark] = useState(
@@ -2809,6 +3104,7 @@ function HubboApp() {
   const [ratesDate, setRatesDate] = useState(null);
   const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
+  const [tourStep, setTourStep] = useState(-1);
   // The search box is per-opening, so it clears once the sheet is dismissed.
   useEffect(() => {
     if (!optionPicker) setOptionSearch("");
@@ -2842,7 +3138,7 @@ function HubboApp() {
     };
   }, []);
 
-  const t = { ...STRINGS[settings.language], ...LEDGER_STRINGS[settings.language] };
+  const t = { ...STRINGS[settings.language], ...LEDGER_STRINGS[settings.language], ...TOUR_STRINGS[settings.language] };
   const systemPrefersDark = useSystemPrefersDark();
   const effectiveTheme = settings.theme === "system" ? (systemPrefersDark ? "dark" : "light") : settings.theme;
   const colors = THEMES[effectiveTheme];
@@ -3016,6 +3312,59 @@ function HubboApp() {
     });
     await persistSettings({ ...settings, categoryColors: next });
   }
+
+  // The tour follows the app instead of driving it: the steps that ask for a
+  // real action wait for that action to happen, so what the user is told and
+  // what is on screen can never disagree.
+  const tourActive = tourStep >= 0;
+  const tourVisible = tourActive && !pickerOpen && !optionPicker;
+
+  function endTour() {
+    setTourStep(-1);
+    if (!settings.onboarded) persistSettings({ ...settings, onboarded: true });
+  }
+
+  function startTour() {
+    if (view !== "list") switchView("list");
+    setShowSettings(false);
+    setTourStep(0);
+  }
+
+  // First launch only, and only on an empty app: someone who already has
+  // subscriptions does not need to be walked through adding their first.
+  useEffect(() => {
+    if (!subs || settings.onboarded || tourStep >= 0) return;
+    if (subs.length > 0) {
+      persistSettings({ ...settings, onboarded: true });
+      return;
+    }
+    setTourStep(0);
+  }, [subs, settings.onboarded]);
+
+  useEffect(() => {
+    if (tourStep < 0) return;
+    if (TOUR_STEPS[tourStep].waitFor === "form" && showForm) setTourStep(tourStep + 1);
+  }, [showForm, tourStep]);
+
+  useEffect(() => {
+    if (tourStep < 0) return;
+    if (TOUR_STEPS[tourStep].waitFor === "service" && !pickerOpen && form.name) setTourStep(tourStep + 1);
+  }, [pickerOpen, form.name, tourStep]);
+
+  // Backing out of the form drops the tour back to the step that opens it,
+  // rather than leaving it pointing at fields that are no longer on screen.
+  // Saving also closes the form, hence the check on what was actually saved.
+  useEffect(() => {
+    if (tourStep < 0 || showForm || !subs || subs.length > 0) return;
+    if (String(TOUR_STEPS[tourStep].target || "").startsWith("form")) setTourStep(TOUR_FIRST_FORM_STEP);
+  }, [showForm, subs, tourStep]);
+
+  // Saved at last: the ring finally has something in it, which is why that is
+  // the closing step and not the opening one.
+  useEffect(() => {
+    if (tourStep < 0 || !subs) return;
+    if (TOUR_STEPS[tourStep].waitFor === "saved" && subs.length > 0) setTourStep(tourStep + 1);
+  }, [subs, tourStep]);
 
   async function persistSettings(next) {
     setSettings(next);
@@ -4007,7 +4356,7 @@ function HubboApp() {
       >
         <div className="flex items-center justify-between mb-1">
           <Wordmark colors={colors} size={25} />
-          <button onClick={() => setShowSettings(true)} style={{ color: colors.textSecondary }} aria-label={t.settings} className="p-1">
+          <button data-tour="settings" onClick={() => setShowSettings(true)} style={{ color: colors.textSecondary }} aria-label={t.settings} className="p-1">
             <Icon name="settings" size={18} />
           </button>
         </div>
@@ -4021,7 +4370,7 @@ function HubboApp() {
       <div key="view-list" className={viewDirection === null ? "" : viewDirection === "right" ? "rb-view-right" : "rb-view-left"}>
       <div className="px-5 pt-4">
         {/* Total card */}
-        <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
+        <div data-tour="totalCard" style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
           <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
           <div className="flex items-center gap-3">
             <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
@@ -4765,6 +5114,7 @@ function HubboApp() {
           transform: "translateZ(0)",
           willChange: "transform",
         }}
+        data-tour="nav"
         className="fixed bottom-0 left-0 right-0 flex items-center z-30"
       >
         <button
@@ -4787,6 +5137,7 @@ function HubboApp() {
 
         <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 74 }}>
           <button
+            data-tour="add"
             onClick={openAdd}
             style={{ background: "transparent" }}
             className="rounded-full w-14 h-14 flex items-center justify-center"
@@ -4814,6 +5165,16 @@ function HubboApp() {
           <span className="truncate max-w-full px-0.5">{t.savingsView}</span>
         </button>
       </div>
+
+      {tourVisible && (
+        <TourSpotlight
+          index={tourStep}
+          colors={colors}
+          t={t}
+          onNext={() => setTourStep((s) => s + 1)}
+          onEnd={endTour}
+        />
+      )}
 
       {/* Add / Edit modal */}
       {showForm && (
@@ -4893,6 +5254,7 @@ function HubboApp() {
             <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.service}</label>
             <button
               type="button"
+              data-tour="formService"
               onClick={() => { setServiceSearch(""); setPickerOpen(true); }}
               style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
               className="w-full rounded-xl px-3 py-2.5 mb-3.5 flex items-center gap-2.5 text-left"
@@ -4956,7 +5318,7 @@ function HubboApp() {
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 mb-3.5">
+            <div data-tour="formCost" className="grid grid-cols-3 gap-2 mb-3.5">
               <div>
                 <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{form.isShared ? t.totalCostLabel : t.cost}</label>
                 <input
@@ -5057,7 +5419,7 @@ function HubboApp() {
               </>
             )}
 
-            <div className="flex items-start gap-2">
+            <div data-tour="formWhen" className="flex items-start gap-2">
               <div className="flex-1 min-w-0">
                 <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
                   {form.isPast ? t.renewalDayLabel : t.nextRenewal}
@@ -5209,6 +5571,7 @@ function HubboApp() {
             )}
 
             <div
+              data-tour="formSave"
               className="sticky bottom-0 pt-3 -mx-5 px-5 pb-1"
               style={{ background: colors.surface }}
             >
@@ -5463,6 +5826,18 @@ function HubboApp() {
                     <span>{t.trash}</span>
                     <span style={{ color: colors.textSecondary }} className="flex items-center gap-1.5">
                       {trash.length > 0 ? trash.length : ""}
+                      <Icon name="chevronRight" size={15} />
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => closeSheet("settings", () => startTour())}
+                    style={{ borderTop: `1px solid ${colors.border}` }}
+                    className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
+                  >
+                    <span>{t.guideTitle}</span>
+                    <span style={{ color: colors.textSecondary }} className="flex items-center gap-1.5">
+                      <span className="text-xs">{t.guideDesc}</span>
                       <Icon name="chevronRight" size={15} />
                     </span>
                   </button>
