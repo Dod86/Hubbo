@@ -247,7 +247,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v55";
+const APP_VERSION = "v56";
 
 const FREE_LIMIT = 10;
 
@@ -769,6 +769,11 @@ const STRINGS = {
     confirmDeleteNo: "Annulla",
     trash: "Cestino",
     categoryColors: "Colori categorie",
+    colorSwapTitle: "Colore già in uso",
+    colorSwapBody: (cat) => `Questo colore appartiene alla categoria ${cat}. Vuoi scambiare i colori delle due categorie?`,
+    colorSwapYes: "Sì, scambia",
+    colorSwapNo: "No, usalo comunque",
+    colorSwapNote: "Senza scambio le due categorie avranno lo stesso colore e nell'anello non si distingueranno.",
     categoryColorsHint: "Tocca una categoria per cambiarne il colore. Si aggiorna ovunque: anello, leggenda, filtri.",
     colorReset: "Ripristina colore originale",
     colorCustom: "modificato",
@@ -949,6 +954,11 @@ const STRINGS = {
     confirmDeleteNo: "Cancel",
     trash: "Trash",
     categoryColors: "Category colours",
+    colorSwapTitle: "Colour already in use",
+    colorSwapBody: (cat) => `This colour belongs to ${cat}. Swap the colours of the two categories?`,
+    colorSwapYes: "Yes, swap",
+    colorSwapNo: "No, use it anyway",
+    colorSwapNote: "Without swapping, both categories share one colour and cannot be told apart in the ring.",
     categoryColorsHint: "Tap a category to change its colour. It updates everywhere: ring, legend, filters.",
     colorReset: "Restore original colour",
     colorCustom: "changed",
@@ -1129,6 +1139,11 @@ const STRINGS = {
     confirmDeleteNo: "Cancelar",
     trash: "Papelera",
     categoryColors: "Colores de categorías",
+    colorSwapTitle: "Color ya en uso",
+    colorSwapBody: (cat) => `Este color pertenece a ${cat}. ¿Quieres intercambiar los colores de las dos categorías?`,
+    colorSwapYes: "Sí, intercambiar",
+    colorSwapNo: "No, usarlo igualmente",
+    colorSwapNote: "Sin intercambio ambas categorías tendrán el mismo color y no se distinguirán en el anillo.",
     categoryColorsHint: "Toca una categoría para cambiar su color. Se actualiza en todas partes: anillo, leyenda, filtros.",
     colorReset: "Restaurar color original",
     colorCustom: "cambiado",
@@ -1309,6 +1324,11 @@ const STRINGS = {
     confirmDeleteNo: "Annuler",
     trash: "Corbeille",
     categoryColors: "Couleurs des catégories",
+    colorSwapTitle: "Couleur déjà utilisée",
+    colorSwapBody: (cat) => `Cette couleur appartient à ${cat}. Échanger les couleurs des deux catégories ?`,
+    colorSwapYes: "Oui, échanger",
+    colorSwapNo: "Non, l'utiliser quand même",
+    colorSwapNote: "Sans échange, les deux catégories auront la même couleur et seront indistinctes dans l'anneau.",
     categoryColorsHint: "Touchez une catégorie pour changer sa couleur. Elle change partout : anneau, légende, filtres.",
     colorReset: "Rétablir la couleur d'origine",
     colorCustom: "modifiée",
@@ -1489,6 +1509,11 @@ const STRINGS = {
     confirmDeleteNo: "Abbrechen",
     trash: "Papierkorb",
     categoryColors: "Kategoriefarben",
+    colorSwapTitle: "Farbe bereits vergeben",
+    colorSwapBody: (cat) => `Diese Farbe gehört zu ${cat}. Farben der beiden Kategorien tauschen?`,
+    colorSwapYes: "Ja, tauschen",
+    colorSwapNo: "Nein, trotzdem verwenden",
+    colorSwapNote: "Ohne Tausch haben beide Kategorien dieselbe Farbe und sind im Ring nicht unterscheidbar.",
     categoryColorsHint: "Tippe auf eine Kategorie, um ihre Farbe zu ändern. Sie gilt überall: Ring, Legende, Filter.",
     colorReset: "Ursprungsfarbe wiederherstellen",
     colorCustom: "geändert",
@@ -2631,6 +2656,7 @@ function HubboApp() {
   const [showTrash, setShowTrash] = useState(false);
   const [showColors, setShowColors] = useState(false);
   const [colorEditing, setColorEditing] = useState(null);
+  const [colorSwap, setColorSwap] = useState(null);
   const [payments, setPayments] = useState([]);
   const [paymentsLoaded, setPaymentsLoaded] = useState(false);
   const [historyPeriod, setHistoryPeriod] = useState("all");
@@ -2880,6 +2906,18 @@ function HubboApp() {
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
+
+  // Colours are written straight from the current settings rather than through
+  // the deferred ref, so two quick taps can't overwrite each other and the
+  // change shows the instant it is saved. A null value clears the override.
+  async function applyCategoryColor(changes) {
+    const next = { ...(settings.categoryColors || {}) };
+    Object.entries(changes).forEach(([id, hex]) => {
+      if (hex) next[id] = hex;
+      else delete next[id];
+    });
+    await persistSettings({ ...settings, categoryColors: next });
+  }
 
   async function persistSettings(next) {
     setSettings(next);
@@ -3169,7 +3207,7 @@ function HubboApp() {
 
   const anyModalOpen =
     showForm || showSettings || showPaywall || showTrash || showColors || showMonthPicker ||
-    !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction;
+    !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction || !!colorSwap;
 
   useEffect(() => {
     if (!anyModalOpen) return;
@@ -3805,6 +3843,7 @@ function HubboApp() {
       ["month", showMonthPicker, () => setShowMonthPicker(false)],
       ["detail", detailSub, () => setDetailSub(null)],
       ["trash", showTrash, () => setShowTrash(false)],
+      ["cswap", colorSwap, () => setColorSwap(null)],
       ["colors", showColors, () => { setShowColors(false); setColorEditing(null); }],
       ["paywall", showPaywall, () => setShowPaywall(false)],
       ["settings", showSettings, () => setShowSettings(false)],
@@ -5693,12 +5732,15 @@ function HubboApp() {
                       <button
                         key={hex}
                         type="button"
-                        onClick={() =>
-                          persistSettings({
-                            ...settingsRef.current,
-                            categoryColors: { ...(settingsRef.current.categoryColors || {}), [colorEditing]: hex },
-                          })
-                        }
+                        onClick={() => {
+                          if (current === hex) return;
+                          const owner = CATEGORIES.find((c) => c.id !== colorEditing && c.color === hex);
+                          if (owner) {
+                            setColorSwap({ target: colorEditing, hex, ownerId: owner.id, ownerLabel: owner.label, previous: current });
+                            return;
+                          }
+                          applyCategoryColor({ [colorEditing]: hex });
+                        }}
                         style={{
                           background: hex,
                           border: `2px solid ${active ? colors.textPrimary : "transparent"}`,
@@ -5712,11 +5754,7 @@ function HubboApp() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    const next = { ...(settingsRef.current.categoryColors || {}) };
-                    delete next[colorEditing];
-                    persistSettings({ ...settingsRef.current, categoryColors: next });
-                  }}
+                  onClick={() => applyCategoryColor({ [colorEditing]: null })}
                   style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
                   className="w-full rounded-xl py-2.5 text-sm font-medium"
                 >
@@ -6049,6 +6087,45 @@ function HubboApp() {
       )}
 
       {/* Confirm permanent delete */}
+      {colorSwap && (
+        <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[80] ${closingSheet === "cswap" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("cswap", () => setColorSwap(null))}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 ${closingSheet === "cswap" ? "rb-dialog-out" : "rb-dialog"}`}>
+            <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium mb-2">{t.colorSwapTitle}</h2>
+            <p style={{ color: colors.textSecondary }} className="text-sm mb-3">{t.colorSwapBody(colorSwap.ownerLabel)}</p>
+
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span style={{ background: colorSwap.previous, width: 26, height: 26, borderRadius: 999 }} />
+              <span style={{ color: colors.textFaint }} className="text-sm">⇄</span>
+              <span style={{ background: colorSwap.hex, width: 26, height: 26, borderRadius: 999 }} />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                applyCategoryColor({ [colorSwap.target]: colorSwap.hex, [colorSwap.ownerId]: colorSwap.previous });
+                closeSheet("cswap", () => setColorSwap(null));
+              }}
+              style={{ background: ACCENT.amber, color: "#1A1305" }}
+              className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
+            >
+              {t.colorSwapYes}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                applyCategoryColor({ [colorSwap.target]: colorSwap.hex });
+                closeSheet("cswap", () => setColorSwap(null));
+              }}
+              style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+              className="w-full rounded-xl py-2.5 text-sm font-medium mb-2"
+            >
+              {t.colorSwapNo}
+            </button>
+            <p style={{ color: colors.textFaint }} className="text-xs text-center leading-relaxed">{t.colorSwapNote}</p>
+          </div>
+        </div>
+      )}
+
       {confirmPurge && (
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[60] ${closingSheet === "cpurge" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("cpurge", () => setConfirmPurge(null))}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 ${closingSheet === "cpurge" ? "rb-dialog-out" : "rb-dialog"}`}>
