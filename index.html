@@ -277,7 +277,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v86";
+const APP_VERSION = "v87";
 
 const FREE_LIMIT = 10;
 
@@ -5044,7 +5044,13 @@ function HubboApp() {
                         right: the figure hands over to the ring it belongs to. */}
                     <span
                       style={{
-                        background: `linear-gradient(90deg, ${colors.textPrimary} 0%, ${lead} 100%)`,
+                        // backgroundImage, never the background shorthand: the
+                        // shorthand resets background-clip to its default, and
+                        // on a theme change React rewrites only the value that
+                        // changed. The clip was then never re-applied and the
+                        // gradient painted the whole box over the invisible
+                        // text — a solid bar where the figure should be.
+                        backgroundImage: `linear-gradient(90deg, ${colors.textPrimary} 0%, ${lead} 100%)`,
                         WebkitBackgroundClip: "text",
                         backgroundClip: "text",
                         color: "transparent",
