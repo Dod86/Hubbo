@@ -247,7 +247,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v58";
+const APP_VERSION = "v60";
 
 const FREE_LIMIT = 10;
 
@@ -260,6 +260,17 @@ const ANIMATIONS = `
 @keyframes rb-slide-down { from { transform: translateY(var(--rb-drag-y, 0px)); } to { transform: translateY(100%); } }
 @keyframes rb-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .rb-toast { animation: rb-toast-in 0.2s ease-out; }
+@keyframes rb-plus-morph {
+  0%, 30% { transform: scale(1); stroke-width: 4; }
+  50%, 62% { transform: scale(0.04); stroke-width: 9; }
+  82%, 100% { transform: scale(1); stroke-width: 4; }
+}
+.rb-plus-morph {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rb-plus-morph 3.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .rb-plus-morph { animation: none; } }
 .rb-marquee { overflow: hidden; white-space: nowrap; }
 .rb-marquee > span { display: inline-block; will-change: transform; }
 @keyframes rb-marquee-move {
@@ -2432,7 +2443,14 @@ function AddRingIcon({ size = 40, colors }) {
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
       <circle cx="20" cy="20" r="15.5" fill="none" stroke={colors.border} strokeWidth="4" />
       <path d="M 20 4.5 A 15.5 15.5 0 1 1 7 27.8" fill="none" stroke={ACCENT.amber} strokeWidth="4" strokeLinecap="round" />
-      <path d="M 20 12.6 L 20 27.4 M 12.6 20 L 27.4 20" stroke={ACCENT.amber} strokeWidth="4" strokeLinecap="round" />
+      <path
+        className="rb-plus-morph"
+        d="M 20 12.6 L 20 27.4 M 12.6 20 L 27.4 20"
+        stroke={ACCENT.amber}
+        strokeWidth="4"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
@@ -3947,7 +3965,7 @@ function HubboApp() {
                       fontFamily: "'JetBrains Mono', monospace",
                       fontWeight: 700,
                       color: lead,
-                      fontSize: txt.length > 10 ? 19 : txt.length > 9 ? 23 : 26,
+                      fontSize: txt.length > 10 ? 21 : txt.length > 9 ? 23 : 29,
                     }}
                     className="leading-none"
                   >
@@ -4195,7 +4213,7 @@ function HubboApp() {
                         fontFamily: "'JetBrains Mono', monospace",
                         fontWeight: 700,
                         color: lead,
-                        fontSize: txt.length > 10 ? 19 : txt.length > 9 ? 23 : 26,
+                        fontSize: txt.length > 10 ? 21 : txt.length > 9 ? 23 : 29,
                       }}
                       className="leading-none"
                     >
@@ -4650,14 +4668,14 @@ function HubboApp() {
           <span className="truncate max-w-full px-0.5">{t.calendarView}</span>
         </button>
 
-        <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 68 }}>
+        <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 74 }}>
           <button
             onClick={openAdd}
             style={{ background: "transparent" }}
-            className="rounded-full w-12 h-12 flex items-center justify-center"
+            className="rounded-full w-14 h-14 flex items-center justify-center"
             aria-label={t.addAria}
           >
-            <AddRingIcon size={40} colors={colors} />
+            <AddRingIcon size={48} colors={colors} />
           </button>
         </div>
 
