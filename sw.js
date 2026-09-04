@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v75";
+const CACHE = "hubbo-v76";
 
 const CORE = [
   "./",
@@ -46,62 +46,41 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// Notification buttons are handled here and not in the page, because the
-// notification outlives the page: it stays in the tray after the app is
-// closed, and tapping it wakes only this worker. The worker has no access to
-// the app's stored data, so anything a button needs to know travels with the
-// notification itself.
+// The worker only reports which button was pressed. It used to decide as well,
+// but deciding needed the cancellation address to have survived the trip on the
+// notification, and when it had not, the test fell through to the generic
+// branch and both buttons opened the app. The app knows the subscriptions, so
+// the app decides; all the worker has to get right is the name of the action.
 self.addEventListener("notificationclick", (event) => {
-  const action = event.action;
+  const action = event.action || "body";
   const data = event.notification.data || {};
   event.notification.close();
 
   event.waitUntil(
     (async () => {
-      // The cancellation address is built in the app, where the service name
-      // and the chosen language are known, and carried on the notification.
-      if (action === "cancel" && data.cancelUrl) {
-        try {
-          if (self.clients.openWindow) {
-            await self.clients.openWindow(data.cancelUrl);
-            return;
-          }
-        } catch {
-          // Some Android builds refuse to open an outside address from an
-          // installed app. Rather than silently doing nothing — which looks
-          // exactly like the button being broken — the request is handed to
-          // the app, which can open it from a page context.
-        }
-        const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-        for (const client of windows) {
-          if ("focus" in client) {
-            client.postMessage({ type: "hubbo-cancel", id: data.id || null, cancelUrl: data.cancelUrl });
-            return client.focus();
-          }
-        }
-        try {
-          if (self.clients.openWindow) {
-            await self.clients.openWindow("./#cancel=" + encodeURIComponent(data.id || ""));
-          }
-        } catch {
-          // Out of options. Better a button that does nothing than a worker
-          // that throws and takes the other notifications down with it.
-        }
-        return;
-      }
-
       const open = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       for (const client of open) {
         if ("focus" in client) {
-          client.postMessage({ type: "hubbo-open-sub", id: data.id || null });
+          client.postMessage({
+            type: "hubbo-notification",
+            action,
+            id: data.id || null,
+            cancelUrl: data.cancelUrl || null,
+          });
           return client.focus();
         }
       }
-
-      // Nothing open: a fresh page has nobody listening for messages yet, so
-      // the subscription travels in the address instead.
-      if (self.clients.openWindow) {
-        await self.clients.openWindow(data.id ? "./#sub=" + encodeURIComponent(data.id) : "./");
+      // Nothing open: a fresh page has nobody listening yet, so both the button
+      // and the subscription travel in the address.
+      try {
+        if (self.clients.openWindow) {
+          await self.clients.openWindow(
+            "./#notif=" + encodeURIComponent(action) + "&sub=" + encodeURIComponent(data.id || "")
+          );
+        }
+      } catch {
+        // Nothing left to try, and a worker that throws here takes the other
+        // notifications down with it.
       }
     })()
   );

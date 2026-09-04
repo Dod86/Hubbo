@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v75";
+const APP_VERSION = "v76";
 
 const FREE_LIMIT = 10;
 
@@ -922,6 +922,7 @@ const STRINGS = {
     workerSilent: "servizio: nessuna risposta",
     workerPending: "aggiornamento in attesa",
     workerForce: "Forza aggiornamento del servizio",
+    lastNotif: (a, id) => `ultima notifica: ${a} · ${id}`,
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1119,6 +1120,7 @@ const STRINGS = {
     workerSilent: "worker: no answer",
     workerPending: "update waiting",
     workerForce: "Force the worker to update",
+    lastNotif: (a, id) => `last notification: ${a} · ${id}`,
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1316,6 +1318,7 @@ const STRINGS = {
     workerSilent: "servicio: sin respuesta",
     workerPending: "actualización pendiente",
     workerForce: "Forzar la actualización del servicio",
+    lastNotif: (a, id) => `última notificación: ${a} · ${id}`,
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1513,6 +1516,7 @@ const STRINGS = {
     workerSilent: "service : aucune réponse",
     workerPending: "mise à jour en attente",
     workerForce: "Forcer la mise à jour du service",
+    lastNotif: (a, id) => `dernière notification : ${a} · ${id}`,
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1710,6 +1714,7 @@ const STRINGS = {
     workerSilent: "Worker: keine Antwort",
     workerPending: "Update wartet",
     workerForce: "Update des Workers erzwingen",
+    lastNotif: (a, id) => `letzte Mitteilung: ${a} · ${id}`,
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -3808,6 +3813,9 @@ function HubboApp() {
   // talk to. Both end up in the same place.
   const [pendingSubId, setPendingSubId] = useState(null);
   const [pendingCancelId, setPendingCancelId] = useState(null);
+  // What the last tapped notification actually delivered, shown in Settings.
+  // Guessing at this from the outside cost two versions.
+  const [lastNotification, setLastNotification] = useState(null);
   // "" while still asking, "none" once the worker has had its chances and said
   // nothing. The distinction matters: a worker too old to know the question is
   // exactly the worker worth warning about, and silence must not read as
@@ -3816,29 +3824,37 @@ function HubboApp() {
   const [workerWaiting, setWorkerWaiting] = useState(false);
 
   useEffect(() => {
+    const clearAddress = () =>
+      // Replacing rather than pushing: the back button in this app is fragile
+      // enough without extra history entries.
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
     const fromAddress = () => {
-      // The cancel fallback arrives the same way as an open request, only the
-      // name of the parameter differs.
-      const wantsCancel = window.location.hash.match(/[#&]cancel=([^&]*)/);
-      if (wantsCancel) {
-        setPendingCancelId(decodeURIComponent(wantsCancel[1]));
-        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      const hash = window.location.hash;
+      const notif = hash.match(/[#&]notif=([^&]*)/);
+      const sub = hash.match(/[#&]sub=([^&]*)/);
+      if (!notif && !sub) return;
+      const action = notif ? decodeURIComponent(notif[1]) : "body";
+      const id = sub ? decodeURIComponent(sub[1]) : "";
+      clearAddress();
+      handleNotification(action, id, null);
+    };
+    // One place decides what a notification means, whichever road it arrived by.
+    const handleNotification = (action, id, cancelUrl) => {
+      setLastNotification({ action, id: id || "" });
+      if (action === "cancel") {
+        if (cancelUrl) window.open(cancelUrl, "_blank", "noopener");
+        else setPendingCancelId(id || "");
         return;
       }
-      const found = window.location.hash.match(/[#&]sub=([^&]+)/);
-      if (!found) return;
-      setPendingSubId(decodeURIComponent(found[1]));
-      // Cleared straight away, and by replacing rather than pushing: the back
-      // button in this app is fragile enough without extra history entries.
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      if (id) setPendingSubId(id);
     };
+
     const onMessage = (event) => {
       const message = event.data;
       if (!message || !message.type) return;
-      if (message.type === "hubbo-open-sub") setPendingSubId(message.id || null);
-      if (message.type === "hubbo-cancel") {
-        if (message.cancelUrl) window.open(message.cancelUrl, "_blank", "noopener");
-        else setPendingCancelId(message.id || null);
+      if (message.type === "hubbo-notification") {
+        handleNotification(message.action || "body", message.id, message.cancelUrl);
       }
       if (message.type === "hubbo-sw-version") setWorkerVersion(message.version || "");
     };
@@ -6196,6 +6212,11 @@ function HubboApp() {
                     </>
                   )}
                 </p>
+                {lastNotification && (
+                  <p style={{ color: colors.textFaint }} className="text-xs text-center mt-0.5">
+                    {t.lastNotif(lastNotification.action, lastNotification.id || "—")}
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={forceWorkerUpdate}
