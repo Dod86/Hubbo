@@ -187,6 +187,15 @@ const CATEGORY_META = [
   { id: "altro", color: "#8B8D98" },
 ];
 
+// Offered when recolouring a category. Deliberately a fixed set rather than a
+// free picker: any colour is possible on paper, but only a spaced-out palette
+// keeps the ring's slices telling each other apart.
+const CATEGORY_PALETTE = [
+  "#8F7BF4", "#6C8AE4", "#5AA9E6", "#5FBFA8", "#4CAF7D", "#98C379",
+  "#A1AA41", "#E3A857", "#E8734A", "#C4643C", "#F2789F", "#D0A1ED",
+  "#C99CC6", "#B0879B", "#7E8AA2", "#8B8D98",
+];
+
 const CATEGORY_FALLBACK_ICON = {
   streaming: "clapperboard",
   telefonia: "smartphone",
@@ -238,7 +247,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v54";
+const APP_VERSION = "v55";
 
 const FREE_LIMIT = 10;
 
@@ -261,7 +270,7 @@ const ANIMATIONS = `
 .rb-marquee-run { animation-name: rb-marquee-move; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
 @media (prefers-reduced-motion: reduce) { .rb-marquee-run { animation: none; } }
 @keyframes rb-slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
-@keyframes rb-slide-out-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes rb-slide-out-right { from { transform: translateX(var(--rb-drag-x, 0px)); } to { transform: translateX(100%); } }
 @keyframes rb-pop-in { from { opacity: 0; transform: scale(0.96) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes rb-pop-out { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.96) translateY(12px); } }
 @keyframes rb-view-in-left { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
@@ -759,6 +768,11 @@ const STRINGS = {
     confirmDeleteYes: "Sposta nel cestino",
     confirmDeleteNo: "Annulla",
     trash: "Cestino",
+    categoryColors: "Colori categorie",
+    categoryColorsHint: "Tocca una categoria per cambiarne il colore. Si aggiorna ovunque: anello, leggenda, filtri.",
+    colorReset: "Ripristina colore originale",
+    colorCustom: "modificato",
+    back: "Indietro",
     trashEmpty: "Il cestino è vuoto.",
     trashHint: "Gli abbonamenti eliminati restano qui finché non li elimini definitivamente.",
     restore: "Ripristina",
@@ -815,7 +829,6 @@ const STRINGS = {
     filterDone: "Fatto",
     filterClear: "Azzera",
     hideEnded: "Nascondi terminati",
-    showEnded: "Mostra terminati",
     sortLabel: "Ordina",
     sortRenewal: "Rinnovo",
     sortName: "Nome A-Z",
@@ -935,6 +948,11 @@ const STRINGS = {
     confirmDeleteYes: "Move to trash",
     confirmDeleteNo: "Cancel",
     trash: "Trash",
+    categoryColors: "Category colours",
+    categoryColorsHint: "Tap a category to change its colour. It updates everywhere: ring, legend, filters.",
+    colorReset: "Restore original colour",
+    colorCustom: "changed",
+    back: "Back",
     trashEmpty: "The trash is empty.",
     trashHint: "Deleted subscriptions stay here until you delete them permanently.",
     restore: "Restore",
@@ -991,7 +1009,6 @@ const STRINGS = {
     filterDone: "Done",
     filterClear: "Clear",
     hideEnded: "Hide ended",
-    showEnded: "Show ended",
     sortLabel: "Sort",
     sortRenewal: "Renewal",
     sortName: "Name A-Z",
@@ -1111,6 +1128,11 @@ const STRINGS = {
     confirmDeleteYes: "Mover a la papelera",
     confirmDeleteNo: "Cancelar",
     trash: "Papelera",
+    categoryColors: "Colores de categorías",
+    categoryColorsHint: "Toca una categoría para cambiar su color. Se actualiza en todas partes: anillo, leyenda, filtros.",
+    colorReset: "Restaurar color original",
+    colorCustom: "cambiado",
+    back: "Atrás",
     trashEmpty: "La papelera está vacía.",
     trashHint: "Las suscripciones eliminadas permanecen aquí hasta que las borres definitivamente.",
     restore: "Restaurar",
@@ -1167,7 +1189,6 @@ const STRINGS = {
     filterDone: "Hecho",
     filterClear: "Borrar",
     hideEnded: "Ocultar finalizadas",
-    showEnded: "Mostrar finalizadas",
     sortLabel: "Ordenar",
     sortRenewal: "Renovación",
     sortName: "Nombre A-Z",
@@ -1287,6 +1308,11 @@ const STRINGS = {
     confirmDeleteYes: "Mettre à la corbeille",
     confirmDeleteNo: "Annuler",
     trash: "Corbeille",
+    categoryColors: "Couleurs des catégories",
+    categoryColorsHint: "Touchez une catégorie pour changer sa couleur. Elle change partout : anneau, légende, filtres.",
+    colorReset: "Rétablir la couleur d'origine",
+    colorCustom: "modifiée",
+    back: "Retour",
     trashEmpty: "La corbeille est vide.",
     trashHint: "Les abonnements supprimés restent ici jusqu'à leur suppression définitive.",
     restore: "Restaurer",
@@ -1343,7 +1369,6 @@ const STRINGS = {
     filterDone: "Terminé",
     filterClear: "Effacer",
     hideEnded: "Masquer terminés",
-    showEnded: "Afficher terminés",
     sortLabel: "Trier",
     sortRenewal: "Renouvellement",
     sortName: "Nom A-Z",
@@ -1463,6 +1488,11 @@ const STRINGS = {
     confirmDeleteYes: "In den Papierkorb",
     confirmDeleteNo: "Abbrechen",
     trash: "Papierkorb",
+    categoryColors: "Kategoriefarben",
+    categoryColorsHint: "Tippe auf eine Kategorie, um ihre Farbe zu ändern. Sie gilt überall: Ring, Legende, Filter.",
+    colorReset: "Ursprungsfarbe wiederherstellen",
+    colorCustom: "geändert",
+    back: "Zurück",
     trashEmpty: "Der Papierkorb ist leer.",
     trashHint: "Gelöschte Abos bleiben hier, bis du sie endgültig löschst.",
     restore: "Wiederherstellen",
@@ -1519,7 +1549,6 @@ const STRINGS = {
     filterDone: "Fertig",
     filterClear: "Zurücksetzen",
     hideEnded: "Beendete ausblenden",
-    showEnded: "Beendete anzeigen",
     sortLabel: "Sortieren",
     sortRenewal: "Verlängerung",
     sortName: "Name A-Z",
@@ -2168,6 +2197,42 @@ function formatDate(dateStr, locale) {
 // Bottom sheets can be flicked down to close: the hardware Back button is not
 // reliably delivered to installed PWAs on every Android build, so the gesture
 // gives a dependable way out that doesn't depend on the system.
+// Same idea as the vertical sheet drag, for the settings panel that slides in
+// from the right: pushing it back out with a swipe should feel like moving the
+// panel itself, not like pressing a hidden button.
+function usePanelSwipe(onClose) {
+  const [dragX, setDragX] = useState(0);
+  const startRef = useRef(null);
+  const elRef = useRef(null);
+
+  const onTouchStart = (e) => {
+    startRef.current = e.touches[0].clientX;
+  };
+
+  const onTouchMove = (e) => {
+    if (startRef.current === null) return;
+    const dx = e.touches[0].clientX - startRef.current;
+    setDragX(dx > 0 ? dx : 0);
+  };
+
+  const onTouchEnd = () => {
+    if (startRef.current === null) return;
+    const shouldClose = dragX > 70;
+    startRef.current = null;
+    if (shouldClose && elRef.current) {
+      elRef.current.style.setProperty("--rb-drag-x", `${dragX}px`);
+    }
+    setDragX(0);
+    if (shouldClose) onClose();
+  };
+
+  return {
+    ref: elRef,
+    handlers: { onTouchStart, onTouchMove, onTouchEnd, onTouchCancel: onTouchEnd },
+    style: dragX ? { transform: `translateX(${dragX}px)`, transition: "none" } : undefined,
+  };
+}
+
 function useSheetDrag(onClose) {
   const [dragY, setDragY] = useState(0);
   const startRef = useRef(null);
@@ -2537,7 +2602,7 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
 const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false };
-const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9 };
+const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {} };
 
 function useSystemPrefersDark() {
   const [prefersDark, setPrefersDark] = useState(
@@ -2564,6 +2629,8 @@ function HubboApp() {
   const [showSettings, setShowSettings] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
+  const [showColors, setShowColors] = useState(false);
+  const [colorEditing, setColorEditing] = useState(null);
   const [payments, setPayments] = useState([]);
   const [paymentsLoaded, setPaymentsLoaded] = useState(false);
   const [historyPeriod, setHistoryPeriod] = useState("all");
@@ -2611,6 +2678,8 @@ function HubboApp() {
   const detailDrag = useSheetDrag(() => closeSheet("detail", () => setDetailSub(null)));
   const formDrag = useSheetDrag(() => closeSheet("form", () => { setShowForm(false); setEditingId(null); }));
   const trashDrag = useSheetDrag(() => closeSheet("trash", () => setShowTrash(false)));
+  const settingsSwipe = usePanelSwipe(() => closeSheet("settings", () => setShowSettings(false)));
+  const colorsDrag = useSheetDrag(() => closeSheet("colors", () => { setShowColors(false); setColorEditing(null); }));
   const optionDrag = useSheetDrag(() => closeSheet("option", () => setOptionPicker(null)));
   const paymentDrag = useSheetDrag(() => closeSheet("payment", () => setPaymentAction(null)));
   const [ratesDate, setRatesDate] = useState(null);
@@ -2654,7 +2723,13 @@ function HubboApp() {
   const effectiveTheme = settings.theme === "system" ? (systemPrefersDark ? "dark" : "light") : settings.theme;
   const colors = THEMES[effectiveTheme];
   const locale = LOCALES[settings.language] || "en-US";
-  const CATEGORIES = CATEGORY_META.map((c) => ({ ...c, label: t.categories[c.id] }));
+  // A category's colour can be overridden in settings; the built-in one is the
+  // fallback, so removing an override simply restores it.
+  const CATEGORIES = CATEGORY_META.map((c) => ({
+    ...c,
+    color: (settings.categoryColors || {})[c.id] || c.color,
+    label: t.categories[c.id],
+  }));
   const money = (n, code) => formatMoney(n, symbolFor(code || settings.currency), locale);
   // Amount converted into the user's main currency, for totals
   const inMainCurrency = (sub) => convertAmount(sub.cost, sub.currency || settings.currency, settings.currency, rates);
@@ -3093,7 +3168,7 @@ function HubboApp() {
   const pausedCount = useMemo(() => enriched.filter((s) => s.paused && !s.isEnded).length, [enriched]);
 
   const anyModalOpen =
-    showForm || showSettings || showPaywall || showTrash || showMonthPicker ||
+    showForm || showSettings || showPaywall || showTrash || showColors || showMonthPicker ||
     !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction;
 
   useEffect(() => {
@@ -3730,6 +3805,7 @@ function HubboApp() {
       ["month", showMonthPicker, () => setShowMonthPicker(false)],
       ["detail", detailSub, () => setDetailSub(null)],
       ["trash", showTrash, () => setShowTrash(false)],
+      ["colors", showColors, () => { setShowColors(false); setColorEditing(null); }],
       ["paywall", showPaywall, () => setShowPaywall(false)],
       ["settings", showSettings, () => setShowSettings(false)],
     ];
@@ -3913,10 +3989,30 @@ function HubboApp() {
           <div className="flex items-center justify-between gap-2 mb-1">
             <button
               onClick={() => setHideEnded(!hideEnded)}
-              style={{ color: hideEnded ? ACCENT.indigo : colors.textFaint }}
-              className="text-xs font-medium"
+              aria-pressed={hideEnded}
+              style={{
+                background: hideEnded ? ACCENT.indigo : colors.surface2,
+                color: hideEnded ? "#0A0B10" : colors.textSecondary,
+                border: `1px solid ${hideEnded ? ACCENT.indigo : colors.border}`,
+              }}
+              className="rounded-full px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 flex-shrink-0"
             >
-              {hideEnded ? t.showEnded : t.hideEnded}
+              <span
+                style={{
+                  width: 13,
+                  height: 13,
+                  borderRadius: 4,
+                  border: `1.5px solid ${hideEnded ? "#0A0B10" : colors.textFaint}`,
+                  background: hideEnded ? "#0A0B10" : "transparent",
+                  color: hideEnded ? ACCENT.indigo : "transparent",
+                  fontSize: 9,
+                  lineHeight: "10px",
+                }}
+                className="flex items-center justify-center flex-shrink-0"
+              >
+                ✓
+              </span>
+              {t.hideEnded}
             </button>
             <div className="flex items-center gap-1.5">
               <Icon name="slidersHorizontal" size={12} color={colors.textFaint} />
@@ -4957,7 +5053,13 @@ function HubboApp() {
       {/* Settings modal */}
       {showSettings && (
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex justify-end z-50 ${closingSheet === "settings" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("settings", () => setShowSettings(false))}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.bg, borderLeft: `1px solid ${colors.border}`, overscrollBehavior: "contain", width: "min(78%, 340px)" }} className={`h-full overflow-y-auto ${closingSheet === "settings" ? "rb-panel-right-out" : "rb-panel-right"}`}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            {...settingsSwipe.handlers}
+            ref={settingsSwipe.ref}
+            style={{ background: colors.bg, borderLeft: `1px solid ${colors.border}`, overscrollBehavior: "contain", width: "min(78%, 340px)", ...settingsSwipe.style }}
+            className={`h-full overflow-y-auto ${closingSheet === "settings" ? "rb-panel-right-out" : "rb-panel-right"}`}
+          >
             <div
               style={{ background: colors.bg, borderBottom: `1px solid ${colors.border}` }}
               className="sticky top-0 z-10 px-5 py-4 flex items-center justify-between"
@@ -5157,6 +5259,22 @@ function HubboApp() {
                     <Icon name="chevronRight" size={15} color={colors.textSecondary} />
                     <input type="file" accept="application/json,.json" onChange={handleImportFile} style={{ display: "none" }} />
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowColors(true); })}
+                    style={{ borderTop: `1px solid ${colors.border}` }}
+                    className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
+                  >
+                    <span>{t.categoryColors}</span>
+                    <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-1">
+                        {CATEGORIES.slice(0, 5).map((c) => (
+                          <span key={c.id} style={{ background: c.color, width: 9, height: 9, borderRadius: 999 }} />
+                        ))}
+                      </span>
+                      <Icon name="chevronRight" size={15} color={colors.textSecondary} />
+                    </span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowTrash(true); })}
@@ -5531,6 +5649,106 @@ function HubboApp() {
       )}
 
       {/* Trash modal */}
+      {/* Category colours */}
+      {showColors && (
+        <div
+          style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }}
+          className={`fixed inset-0 flex items-end z-[70] ${closingSheet === "colors" ? "rb-overlay-out" : "rb-overlay"}`}
+          onClick={() => closeSheet("colors", () => { setShowColors(false); setColorEditing(null); })}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            {...colorsDrag.handlers}
+            ref={colorsDrag.ref}
+            style={{ background: colors.surface, border: `1px solid ${colors.border}`, overscrollBehavior: "contain", ...colorsDrag.style }}
+            className={`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto ${closingSheet === "colors" ? "rb-sheet-out" : "rb-sheet"}`}
+          >
+            <SheetHandle colors={colors} />
+            <div className="flex items-center justify-between mb-4 gap-2">
+              <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium truncate">
+                {colorEditing
+                  ? (CATEGORIES.find((c) => c.id === colorEditing) || {}).label
+                  : t.categoryColors}
+              </h2>
+              <button
+                type="button"
+                onClick={() =>
+                  colorEditing
+                    ? setColorEditing(null)
+                    : closeSheet("colors", () => { setShowColors(false); setColorEditing(null); })
+                }
+                style={{ color: colors.textSecondary }}
+              >
+                {colorEditing ? <span className="text-sm font-medium">{t.back}</span> : <Icon name="x" size={20} />}
+              </button>
+            </div>
+
+            {colorEditing ? (
+              <>
+                <div className="grid grid-cols-6 gap-2.5 mb-4">
+                  {CATEGORY_PALETTE.map((hex) => {
+                    const current = (CATEGORIES.find((c) => c.id === colorEditing) || {}).color;
+                    const active = current === hex;
+                    return (
+                      <button
+                        key={hex}
+                        type="button"
+                        onClick={() =>
+                          persistSettings({
+                            ...settingsRef.current,
+                            categoryColors: { ...(settingsRef.current.categoryColors || {}), [colorEditing]: hex },
+                          })
+                        }
+                        style={{
+                          background: hex,
+                          border: `2px solid ${active ? colors.textPrimary : "transparent"}`,
+                          aspectRatio: "1",
+                        }}
+                        className="rounded-full w-full"
+                        aria-label={hex}
+                      />
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = { ...(settingsRef.current.categoryColors || {}) };
+                    delete next[colorEditing];
+                    persistSettings({ ...settingsRef.current, categoryColors: next });
+                  }}
+                  style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                  className="w-full rounded-xl py-2.5 text-sm font-medium"
+                >
+                  {t.colorReset}
+                </button>
+              </>
+            ) : (
+              <>
+                <p style={{ color: colors.textFaint }} className="text-xs mb-3 leading-relaxed">{t.categoryColorsHint}</p>
+                <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl overflow-hidden">
+                  {CATEGORIES.map((c, idx) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setColorEditing(c.id)}
+                      style={idx > 0 ? { borderTop: `1px solid ${colors.border}` } : undefined}
+                      className="w-full px-3.5 py-3 flex items-center gap-3 text-left"
+                    >
+                      <span style={{ background: c.color, width: 18, height: 18, borderRadius: 999 }} className="flex-shrink-0" />
+                      <span className="flex-1 truncate text-sm">{c.label}</span>
+                      {(settings.categoryColors || {})[c.id] && (
+                        <span style={{ color: colors.textFaint }} className="text-xs">{t.colorCustom}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {showTrash && (
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-50 ${closingSheet === "trash" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("trash", () => setShowTrash(false))}>
           <div
