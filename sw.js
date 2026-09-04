@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v78";
+const CACHE = "hubbo-v79";
 
 const CORE = [
   "./",
@@ -65,14 +65,39 @@ self.addEventListener("notificationclick", (event) => {
       // notification click the worker still carries the user's tap. The page
       // does not, which is why it must never be asked to do this quietly.
       let opened = false;
+      let failure = "";
       if (action === "cancel" && data.cancelUrl && self.clients.openWindow) {
         try {
           await self.clients.openWindow(data.cancelUrl);
           opened = true;
-        } catch {
+        } catch (err) {
           // Some installed apps are refused an outside address; the page will
           // offer it as something to tap instead.
+          failure = (err && err.message) || "rifiutata";
         }
+      }
+
+      // Written where the app can find it afterwards. The worker cannot reach
+      // the app's storage, but its own cache is readable from both sides, and a
+      // tap that opens an outside page never reaches the app at all.
+      try {
+        const log = await caches.open(CACHE);
+        await log.put(
+          new Request("./__hubbo_log"),
+          new Response(
+            JSON.stringify({
+              at: Date.now(),
+              action,
+              buttons,
+              id: data.id || "",
+              hasUrl: !!data.cancelUrl,
+              opened,
+              failure,
+            })
+          )
+        );
+      } catch {
+        // A record that cannot be kept is not worth failing the tap over.
       }
 
       for (const client of open) {

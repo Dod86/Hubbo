@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v78";
+const APP_VERSION = "v79";
 
 const FREE_LIMIT = 10;
 
@@ -928,6 +928,10 @@ const STRINGS = {
     cancelPromptBody: "Il telefono non lascia aprire la pagina da solo. Tocca qui per andarci.",
     cancelPromptOpen: "Vai alla disdetta",
     cancelPromptLater: "Non ora",
+    lastNotifOutcome: (ok, why, at) => `aperta: ${ok} · ${why} · ${at}`,
+    yesWord: "sì",
+    noWord: "no",
+    noUrlWord: "senza indirizzo",
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1131,6 +1135,10 @@ const STRINGS = {
     cancelPromptBody: "The phone won't let the page open on its own. Tap here to go there.",
     cancelPromptOpen: "Go to cancellation",
     cancelPromptLater: "Not now",
+    lastNotifOutcome: (ok, why, at) => `opened: ${ok} · ${why} · ${at}`,
+    yesWord: "yes",
+    noWord: "no",
+    noUrlWord: "no address",
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1334,6 +1342,10 @@ const STRINGS = {
     cancelPromptBody: "El teléfono no deja abrir la página por su cuenta. Toca aquí para ir.",
     cancelPromptOpen: "Ir a la baja",
     cancelPromptLater: "Ahora no",
+    lastNotifOutcome: (ok, why, at) => `abierta: ${ok} · ${why} · ${at}`,
+    yesWord: "sí",
+    noWord: "no",
+    noUrlWord: "sin dirección",
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1537,6 +1549,10 @@ const STRINGS = {
     cancelPromptBody: "Le téléphone n'autorise pas l'ouverture automatique. Touchez ici pour y aller.",
     cancelPromptOpen: "Aller à la résiliation",
     cancelPromptLater: "Pas maintenant",
+    lastNotifOutcome: (ok, why, at) => `ouverte : ${ok} · ${why} · ${at}`,
+    yesWord: "oui",
+    noWord: "non",
+    noUrlWord: "sans adresse",
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1740,6 +1756,10 @@ const STRINGS = {
     cancelPromptBody: "Das Telefon lässt die Seite nicht von allein öffnen. Tippe hier, um hinzugehen.",
     cancelPromptOpen: "Zur Kündigung",
     cancelPromptLater: "Nicht jetzt",
+    lastNotifOutcome: (ok, why, at) => `geöffnet: ${ok} · ${why} · ${at}`,
+    yesWord: "ja",
+    noWord: "nein",
+    noUrlWord: "ohne Adresse",
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -3911,16 +3931,35 @@ function HubboApp() {
     };
   }, []);
 
+  // Re-read on every return to the app, because the interesting taps are the
+  // ones that happened while the app was not running.
   useEffect(() => {
     let gone = false;
-    window.storage
-      .get("abbly:lastNotif")
-      .then((res) => {
-        if (!gone && res) setLastNotification(JSON.parse(res.value));
-      })
-      .catch(() => {});
+    const read = async () => {
+      try {
+        const hit = await caches.match("./__hubbo_log");
+        if (hit && !gone) {
+          setLastNotification(await hit.json());
+          return;
+        }
+      } catch {
+        // Falls through to whatever the app itself managed to record.
+      }
+      try {
+        const res = await window.storage.get("abbly:lastNotif");
+        if (res && !gone) setLastNotification(JSON.parse(res.value));
+      } catch {
+        // Nothing recorded yet.
+      }
+    };
+    read();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") read();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       gone = true;
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
@@ -6308,6 +6347,12 @@ function HubboApp() {
                     {t.lastNotif(lastNotification.action, lastNotification.id || "—")}
                     <br />
                     {t.lastNotifButtons(lastNotification.buttons || "—", notifMaxActions)}
+                    <br />
+                    {t.lastNotifOutcome(
+                      lastNotification.opened ? t.yesWord : t.noWord,
+                      lastNotification.failure || (lastNotification.hasUrl === false ? t.noUrlWord : "—"),
+                      lastNotification.at ? new Date(lastNotification.at).toLocaleTimeString(locale) : "—"
+                    )}
                   </p>
                 )}
                 <button
