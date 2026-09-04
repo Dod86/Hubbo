@@ -277,7 +277,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v82";
+const APP_VERSION = "v83";
 
 const FREE_LIMIT = 10;
 
@@ -787,6 +787,10 @@ const STRINGS = {
     version: "versione",
     installedOn: "aggiornata al",
     monthlySpend: "Spesa mensile stimata",
+    yearlySpend: "Spesa annuale stimata",
+    periodMonth: "Mese",
+    periodYear: "Anno",
+    perMonthTotal: (amount, n) => `${amount} stimati al mese · ${n} attivi`,
     perYear: (amount, n) => `${amount} stimati all'anno · ${n} attivi`,
     perDay: "al giorno",
     equivPerDay: (n, item) => `come ${n} ${item}`,
@@ -996,6 +1000,10 @@ const STRINGS = {
     version: "version",
     installedOn: "updated on",
     monthlySpend: "Estimated monthly spend",
+    yearlySpend: "Estimated yearly spend",
+    periodMonth: "Month",
+    periodYear: "Year",
+    perMonthTotal: (amount, n) => `${amount} estimated per month · ${n} active`,
     perYear: (amount, n) => `${amount} estimated per year · ${n} active`,
     perDay: "a day",
     equivPerDay: (n, item) => `like ${n} ${item}`,
@@ -1205,6 +1213,10 @@ const STRINGS = {
     version: "versión",
     installedOn: "actualizada el",
     monthlySpend: "Gasto mensual estimado",
+    yearlySpend: "Gasto anual estimado",
+    periodMonth: "Mes",
+    periodYear: "Año",
+    perMonthTotal: (amount, n) => `${amount} estimados al mes · ${n} activas`,
     perYear: (amount, n) => `${amount} estimados al año · ${n} activas`,
     perDay: "al día",
     equivPerDay: (n, item) => `como ${n} ${item}`,
@@ -1414,6 +1426,10 @@ const STRINGS = {
     version: "version",
     installedOn: "mise à jour le",
     monthlySpend: "Dépense mensuelle estimée",
+    yearlySpend: "Dépense annuelle estimée",
+    periodMonth: "Mois",
+    periodYear: "Année",
+    perMonthTotal: (amount, n) => `${amount} estimés par mois · ${n} actifs`,
     perYear: (amount, n) => `${amount} estimés par an · ${n} actifs`,
     perDay: "par jour",
     equivPerDay: (n, item) => `comme ${n} ${item}`,
@@ -1623,6 +1639,10 @@ const STRINGS = {
     version: "Version",
     installedOn: "aktualisiert am",
     monthlySpend: "Geschätzte Monatsausgaben",
+    yearlySpend: "Geschätzte Jahresausgaben",
+    periodMonth: "Monat",
+    periodYear: "Jahr",
+    perMonthTotal: (amount, n) => `${amount} geschätzt pro Monat · ${n} aktiv`,
     perYear: (amount, n) => `${amount} geschätzt pro Jahr · ${n} aktiv`,
     perDay: "pro Tag",
     equivPerDay: (n, item) => `wie ${n} ${item}`,
@@ -3329,6 +3349,10 @@ function HubboApp() {
   const [viewDirection, setViewDirection] = useState(null);
   const [optionPicker, setOptionPicker] = useState(null);
   const [tourStep, setTourStep] = useState(-1);
+  // Which span the headline figure shows. The ring keeps the same shape either
+  // way — the proportions between categories do not change with the span — so
+  // switching moves only the numbers.
+  const [totalPeriod, setTotalPeriod] = useState("month");
   // The search box is per-opening, so it clears once the sheet is dismissed.
   useEffect(() => {
     if (!optionPicker) setOptionSearch("");
@@ -3379,6 +3403,15 @@ function HubboApp() {
   // da troncare i nomi delle categorie, e una ripartizione si legge lo stesso
   // agli euro interi: il totale esatto sta due righe sopra.
   const moneyRound = (n) => formatMoney(n, symbolFor(settings.currency), locale, 0);
+
+  // The headline figure is drawn in two pieces: the currency mark stays a plain
+  // solid glyph while the number carries the gradient, so they cannot be one
+  // string. Where the mark sits differs by currency, hence the flag.
+  const moneyParts = (value) => {
+    const symbol = symbolFor(settings.currency);
+    const text = formatMoney(value, symbol, locale);
+    return { symbol, symbolFirst: symbol.length <= 1, number: text.replace(symbol, "").trim() };
+  };
   // Amount converted into the user's main currency, for totals
   const inMainCurrency = (sub) => convertAmount(sub.cost, sub.currency || settings.currency, settings.currency, rates);
   const dateFmt = (d) => formatDate(d, locale);
@@ -4211,6 +4244,8 @@ function HubboApp() {
   );
   const annualTotal = monthlyTotal * 12;
   const dailyTotal = annualTotal / 365;
+  const showYear = totalPeriod === "year";
+  const headlineTotal = showYear ? annualTotal : monthlyTotal;
   const dailyEquivalence = dailyEquivalent(dailyTotal, settings.currency, settings.language);
 
   const categoryTotals = useMemo(() => {
@@ -4815,31 +4850,89 @@ function HubboApp() {
       <div className="px-5 pt-4">
         {/* Total card */}
         <div data-tour="totalCard" style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
-          <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.monthlySpend}</div>
+          <div className="flex items-center justify-between mb-1">
+            <div style={{ color: colors.textSecondary }} className="text-xs">
+              {showYear ? t.yearlySpend : t.monthlySpend}
+            </div>
+            {/* A switch rather than a second card to swipe between: the list
+                already answers a sideways swipe by changing view, and two
+                gestures on the same surface is how the panel started sliding
+                sideways while it was being scrolled. */}
+            <div style={{ background: colors.surface2 }} className="flex rounded-full p-0.5 flex-shrink-0">
+              {[
+                { id: "month", label: t.periodMonth },
+                { id: "year", label: t.periodYear },
+              ].map((option) => {
+                const active = totalPeriod === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setTotalPeriod(option.id)}
+                    style={{
+                      background: active ? colors.surface : "transparent",
+                      color: active ? colors.textPrimary : colors.textSecondary,
+                      fontSize: 11,
+                    }}
+                    className="rounded-full px-2.5 py-1 font-medium"
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
               {/* Sits in the ring's open quarter and reaches out past its left
                   edge; the size steps down for longer figures so it never
                   runs into the arc. */}
               {(() => {
-                const txt = money(monthlyTotal);
-    const lead = (categoryTotals[0] || {}).color || colors.textPrimary;
+                const parts = moneyParts(headlineTotal);
+                const lead = (categoryTotals[0] || {}).color || colors.textPrimary;
+                // Measured as the figure used to be written, symbol plus a
+                // space plus the number. Dropping the space from the drawing
+                // must not silently move the thresholds: at 29px a four-digit
+                // yearly total runs straight over the arc.
+                const measure = parts.symbol.length + 1 + parts.number.length;
+                const size = measure > 10 ? 21 : measure > 9 ? 23 : 29;
+                // Centred on the ring rather than pinned to a fixed height, so
+                // the shorter sizes do not ride up. The ring's middle is at 80
+                // and the opening now reaches further down the left side than
+                // it did at 270°, which is what left the figure looking
+                // pressed against the top.
+                const mark = (
+                  <span style={{ color: colors.textPrimary, fontSize: Math.round(size * 0.72) }}>{parts.symbol}</span>
+                );
                 return (
                   <div
                     style={{
                       position: "absolute",
                       left: -10,
-                      top: 50,
+                      top: 82 - size / 2,
                       whiteSpace: "nowrap",
                       pointerEvents: "none",
                       fontFamily: "'JetBrains Mono', monospace",
                       fontWeight: 700,
-                      color: lead,
-                      fontSize: txt.length > 10 ? 21 : txt.length > 9 ? 23 : 29,
+                      fontSize: size,
+                      gap: 2,
                     }}
-                    className="leading-none"
+                    className="leading-none flex items-baseline"
                   >
-                    {txt}
+                    {parts.symbolFirst && mark}
+                    {/* Ink on the left, the leading category's colour on the
+                        right: the figure hands over to the ring it belongs to. */}
+                    <span
+                      style={{
+                        background: `linear-gradient(90deg, ${colors.textPrimary} 0%, ${lead} 100%)`,
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text",
+                        color: "transparent",
+                      }}
+                    >
+                      {parts.number}
+                    </span>
+                    {!parts.symbolFirst && mark}
                   </div>
                 );
               })()}
@@ -4847,7 +4940,12 @@ function HubboApp() {
                 <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} size={120} stroke={13} />
               </div>
             </div>
-            <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} money={moneyRound} />
+            <CategoryLegend
+              segments={showYear ? categoryTotals.map((s) => ({ ...s, total: s.total * 12 })) : categoryTotals}
+              total={headlineTotal}
+              colors={colors}
+              money={moneyRound}
+            />
           </div>
           {/* The figure the monthly total is meant to make tangible: the
               same money seen one day at a time. Averaged over a year rather
@@ -4886,7 +4984,13 @@ function HubboApp() {
           )}
           <div className="flex items-center gap-1.5 mt-3" style={{ color: colors.textSecondary }}>
             <Icon name="trendingUp" size={14} />
-            <span className="text-xs">{t.perYear(money(annualTotal), totalsBase.length)}</span>
+            {/* Always the span you are not looking at, so both numbers stay
+                reachable without touching anything. */}
+            <span className="text-xs">
+              {showYear
+                ? t.perMonthTotal(money(monthlyTotal), totalsBase.length)
+                : t.perYear(money(annualTotal), totalsBase.length)}
+            </span>
           </div>
           <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-4 pt-3">
             {t.freeBadge(activeSubs.length, FREE_LIMIT)}
