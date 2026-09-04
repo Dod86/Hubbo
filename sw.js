@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v80";
+const CACHE = "hubbo-v82";
 
 const CORE = [
   "./",
@@ -165,6 +165,14 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Only files are worth keeping. Caching everything meant the exchange rates
+  // were answered forever from the first copy ever fetched — and if that first
+  // fetch happened to fail, from nothing at all, which is why they could stop
+  // arriving altogether and never recover.
+  const isAsset =
+    sameOrigin || ["script", "style", "font", "image"].indexOf(req.destination) !== -1;
+  if (!isAsset) return;
+
   // Everything else (icons, libraries, fonts) is fine cache-first.
   event.respondWith(
     caches.match(req).then((cached) => {
@@ -177,7 +185,9 @@ self.addEventListener("fetch", (event) => {
           }
           return res;
         })
-        .catch(() => cached);
+        // Nothing cached and no network: an honest failure, not an empty
+        // answer, which the page cannot tell apart from a real response.
+        .catch(() => Response.error());
     })
   );
 });

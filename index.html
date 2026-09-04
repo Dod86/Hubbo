@@ -181,6 +181,21 @@ const THEMES = {
 // read as the same colour, so the alarm has been pushed properly red.
 const ACCENT = { amber: "#E3A857", terracotta: "#C4643C", danger: "#E05545" };
 
+// The open ring is the mark of the app, and it appears in three places: the
+// wordmark, the add button and the spending ring. They have to be the same
+// shape, so the arc is a single number and the point it ends on is worked out
+// from it rather than typed in. Two thirds of a turn — 240° — leaves the gap
+// at the top left, where the total sits.
+const RING_SWEEP = 2 / 3;
+
+// Where an arc of RING_SWEEP starting at twelve o'clock finishes, on the circle
+// of the given radius. Written out by hand, the previous endpoints missed their
+// own circles by half a unit and the coloured arc drifted off the grey one.
+function ringSweepEnd(cx, cy, r) {
+  const angle = -Math.PI / 2 + 2 * Math.PI * RING_SWEEP;
+  return `${(cx + r * Math.cos(angle)).toFixed(2)} ${(cy + r * Math.sin(angle)).toFixed(2)}`;
+}
+
 // The dark colour used for text sitting on top of an accent, never as a
 // surface. It was spelled two different ways in nine places, one of them the
 // old blue-black background, which is why it now has a name.
@@ -262,7 +277,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v80";
+const APP_VERSION = "v82";
 
 const FREE_LIMIT = 10;
 
@@ -2236,16 +2251,16 @@ const NUMBER_SEPARATORS = {
   de: { group: ".", decimal: "," },
 };
 
-function formatMoney(n, symbol, locale) {
+function formatMoney(n, symbol, locale, decimals = 2) {
   const sep = NUMBER_SEPARATORS[String(locale || "en").slice(0, 2)] || NUMBER_SEPARATORS.en;
   const value = Number(n);
   const safe = Number.isFinite(value) ? value : 0;
-  const fixed = Math.abs(safe).toFixed(2);
+  const fixed = Math.abs(safe).toFixed(decimals);
   const dot = fixed.indexOf(".");
-  const whole = fixed.slice(0, dot);
-  const cents = fixed.slice(dot + 1);
+  const whole = dot === -1 ? fixed : fixed.slice(0, dot);
+  const cents = dot === -1 ? "" : fixed.slice(dot + 1);
   const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, sep.group);
-  const num = `${safe < 0 ? "-" : ""}${grouped}${sep.decimal}${cents}`;
+  const num = `${safe < 0 ? "-" : ""}${grouped}${cents ? sep.decimal + cents : ""}`;
   return symbol.length > 1 ? `${num} ${symbol}` : `${symbol} ${num}`;
 }
 
@@ -2966,8 +2981,7 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner
   const ro = r + stroke / 2;
   const cx = size / 2;
   const cy = size / 2;
-  const SWEEP = 0.75;
-  const sweepAngle = 2 * Math.PI * SWEEP;
+  const sweepAngle = 2 * Math.PI * RING_SWEEP;
   const gapAngle = segments.length > 1 ? 4 / r : 0;
   let cursor = 0;
   return (
@@ -2989,7 +3003,7 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner
 // Reads the ring for you: without it the colours mean nothing. Every category
 // making up the total is listed — hiding any of them would leave an unexplained
 // arc in the ring, which is exactly what the legend exists to prevent.
-function CategoryLegend({ segments, total, colors }) {
+function CategoryLegend({ segments, total, colors, money }) {
   if (!segments || segments.length === 0 || total <= 0) return null;
   return (
     <div className="flex-1 min-w-0 flex flex-col gap-1">
@@ -2997,8 +3011,10 @@ function CategoryLegend({ segments, total, colors }) {
         <div key={seg.id} className="flex items-center gap-2 min-w-0">
           <span style={{ background: seg.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
           <span style={{ color: colors.textSecondary }} className="text-xs truncate flex-1">{seg.label}</span>
+          {/* The amount rather than the share: a percentage has to be turned
+              back into money before it means anything. */}
           <span style={{ color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold flex-shrink-0">
-            {Math.round((seg.total / total) * 100)}%
+            {money(seg.total)}
           </span>
         </div>
       ))}
@@ -3012,7 +3028,7 @@ function AddRingIcon({ size = 40, colors }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
       <circle cx="20" cy="20" r="15.5" fill="none" stroke={colors.border} strokeWidth="4" />
-      <path d="M 20 4.5 A 15.5 15.5 0 1 1 7 27.8" fill="none" stroke={ACCENT.amber} strokeWidth="4" strokeLinecap="round" />
+      <path d={`M 20 4.5 A 15.5 15.5 0 1 1 ${ringSweepEnd(20, 20, 15.5)}`} fill="none" stroke={ACCENT.amber} strokeWidth="4" strokeLinecap="round" />
       <path
         className="rb-plus-morph"
         d="M 20 12.6 L 20 27.4 M 12.6 20 L 27.4 20"
@@ -3047,10 +3063,14 @@ function Wordmark({ colors, size = 21 }) {
         height={ring}
         viewBox="0 0 40 40"
         aria-hidden="true"
-        style={{ margin: `0 ${size * 0.045}px`, transform: `translateY(${size * 0.045}px)` }}
+        // A circle resting exactly on the baseline reads as floating above it,
+        // which is why round letters are drawn with an overshoot. The ring also
+        // carries empty space inside its own box, so the drop has to cover both
+        // before any overshoot is left over.
+        style={{ margin: `0 ${size * 0.045}px`, transform: `translateY(${size * 0.105}px)` }}
       >
         <circle cx="20" cy="20" r="15" fill="none" stroke={colors.border} strokeWidth="6" />
-        <path d="M 20 5 A 15 15 0 1 1 7.4 27.2" fill="none" stroke={ACCENT.amber} strokeWidth="6" strokeLinecap="round" />
+        <path d={`M 20 5 A 15 15 0 1 1 ${ringSweepEnd(20, 20, 15)}`} fill="none" stroke={ACCENT.amber} strokeWidth="6" strokeLinecap="round" />
         <circle cx="20" cy="20" r="4.5" fill={ACCENT.amber} />
       </svg>
     </div>
@@ -3355,6 +3375,10 @@ function HubboApp() {
     label: t.categories[c.id],
   }));
   const money = (n, code) => formatMoney(n, symbolFor(code || settings.currency), locale);
+  // Senza centesimi. Nella legenda l'importo per esteso rubava tanta larghezza
+  // da troncare i nomi delle categorie, e una ripartizione si legge lo stesso
+  // agli euro interi: il totale esatto sta due righe sopra.
+  const moneyRound = (n) => formatMoney(n, symbolFor(settings.currency), locale, 0);
   // Amount converted into the user's main currency, for totals
   const inMainCurrency = (sub) => convertAmount(sub.cost, sub.currency || settings.currency, settings.currency, rates);
   const dateFmt = (d) => formatDate(d, locale);
@@ -3878,6 +3902,17 @@ function HubboApp() {
   // Guessing at this from the outside cost two versions.
   const [lastNotification, setLastNotification] = useState(null);
   const [cancelPrompt, setCancelPrompt] = useState(null);
+  // The notification log is for chasing faults, not for the people using the
+  // app. It stays behind a long press on the version line, where whoever needs
+  // it can find it and nobody else trips over it.
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const diagnosticsTimer = useRef(null);
+
+  const holdVersion = () => {
+    clearTimeout(diagnosticsTimer.current);
+    diagnosticsTimer.current = setTimeout(() => setShowDiagnostics((on) => !on), 700);
+  };
+  const releaseVersion = () => clearTimeout(diagnosticsTimer.current);
 
   // Kept on the device, because it used to vanish on any reload and made the
   // record of the previous tap disappear exactly when it was being looked for.
@@ -4812,7 +4847,7 @@ function HubboApp() {
                 <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} size={120} stroke={13} />
               </div>
             </div>
-            <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} />
+            <CategoryLegend segments={categoryTotals} total={monthlyTotal} colors={colors} money={moneyRound} />
           </div>
           {/* The figure the monthly total is meant to make tangible: the
               same money seen one day at a time. Averaged over a year rather
@@ -5098,7 +5133,7 @@ function HubboApp() {
                   <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} size={120} stroke={13} />
                 </div>
               </div>
-              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} />
+              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={moneyRound} />
             </div>
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
@@ -6323,9 +6358,18 @@ function HubboApp() {
                 <p style={{ color: colors.textFaint }} className="text-xs mt-3 px-1 leading-relaxed">
                   {rates ? t.ratesLive(ratesDate ? dateFmt(ratesDate) : "") : ratesSettled ? t.ratesNote : t.ratesChecking}
                 </p>
-                <p style={{ color: colors.textFaint }} className="text-xs mt-5 mb-1 text-center">
+                <p
+                  onPointerDown={holdVersion}
+                  onPointerUp={releaseVersion}
+                  onPointerCancel={releaseVersion}
+                  onPointerLeave={releaseVersion}
+                  style={{ color: colors.textFaint }}
+                  className="text-xs mt-5 mb-1 text-center select-none"
+                >
                   {t.appName} · {t.version} {APP_VERSION}
                 </p>
+                {showDiagnostics && (
+                <>
                 {/* Always stated, never inferred from an absence. */}
                 <p className="text-xs text-center mt-0.5">
                   {(() => {
@@ -6373,6 +6417,8 @@ function HubboApp() {
                 >
                   {t.workerForce}
                 </button>
+                </>
+                )}
                 <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
                   {t.installedOn} {dateFmt(todayISO)}
                 </p>
