@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v83";
+const CACHE = "hubbo-v86";
 
 const CORE = [
   "./",

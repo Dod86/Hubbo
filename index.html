@@ -277,7 +277,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v83";
+const APP_VERSION = "v86";
 
 const FREE_LIMIT = 10;
 
@@ -318,11 +318,11 @@ const ANIMATIONS = `
 @keyframes rb-view-in-right { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
 
 .rb-overlay { animation: rb-fade-in 0.2s ease-out; }
-.rb-overlay-out { animation: rb-fade-out 0.22s ease-in forwards; }
+.rb-overlay-out { animation: rb-fade-out var(--rb-out, 0.22s) ease-in forwards; }
 .rb-sheet { animation: rb-slide-up 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
-.rb-sheet-out { animation: rb-slide-down 0.24s cubic-bezier(0.55, 0, 0.9, 0.3) forwards; }
+.rb-sheet-out { animation: rb-slide-down var(--rb-out, 0.24s) cubic-bezier(0.55, 0, 0.9, 0.3) forwards; }
 .rb-panel-right { animation: rb-slide-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
-.rb-panel-right-out { animation: rb-slide-out-right 0.24s cubic-bezier(0.55, 0, 0.9, 0.3) forwards; }
+.rb-panel-right-out { animation: rb-slide-out-right var(--rb-out, 0.24s) cubic-bezier(0.55, 0, 0.9, 0.3) forwards; }
 .rb-dialog { animation: rb-pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1); }
 .rb-dialog-out { animation: rb-pop-out 0.2s ease-in forwards; }
 .rb-view-left { animation: rb-view-in-left 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -2828,6 +2828,38 @@ function formatDate(dateStr, locale) {
 // pull the panel across.
 const AXIS_LOCK = 10;
 
+// How long the sheet should take to finish leaving, given how fast the finger
+// was going when it let go. A hard flick should land in a moment; a slow drag
+// released halfway should still coast out at a believable speed. Clamped at
+// both ends so it can be neither instant nor sluggish.
+const FLING_MIN_MS = 110;
+const FLING_MAX_MS = 260;
+// The exit easing accelerates rather than holding a constant speed, so the
+// sheet covers the remaining distance faster than the raw division suggests.
+// Without this factor even a firm flick landed on the ceiling and nothing
+// below a very hard throw felt any different from a slow drag.
+const FLING_EASE = 1.6;
+// Above this, in pixels per millisecond, the gesture counts as a throw and the
+// sheet goes regardless of how far it actually travelled.
+const FLING_SPEED = 0.5;
+
+function flingExit(remaining, speed) {
+  if (!(speed > 0)) return FLING_MAX_MS;
+  return Math.max(FLING_MIN_MS, Math.min(FLING_MAX_MS, Math.round(remaining / (speed * FLING_EASE))));
+}
+
+// Speed over the last stretch of the gesture rather than its whole length: a
+// finger that hesitates and then throws should be read as a throw.
+function trackSpeed(start, position, now) {
+  const dt = now - (start.lastAt || now);
+  if (dt > 0) {
+    const instant = Math.abs(position - (start.lastPos || position)) / dt;
+    start.speed = start.speed === undefined ? instant : start.speed * 0.4 + instant * 0.6;
+  }
+  start.lastPos = position;
+  start.lastAt = now;
+}
+
 function usePanelSwipe(onClose) {
   const [dragX, setDragX] = useState(0);
   const startRef = useRef(null);
@@ -2848,18 +2880,22 @@ function usePanelSwipe(onClose) {
       start.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
     }
     if (start.axis !== "x") return;
+    trackSpeed(start, e.touches[0].clientX, e.timeStamp || Date.now());
     setDragX(dx > 0 ? dx : 0);
   };
 
   const onTouchEnd = () => {
     if (!startRef.current) return;
-    const shouldClose = dragX > 70;
+    const speed = startRef.current.speed || 0;
+    const shouldClose = dragX > 70 || (speed > FLING_SPEED && dragX > 16);
     startRef.current = null;
+    let exitMs;
     if (shouldClose && elRef.current) {
       elRef.current.style.setProperty("--rb-drag-x", `${dragX}px`);
+      exitMs = flingExit(Math.max(1, (elRef.current.offsetWidth || 320) - dragX), speed);
     }
     setDragX(0);
-    if (shouldClose) onClose();
+    if (shouldClose) onClose(exitMs);
   };
 
   return {
@@ -2867,6 +2903,41 @@ function usePanelSwipe(onClose) {
     handlers: { onTouchStart, onTouchMove, onTouchEnd, onTouchCancel: onTouchEnd },
     style: dragX ? { transform: `translateX(${dragX}px)`, transition: "none" } : undefined,
   };
+}
+
+// A sideways flick on a card that lives inside a vertically scrolling page.
+// Same axis lock as the sheets: nothing happens until the finger has said which
+// way it is going, and then it stays said until the finger lifts.
+function useCardSwipe(onSwipe) {
+  const startRef = useRef(null);
+
+  const onTouchStart = (e) => {
+    const touch = e.touches[0];
+    startRef.current = { x: touch.clientX, y: touch.clientY, axis: null };
+  };
+
+  const onTouchMove = (e) => {
+    const start = startRef.current;
+    if (!start || start.axis !== null) return;
+    const dx = e.touches[0].clientX - start.x;
+    const dy = e.touches[0].clientY - start.y;
+    if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
+    start.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+  };
+
+  const onTouchEnd = (e) => {
+    const start = startRef.current;
+    startRef.current = null;
+    if (!start || start.axis !== "x") return;
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) return;
+    const dx = touch.clientX - start.x;
+    if (Math.abs(dx) > 50) onSwipe(dx < 0 ? "left" : "right");
+  };
+
+  // Wrapped the same way the other two gesture hooks wrap theirs, so the call
+  // sites all read alike and none of them can spread nothing by accident.
+  return { handlers: { onTouchStart, onTouchMove, onTouchEnd, onTouchCancel: () => (startRef.current = null) } };
 }
 
 function useSheetDrag(onClose) {
@@ -2894,21 +2965,27 @@ function useSheetDrag(onClose) {
       start.axis = Math.abs(dy) > Math.abs(dx) ? "y" : "x";
     }
     if (start.axis !== "y") return;
+    trackSpeed(start, e.touches[0].clientY, e.timeStamp || Date.now());
     setDragY(dy > 0 ? dy : 0);
   };
 
   const onTouchEnd = () => {
     if (!startRef.current) return;
-    const shouldClose = dragY > 90;
+    const speed = startRef.current.speed || 0;
+    // A short, fast flick is as clear an intention as a long slow drag, and
+    // asking for ninety pixels either way made the quick ones feel ignored.
+    const shouldClose = dragY > 90 || (speed > FLING_SPEED && dragY > 16);
     startRef.current = null;
+    let exitMs;
     if (shouldClose && elRef.current) {
       // Hand off to the CSS close animation from the exact spot the drag
       // left the sheet, so it continues the motion instead of snapping
       // back to fully open for a frame before sliding away.
       elRef.current.style.setProperty("--rb-drag-y", `${dragY}px`);
+      exitMs = flingExit(Math.max(1, (elRef.current.offsetHeight || 400) - dragY), speed);
     }
     setDragY(0);
-    if (shouldClose) onClose();
+    if (shouldClose) onClose(exitMs);
   };
 
   return {
@@ -3023,7 +3100,18 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner
 // Reads the ring for you: without it the colours mean nothing. Every category
 // making up the total is listed — hiding any of them would leave an unexplained
 // arc in the ring, which is exactly what the legend exists to prevent.
-function CategoryLegend({ segments, total, colors, money }) {
+// Category colours are chosen to sit on the dark ground. On the light one the
+// lighter hues come out weaker than the grey label beside them, which puts the
+// number — the thing being read — below the word introducing it. Darkening the
+// same hue keeps the colour recognisable and gives the figure its weight back.
+function shadeForLight(hex, amount) {
+  const value = String(hex).replace("#", "");
+  if (value.length !== 6) return hex;
+  const mix = (from) => Math.round(parseInt(from, 16) * (1 - amount));
+  return `#${[value.slice(0, 2), value.slice(2, 4), value.slice(4, 6)].map((p) => mix(p).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function CategoryLegend({ segments, total, colors, money, light }) {
   if (!segments || segments.length === 0 || total <= 0) return null;
   return (
     <div className="flex-1 min-w-0 flex flex-col gap-1">
@@ -3033,7 +3121,10 @@ function CategoryLegend({ segments, total, colors, money }) {
           <span style={{ color: colors.textSecondary }} className="text-xs truncate flex-1">{seg.label}</span>
           {/* The amount rather than the share: a percentage has to be turned
               back into money before it means anything. */}
-          <span style={{ color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold flex-shrink-0">
+          {/* The amount takes the category's colour: the dot and the figure
+              then say the same thing twice, which is what lets the eye jump
+              from a slice of the ring straight to its number. */}
+          <span style={{ color: light ? shadeForLight(seg.color, 0.32) : seg.color, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold flex-shrink-0">
             {money(seg.total)}
           </span>
         </div>
@@ -3334,13 +3425,13 @@ function HubboApp() {
   const [rates, setRates] = useState(null);
   const [notifTest, setNotifTest] = useState("");
 
-  const detailDrag = useSheetDrag(() => closeSheet("detail", () => setDetailSub(null)));
-  const formDrag = useSheetDrag(() => closeSheet("form", () => { setShowForm(false); setEditingId(null); }));
-  const trashDrag = useSheetDrag(() => closeSheet("trash", () => setShowTrash(false)));
-  const settingsSwipe = usePanelSwipe(() => closeSheet("settings", () => setShowSettings(false)));
-  const colorsDrag = useSheetDrag(() => closeSheet("colors", () => { setShowColors(false); setColorEditing(null); }));
-  const optionDrag = useSheetDrag(() => closeSheet("option", () => setOptionPicker(null)));
-  const paymentDrag = useSheetDrag(() => closeSheet("payment", () => setPaymentAction(null)));
+  const detailDrag = useSheetDrag((ms) => closeSheet("detail", () => setDetailSub(null), ms));
+  const formDrag = useSheetDrag((ms) => closeSheet("form", () => { setShowForm(false); setEditingId(null); }, ms));
+  const trashDrag = useSheetDrag((ms) => closeSheet("trash", () => setShowTrash(false), ms));
+  const settingsSwipe = usePanelSwipe((ms) => closeSheet("settings", () => setShowSettings(false), ms));
+  const colorsDrag = useSheetDrag((ms) => closeSheet("colors", () => { setShowColors(false); setColorEditing(null); }, ms));
+  const optionDrag = useSheetDrag((ms) => closeSheet("option", () => setOptionPicker(null), ms));
+  const paymentDrag = useSheetDrag((ms) => closeSheet("payment", () => setPaymentAction(null), ms));
   const [ratesDate, setRatesDate] = useState(null);
   // Distinguishes "still asking" from "asked and failed". Without it the
   // pessimistic note showed for a moment at every start, and for good when
@@ -3353,6 +3444,9 @@ function HubboApp() {
   // way — the proportions between categories do not change with the span — so
   // switching moves only the numbers.
   const [totalPeriod, setTotalPeriod] = useState("month");
+  // Which way the new figures should come in from. Null on the first draw, so
+  // the card does not animate itself into existence.
+  const [periodDirection, setPeriodDirection] = useState(null);
   // The search box is per-opening, so it clears once the sheet is dismissed.
   useEffect(() => {
     if (!optionPicker) setOptionSearch("");
@@ -4245,6 +4339,18 @@ function HubboApp() {
   const annualTotal = monthlyTotal * 12;
   const dailyTotal = annualTotal / 365;
   const showYear = totalPeriod === "year";
+
+  function changePeriod(next) {
+    if (next === totalPeriod) return;
+    setPeriodDirection(next === "year" ? "left" : "right");
+    setTotalPeriod(next);
+  }
+
+  // The class replays only because the key changes with it: without the key
+  // React keeps the same element and an animation that has already run does
+  // not run again.
+  const periodAnim = periodDirection === null ? "" : periodDirection === "left" ? "rb-view-left" : "rb-view-right";
+  const totalSwipe = useCardSwipe((direction) => changePeriod(direction === "left" ? "year" : "month"));
   const headlineTotal = showYear ? annualTotal : monthlyTotal;
   const dailyEquivalence = dailyEquivalent(dailyTotal, settings.currency, settings.language);
 
@@ -4693,7 +4799,13 @@ function HubboApp() {
   }
 
   // Closing a sheet waits for its exit animation before unmounting it.
-  function closeSheet(key, apply) {
+  // The duration arrives from the gesture that asked for the dismissal, so the
+  // animation, the dimming veil and the moment the sheet is actually removed
+  // all run to the same clock. Set on the root because the veil is not inside
+  // the sheet and would otherwise keep its own fixed timing.
+  function closeSheet(key, apply, ms) {
+    const duration = ms || 240;
+    document.documentElement.style.setProperty("--rb-out", `${duration}ms`);
     if (closingRef.current === key) return;
     if (closingRef.current) {
       // Another sheet is still animating out: apply immediately rather than
@@ -4707,7 +4819,7 @@ function HubboApp() {
       apply();
       closingRef.current = null;
       setClosingSheet(null);
-    }, 240);
+    }, duration);
   }
 
   async function testNotification() {
@@ -4849,15 +4961,22 @@ function HubboApp() {
       <div key="view-list" className={viewDirection === null ? "" : viewDirection === "right" ? "rb-view-right" : "rb-view-left"}>
       <div className="px-5 pt-4">
         {/* Total card */}
-        <div data-tour="totalCard" style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-3">
+        <div
+          data-tour="totalCard"
+          {...totalSwipe.handlers}
+          style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
+          // Clipped, because the figure sits ten pixels outside its own column
+          // and the entry animation starts it twenty-four further out again:
+          // without this it pokes past the edge of the card on the way in.
+          className="rounded-2xl p-5 mb-3 overflow-hidden"
+        >
           <div className="flex items-center justify-between mb-1">
-            <div style={{ color: colors.textSecondary }} className="text-xs">
+            <div key={totalPeriod} style={{ color: colors.textSecondary }} className={`text-xs ${periodAnim}`}>
               {showYear ? t.yearlySpend : t.monthlySpend}
             </div>
-            {/* A switch rather than a second card to swipe between: the list
-                already answers a sideways swipe by changing view, and two
-                gestures on the same surface is how the panel started sliding
-                sideways while it was being scrolled. */}
+            {/* The card can also be flicked sideways. The switch stays because
+                a gesture nothing announces is a gesture most people never find,
+                and because it lets you go straight to the span you want. */}
             <div style={{ background: colors.surface2 }} className="flex rounded-full p-0.5 flex-shrink-0">
               {[
                 { id: "month", label: t.periodMonth },
@@ -4868,7 +4987,7 @@ function HubboApp() {
                   <button
                     key={option.id}
                     type="button"
-                    onClick={() => setTotalPeriod(option.id)}
+                    onClick={() => changePeriod(option.id)}
                     style={{
                       background: active ? colors.surface : "transparent",
                       color: active ? colors.textPrimary : colors.textSecondary,
@@ -4906,6 +5025,7 @@ function HubboApp() {
                 );
                 return (
                   <div
+                    key={totalPeriod}
                     style={{
                       position: "absolute",
                       left: -10,
@@ -4917,7 +5037,7 @@ function HubboApp() {
                       fontSize: size,
                       gap: 2,
                     }}
-                    className="leading-none flex items-baseline"
+                    className={`leading-none flex items-baseline ${periodAnim}`}
                   >
                     {parts.symbolFirst && mark}
                     {/* Ink on the left, the leading category's colour on the
@@ -4940,12 +5060,15 @@ function HubboApp() {
                 <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} size={120} stroke={13} />
               </div>
             </div>
-            <CategoryLegend
-              segments={showYear ? categoryTotals.map((s) => ({ ...s, total: s.total * 12 })) : categoryTotals}
-              total={headlineTotal}
-              colors={colors}
-              money={moneyRound}
-            />
+            <div key={totalPeriod} className={`flex-1 min-w-0 ${periodAnim}`}>
+              <CategoryLegend
+                segments={showYear ? categoryTotals.map((s) => ({ ...s, total: s.total * 12 })) : categoryTotals}
+                total={headlineTotal}
+                colors={colors}
+                money={moneyRound}
+                light={effectiveTheme === "light"}
+              />
+            </div>
           </div>
           {/* The figure the monthly total is meant to make tangible: the
               same money seen one day at a time. Averaged over a year rather
@@ -4986,7 +5109,7 @@ function HubboApp() {
             <Icon name="trendingUp" size={14} />
             {/* Always the span you are not looking at, so both numbers stay
                 reachable without touching anything. */}
-            <span className="text-xs">
+            <span key={totalPeriod} className={`text-xs ${periodAnim}`}>
               {showYear
                 ? t.perMonthTotal(money(monthlyTotal), totalsBase.length)
                 : t.perYear(money(annualTotal), totalsBase.length)}
@@ -5237,7 +5360,7 @@ function HubboApp() {
                   <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} size={120} stroke={13} />
                 </div>
               </div>
-              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={moneyRound} />
+              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
             </div>
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
