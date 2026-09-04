@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v74";
+const APP_VERSION = "v75";
 
 const FREE_LIMIT = 10;
 
@@ -917,6 +917,11 @@ const STRINGS = {
     notifActionCancel: "Disdici",
     notifActionOpen: "Apri",
     workerStale: (v) => `servizio fermo alla ${v}`,
+    workerOk: (v) => `servizio ${v}`,
+    workerAsking: "servizio: verifica in corso",
+    workerSilent: "servizio: nessuna risposta",
+    workerPending: "aggiornamento in attesa",
+    workerForce: "Forza aggiornamento del servizio",
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1109,6 +1114,11 @@ const STRINGS = {
     notifActionCancel: "Cancel it",
     notifActionOpen: "Open",
     workerStale: (v) => `worker still on ${v}`,
+    workerOk: (v) => `worker ${v}`,
+    workerAsking: "worker: checking",
+    workerSilent: "worker: no answer",
+    workerPending: "update waiting",
+    workerForce: "Force the worker to update",
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1301,6 +1311,11 @@ const STRINGS = {
     notifActionCancel: "Dar de baja",
     notifActionOpen: "Abrir",
     workerStale: (v) => `servicio aún en ${v}`,
+    workerOk: (v) => `servicio ${v}`,
+    workerAsking: "servicio: comprobando",
+    workerSilent: "servicio: sin respuesta",
+    workerPending: "actualización pendiente",
+    workerForce: "Forzar la actualización del servicio",
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1493,6 +1508,11 @@ const STRINGS = {
     notifActionCancel: "Résilier",
     notifActionOpen: "Ouvrir",
     workerStale: (v) => `service encore en ${v}`,
+    workerOk: (v) => `service ${v}`,
+    workerAsking: "service : vérification",
+    workerSilent: "service : aucune réponse",
+    workerPending: "mise à jour en attente",
+    workerForce: "Forcer la mise à jour du service",
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1685,6 +1705,11 @@ const STRINGS = {
     notifActionCancel: "Kündigen",
     notifActionOpen: "Öffnen",
     workerStale: (v) => `Worker noch auf ${v}`,
+    workerOk: (v) => `Worker ${v}`,
+    workerAsking: "Worker: wird geprüft",
+    workerSilent: "Worker: keine Antwort",
+    workerPending: "Update wartet",
+    workerForce: "Update des Workers erzwingen",
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -3783,7 +3808,12 @@ function HubboApp() {
   // talk to. Both end up in the same place.
   const [pendingSubId, setPendingSubId] = useState(null);
   const [pendingCancelId, setPendingCancelId] = useState(null);
+  // "" while still asking, "none" once the worker has had its chances and said
+  // nothing. The distinction matters: a worker too old to know the question is
+  // exactly the worker worth warning about, and silence must not read as
+  // agreement.
   const [workerVersion, setWorkerVersion] = useState("");
+  const [workerWaiting, setWorkerWaiting] = useState(false);
 
   useEffect(() => {
     const fromAddress = () => {
@@ -3813,9 +3843,6 @@ function HubboApp() {
       if (message.type === "hubbo-sw-version") setWorkerVersion(message.version || "");
     };
     fromAddress();
-    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage("version");
-    }
     window.addEventListener("hashchange", fromAddress);
     if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", onMessage);
     return () => {
@@ -3823,6 +3850,55 @@ function HubboApp() {
       if ("serviceWorker" in navigator) navigator.serviceWorker.removeEventListener("message", onMessage);
     };
   }, []);
+
+  // The controller can still be null in the first instants after a load, so the
+  // question is asked more than once before giving up on an answer.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) {
+      setWorkerVersion("none");
+      return;
+    }
+    let tries = 0;
+    const ask = () => {
+      const controller = navigator.serviceWorker.controller;
+      if (controller) controller.postMessage("version");
+      tries += 1;
+      if (tries >= 4) {
+        clearInterval(timer);
+        setWorkerVersion((current) => current || "none");
+      }
+    };
+    ask();
+    const timer = setInterval(ask, 700);
+
+    // A worker that has installed but never taken over is its own kind of
+    // stuck, and it does not show up as a version mismatch.
+    navigator.serviceWorker
+      .getRegistration()
+      .then((reg) => setWorkerWaiting(!!(reg && reg.waiting)))
+      .catch(() => {});
+
+    return () => clearInterval(timer);
+  }, []);
+
+  async function forceWorkerUpdate() {
+    // Unregisters the worker and empties its caches, then reloads: the page
+    // registers a fresh one on the way back up. Subscriptions, payments and
+    // settings live in the device storage and are not touched by any of this.
+    try {
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((reg) => reg.unregister()));
+      }
+      if (window.caches) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+    } catch {
+      // Nothing useful to do about it; the reload is still worth attempting.
+    }
+    window.location.reload();
+  }
 
   // Held until the subscriptions have loaded: a cold start has nothing to open
   // yet, and dropping the request there would lose the tap.
@@ -6093,13 +6169,41 @@ function HubboApp() {
                 </p>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-5 mb-1 text-center">
                   {t.appName} · {t.version} {APP_VERSION}
-                  {workerVersion && workerVersion !== "hubbo-" + APP_VERSION && (
+                </p>
+                {/* Always stated, never inferred from an absence. */}
+                <p className="text-xs text-center mt-0.5">
+                  {(() => {
+                    const expected = "hubbo-" + APP_VERSION;
+                    if (!workerVersion) return <span style={{ color: colors.textFaint }}>{t.workerAsking}</span>;
+                    if (workerVersion === "none")
+                      return <span style={{ color: ACCENT.danger }}>{t.workerSilent}</span>;
+                    if (workerVersion !== expected)
+                      return (
+                        <span style={{ color: ACCENT.danger }}>
+                          {t.workerStale(workerVersion.replace("hubbo-", ""))}
+                        </span>
+                      );
+                    return (
+                      <span style={{ color: colors.textFaint }}>
+                        {t.workerOk(workerVersion.replace("hubbo-", ""))}
+                      </span>
+                    );
+                  })()}
+                  {workerWaiting && (
                     <>
                       {" · "}
-                      <span style={{ color: ACCENT.danger }}>{t.workerStale(workerVersion.replace("hubbo-", ""))}</span>
+                      <span style={{ color: ACCENT.danger }}>{t.workerPending}</span>
                     </>
                   )}
                 </p>
+                <button
+                  type="button"
+                  onClick={forceWorkerUpdate}
+                  style={{ color: colors.textSecondary, border: `1px solid ${colors.border}` }}
+                  className="mx-auto mt-2 block rounded-lg px-3 py-1.5 text-xs"
+                >
+                  {t.workerForce}
+                </button>
                 <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
                   {t.installedOn} {dateFmt(todayISO)}
                 </p>
