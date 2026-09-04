@@ -251,7 +251,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v68";
+const APP_VERSION = "v69";
 
 const FREE_LIMIT = 10;
 
@@ -2168,6 +2168,7 @@ const TOUR_STRINGS = {
     tourDone: "Ho capito",
     tourStepOf: (i, n) => `${i} di ${n}`,
     tourWaitHint: "Tocca la parte illuminata per continuare",
+    tourNeedsCost: "Serve un importo per andare avanti.",
     guideTitle: "Guida",
     guideDesc: "Rivedi il giro guidato",
     emptyGuideLink: "Serve una mano? Apri la guida",
@@ -2189,6 +2190,7 @@ const TOUR_STRINGS = {
     tourDone: "Got it",
     tourStepOf: (i, n) => `${i} of ${n}`,
     tourWaitHint: "Tap the highlighted part to continue",
+    tourNeedsCost: "An amount is needed to move on.",
     guideTitle: "Guide",
     guideDesc: "Take the tour again",
     emptyGuideLink: "Need a hand? Open the guide",
@@ -2210,6 +2212,7 @@ const TOUR_STRINGS = {
     tourDone: "Entendido",
     tourStepOf: (i, n) => `${i} de ${n}`,
     tourWaitHint: "Toca la parte iluminada para continuar",
+    tourNeedsCost: "Hace falta un importe para continuar.",
     guideTitle: "Guía",
     guideDesc: "Volver a ver la guía",
     emptyGuideLink: "¿Necesitas ayuda? Abre la guía",
@@ -2231,6 +2234,7 @@ const TOUR_STRINGS = {
     tourDone: "Compris",
     tourStepOf: (i, n) => `${i} sur ${n}`,
     tourWaitHint: "Touchez la zone éclairée pour continuer",
+    tourNeedsCost: "Un montant est nécessaire pour continuer.",
     guideTitle: "Guide",
     guideDesc: "Revoir le guide",
     emptyGuideLink: "Besoin d'aide ? Ouvrir le guide",
@@ -2252,6 +2256,7 @@ const TOUR_STRINGS = {
     tourDone: "Verstanden",
     tourStepOf: (i, n) => `${i} von ${n}`,
     tourWaitHint: "Tippe auf den hellen Bereich, um fortzufahren",
+    tourNeedsCost: "Ohne Betrag geht es nicht weiter.",
     guideTitle: "Anleitung",
     guideDesc: "Anleitung erneut ansehen",
     emptyGuideLink: "Brauchst du Hilfe? Anleitung öffnen",
@@ -2282,7 +2287,7 @@ const TOUR_STEPS = [
   { id: "settings", target: "settings" },
   { id: "add", target: "add", waitFor: "form" },
   { id: "service", target: "formService", waitFor: "service" },
-  { id: "cost", target: "formCost" },
+  { id: "cost", target: "formCost", requires: "cost" },
   { id: "when", target: "formWhen" },
   { id: "save", target: "formSave", waitFor: "saved" },
   { id: "ring", target: "totalCard" },
@@ -2317,25 +2322,55 @@ function useSpotlightRect(target) {
       const vh = window.innerHeight;
       // Collapsed, or scrolled entirely off screen: no hole beats a wrong one.
       if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > vh) return setRect(null);
-      // The padding is trimmed on any side where the element already reaches
-      // the edge of the screen. The bottom bar runs the full width and sits on
-      // the very bottom, so padding it evenly pushed two of its four sides out
-      // of sight and left the ring looking off-centre.
-      const left = Math.max(0, r.left - TOUR_PAD);
-      const top = Math.max(0, r.top - TOUR_PAD);
-      const next = {
-        top,
-        left,
-        width: Math.min(vw, r.right + TOUR_PAD) - left,
-        height: Math.min(vh, r.bottom + TOUR_PAD) - top,
-        vh,
-      };
+      // Whether the hole is round is asked of the element, not inferred from
+      // the hole's proportions: once holes could be trimmed against the screen
+      // edge those proportions stopped meaning anything, and the add button —
+      // which sits low enough to lose the padding beneath it — came out as a
+      // squashed rectangle.
+      // Browsers report the radius either in pixels or as the percentage it was
+      // written as, and both spellings mean "round" at different numbers.
+      const rawRadius = getComputedStyle(el).borderTopLeftRadius || "0";
+      const round =
+        rawRadius.indexOf("%") >= 0
+          ? parseFloat(rawRadius) >= 50
+          : (parseFloat(rawRadius) || 0) >= Math.min(r.width, r.height) / 2 - 0.5;
+      let next;
+      if (round) {
+        // Sized from the element and centred on it, and deliberately not
+        // trimmed: a circle running a few pixels past the edge still reads as
+        // a circle, while a flattened one reads as a mistake.
+        const d = Math.max(r.width, r.height) + TOUR_PAD * 2;
+        next = {
+          top: r.top + r.height / 2 - d / 2,
+          left: r.left + r.width / 2 - d / 2,
+          width: d,
+          height: d,
+          round: true,
+          vh,
+        };
+      } else {
+        // The padding is trimmed on any side where the element already reaches
+        // the edge of the screen. The bottom bar runs the full width and sits
+        // on the very bottom, so padding it evenly pushed two of its four sides
+        // out of sight and left the ring looking off-centre.
+        const left = Math.max(0, r.left - TOUR_PAD);
+        const top = Math.max(0, r.top - TOUR_PAD);
+        next = {
+          top,
+          left,
+          width: Math.min(vw, r.right + TOUR_PAD) - left,
+          height: Math.min(vh, r.bottom + TOUR_PAD) - top,
+          round: false,
+          vh,
+        };
+      }
       setRect((prev) =>
         prev &&
         Math.abs(prev.top - next.top) < 0.5 &&
         Math.abs(prev.left - next.left) < 0.5 &&
         Math.abs(prev.width - next.width) < 0.5 &&
         Math.abs(prev.height - next.height) < 0.5 &&
+        prev.round === next.round &&
         prev.vh === next.vh
           ? prev
           : next
@@ -2370,7 +2405,7 @@ function useSpotlightRect(target) {
   return rect;
 }
 
-function TourSpotlight({ index, colors, t, onNext, onEnd }) {
+function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
   const step = TOUR_STEPS[index];
   const hole = useSpotlightRect(step.target);
   // Read off the same measurement as the hole, so the card is never placed
@@ -2404,9 +2439,7 @@ function TourSpotlight({ index, colors, t, onNext, onEnd }) {
               left: hole.left,
               width: hole.width,
               height: hole.height,
-              // A hole shaped like its element: the add button is a circle, and a
-              // rounded square cut around it would look like a mistake.
-              borderRadius: Math.abs(hole.width - hole.height) < 6 ? hole.width / 2 : 18,
+              borderRadius: hole.round ? hole.width / 2 : 18,
               boxShadow: `0 0 0 9999px ${dim}`,
               border: `2px solid ${ACCENT.amber}`,
               pointerEvents: "none",
@@ -2441,6 +2474,11 @@ function TourSpotlight({ index, colors, t, onNext, onEnd }) {
         <p style={{ color: colors.textSecondary }} className="text-sm leading-relaxed">
           {copy.text}
         </p>
+        {blocked && (
+          <p style={{ color: ACCENT.amber }} className="text-xs mt-2">
+            {t.tourNeedsCost}
+          </p>
+        )}
         <div className="flex items-center justify-between mt-4">
           <button type="button" onClick={onEnd} style={{ color: colors.textFaint }} className="text-xs">
             {t.tourSkip}
@@ -2456,8 +2494,12 @@ function TourSpotlight({ index, colors, t, onNext, onEnd }) {
             ) : (
               <button
                 type="button"
+                disabled={blocked}
                 onClick={last ? onEnd : onNext}
-                style={{ background: ACCENT.amber, color: "#1A1305" }}
+                style={{
+                  background: blocked ? colors.surface2 : ACCENT.amber,
+                  color: blocked ? colors.textFaint : "#1A1305",
+                }}
                 className="rounded-lg px-4 py-2 text-xs font-semibold"
               >
                 {last ? t.tourDone : t.tourNext}
@@ -3336,6 +3378,15 @@ function HubboApp() {
   // what is on screen can never disagree.
   const tourActive = tourStep >= 0;
   const tourVisible = tourActive && !pickerOpen && !optionPicker;
+
+  // A step is allowed to hold the tour until something is actually filled in.
+  // Without it the cost step could be walked past empty and the saving step
+  // would then wait forever for a save the form kept refusing — a dead end
+  // whose only exit was abandoning the tour. Same test the form itself uses.
+  const tourBlocked =
+    tourActive &&
+    TOUR_STEPS[tourStep].requires === "cost" &&
+    (!form.cost || !(parseAmount(form.cost) > 0));
 
   function endTour() {
     setTourStep(-1);
@@ -5194,6 +5245,7 @@ function HubboApp() {
           index={tourStep}
           colors={colors}
           t={t}
+          blocked={tourBlocked}
           onNext={() => setTourStep((s) => s + 1)}
           onEnd={endTour}
         />
