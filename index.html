@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v76";
+const APP_VERSION = "v77";
 
 const FREE_LIMIT = 10;
 
@@ -923,6 +923,7 @@ const STRINGS = {
     workerPending: "aggiornamento in attesa",
     workerForce: "Forza aggiornamento del servizio",
     lastNotif: (a, id) => `ultima notifica: ${a} · ${id}`,
+    lastNotifButtons: (b, max) => `pulsanti: ${b} · massimo ${max}`,
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1121,6 +1122,7 @@ const STRINGS = {
     workerPending: "update waiting",
     workerForce: "Force the worker to update",
     lastNotif: (a, id) => `last notification: ${a} · ${id}`,
+    lastNotifButtons: (b, max) => `buttons: ${b} · max ${max}`,
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1319,6 +1321,7 @@ const STRINGS = {
     workerPending: "actualización pendiente",
     workerForce: "Forzar la actualización del servicio",
     lastNotif: (a, id) => `última notificación: ${a} · ${id}`,
+    lastNotifButtons: (b, max) => `botones: ${b} · máximo ${max}`,
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1517,6 +1520,7 @@ const STRINGS = {
     workerPending: "mise à jour en attente",
     workerForce: "Forcer la mise à jour du service",
     lastNotif: (a, id) => `dernière notification : ${a} · ${id}`,
+    lastNotifButtons: (b, max) => `boutons : ${b} · maximum ${max}`,
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1715,6 +1719,7 @@ const STRINGS = {
     workerPending: "Update wartet",
     workerForce: "Update des Workers erzwingen",
     lastNotif: (a, id) => `letzte Mitteilung: ${a} · ${id}`,
+    lastNotifButtons: (b, max) => `Tasten: ${b} · maximal ${max}`,
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -3816,6 +3821,11 @@ function HubboApp() {
   // What the last tapped notification actually delivered, shown in Settings.
   // Guessing at this from the outside cost two versions.
   const [lastNotification, setLastNotification] = useState(null);
+  // How many action buttons this device is willing to show. If it is one, the
+  // second button on a notification is silently dropped and whatever is left
+  // gets pressed for both.
+  const notifMaxActions =
+    typeof Notification !== "undefined" && "maxActions" in Notification ? Notification.maxActions : -1;
   // "" while still asking, "none" once the worker has had its chances and said
   // nothing. The distinction matters: a worker too old to know the question is
   // exactly the worker worth warning about, and silence must not read as
@@ -3840,8 +3850,8 @@ function HubboApp() {
       handleNotification(action, id, null);
     };
     // One place decides what a notification means, whichever road it arrived by.
-    const handleNotification = (action, id, cancelUrl) => {
-      setLastNotification({ action, id: id || "" });
+    const handleNotification = (action, id, cancelUrl, buttons) => {
+      setLastNotification({ action, id: id || "", buttons: buttons || "" });
       if (action === "cancel") {
         if (cancelUrl) window.open(cancelUrl, "_blank", "noopener");
         else setPendingCancelId(id || "");
@@ -3854,7 +3864,7 @@ function HubboApp() {
       const message = event.data;
       if (!message || !message.type) return;
       if (message.type === "hubbo-notification") {
-        handleNotification(message.action || "body", message.id, message.cancelUrl);
+        handleNotification(message.action || "body", message.id, message.cancelUrl, message.buttons);
       }
       if (message.type === "hubbo-sw-version") setWorkerVersion(message.version || "");
     };
@@ -6215,6 +6225,8 @@ function HubboApp() {
                 {lastNotification && (
                   <p style={{ color: colors.textFaint }} className="text-xs text-center mt-0.5">
                     {t.lastNotif(lastNotification.action, lastNotification.id || "—")}
+                    <br />
+                    {t.lastNotifButtons(lastNotification.buttons || "—", notifMaxActions)}
                   </p>
                 )}
                 <button

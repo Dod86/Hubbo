@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v76";
+const CACHE = "hubbo-v77";
 
 const CORE = [
   "./",
@@ -66,6 +66,9 @@ self.addEventListener("notificationclick", (event) => {
             action,
             id: data.id || null,
             cancelUrl: data.cancelUrl || null,
+            // What the notification was actually carrying, as opposed to what
+            // the code that created it intended to put there.
+            buttons: (event.notification.actions || []).map((a) => a.action).join(","),
           });
           return client.focus();
         }
