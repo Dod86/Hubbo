@@ -262,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v77";
+const APP_VERSION = "v78";
 
 const FREE_LIMIT = 10;
 
@@ -924,6 +924,10 @@ const STRINGS = {
     workerForce: "Forza aggiornamento del servizio",
     lastNotif: (a, id) => `ultima notifica: ${a} · ${id}`,
     lastNotifButtons: (b, max) => `pulsanti: ${b} · massimo ${max}`,
+    cancelPromptTitle: (name) => `Disdici ${name}`,
+    cancelPromptBody: "Il telefono non lascia aprire la pagina da solo. Tocca qui per andarci.",
+    cancelPromptOpen: "Vai alla disdetta",
+    cancelPromptLater: "Non ora",
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
     noRenewalsDay: "Nessun rinnovo in questo giorno.",
     tapDayHint: "Tocca un giorno per i dettagli",
@@ -1123,6 +1127,10 @@ const STRINGS = {
     workerForce: "Force the worker to update",
     lastNotif: (a, id) => `last notification: ${a} · ${id}`,
     lastNotifButtons: (b, max) => `buttons: ${b} · max ${max}`,
+    cancelPromptTitle: (name) => `Cancel ${name}`,
+    cancelPromptBody: "The phone won't let the page open on its own. Tap here to go there.",
+    cancelPromptOpen: "Go to cancellation",
+    cancelPromptLater: "Not now",
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
     noRenewalsDay: "No renewals on this day.",
     tapDayHint: "Tap a day for details",
@@ -1322,6 +1330,10 @@ const STRINGS = {
     workerForce: "Forzar la actualización del servicio",
     lastNotif: (a, id) => `última notificación: ${a} · ${id}`,
     lastNotifButtons: (b, max) => `botones: ${b} · máximo ${max}`,
+    cancelPromptTitle: (name) => `Dar de baja ${name}`,
+    cancelPromptBody: "El teléfono no deja abrir la página por su cuenta. Toca aquí para ir.",
+    cancelPromptOpen: "Ir a la baja",
+    cancelPromptLater: "Ahora no",
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
     noRenewalsDay: "No hay renovaciones este día.",
     tapDayHint: "Toca un día para ver los detalles",
@@ -1521,6 +1533,10 @@ const STRINGS = {
     workerForce: "Forcer la mise à jour du service",
     lastNotif: (a, id) => `dernière notification : ${a} · ${id}`,
     lastNotifButtons: (b, max) => `boutons : ${b} · maximum ${max}`,
+    cancelPromptTitle: (name) => `Résilier ${name}`,
+    cancelPromptBody: "Le téléphone n'autorise pas l'ouverture automatique. Touchez ici pour y aller.",
+    cancelPromptOpen: "Aller à la résiliation",
+    cancelPromptLater: "Pas maintenant",
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
     noRenewalsDay: "Aucun renouvellement ce jour-là.",
     tapDayHint: "Touchez un jour pour les détails",
@@ -1720,6 +1736,10 @@ const STRINGS = {
     workerForce: "Update des Workers erzwingen",
     lastNotif: (a, id) => `letzte Mitteilung: ${a} · ${id}`,
     lastNotifButtons: (b, max) => `Tasten: ${b} · maximal ${max}`,
+    cancelPromptTitle: (name) => `${name} kündigen`,
+    cancelPromptBody: "Das Telefon lässt die Seite nicht von allein öffnen. Tippe hier, um hinzugehen.",
+    cancelPromptOpen: "Zur Kündigung",
+    cancelPromptLater: "Nicht jetzt",
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
     noRenewalsDay: "An diesem Tag keine Verlängerungen.",
     tapDayHint: "Tippe auf einen Tag für Details",
@@ -3821,6 +3841,18 @@ function HubboApp() {
   // What the last tapped notification actually delivered, shown in Settings.
   // Guessing at this from the outside cost two versions.
   const [lastNotification, setLastNotification] = useState(null);
+  const [cancelPrompt, setCancelPrompt] = useState(null);
+
+  // Kept on the device, because it used to vanish on any reload and made the
+  // record of the previous tap disappear exactly when it was being looked for.
+  function rememberNotification(entry) {
+    setLastNotification(entry);
+    try {
+      window.storage.set("abbly:lastNotif", JSON.stringify(entry), false);
+    } catch {
+      // A diagnostic that fails to save is not worth an error.
+    }
+  }
   // How many action buttons this device is willing to show. If it is one, the
   // second button on a notification is silently dropped and whatever is left
   // gets pressed for both.
@@ -3847,14 +3879,16 @@ function HubboApp() {
       const action = notif ? decodeURIComponent(notif[1]) : "body";
       const id = sub ? decodeURIComponent(sub[1]) : "";
       clearAddress();
-      handleNotification(action, id, null);
+      handleNotification(action, id, null, "", false);
     };
     // One place decides what a notification means, whichever road it arrived by.
-    const handleNotification = (action, id, cancelUrl, buttons) => {
-      setLastNotification({ action, id: id || "", buttons: buttons || "" });
+    const handleNotification = (action, id, cancelUrl, buttons, opened) => {
+      rememberNotification({ action, id: id || "", buttons: buttons || "" });
       if (action === "cancel") {
-        if (cancelUrl) window.open(cancelUrl, "_blank", "noopener");
-        else setPendingCancelId(id || "");
+        // Nothing is opened from here. A page reached by a message has no tap
+        // behind it, so any window it asks for is discarded without a word —
+        // which looked exactly like the button doing nothing.
+        if (!opened) setPendingCancelId(id || "");
         return;
       }
       if (id) setPendingSubId(id);
@@ -3864,7 +3898,7 @@ function HubboApp() {
       const message = event.data;
       if (!message || !message.type) return;
       if (message.type === "hubbo-notification") {
-        handleNotification(message.action || "body", message.id, message.cancelUrl, message.buttons);
+        handleNotification(message.action || "body", message.id, message.cancelUrl, message.buttons, message.opened);
       }
       if (message.type === "hubbo-sw-version") setWorkerVersion(message.version || "");
     };
@@ -3874,6 +3908,19 @@ function HubboApp() {
     return () => {
       window.removeEventListener("hashchange", fromAddress);
       if ("serviceWorker" in navigator) navigator.serviceWorker.removeEventListener("message", onMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    let gone = false;
+    window.storage
+      .get("abbly:lastNotif")
+      .then((res) => {
+        if (!gone && res) setLastNotification(JSON.parse(res.value));
+      })
+      .catch(() => {});
+    return () => {
+      gone = true;
     };
   }, []);
 
@@ -3941,7 +3988,7 @@ function HubboApp() {
     if (!pendingCancelId || !subs) return;
     const target = enriched.find((x) => x.id === pendingCancelId);
     setPendingCancelId(null);
-    if (target) window.open(cancelSearchUrl(target.name, settings.language), "_blank", "noopener");
+    if (target) setCancelPrompt({ name: target.name, url: cancelSearchUrl(target.name, settings.language) });
   }, [pendingCancelId, subs, enriched, settings.language]);
   const pausedCount = useMemo(() => enriched.filter((s) => s.paused && !s.isEnded).length, [enriched]);
 
@@ -5481,6 +5528,40 @@ function HubboApp() {
           <span className="truncate max-w-full px-0.5">{t.savingsView}</span>
         </button>
       </div>
+
+      {cancelPrompt && (
+        <div className="fixed inset-0 z-[85] flex items-center justify-center px-6" style={{ background: colors.overlay }}>
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="w-full max-w-sm rounded-2xl p-5">
+            <h3 style={{ fontFamily: "'Fraunces', serif", color: colors.textPrimary }} className="text-base font-medium mb-1">
+              {t.cancelPromptTitle(cancelPrompt.name)}
+            </h3>
+            <p style={{ color: colors.textSecondary }} className="text-sm leading-relaxed">
+              {t.cancelPromptBody}
+            </p>
+            <div className="flex items-center gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => setCancelPrompt(null)}
+                style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                className="flex-1 rounded-xl py-2.5 text-sm"
+              >
+                {t.cancelPromptLater}
+              </button>
+              {/* A real tap, so the window is allowed to open. */}
+              <a
+                href={cancelPrompt.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setCancelPrompt(null)}
+                style={{ background: ACCENT.amber, color: INK }}
+                className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-center"
+              >
+                {t.cancelPromptOpen}
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {tourVisible && (
         <TourSpotlight

@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v77";
+const CACHE = "hubbo-v78";
 
 const CORE = [
   "./",
@@ -59,6 +59,22 @@ self.addEventListener("notificationclick", (event) => {
   event.waitUntil(
     (async () => {
       const open = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const buttons = (event.notification.actions || []).map((a) => a.action).join(",");
+
+      // Opening an outside address is allowed here and nowhere else: inside a
+      // notification click the worker still carries the user's tap. The page
+      // does not, which is why it must never be asked to do this quietly.
+      let opened = false;
+      if (action === "cancel" && data.cancelUrl && self.clients.openWindow) {
+        try {
+          await self.clients.openWindow(data.cancelUrl);
+          opened = true;
+        } catch {
+          // Some installed apps are refused an outside address; the page will
+          // offer it as something to tap instead.
+        }
+      }
+
       for (const client of open) {
         if ("focus" in client) {
           client.postMessage({
@@ -68,11 +84,14 @@ self.addEventListener("notificationclick", (event) => {
             cancelUrl: data.cancelUrl || null,
             // What the notification was actually carrying, as opposed to what
             // the code that created it intended to put there.
-            buttons: (event.notification.actions || []).map((a) => a.action).join(","),
+            buttons,
+            opened,
           });
+          if (opened) return;
           return client.focus();
         }
       }
+      if (opened) return;
       // Nothing open: a fresh page has nobody listening yet, so both the button
       // and the subscription travel in the address.
       try {
