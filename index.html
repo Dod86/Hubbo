@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>Hubbo - Gestione abbonamenti</title>
 <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#0A0B10" />
+<meta name="theme-color" content="#12100D" />
 <meta name="description" content="Tieni sotto controllo tutti i tuoi abbonamenti: quanto spendi al mese, quando si rinnovano, quali puoi tagliare." />
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -18,7 +18,7 @@
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body { margin: 0; -webkit-tap-highlight-color: transparent; background: #0A0B10; overscroll-behavior-y: none; }
+  body { margin: 0; -webkit-tap-highlight-color: transparent; background: #12100D; overscroll-behavior-y: none; }
   ::-webkit-scrollbar { display: none; }
   #root { padding-top: env(safe-area-inset-top); }
 </style>
@@ -148,32 +148,43 @@ function Icon({ name, size = 16, color = "currentColor", strokeWidth = 2, classN
   );
 }
 
+// Warm ink. The greys used to be blue-black, which made every warm accent sit
+// on top of the interface rather than in it; now the neutrals lean brown and
+// the amber belongs to the same family as the ground it stands on.
 const THEMES = {
   dark: {
-    bg: "#0A0B10",
-    bgGradTop: "#0D0F17",
-    surface: "#14161F",
-    surface2: "#1B1E29",
-    border: "#262936",
-    textPrimary: "#F2F1ED",
-    textSecondary: "#8B8D98",
-    textFaint: "#585A66",
-    overlay: "rgba(6,7,11,0.75)",
+    bg: "#12100D",
+    bgGradTop: "#181510",
+    surface: "#1C1915",
+    surface2: "#25211B",
+    border: "#332D25",
+    textPrimary: "#F2EEE7",
+    textSecondary: "#948C7F",
+    textFaint: "#635B4F",
+    overlay: "rgba(9,7,5,0.75)",
   },
   light: {
-    bg: "#F5F3EE",
-    bgGradTop: "#FBFAF7",
-    surface: "#FFFFFF",
-    surface2: "#EFEDE6",
-    border: "#E1DDD3",
-    textPrimary: "#1C1B18",
-    textSecondary: "#6B685F",
-    textFaint: "#A19D91",
-    overlay: "rgba(28,27,24,0.45)",
+    bg: "#F5F2EA",
+    bgGradTop: "#FBF9F3",
+    surface: "#FFFDF8",
+    surface2: "#EFEADF",
+    border: "#E2DACB",
+    textPrimary: "#1E1A14",
+    textSecondary: "#6B6459",
+    textFaint: "#A39B8C",
+    overlay: "rgba(30,26,20,0.45)",
   },
 };
 
-const ACCENT = { amber: "#E3A857", indigo: "#7C83FD", danger: "#E3745C" };
+// The old danger red was a coral only a few degrees of hue from terracotta.
+// Side by side — and "elimina" often sits next to a secondary action — they
+// read as the same colour, so the alarm has been pushed properly red.
+const ACCENT = { amber: "#E3A857", terracotta: "#C4643C", danger: "#E05545" };
+
+// The dark colour used for text sitting on top of an accent, never as a
+// surface. It was spelled two different ways in nine places, one of them the
+// old blue-black background, which is why it now has a name.
+const INK = "#1A1305";
 
 const CATEGORY_META = [
   { id: "streaming", color: "#8F7BF4" },
@@ -188,7 +199,7 @@ const CATEGORY_META = [
   { id: "sport", color: "#E3A857" },
   { id: "editoria", color: "#98C379" },
   { id: "trasporti", color: "#A1AA41" },
-  { id: "altro", color: "#8B8D98" },
+  { id: "altro", color: "#93887A" },
 ];
 
 // Offered when recolouring a category. Deliberately a fixed set rather than a
@@ -251,7 +262,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v70";
+const APP_VERSION = "v72";
 
 const FREE_LIMIT = 10;
 
@@ -2411,7 +2422,7 @@ function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
   // Read off the same measurement as the hole, so the card is never placed
   // against a viewport height the hole no longer agrees with.
   const vh = hole ? hole.vh : typeof window !== "undefined" ? window.innerHeight : 0;
-  const dim = "rgba(6,7,11,0.82)";
+  const dim = "rgba(9,7,5,0.82)";
 
   // The card is pinned by whichever edge faces the hole, never by its own
   // height: that way it can't be placed from a stale measurement of itself,
@@ -2498,7 +2509,7 @@ function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
                 onClick={last ? onEnd : onNext}
                 style={{
                   background: blocked ? colors.surface2 : ACCENT.amber,
-                  color: blocked ? colors.textFaint : "#1A1305",
+                  color: blocked ? colors.textFaint : INK,
                 }}
                 className="rounded-lg px-4 py-2 text-xs font-semibold"
               >
@@ -3045,9 +3056,9 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
   // white disc: it separates from the page in both themes and gives each
   // service a little identity of its own.
   const chip = isYellowLogo
-    ? { background: "#1C1C1E", border: "1px solid rgba(255,255,255,0.08)" }
+    ? { background: "#1C1814", border: "1px solid rgba(255,255,255,0.08)" }
     : needsDarkChip
-    ? { background: "#1B1E29", border: "1px solid rgba(255,255,255,0.10)" }
+    ? { background: "#25211B", border: "1px solid rgba(255,255,255,0.10)" }
     : plain
     ? { background: "transparent", border: "none" }
     : { background: `${brandColor}1F`, border: `1px solid ${brandColor}2E` };
@@ -4268,7 +4279,7 @@ function HubboApp() {
           // Today is a filled disc behind the number; payments are dots below it.
           // Keeping glyphs out of the cells is what makes the grid readable.
           const numberBg = isSelected ? colors.textPrimary : isToday ? ACCENT.amber : "transparent";
-          const numberColor = isSelected ? colors.bg : isToday ? "#1A1305" : colors.textPrimary;
+          const numberColor = isSelected ? colors.bg : isToday ? INK : colors.textPrimary;
 
           return (
             <button
@@ -4611,9 +4622,9 @@ function HubboApp() {
               onClick={() => setHideEnded(!hideEnded)}
               aria-pressed={hideEnded}
               style={{
-                background: hideEnded ? ACCENT.indigo : colors.surface2,
-                color: hideEnded ? "#0A0B10" : colors.textSecondary,
-                border: `1px solid ${hideEnded ? ACCENT.indigo : colors.border}`,
+                background: hideEnded ? ACCENT.terracotta : colors.surface2,
+                color: hideEnded ? INK : colors.textSecondary,
+                border: `1px solid ${hideEnded ? ACCENT.terracotta : colors.border}`,
               }}
               className="rounded-full px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 flex-shrink-0"
             >
@@ -4622,9 +4633,9 @@ function HubboApp() {
                   width: 13,
                   height: 13,
                   borderRadius: 4,
-                  border: `1.5px solid ${hideEnded ? "#0A0B10" : colors.textFaint}`,
-                  background: hideEnded ? "#0A0B10" : "transparent",
-                  color: hideEnded ? ACCENT.indigo : "transparent",
+                  border: `1.5px solid ${hideEnded ? INK : colors.textFaint}`,
+                  background: hideEnded ? INK : "transparent",
+                  color: hideEnded ? ACCENT.terracotta : "transparent",
                   fontSize: 9,
                   lineHeight: "10px",
                 }}
@@ -4898,7 +4909,7 @@ function HubboApp() {
                 {selectedDay && (
                   <button
                     onClick={() => setSelectedDay(null)}
-                    style={{ color: ACCENT.indigo }}
+                    style={{ color: ACCENT.terracotta }}
                     className="text-xs font-medium self-start"
                   >
                     ← {t.showWholeMonth}
@@ -5219,7 +5230,7 @@ function HubboApp() {
       >
         <button
           onClick={() => switchView("list")}
-          style={{ color: view === "list" ? ACCENT.indigo : colors.textFaint }}
+          style={{ color: view === "list" ? ACCENT.terracotta : colors.textFaint }}
           className="flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium"
         >
           <Icon name="list" size={19} />
@@ -5228,7 +5239,7 @@ function HubboApp() {
 
         <button
           onClick={() => switchView("calendar")}
-          style={{ color: view === "calendar" ? ACCENT.indigo : colors.textFaint }}
+          style={{ color: view === "calendar" ? ACCENT.terracotta : colors.textFaint }}
           className="flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium"
         >
           <Icon name="calendarIcon" size={19} />
@@ -5249,7 +5260,7 @@ function HubboApp() {
 
         <button
           onClick={() => switchView("history")}
-          style={{ color: view === "history" ? ACCENT.indigo : colors.textFaint }}
+          style={{ color: view === "history" ? ACCENT.terracotta : colors.textFaint }}
           className="flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium"
         >
           <Icon name="clock" size={19} />
@@ -5258,7 +5269,7 @@ function HubboApp() {
 
         <button
           onClick={() => switchView("savings")}
-          style={{ color: view === "savings" ? ACCENT.indigo : colors.textFaint }}
+          style={{ color: view === "savings" ? ACCENT.terracotta : colors.textFaint }}
           className="flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium"
         >
           <Icon name="piggyBank" size={19} />
@@ -5480,9 +5491,9 @@ function HubboApp() {
                 type="button"
                 onClick={() => setForm({ ...form, isShared: false })}
                 style={{
-                  background: !form.isShared ? ACCENT.indigo : colors.surface2,
-                  color: !form.isShared ? "#0A0B10" : colors.textSecondary,
-                  border: `1px solid ${!form.isShared ? ACCENT.indigo : colors.border}`,
+                  background: !form.isShared ? ACCENT.terracotta : colors.surface2,
+                  color: !form.isShared ? INK : colors.textSecondary,
+                  border: `1px solid ${!form.isShared ? ACCENT.terracotta : colors.border}`,
                 }}
                 className="flex-1 rounded-xl py-2.5 text-xs font-medium"
               >
@@ -5492,9 +5503,9 @@ function HubboApp() {
                 type="button"
                 onClick={() => setForm({ ...form, isShared: true })}
                 style={{
-                  background: form.isShared ? ACCENT.indigo : colors.surface2,
-                  color: form.isShared ? "#0A0B10" : colors.textSecondary,
-                  border: `1px solid ${form.isShared ? ACCENT.indigo : colors.border}`,
+                  background: form.isShared ? ACCENT.terracotta : colors.surface2,
+                  color: form.isShared ? INK : colors.textSecondary,
+                  border: `1px solid ${form.isShared ? ACCENT.terracotta : colors.border}`,
                 }}
                 className="flex-1 rounded-xl py-2.5 text-xs font-medium"
               >
@@ -5581,9 +5592,9 @@ function HubboApp() {
                   )
                 }
                 style={{
-                  background: form.isPast ? ACCENT.indigo : colors.surface2,
-                  color: form.isPast ? "#0A0B10" : colors.textSecondary,
-                  border: `1px solid ${form.isPast ? ACCENT.indigo : colors.border}`,
+                  background: form.isPast ? ACCENT.terracotta : colors.surface2,
+                  color: form.isPast ? INK : colors.textSecondary,
+                  border: `1px solid ${form.isPast ? ACCENT.terracotta : colors.border}`,
                 }}
                 className="rounded-full px-3 py-1.5 text-xs font-medium"
               >
@@ -5666,7 +5677,7 @@ function HubboApp() {
             )}
 
             {formError && (
-              <div style={{ color: ACCENT.danger, background: "rgba(227,116,92,0.1)", border: `1px solid rgba(227,116,92,0.3)` }} className="rounded-xl px-3.5 py-2.5 text-xs mb-3.5">
+              <div style={{ color: ACCENT.danger, background: "rgba(224,85,69,0.1)", border: `1px solid rgba(224,85,69,0.3)` }} className="rounded-xl px-3.5 py-2.5 text-xs mb-3.5">
                 {formError}
               </div>
             )}
@@ -5680,7 +5691,7 @@ function HubboApp() {
                 type="button"
                 onClick={handleAdd}
                 disabled={saving}
-                style={{ background: ACCENT.amber, color: "#1A1305" }}
+                style={{ background: ACCENT.amber, color: INK }}
                 className="w-full rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2"
               >
                 {saving ? <Icon name="loader2" className="animate-spin" size={16} /> : <Icon name={editingId ? "check" : "plus"} size={16} />}
@@ -5815,8 +5826,8 @@ function HubboApp() {
                     <span>{t.notifTitle}</span>
                     <span
                       style={{
-                        background: settings.notifEnabled ? ACCENT.indigo : colors.surface2,
-                        border: `1px solid ${settings.notifEnabled ? ACCENT.indigo : colors.border}`,
+                        background: settings.notifEnabled ? ACCENT.terracotta : colors.surface2,
+                        border: `1px solid ${settings.notifEnabled ? ACCENT.terracotta : colors.border}`,
                         width: 44,
                         height: 26,
                       }}
@@ -5885,7 +5896,7 @@ function HubboApp() {
                 <button
                   type="button"
                   onClick={testNotification}
-                  style={{ color: ACCENT.indigo }}
+                  style={{ color: ACCENT.terracotta }}
                   className="text-xs font-medium mt-2 px-1"
                 >
                   {t.notifTest}
@@ -5921,7 +5932,7 @@ function HubboApp() {
                 </div>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-2 px-1 leading-relaxed">{t.exportHint}</p>
                 {importMessage && (
-                  <p style={{ color: importMessage === t.importError ? ACCENT.danger : ACCENT.indigo }} className="text-xs mt-2 px-1">
+                  <p style={{ color: importMessage === t.importError ? ACCENT.danger : ACCENT.terracotta }} className="text-xs mt-2 px-1">
                     {importMessage}
                   </p>
                 )}
@@ -5969,7 +5980,7 @@ function HubboApp() {
                 <button
                   type="button"
                   onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowPaywall(true); })}
-                  style={{ background: ACCENT.amber, color: "#1A1305" }}
+                  style={{ background: ACCENT.amber, color: INK }}
                   className="w-full rounded-xl py-3 text-sm font-semibold"
                 >
                   {t.upgrade}
@@ -6078,7 +6089,7 @@ function HubboApp() {
                   await savePaymentAmount(paymentAction, paymentAmount, paymentScope);
                   closeSheet("payment", () => setPaymentAction(null));
                 }}
-                style={{ background: ACCENT.amber, color: "#1A1305", opacity: !(parseAmount(paymentAmount) > 0) ? 0.4 : 1 }}
+                style={{ background: ACCENT.amber, color: INK, opacity: !(parseAmount(paymentAmount) > 0) ? 0.4 : 1 }}
                 className="w-full rounded-xl py-2.5 text-sm font-semibold"
               >
                 {t.paymentSaveAmount}
@@ -6186,9 +6197,9 @@ function HubboApp() {
                       closeSheet("option", () => setOptionPicker(null));
                     }}
                     style={{
-                      background: active ? ACCENT.indigo : colors.surface2,
-                      color: active ? "#0A0B10" : colors.textPrimary,
-                      border: `1px solid ${active ? ACCENT.indigo : colors.border}`,
+                      background: active ? ACCENT.terracotta : colors.surface2,
+                      color: active ? INK : colors.textPrimary,
+                      border: `1px solid ${active ? ACCENT.terracotta : colors.border}`,
                     }}
                     className="rounded-xl px-3.5 py-3 text-sm font-medium flex items-center gap-2.5 text-left"
                   >
@@ -6226,7 +6237,7 @@ function HubboApp() {
                 <button
                   type="button"
                   onClick={() => closeSheet("option", () => setOptionPicker(null))}
-                  style={{ background: ACCENT.amber, color: "#1A1305" }}
+                  style={{ background: ACCENT.amber, color: INK }}
                   className="flex-1 rounded-xl py-2.5 text-sm font-semibold"
                 >
                   {t.filterDone}
@@ -6266,9 +6277,9 @@ function HubboApp() {
                     key={m}
                     onClick={() => jumpToMonth(pickerYear, m)}
                     style={{
-                      background: isCurrentView ? ACCENT.indigo : colors.surface2,
-                      color: isCurrentView ? "#0A0B10" : colors.textPrimary,
-                      border: `1px solid ${isRealToday && !isCurrentView ? ACCENT.amber : isCurrentView ? ACCENT.indigo : colors.border}`,
+                      background: isCurrentView ? ACCENT.terracotta : colors.surface2,
+                      color: isCurrentView ? INK : colors.textPrimary,
+                      border: `1px solid ${isRealToday && !isCurrentView ? ACCENT.amber : isCurrentView ? ACCENT.terracotta : colors.border}`,
                     }}
                     className="rounded-xl py-2.5 text-xs font-medium capitalize"
                   >
@@ -6292,7 +6303,7 @@ function HubboApp() {
             <button
               type="button"
               onClick={confirmImport}
-              style={{ background: ACCENT.amber, color: "#1A1305" }}
+              style={{ background: ACCENT.amber, color: INK }}
               className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
             >
               {t.importConfirmYes}
@@ -6461,7 +6472,7 @@ function HubboApp() {
                           <button
                             type="button"
                             onClick={() => handleRestore(s.id)}
-                            style={{ background: ACCENT.indigo, color: "#0A0B10" }}
+                            style={{ background: ACCENT.terracotta, color: INK }}
                             className="flex-1 rounded-lg py-2 text-xs font-medium"
                           >
                             {t.restore}
@@ -6737,7 +6748,7 @@ function HubboApp() {
                 applyCategoryColor({ [colorSwap.target]: colorSwap.hex, [colorSwap.ownerId]: colorSwap.previous });
                 closeSheet("cswap", () => setColorSwap(null));
               }}
-              style={{ background: ACCENT.amber, color: "#1A1305" }}
+              style={{ background: ACCENT.amber, color: INK }}
               className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
             >
               {t.colorSwapYes}
@@ -6799,7 +6810,7 @@ function HubboApp() {
             <button
               type="button"
               onClick={() => closeSheet("paywall", () => setShowPaywall(false))}
-              style={{ background: ACCENT.amber, color: "#1A1305" }}
+              style={{ background: ACCENT.amber, color: INK }}
               className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
             >
               {t.upgrade}

@@ -6,8 +6,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0A0B10",
-  "theme_color": "#0A0B10",
+  "background_color": "#12100D",
+  "theme_color": "#12100D",
   "lang": "it",
   "categories": [
     "finance",
