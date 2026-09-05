@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v101";
+const CACHE = "hubbo-v102";
 
 const CORE = [
   "./",
@@ -161,6 +161,25 @@ self.addEventListener("fetch", (event) => {
           return res;
         })
         .catch(() => caches.match(req).then((cached) => cached || caches.match("./index.html")))
+    );
+    return;
+  }
+
+  // The offers list is data, not a file. Same origin, so without this it
+  // would fall into the cache-first branch below and be answered forever from
+  // the first copy ever fetched — the exact fault already paid for once with
+  // the exchange rates. Network first, cache only as a fallback offline.
+  if (sameOrigin && url.pathname.endsWith("offerte.json")) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req).then((cached) => cached || Response.error()))
     );
     return;
   }

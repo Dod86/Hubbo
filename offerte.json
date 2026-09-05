@@ -1,0 +1,526 @@
+{
+  "versione": 1,
+  "aggiornato": "2026-09-05",
+  "paese": "IT",
+  "valuta": "EUR",
+  "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio. 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto.",
+  "offerte": [
+    {
+      "servizio": "Spotify",
+      "titolo": "Tre mesi a 0 €",
+      "dettaglio": "Poi 11,99 € al mese. Vale solo per chi non ha mai avuto Premium.",
+      "scade": "2026-09-23",
+      "soloNuoviClienti": true,
+      "link": "https://www.spotify.com/it/premium/",
+      "fonte": "spotify.com",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Disney+",
+      "titolo": "Tre mesi scontati su tutti i piani mensili",
+      "dettaglio": "Da 4,99 € al mese per tre mesi, poi prezzo di listino. ESEMPIO GIA' SCADUTO: serve a verificare che l'app la nasconda da sola.",
+      "scade": "2026-08-09",
+      "soloNuoviClienti": true,
+      "link": "https://www.disneyplus.com/it-it",
+      "fonte": "mondomobileweb.it",
+      "verificato": "2026-09-05"
+    }
+  ],
+  "piani": [
+    {
+      "servizio": "Netflix",
+      "pubblicita": {
+        "disponibile": true,
+        "nome": "Standard con pubblicità",
+        "prezzo": 6.99
+      },
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Niente piano famiglia: chi vive fuori casa si aggiunge come utente extra, a pagamento.",
+      "link": "https://www.netflix.com/it/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Disney+",
+      "pubblicita": {
+        "disponibile": true,
+        "nome": "Standard con pubblicità",
+        "prezzo": 6.99
+      },
+      "annuale": {
+        "disponibile": true,
+        "nota": "Equivale a circa dieci mensilità invece di dodici."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Come su Netflix, chi vive fuori casa si aggiunge come utente extra a pagamento.",
+      "link": "https://www.disneyplus.com/it-it",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Spotify",
+      "pubblicita": {
+        "disponibile": true,
+        "nome": "Spotify Free",
+        "prezzo": 0
+      },
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nome": "Premium Family",
+        "persone": 6,
+        "prezzo": 20.99,
+        "nota": "Serve la residenza allo stesso indirizzo. Esiste anche Duo per due persone, 16,99 €."
+      },
+      "studenti": {
+        "disponibile": true,
+        "prezzo": 6.49
+      },
+      "link": "https://www.spotify.com/it/premium/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "YouTube Premium",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 5,
+        "nota": "Tutti conviventi allo stesso indirizzo."
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.youtube.com/premium",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "DAZN",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Molto meno del mensile, ma con vincolo di dodici mesi."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nome": "DAZN Family",
+        "nota": "Due dispositivi su reti diverse."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il listino si e' mosso piu' volte nel 2026 e il prezzo cambia anche a seconda di come paghi. Da controllare sempre.",
+      "link": "https://www.dazn.com/it-IT",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Now",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Le formule con vincolo di dodici mesi costano meno di quelle senza."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.nowtv.it/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Amazon Prime",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'annuale costa meno di dodici mensilita'."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nome": "Amazon Household",
+        "persone": 2,
+        "nota": "Due adulti condividono le spedizioni; Prime Video no."
+      },
+      "studenti": {
+        "disponibile": true,
+        "nome": "Prime Student"
+      },
+      "link": "https://www.amazon.it/prime",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Apple Music",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "nota": "Dentro Apple One costa meno se usi anche iCloud+ e Apple TV+.",
+      "link": "https://www.apple.com/it/apple-music/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Apple TV+",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Compreso nell'abbonamento, tramite In famiglia."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.apple.com/it/apple-tv-plus/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "iCloud",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Lo spazio si divide fra tutti senza costi in piu'."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.apple.com/it/icloud/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Google One",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilita' in meno rispetto al mensile."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 5,
+        "nota": "Compreso: si condivide lo spazio senza pagare di piu'."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://one.google.com/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Microsoft 365",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilita' in meno."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nome": "Family",
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.microsoft.com/it-it/microsoft-365",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Dropbox",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilita' in meno."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.dropbox.com/it/plans",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Adobe Creative Cloud",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Il piano annuale prepagato costa meno di quello annuale pagato mese per mese."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Sconto forte per studenti e insegnanti, da rinnovare ogni anno."
+      },
+      "link": "https://www.adobe.com/it/creativecloud/plans.html",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Adobe Photoshop",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.adobe.com/it/products/photoshop.html",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Canva Pro",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 5,
+        "nome": "Canva Pro per team"
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Gratuito per scuole e insegnanti."
+      },
+      "link": "https://www.canva.com/it_it/pricing/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Notion",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilita' in meno."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Piano gratuito per studenti con email dell'istituto."
+      },
+      "link": "https://www.notion.com/pricing",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "ChatGPT Plus",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://openai.com/chatgpt/pricing/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Claude Pro",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Pagando l'anno in anticipo si spende meno che mese per mese."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://claude.com/pricing",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "NordVPN",
+      "annuale": {
+        "disponibile": true,
+        "nota": "I piani lunghi costano molto meno del mensile, ma si rinnovano a prezzo pieno."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Al rinnovo il prezzo sale quasi sempre: da controllare prima della scadenza.",
+      "link": "https://nordvpn.com/it/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Surfshark",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Come per gli altri VPN, il primo periodo e' scontato e il rinnovo no."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://surfshark.com/it",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "PlayStation Plus",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'annuale costa molto meno di dodici mensilita'."
+      },
+      "famiglia": {
+        "disponibile": false,
+        "nota": "Si condivide con la console principale, non con un piano famiglia."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.playstation.com/it-it/ps-plus/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Xbox Game Pass",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 5,
+        "nota": "Piano Amici e famiglia, dove disponibile."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.xbox.com/it-IT/xbox-game-pass",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Nintendo Switch Online",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 8,
+        "nota": "Costa poco piu' del singolo: conviene quasi sempre in due."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.nintendo.com/it-it/Nintendo-Switch-Online/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Duolingo Plus",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa la meta' del mensile su base annua."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://it.duolingo.com/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Strava",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilita' in meno."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 4
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.strava.com/subscribe",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Audible",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.audible.it/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Kindle Unlimited",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Amazon propone spesso formule prepagate a 6, 12 o 24 mesi."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.amazon.it/kindle-unlimited",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Paramount+",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilita' in meno."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.paramountplus.com/it/",
+      "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Crunchyroll",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 4,
+        "nome": "Mega Fan e Ultimate Fan"
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.crunchyroll.com/it/premium",
+      "verificato": "2026-09-05"
+    }
+  ]
+}

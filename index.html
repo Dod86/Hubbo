@@ -134,6 +134,10 @@ const LUCIDE_ICONS = {
   bus: `<path d="M8 6v6" /> <path d="M15 6v6" /> <path d="M2 12h19.6" /> <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" /> <circle cx="7" cy="18" r="2" /> <path d="M9 18h5" /> <circle cx="16" cy="18" r="2" />`,
   piggyBank: `<path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z" /> <path d="M16 10h.01" />`,
   coffee: `<path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" />`,
+  layers: `<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />`,
+  tag: `<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /> <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />`,
+  users: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" />`,
+  arrowRight: `<path d="M5 12h14" /> <path d="m12 5 7 7-7 7" />`,
   beer: `<path d="M17 11h1a3 3 0 0 1 0 6h-1" /> <path d="M9 12v6" /> <path d="M13 12v6" /> <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" /> <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />`,
   pizza: `<path d="m12 14-1 1" /> <path d="m13.75 18.25-1.25 1.42" /> <path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12" /> <path d="M18.8 9.3a1 1 0 0 0 2.1 7.7" /> <path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z" />`,
   utensils: `<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /> <path d="M7 2v20" /> <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />`,
@@ -282,7 +286,26 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v101";
+const APP_VERSION = "v102";
+
+// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
+// cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
+// non un file dell'app, quindi va preso dalla rete per primo — la cache
+// eterna è esattamente l'errore già pagato con i tassi di cambio.
+const OFFERS_URL = "./offerte.json";
+
+// I nomi del listino devono combaciare con quelli del catalogo. Quello che non
+// combacia viene ignorato: indovinare accoppiamenti significa attribuire a un
+// servizio un piano che non ha.
+function normaliseServiceName(name) {
+  return String(name || "").trim().toLowerCase();
+}
+
+// Un'offerta senza data di scadenza non è "per sempre": è un'offerta che
+// nessuno ha datato, e resterebbe a schermo per anni. Senza data non passa.
+function offerIsLive(offer, todayISO) {
+  return !!(offer && offer.scade && offer.scade >= todayISO);
+}
 
 const FREE_LIMIT = 10;
 
@@ -1960,9 +1983,30 @@ const LEDGER_STRINGS = {
     historyView: "Storico",
     savingsView: "Risparmio",
     subtitleHistory: "Quello che hai speso davvero",
-    subtitleSavings: "Quanto stai risparmiando",
-    savingsSoon: "In arrivo",
-    savingsSoonHint: "Qui troverai quanto ti fanno risparmiare le disdette e le pause.",
+    subtitleSavings: "Dove puoi spendere meno",
+    savingsSoon: "Nessuna occasione, per ora",
+    savingsSoonHint: "Qui compaiono le offerte in scadenza, gli abbonamenti che si sovrappongono e i piani che potresti pagare meno.",
+    savingsDecideNow: "Da decidere adesso",
+    savingsPromoEnds: (date, days) => `L'offerta finisce il ${date} · fra ${days} giorni`,
+    savingsPromoEndsToday: "L'offerta finisce oggi",
+    savingsPromoEndsTomorrow: "L'offerta finisce domani",
+    savingsExtraPerYear: (amount) => `Sono ${amount} in più all'anno. Se non ti serve, questo è il momento di disdire.`,
+    savingsOpenSite: "Vai al sito",
+    savingsOpenCard: "Apri la scheda",
+    savingsDuplicates: "Ne hai più di uno",
+    savingsDuplicatesHint: "Non è per forza uno spreco, ma vale la pena guardarli insieme.",
+    savingsActiveCount: (n) => `${n} attivi`,
+    savingsKeepOne: (amount) => `Tenendo solo il più caro spenderesti ${amount} in meno al mese`,
+    savingsPlans: "Da controllare sul sito",
+    savingsPlansHint: "Sappiamo che questi piani esistono, non quanto costano oggi: i prezzi cambiano troppo spesso perché l'app li tenga.",
+    savingsYearly: "Esiste il piano annuale",
+    savingsFamily: "Ha un piano famiglia",
+    savingsFamilyN: (n) => `Ha un piano famiglia fino a ${n} persone`,
+    savingsStudent: "Ha una tariffa per studenti",
+    savingsAds: (price) => `C'è un piano con pubblicità a ${price}`,
+    savingsChecked: (date) => `verificato il ${date}`,
+    savingsOffers: "Offerte in corso",
+    savingsOfferUntil: (date) => `Fino al ${date}`,
     historyEmpty: "Ancora nessun pagamento registrato.",
     historyEmptyHint: "Indica da quando sei abbonato a un servizio e lo storico si popolerà da solo.",
     historyTotalSpent: "Speso in totale",
@@ -2013,9 +2057,30 @@ const LEDGER_STRINGS = {
     historyView: "History",
     savingsView: "Savings",
     subtitleHistory: "What you actually spent",
-    subtitleSavings: "How much you're saving",
-    savingsSoon: "Coming soon",
-    savingsSoonHint: "This is where cancellations and pauses will show what they save you.",
+    subtitleSavings: "Where you could spend less",
+    savingsSoon: "Nothing to act on yet",
+    savingsSoonHint: "Offers about to end, subscriptions that overlap and plans you could pay less for all show up here.",
+    savingsDecideNow: "Decide now",
+    savingsPromoEnds: (date, days) => `The offer ends on ${date} · in ${days} days`,
+    savingsPromoEndsToday: "The offer ends today",
+    savingsPromoEndsTomorrow: "The offer ends tomorrow",
+    savingsExtraPerYear: (amount) => `That is ${amount} more a year. If you don't need it, now is the time to cancel.`,
+    savingsOpenSite: "Go to the site",
+    savingsOpenCard: "Open the card",
+    savingsDuplicates: "You have more than one",
+    savingsDuplicatesHint: "Not necessarily waste, but worth looking at together.",
+    savingsActiveCount: (n) => `${n} active`,
+    savingsKeepOne: (amount) => `Keeping only the priciest one you would spend ${amount} less a month`,
+    savingsPlans: "Worth checking on the site",
+    savingsPlansHint: "We know these plans exist, not what they cost today: prices move too often for the app to hold them.",
+    savingsYearly: "There is a yearly plan",
+    savingsFamily: "It has a family plan",
+    savingsFamilyN: (n) => `It has a family plan for up to ${n} people`,
+    savingsStudent: "It has a student rate",
+    savingsAds: (price) => `There is a plan with ads at ${price}`,
+    savingsChecked: (date) => `checked on ${date}`,
+    savingsOffers: "Offers running now",
+    savingsOfferUntil: (date) => `Until ${date}`,
     historyEmpty: "No payments recorded yet.",
     historyEmptyHint: "Set when a subscription started and its history will fill in on its own.",
     historyTotalSpent: "Spent in total",
@@ -2066,9 +2131,30 @@ const LEDGER_STRINGS = {
     historyView: "Historial",
     savingsView: "Ahorro",
     subtitleHistory: "Lo que has gastado de verdad",
-    subtitleSavings: "Cuánto estás ahorrando",
-    savingsSoon: "Próximamente",
-    savingsSoonHint: "Aquí verás cuánto te ahorran las cancelaciones y las pausas.",
+    subtitleSavings: "Dónde puedes gastar menos",
+    savingsSoon: "Ninguna oportunidad, por ahora",
+    savingsSoonHint: "Aquí aparecen las ofertas que están por terminar, las suscripciones que se solapan y los planes que podrías pagar menos.",
+    savingsDecideNow: "Para decidir ahora",
+    savingsPromoEnds: (date, days) => `La oferta termina el ${date} · en ${days} días`,
+    savingsPromoEndsToday: "La oferta termina hoy",
+    savingsPromoEndsTomorrow: "La oferta termina mañana",
+    savingsExtraPerYear: (amount) => `Son ${amount} más al año. Si no te hace falta, este es el momento de cancelar.`,
+    savingsOpenSite: "Ir al sitio",
+    savingsOpenCard: "Abrir la ficha",
+    savingsDuplicates: "Tienes más de uno",
+    savingsDuplicatesHint: "No es forzosamente un derroche, pero conviene verlos juntos.",
+    savingsActiveCount: (n) => `${n} activas`,
+    savingsKeepOne: (amount) => `Quedándote solo con la más cara gastarías ${amount} menos al mes`,
+    savingsPlans: "Para comprobar en el sitio",
+    savingsPlansHint: "Sabemos que estos planes existen, no cuánto cuestan hoy: los precios cambian demasiado a menudo.",
+    savingsYearly: "Existe el plan anual",
+    savingsFamily: "Tiene un plan familiar",
+    savingsFamilyN: (n) => `Tiene un plan familiar hasta ${n} personas`,
+    savingsStudent: "Tiene tarifa para estudiantes",
+    savingsAds: (price) => `Hay un plan con publicidad por ${price}`,
+    savingsChecked: (date) => `verificado el ${date}`,
+    savingsOffers: "Ofertas en curso",
+    savingsOfferUntil: (date) => `Hasta el ${date}`,
     historyEmpty: "Aún no hay pagos registrados.",
     historyEmptyHint: "Indica desde cuándo tienes una suscripción y su historial se completará solo.",
     historyTotalSpent: "Gastado en total",
@@ -2119,9 +2205,30 @@ const LEDGER_STRINGS = {
     historyView: "Historique",
     savingsView: "Économies",
     subtitleHistory: "Ce que vous avez réellement dépensé",
-    subtitleSavings: "Ce que vous économisez",
-    savingsSoon: "Bientôt disponible",
-    savingsSoonHint: "Vous verrez ici ce que vous font économiser les résiliations et les pauses.",
+    subtitleSavings: "Où vous pourriez dépenser moins",
+    savingsSoon: "Aucune occasion, pour l'instant",
+    savingsSoonHint: "Les offres qui se terminent, les abonnements qui se recoupent et les formules moins chères apparaissent ici.",
+    savingsDecideNow: "À décider maintenant",
+    savingsPromoEnds: (date, days) => `L'offre se termine le ${date} · dans ${days} jours`,
+    savingsPromoEndsToday: "L'offre se termine aujourd'hui",
+    savingsPromoEndsTomorrow: "L'offre se termine demain",
+    savingsExtraPerYear: (amount) => `Cela fait ${amount} de plus par an. Si vous n'en avez pas besoin, c'est le moment de résilier.`,
+    savingsOpenSite: "Aller sur le site",
+    savingsOpenCard: "Ouvrir la fiche",
+    savingsDuplicates: "Vous en avez plusieurs",
+    savingsDuplicatesHint: "Pas forcément du gaspillage, mais autant les regarder ensemble.",
+    savingsActiveCount: (n) => `${n} actifs`,
+    savingsKeepOne: (amount) => `En ne gardant que le plus cher, vous dépenseriez ${amount} de moins par mois`,
+    savingsPlans: "À vérifier sur le site",
+    savingsPlansHint: "Nous savons que ces formules existent, pas ce qu'elles coûtent aujourd'hui : les prix bougent trop souvent.",
+    savingsYearly: "Il existe une formule annuelle",
+    savingsFamily: "Il y a une formule famille",
+    savingsFamilyN: (n) => `Il y a une formule famille jusqu'à ${n} personnes`,
+    savingsStudent: "Il y a un tarif étudiant",
+    savingsAds: (price) => `Il existe une formule avec publicité à ${price}`,
+    savingsChecked: (date) => `vérifié le ${date}`,
+    savingsOffers: "Offres en cours",
+    savingsOfferUntil: (date) => `Jusqu'au ${date}`,
     historyEmpty: "Aucun paiement enregistré pour l'instant.",
     historyEmptyHint: "Indiquez depuis quand vous êtes abonné et l'historique se remplira tout seul.",
     historyTotalSpent: "Dépensé au total",
@@ -2172,9 +2279,30 @@ const LEDGER_STRINGS = {
     historyView: "Verlauf",
     savingsView: "Ersparnis",
     subtitleHistory: "Was du wirklich ausgegeben hast",
-    subtitleSavings: "Wie viel du sparst",
-    savingsSoon: "Demnächst",
-    savingsSoonHint: "Hier siehst du künftig, was dir Kündigungen und Pausen sparen.",
+    subtitleSavings: "Wo du weniger ausgeben kannst",
+    savingsSoon: "Noch keine Gelegenheit",
+    savingsSoonHint: "Hier erscheinen auslaufende Angebote, Abos die sich überschneiden und Tarife die günstiger sein könnten.",
+    savingsDecideNow: "Jetzt entscheiden",
+    savingsPromoEnds: (date, days) => `Das Angebot endet am ${date} · in ${days} Tagen`,
+    savingsPromoEndsToday: "Das Angebot endet heute",
+    savingsPromoEndsTomorrow: "Das Angebot endet morgen",
+    savingsExtraPerYear: (amount) => `Das sind ${amount} mehr im Jahr. Wenn du es nicht brauchst, ist jetzt der Moment zu kündigen.`,
+    savingsOpenSite: "Zur Website",
+    savingsOpenCard: "Karte öffnen",
+    savingsDuplicates: "Davon hast du mehrere",
+    savingsDuplicatesHint: "Nicht zwangsläufig Verschwendung, aber es lohnt sich, sie zusammen anzusehen.",
+    savingsActiveCount: (n) => `${n} aktiv`,
+    savingsKeepOne: (amount) => `Nur das teuerste behalten: ${amount} weniger im Monat`,
+    savingsPlans: "Auf der Website prüfen",
+    savingsPlansHint: "Wir wissen, dass es diese Tarife gibt, nicht was sie heute kosten: die Preise ändern sich zu oft.",
+    savingsYearly: "Es gibt einen Jahrestarif",
+    savingsFamily: "Es gibt einen Familientarif",
+    savingsFamilyN: (n) => `Es gibt einen Familientarif für bis zu ${n} Personen`,
+    savingsStudent: "Es gibt einen Studententarif",
+    savingsAds: (price) => `Es gibt einen Tarif mit Werbung für ${price}`,
+    savingsChecked: (date) => `geprüft am ${date}`,
+    savingsOffers: "Laufende Angebote",
+    savingsOfferUntil: (date) => `Bis ${date}`,
     historyEmpty: "Noch keine Zahlungen erfasst.",
     historyEmptyHint: "Gib an, seit wann ein Abo läuft, dann füllt sich der Verlauf von selbst.",
     historyTotalSpent: "Insgesamt ausgegeben",
@@ -3968,6 +4096,44 @@ function HubboApp() {
     };
   }, []);
 
+  // Il listino delle offerte, preso dalla rete a ogni avvio e conservato per
+  // l'uso offline. Se il file non c'è ancora — o non lo si vuole pubblicare —
+  // la scheda continua a funzionare con le sole cose che sa dai tuoi dati.
+  const [offersFile, setOffersFile] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const cachedRaw = await window.storage.get("abbly:offers", false);
+        if (cachedRaw && !cancelled) {
+          const cached = JSON.parse(cachedRaw.value);
+          if (cached && cached.file) {
+            setOffersFile(cached.file);
+            if (Date.now() - (cached.fetchedAt || 0) < 12 * 60 * 60 * 1000) return;
+          }
+        }
+      } catch {
+        // nessuna copia ancora
+      }
+
+      try {
+        const res = await fetch(OFFERS_URL, { cache: "no-store" });
+        if (!res.ok) return;
+        const file = await res.json();
+        if (!file || !Array.isArray(file.piani) || cancelled) return;
+        setOffersFile(file);
+        await window.storage.set("abbly:offers", JSON.stringify({ file, fetchedAt: Date.now() }), false);
+      } catch {
+        // offline, oppure il file non è pubblicato: si tiene quello che c'è
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const settingsRef = useRef(settings);
   useEffect(() => {
     settingsRef.current = settings;
@@ -4737,6 +4903,153 @@ function HubboApp() {
       .filter((c) => c.total > 0)
       .sort((a, b) => b.total - a.total);
   }, [totalsBase, settings.language, rates, settings.currency, settings.categoryColors]);
+
+  // ---------------------------------------------------------------------
+  // Scheda Risparmio. Le tre fonti non hanno lo stesso grado di verità e per
+  // questo restano separate a schermo: la tua offerta in scadenza è esatta e
+  // viene dai tuoi dati; una sovrapposizione è esatta ma non è un consiglio;
+  // un piano alternativo arriva da un file pubblicato e può solo rimandare al
+  // sito del servizio, perché i prezzi invecchiano in poche settimane.
+  // ---------------------------------------------------------------------
+
+  const savingsPlansByService = useMemo(() => {
+    const map = new Map();
+    if (offersFile && Array.isArray(offersFile.piani)) {
+      offersFile.piani.forEach((p) => {
+        if (p && p.servizio) map.set(normaliseServiceName(p.servizio), p);
+      });
+    }
+    return map;
+  }, [offersFile]);
+
+  // Il listino è quotato in una valuta sola per tutto il file, dichiarata in
+  // testa: passa dalla stessa conversione di ogni altro importo.
+  const savingsFileCurrency = (offersFile && offersFile.valuta) || "EUR";
+
+  // La tua offerta iniziale che sta per finire. Il costo pieno è già in `cost`
+  // e quello scontato in `promoCost`, quindi la differenza non va stimata.
+  const savingsEndingPromos = useMemo(() => {
+    return enriched
+      .filter((s) => !s.isEnded && !s.paused && s.promoUntil && s.promoCost != null && s.promoUntil > todayISO)
+      .map((s) => {
+        const currency = s.currency || settings.currency;
+        const promo = convertAmount(s.promoCost, currency, settings.currency, rates);
+        const full = convertAmount(s.cost, currency, settings.currency, rates);
+        return {
+          sub: s,
+          promo,
+          full,
+          // Date fresche a ogni chiamata: daysBetween azzera l'orario sugli
+          // oggetti che riceve, quindi riusarli li corromperebbe.
+          daysLeft: daysBetween(parseLocalDate(todayISO), parseLocalDate(s.promoUntil)),
+          extraPerYear: monthlyEquivalent(full - promo, s.frequency) * 12,
+        };
+      })
+      .filter((p) => p.full > p.promo)
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [enriched, todayISO, settings.currency, rates]);
+
+  const savingsDuplicates = useMemo(() => {
+    const byCategory = new Map();
+    activeSubs.forEach((s) => {
+      // "Altro" è la categoria di scarico: due cose finite lì dentro non hanno
+      // niente in comune, e chiamarle sovrapposizione sarebbe un abbaglio.
+      if (s.category === "altro") return;
+      const list = byCategory.get(s.category) || [];
+      list.push(s);
+      byCategory.set(s.category, list);
+    });
+    return Array.from(byCategory.entries())
+      .filter((entry) => entry[1].length >= 2)
+      .map((entry) => {
+        const cat = CATEGORIES.find((c) => c.id === entry[0]) || CATEGORIES[CATEGORIES.length - 1];
+        const items = entry[1]
+          .map((s) => ({
+            sub: s,
+            monthly: monthlyEquivalent(
+              convertAmount(costOn(s, todayISO), s.currency || settings.currency, settings.currency, rates),
+              s.frequency
+            ),
+          }))
+          .sort((a, b) => b.monthly - a.monthly);
+        const monthly = items.reduce((sum, x) => sum + x.monthly, 0);
+        return { id: entry[0], label: cat.label, color: cat.color, items, monthly, saving: monthly - items[0].monthly };
+      })
+      .sort((a, b) => b.monthly - a.monthly);
+  }, [activeSubs, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
+
+  const savingsPlanHints = useMemo(() => {
+    if (savingsPlansByService.size === 0) return [];
+    const out = [];
+    activeSubs.forEach((s) => {
+      const plan = savingsPlansByService.get(normaliseServiceName(s.name));
+      if (!plan) return;
+      const monthly = monthlyEquivalent(
+        convertAmount(costOn(s, todayISO), s.currency || settings.currency, settings.currency, rates),
+        s.frequency
+      );
+      const hints = [];
+      // Proporre l'annuale a chi paga già una volta l'anno o meno spesso
+      // sarebbe un consiglio già seguito.
+      if (plan.annuale && plan.annuale.disponibile && freqOf(s.frequency).perYear > 1) {
+        hints.push({ id: "yearly", icon: "calendarIcon", text: t.savingsYearly, note: plan.annuale.nota || "" });
+      }
+      if (plan.famiglia && plan.famiglia.disponibile && !s.sharedPeople) {
+        hints.push({
+          id: "family",
+          icon: "users",
+          text: plan.famiglia.persone ? t.savingsFamilyN(plan.famiglia.persone) : t.savingsFamily,
+          note: plan.famiglia.nota || "",
+        });
+      }
+      if (plan.pubblicita && plan.pubblicita.disponibile && plan.pubblicita.prezzo != null) {
+        const adPrice = convertAmount(plan.pubblicita.prezzo, savingsFileCurrency, settings.currency, rates);
+        // Solo se costa davvero meno di quello che paghi: su un piano già
+        // economico il suggerimento sarebbe un invito a spendere di più.
+        if (adPrice < monthly - 0.01) {
+          hints.push({ id: "ads", icon: "tag", text: t.savingsAds(money(adPrice)), note: plan.pubblicita.nome || "" });
+        }
+      }
+      if (plan.studenti && plan.studenti.disponibile) {
+        hints.push({ id: "student", icon: "sparkles", text: t.savingsStudent, note: plan.studenti.nota || "" });
+      }
+      if (hints.length === 0) return;
+      out.push({
+        sub: s,
+        monthly,
+        hints: hints.slice(0, 3),
+        link: plan.link || "",
+        checked: plan.verificato || "",
+        note: plan.nota || "",
+      });
+    });
+    return out.sort((a, b) => b.monthly - a.monthly);
+  }, [activeSubs, savingsPlansByService, savingsFileCurrency, todayISO, settings.currency, settings.language, rates]);
+
+  const savingsOffers = useMemo(() => {
+    if (!offersFile || !Array.isArray(offersFile.offerte)) return [];
+    const mine = new Map();
+    enriched.forEach((s) => {
+      const key = normaliseServiceName(s.name);
+      const previous = mine.get(key);
+      // Fra due abbonamenti allo stesso servizio vince quello attivo: è il
+      // caso più severo, ed è quello che decide se l'offerta ti riguarda.
+      if (!previous || (previous.isEnded && !s.isEnded)) mine.set(key, s);
+    });
+    return offersFile.offerte
+      .filter((o) => offerIsLive(o, todayISO))
+      .map((o) => ({ offer: o, sub: mine.get(normaliseServiceName(o.servizio)) }))
+      // Solo offerte che toccano qualcosa che hai davvero. Il resto è un
+      // volantino, e un volantino non ha niente a che fare con la tua spesa.
+      .filter((x) => !!x.sub && (!x.offer.soloNuoviClienti || x.sub.isEnded))
+      .sort((a, b) => (a.offer.scade < b.offer.scade ? -1 : 1));
+  }, [offersFile, enriched, todayISO]);
+
+  const savingsEmpty =
+    savingsEndingPromos.length === 0 &&
+    savingsOffers.length === 0 &&
+    savingsDuplicates.length === 0 &&
+    savingsPlanHints.length === 0;
 
   // Payments are *recorded*, not recalculated. Each billing date that passes
   // gets written once with the amount, currency and converted total frozen as
@@ -6069,17 +6382,262 @@ function HubboApp() {
       </div>
       )}
 
-      {/* Savings view — deliberately a placeholder for now */}
+      {/* Savings view */}
       {view === "savings" && (
       <div key="view-savings" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
-        <div className="px-5 pb-28">
-          <div className="text-center py-16">
-            <div className="flex justify-center mb-3" style={{ color: colors.textFaint }}>
-              <Icon name="piggyBank" size={34} strokeWidth={1.5} />
+        <div className="px-5 pt-4 pb-28">
+          {savingsEmpty ? (
+            <div className="text-center py-16">
+              <div className="flex justify-center mb-3" style={{ color: colors.textFaint }}>
+                <Icon name="piggyBank" size={34} strokeWidth={1.5} />
+              </div>
+              <p className="text-sm font-medium mb-1.5">{t.savingsSoon}</p>
+              <p style={{ color: colors.textFaint }} className="text-xs leading-relaxed max-w-xs mx-auto">{t.savingsSoonHint}</p>
             </div>
-            <p className="text-sm font-medium mb-1.5">{t.savingsSoon}</p>
-            <p style={{ color: colors.textFaint }} className="text-xs leading-relaxed max-w-xs mx-auto">{t.savingsSoonHint}</p>
-          </div>
+          ) : (
+            <>
+              {/* La tua offerta iniziale che sta per finire. È l'unica cosa
+                  della scheda con una scadenza vera attaccata. */}
+              {savingsEndingPromos.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-2.5 px-1">
+                    <span className="flex-shrink-0" style={{ color: legibleOn(ACCENT.terracotta, colors.bg) }}>
+                      <Icon name="clock" size={15} />
+                    </span>
+                    <span style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>{t.savingsDecideNow}</span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {savingsEndingPromos.map((p) => {
+                      const s = p.sub;
+                      const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                      const icon = serviceIcon(s.name);
+                      const brandColor = (icon && BRAND_COLORS[icon]) || SERVICE_COLORS[s.name] || cat.color;
+                      const warn = legibleOn(ACCENT.terracotta, colors.surface);
+                      const site = serviceDomain(s.name);
+                      return (
+                        <div key={s.id} style={{ background: colors.surface, border: `1px solid ${warn}55` }} className="rounded-2xl p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
+                              <RingIcon progress={s.progress} ringColor={brandColor} colors={colors} />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <ServiceLogo icon={icon} domain={site} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
+                              </div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-medium truncate">{s.name}</div>
+                              <div style={{ color: warn }} className="text-xs mt-0.5">
+                                {p.daysLeft <= 0
+                                  ? t.savingsPromoEndsToday
+                                  : p.daysLeft === 1
+                                  ? t.savingsPromoEndsTomorrow
+                                  : t.savingsPromoEnds(dateFmt(s.promoUntil), p.daysLeft)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-3.5">
+                            <span style={{ fontFamily: "'JetBrains Mono', monospace", color: colors.textSecondary, textDecoration: "line-through" }} className="text-sm">
+                              {money(p.promo)}
+                            </span>
+                            <span className="flex-shrink-0" style={{ color: colors.textFaint }}>
+                              <Icon name="arrowRight" size={13} />
+                            </span>
+                            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }} className="text-lg leading-none">
+                              {money(p.full)}
+                            </span>
+                          </div>
+                          <div style={{ background: colors.surface2, color: colors.textSecondary }} className="rounded-xl px-3 py-2 mt-3 text-xs leading-relaxed">
+                            {t.savingsExtraPerYear(money(p.extraPerYear))}
+                          </div>
+                          <div className="flex gap-2 mt-3">
+                            {site && (
+                              <a
+                                href={`https://${site}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ background: ACCENT.amber, color: INK }}
+                                className="flex-1 rounded-xl py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5"
+                              >
+                                <Icon name="externalLink" size={13} />
+                                {t.savingsOpenSite}
+                              </a>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setDetailSub(s)}
+                              style={{ background: colors.surface2, color: colors.textSecondary, border: `1px solid ${colors.border}` }}
+                              className="flex-1 rounded-xl py-2.5 text-xs font-semibold"
+                            >
+                              {t.savingsOpenCard}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Offerte dal listino pubblicato. Compaiono solo se toccano un
+                  servizio che hai, e quelle riservate ai nuovi clienti solo su
+                  un abbonamento che hai già chiuso. */}
+              {savingsOffers.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-2.5 px-1">
+                    <span className="flex-shrink-0" style={{ color: legibleOn(ACCENT.amber, colors.bg) }}>
+                      <Icon name="tag" size={15} />
+                    </span>
+                    <span style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>{t.savingsOffers}</span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {savingsOffers.map((x) => {
+                      const s = x.sub;
+                      const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                      const icon = serviceIcon(s.name);
+                      return (
+                        <div key={`${x.offer.servizio}-${x.offer.scade}`} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium truncate">{x.offer.titolo || s.name}</div>
+                            {x.offer.dettaglio && (
+                              <p style={{ color: colors.textSecondary }} className="text-xs mt-1 leading-relaxed">{x.offer.dettaglio}</p>
+                            )}
+                            <div style={{ color: colors.textFaint }} className="text-xs mt-1.5">
+                              {t.savingsOfferUntil(dateFmt(x.offer.scade))}
+                              {x.offer.verificato ? ` · ${t.savingsChecked(dateFmt(x.offer.verificato))}` : ""}
+                            </div>
+                          </div>
+                          {x.offer.link && (
+                            <a href={x.offer.link} target="_blank" rel="noopener noreferrer" style={{ color: colors.textFaint }} className="flex-shrink-0 mt-1">
+                              <Icon name="externalLink" size={14} />
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Sovrapposizioni. Un dato, non un giudizio: due abbonamenti
+                  nella stessa categoria possono benissimo servire entrambi. */}
+              {savingsDuplicates.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="flex-shrink-0" style={{ color: colors.textSecondary }}>
+                      <Icon name="layers" size={15} />
+                    </span>
+                    <span style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>{t.savingsDuplicates}</span>
+                  </div>
+                  <p style={{ color: colors.textFaint }} className="text-xs leading-relaxed mb-2.5 px-1">{t.savingsDuplicatesHint}</p>
+                  <div className="flex flex-col gap-2">
+                    {savingsDuplicates.map((group) => (
+                      <div key={group.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4">
+                        <div className="flex items-baseline justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span style={{ background: group.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
+                            <span className="text-sm font-medium truncate">{group.label}</span>
+                            <span style={{ color: colors.textFaint }} className="text-xs flex-shrink-0">{t.savingsActiveCount(group.items.length)}</span>
+                          </div>
+                          <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold flex-shrink-0">
+                            {money(group.monthly)}
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {group.items.map((item) => {
+                            const s = item.sub;
+                            const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                            return (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => setDetailSub(s)}
+                                className="flex items-center gap-2.5 w-full text-left"
+                              >
+                                <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={26} />
+                                <span style={{ color: colors.textSecondary }} className="text-xs flex-1 truncate">{s.name}</span>
+                                <span style={{ fontFamily: "'JetBrains Mono', monospace", color: colors.textSecondary }} className="text-xs flex-shrink-0">
+                                  {money(item.monthly)}
+                                </span>
+                                <span className="flex-shrink-0" style={{ color: colors.textFaint }}>
+                                  <Icon name="chevronRight" size={14} />
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-3 pt-2.5 leading-relaxed">
+                          {t.savingsKeepOne(money(group.saving))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Piani alternativi. Il file dice quali esistono, mai quanto
+                  costano oggi: sotto ogni riga c'è la data della verifica e il
+                  collegamento al sito, che è l'unica fonte che non invecchia. */}
+              {savingsPlanHints.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="flex-shrink-0" style={{ color: colors.textSecondary }}>
+                      <Icon name="repeat" size={15} />
+                    </span>
+                    <span style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>{t.savingsPlans}</span>
+                  </div>
+                  <p style={{ color: colors.textFaint }} className="text-xs leading-relaxed mb-2.5 px-1">{t.savingsPlansHint}</p>
+                  <div className="flex flex-col gap-2">
+                    {savingsPlanHints.map((row) => {
+                      const s = row.sub;
+                      const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                      const good = legibleOn("#4CAF7D", colors.surface);
+                      return (
+                        <div key={s.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-sm font-medium truncate">{s.name}</span>
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace", color: colors.textSecondary }} className="text-xs flex-shrink-0">
+                                {money(row.monthly)}
+                              </span>
+                            </div>
+                            {row.hints.map((hint) => (
+                              <div key={hint.id} className="mt-1.5">
+                                <div className="flex items-center gap-1.5" style={{ color: good }}>
+                                  <span className="flex-shrink-0">
+                                    {hint.icon === "users" ? <Icon name="users" size={12} /> : hint.icon === "tag" ? <Icon name="tag" size={12} /> : hint.icon === "sparkles" ? <Icon name="sparkles" size={12} /> : <Icon name="calendarIcon" size={12} />}
+                                  </span>
+                                  <span className="text-xs">{hint.text}</span>
+                                </div>
+                                {hint.note && (
+                                  <p style={{ color: colors.textFaint }} className="text-xs mt-0.5 leading-relaxed">{hint.note}</p>
+                                )}
+                              </div>
+                            ))}
+                            {row.note && (
+                              <p style={{ color: colors.textFaint }} className="text-xs mt-1.5 leading-relaxed">{row.note}</p>
+                            )}
+                            {row.checked && (
+                              <p style={{ color: colors.textFaint }} className="text-xs mt-1.5">{t.savingsChecked(dateFmt(row.checked))}</p>
+                            )}
+                          </div>
+                          {row.link && (
+                            <a href={row.link} target="_blank" rel="noopener noreferrer" style={{ color: colors.textFaint }} className="flex-shrink-0 mt-1">
+                              <Icon name="externalLink" size={14} />
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
       )}
