@@ -282,7 +282,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v99";
+const APP_VERSION = "v100";
 
 const FREE_LIMIT = 10;
 
@@ -3575,8 +3575,16 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
   const [stage, setStage] = useState(() =>
     domain ? remoteLogoStage[domain] || 0 : LOGO_SOURCES.length
   );
-  const useRemote =
-    !path && !!domain && stage < LOGO_SOURCES.length && !NO_REMOTE_LOGO_DOMAINS.has(domain);
+  // The real logo first, the bundled vector as the safety net — not the other
+  // way round. The bundled marks are the official shapes, but they are single
+  // paths in a single colour: Netflix comes out as a flat red silhouette
+  // rather than the mark people recognise, and multi-coloured brands lose
+  // their colours entirely.
+  //
+  // Nothing is lost by trying: a source that answers with a 16-pixel generic
+  // placeholder is already rejected below, and when every source fails — or
+  // there is no network at all — the vector underneath is still drawn.
+  const useRemote = !!domain && stage < LOGO_SOURCES.length && !NO_REMOTE_LOGO_DOMAINS.has(domain);
 
   const advanceSource = () => {
     const next = stage + 1;
