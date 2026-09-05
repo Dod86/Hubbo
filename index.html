@@ -282,7 +282,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v100";
+const APP_VERSION = "v101";
 
 const FREE_LIMIT = 10;
 
@@ -3716,6 +3716,11 @@ function HubboApp() {
   const [sortBy, setSortBy] = useState("renewal");
   const [view, setView] = useState("list");
   const [calendarOffset, setCalendarOffset] = useState(0);
+  // Ricavata dalla differenza fra un mese e l'altro invece che dal gesto: al
+  // mese si arriva anche dai pulsanti e dal ritorno a oggi, e legarla al solo
+  // trascinamento avrebbe lasciato quelle strade senza transizione.
+  const [monthDirection, setMonthDirection] = useState(null);
+  const previousOffset = useRef(0);
   const [selectedDay, setSelectedDay] = useState(null);
   const [calendarTouchStartX, setCalendarTouchStartX] = useState(null);
   const [calendarTouchStartY, setCalendarTouchStartY] = useState(null);
@@ -5038,6 +5043,15 @@ function HubboApp() {
     setIsDraggingCalendar(false);
   }
 
+  useEffect(() => {
+    const delta = calendarOffset - previousOffset.current;
+    previousOffset.current = calendarOffset;
+    if (delta !== 0) setMonthDirection(delta > 0 ? "left" : "right");
+  }, [calendarOffset]);
+
+  const monthAnim =
+    monthDirection === null ? "" : monthDirection === "left" ? "rb-view-left" : "rb-view-right";
+
   function handleCalendarTouchStart(e) {
     if (slideDirection !== 0) return;
     setCalendarTouchStartX(e.touches[0].clientX);
@@ -5652,11 +5666,11 @@ function HubboApp() {
       {view === "calendar" && (
       <div key="view-calendar" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4">
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4">
-            <div style={{ color: colors.textSecondary }} className="text-xs mb-1 capitalize">
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4 overflow-hidden">
+            <div key={`label-${calendarOffset}`} style={{ color: colors.textSecondary }} className={`text-xs mb-1 capitalize ${monthAnim}`}>
               {t.monthTotalLabel} · {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}
             </div>
-            <div className="flex items-center gap-3">
+            <div key={`stats-${calendarOffset}`} className={`flex items-center gap-3 ${monthAnim}`}>
               <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
                 <TotalFigure
                   value={calendarMonthStats.total}
@@ -5670,7 +5684,7 @@ function HubboApp() {
               </div>
               <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
             </div>
-            <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{t.monthPayments(calendarMonthStats.count)}</div>
+            <div key={`count-${calendarOffset}`} style={{ color: colors.textSecondary }} className={`text-xs mt-3 ${monthAnim}`}>{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
           {/* The month navigation, weekday header and day grid belong together:
               without a card of their own they floated on the page while every
