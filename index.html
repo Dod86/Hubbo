@@ -277,7 +277,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v88";
+const APP_VERSION = "v91";
 
 const FREE_LIMIT = 10;
 
@@ -849,6 +849,8 @@ const STRINGS = {
     customServiceName: "Nome dell'abbonamento",
     cost: "Costo",
     frequency: "Frequenza",
+    freqLabels: { weekly: "Settimanale", biweekly: "Ogni 2 settimane", monthly: "Mensile", quarterly: "Trimestrale", semiannual: "Semestrale", annual: "Annuale", biennial: "Ogni 2 anni" },
+    freqShort: { weekly: "/sett.", biweekly: "/2 sett.", monthly: "/mese", quarterly: "/trim.", semiannual: "/sem.", annual: "/anno", biennial: "/2 anni" },
     nextRenewal: "Prossimo rinnovo",
     endDateLabel: "Data di fine abbonamento",
     noEndDate: "Senza scadenza",
@@ -867,6 +869,14 @@ const STRINGS = {
     dataTrustBody: "Nel piano gratuito i tuoi abbonamenti sono salvati solo qui, sul tuo telefono: nessun account richiesto, nessun dato condiviso con terzi. Con Premium potrai superare il limite di 10 abbonamenti e sincronizzarli anche su altri dispositivi.",
     errNoService: 'Scegli un servizio dal menu (o scrivi il nome in "Altro").',
     errNoCost: "Inserisci un costo valido.",
+    errNoPromoCost: "Inserisci il prezzo dell'offerta.",
+    errNoPromoUntil: "Indica da quando pagherai il prezzo pieno.",
+    promoTitle: "Offerta iniziale",
+    promoActive: "Questo abbonamento è in offerta",
+    promoHint: "Il costo qui sopra è quello pieno, che pagherai a offerta finita. Qui indichi quanto paghi adesso e da quando finisce.",
+    promoCostLabel: "Prezzo in offerta",
+    promoUntilLabel: "Prezzo pieno dal",
+    promoTag: "offerta",
     errRenewalPast: "Il prossimo rinnovo non può essere una data passata. Se l'abbonamento è finito, attiva «Abbonamento già terminato».",
     errStartFuture: "La data di inizio non può essere futura.",
     errStartAfterEnd: "La data di inizio deve precedere quella di fine.",
@@ -1062,6 +1072,8 @@ const STRINGS = {
     customServiceName: "Subscription name",
     cost: "Cost",
     frequency: "Frequency",
+    freqLabels: { weekly: "Weekly", biweekly: "Every 2 weeks", monthly: "Monthly", quarterly: "Quarterly", semiannual: "Every 6 months", annual: "Yearly", biennial: "Every 2 years" },
+    freqShort: { weekly: "/wk", biweekly: "/2 wks", monthly: "/mo", quarterly: "/qtr", semiannual: "/6 mo", annual: "/yr", biennial: "/2 yrs" },
     nextRenewal: "Next renewal",
     endDateLabel: "Subscription end date",
     noEndDate: "No end date",
@@ -1080,6 +1092,14 @@ const STRINGS = {
     dataTrustBody: "On the free plan, your subscriptions are stored only here, on your phone: no account needed, nothing shared with third parties. With Premium you can go beyond the 10-subscription limit and sync across other devices too.",
     errNoService: 'Choose a service from the list (or type a name under "Other").',
     errNoCost: "Enter a valid cost.",
+    errNoPromoCost: "Enter the offer price.",
+    errNoPromoUntil: "Say when the full price starts.",
+    promoTitle: "Introductory offer",
+    promoActive: "This subscription is on an offer",
+    promoHint: "The cost above is the ordinary one, which you'll pay once the offer ends. Here you say what you pay now and when that stops.",
+    promoCostLabel: "Offer price",
+    promoUntilLabel: "Full price from",
+    promoTag: "offer",
     errRenewalPast: "The next renewal cannot be in the past. If the subscription has ended, turn on \"Already ended\".",
     errStartFuture: "The start date cannot be in the future.",
     errStartAfterEnd: "The start date must come before the end date.",
@@ -1275,6 +1295,8 @@ const STRINGS = {
     customServiceName: "Nombre de la suscripción",
     cost: "Coste",
     frequency: "Frecuencia",
+    freqLabels: { weekly: "Semanal", biweekly: "Cada 2 semanas", monthly: "Mensual", quarterly: "Trimestral", semiannual: "Semestral", annual: "Anual", biennial: "Cada 2 años" },
+    freqShort: { weekly: "/sem.", biweekly: "/2 sem.", monthly: "/mes", quarterly: "/trim.", semiannual: "/6 meses", annual: "/año", biennial: "/2 años" },
     nextRenewal: "Próxima renovación",
     endDateLabel: "Fecha de fin",
     noEndDate: "Sin fecha de fin",
@@ -1293,6 +1315,14 @@ const STRINGS = {
     dataTrustBody: "En el plan gratuito, tus suscripciones se guardan solo aquí, en tu teléfono: sin cuenta y sin compartir nada con terceros. Con Premium podrás superar el límite de 10 suscripciones y sincronizarlas en otros dispositivos.",
     errNoService: 'Elige un servicio de la lista (o escribe un nombre en "Otro").',
     errNoCost: "Introduce un coste válido.",
+    errNoPromoCost: "Introduce el precio de la oferta.",
+    errNoPromoUntil: "Indica desde cuándo pagarás el precio completo.",
+    promoTitle: "Oferta inicial",
+    promoActive: "Esta suscripción está en oferta",
+    promoHint: "El coste de arriba es el normal, el que pagarás cuando acabe la oferta. Aquí indicas cuánto pagas ahora y hasta cuándo.",
+    promoCostLabel: "Precio en oferta",
+    promoUntilLabel: "Precio completo desde",
+    promoTag: "oferta",
     errRenewalPast: "La próxima renovación no puede ser una fecha pasada. Si la suscripción ha terminado, activa «Ya finalizada».",
     errStartFuture: "La fecha de inicio no puede ser futura.",
     errStartAfterEnd: "La fecha de inicio debe ser anterior a la de fin.",
@@ -1488,6 +1518,8 @@ const STRINGS = {
     customServiceName: "Nom de l'abonnement",
     cost: "Coût",
     frequency: "Fréquence",
+    freqLabels: { weekly: "Hebdomadaire", biweekly: "Toutes les 2 semaines", monthly: "Mensuel", quarterly: "Trimestriel", semiannual: "Semestriel", annual: "Annuel", biennial: "Tous les 2 ans" },
+    freqShort: { weekly: "/sem.", biweekly: "/2 sem.", monthly: "/mois", quarterly: "/trim.", semiannual: "/6 mois", annual: "/an", biennial: "/2 ans" },
     nextRenewal: "Prochain renouvellement",
     endDateLabel: "Date de fin",
     noEndDate: "Sans date de fin",
@@ -1506,6 +1538,14 @@ const STRINGS = {
     dataTrustBody: "Avec l'offre gratuite, vos abonnements sont enregistrés uniquement ici, sur votre téléphone : aucun compte requis, rien n'est partagé avec des tiers. Avec Premium, vous pourrez dépasser la limite de 10 abonnements et les synchroniser sur d'autres appareils.",
     errNoService: 'Choisissez un service dans la liste (ou saisissez un nom sous « Autre »).',
     errNoCost: "Saisissez un coût valide.",
+    errNoPromoCost: "Saisissez le prix de l'offre.",
+    errNoPromoUntil: "Indiquez à partir de quand le plein tarif s'applique.",
+    promoTitle: "Offre de lancement",
+    promoActive: "Cet abonnement est en offre",
+    promoHint: "Le coût ci-dessus est le tarif normal, celui que vous paierez une fois l'offre terminée. Ici vous indiquez ce que vous payez maintenant et jusqu'à quand.",
+    promoCostLabel: "Prix en offre",
+    promoUntilLabel: "Plein tarif à partir du",
+    promoTag: "offre",
     errRenewalPast: "Le prochain renouvellement ne peut pas être une date passée. Si l'abonnement est terminé, activez « Déjà terminé ».",
     errStartFuture: "La date de début ne peut pas être dans le futur.",
     errStartAfterEnd: "La date de début doit précéder la date de fin.",
@@ -1701,6 +1741,8 @@ const STRINGS = {
     customServiceName: "Name des Abos",
     cost: "Kosten",
     frequency: "Häufigkeit",
+    freqLabels: { weekly: "Wöchentlich", biweekly: "Alle 2 Wochen", monthly: "Monatlich", quarterly: "Vierteljährlich", semiannual: "Halbjährlich", annual: "Jährlich", biennial: "Alle 2 Jahre" },
+    freqShort: { weekly: "/Wo.", biweekly: "/2 Wo.", monthly: "/Mon.", quarterly: "/Quart.", semiannual: "/6 Mon.", annual: "/Jahr", biennial: "/2 Jahre" },
     nextRenewal: "Nächste Verlängerung",
     endDateLabel: "Enddatum",
     noEndDate: "Ohne Enddatum",
@@ -1719,6 +1761,14 @@ const STRINGS = {
     dataTrustBody: "Im Gratis-Tarif werden deine Abos nur hier auf deinem Handy gespeichert: kein Konto nötig, nichts wird an Dritte weitergegeben. Mit Premium kannst du das Limit von 10 Abos überschreiten und sie auch auf anderen Geräten synchronisieren.",
     errNoService: 'Wähle einen Dienst aus der Liste (oder gib unter „Anderer“ einen Namen ein).',
     errNoCost: "Gib gültige Kosten ein.",
+    errNoPromoCost: "Gib den Angebotspreis ein.",
+    errNoPromoUntil: "Gib an, ab wann der volle Preis gilt.",
+    promoTitle: "Einführungsangebot",
+    promoActive: "Dieses Abo läuft im Angebot",
+    promoHint: "Die Kosten oben sind der normale Preis, den du nach dem Angebot zahlst. Hier trägst du ein, was du jetzt zahlst und bis wann.",
+    promoCostLabel: "Angebotspreis",
+    promoUntilLabel: "Voller Preis ab",
+    promoTag: "Angebot",
     errRenewalPast: "Die nächste Verlängerung kann nicht in der Vergangenheit liegen. Ist das Abo beendet, aktiviere „Bereits beendet“.",
     errStartFuture: "Das Startdatum kann nicht in der Zukunft liegen.",
     errStartAfterEnd: "Das Startdatum muss vor dem Enddatum liegen.",
@@ -2170,7 +2220,22 @@ function parseAmount(value) {
 // better source anyway: it reflects reality, including any manual correction
 // made in the history. Both are merged and runs of the same price collapse
 // into a single point.
-function buildPriceSeries(sub, payments) {
+// What the subscription costs on a given day. An introductory offer is a window
+// that overrides the ordinary price up to promoUntil, which is the date of the
+// first full-price charge. Nothing is rewritten when the window closes: a value
+// that had to be flipped on a date would depend on the app being opened that
+// day, and would be wrong for anyone who left it shut for a week.
+function costOn(sub, iso) {
+  if (!sub) return 0;
+  if (sub.promoUntil && sub.promoCost != null && iso && iso < sub.promoUntil) return sub.promoCost;
+  return sub.cost;
+}
+
+function inPromo(sub, iso) {
+  return !!(sub && sub.promoUntil && sub.promoCost != null && iso && iso < sub.promoUntil);
+}
+
+function buildPriceSeries(sub, payments, todayISO) {
   const points = [];
   if (Array.isArray(sub.priceHistory)) {
     sub.priceHistory.forEach((p) => {
@@ -2187,9 +2252,15 @@ function buildPriceSeries(sub, payments) {
   if (points.length === 0) {
     // Nothing recorded yet: the section still shows today's price, so it is
     // never an empty box. The date is omitted when it isn't known.
-    return [{ cost: sub.cost, currency: sub.currency, date: sub.startDate || "" }];
+    return [{ cost: costOn(sub, todayISO), currency: sub.currency, date: sub.startDate || "", promo: inPromo(sub, todayISO) }];
   }
 
+  // Marked, not filtered: what was paid during the offer is still money spent,
+  // and the history has to show it. It simply must not be read as the price
+  // this subscription started from.
+  points.forEach((p) => {
+    p.promo = inPromo(sub, p.date);
+  });
   points.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const out = [];
   points.forEach((pt) => {
@@ -2219,22 +2290,62 @@ function daysBetween(a, b) {
 // Renewals follow the calendar, not a fixed number of days: a subscription
 // billed on the 31st falls on the 30th in April and on the 28th/29th in
 // February, then goes back to the 31st — exactly how real billing works.
+// Every cadence the app understands, in one table. Everything else asks the
+// table instead of testing for "annual", which is how a monthly-or-yearly
+// assumption had spread into ten different places.
+//
+// Weekly cadences count in days and monthly ones in months, and the difference
+// matters: a fortnightly plan must not drift onto a fixed day of the month,
+// while a monthly one must stay on its day even across February.
+const FREQUENCIES = [
+  { id: "weekly", unit: "day", step: 7, perYear: 365 / 7 },
+  { id: "biweekly", unit: "day", step: 14, perYear: 365 / 14 },
+  { id: "monthly", unit: "month", step: 1, perYear: 12 },
+  { id: "quarterly", unit: "month", step: 3, perYear: 4 },
+  { id: "semiannual", unit: "month", step: 6, perYear: 2 },
+  { id: "annual", unit: "month", step: 12, perYear: 1 },
+  { id: "biennial", unit: "month", step: 24, perYear: 0.5 },
+];
+
+function freqOf(frequency) {
+  return FREQUENCIES.find((f) => f.id === frequency) || FREQUENCIES[2];
+}
+
+// One charge expressed as a monthly amount, whatever the cadence. Yearly plans
+// used to be divided by twelve inline in four separate spots.
+function monthlyEquivalent(amount, frequency) {
+  return (amount * freqOf(frequency).perYear) / 12;
+}
+
+function midnight(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function addPeriods(anchorDate, frequency, count) {
+  const freq = freqOf(frequency);
+  if (freq.unit === "day") {
+    const d = midnight(anchorDate);
+    d.setDate(d.getDate() + freq.step * count);
+    return d;
+  }
   const anchorDay = anchorDate.getDate();
   const d = new Date(anchorDate.getFullYear(), anchorDate.getMonth(), 1);
-  if (frequency === "annual") {
-    d.setFullYear(d.getFullYear() + count);
-  } else {
-    d.setMonth(d.getMonth() + count);
-  }
+  d.setMonth(d.getMonth() + freq.step * count);
   const daysInTarget = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
   d.setDate(Math.min(anchorDay, daysInTarget));
   return d;
 }
 
 function periodsBetween(anchorDate, target, frequency) {
-  if (frequency === "annual") return target.getFullYear() - anchorDate.getFullYear();
-  return (target.getFullYear() - anchorDate.getFullYear()) * 12 + (target.getMonth() - anchorDate.getMonth());
+  const freq = freqOf(frequency);
+  // Rounded down in both directions, so the step it names is always the one at
+  // or before the target. The callers move forward from there when they need to.
+  if (freq.unit === "day") {
+    const days = Math.round((midnight(target) - midnight(anchorDate)) / 86400000);
+    return Math.floor(days / freq.step);
+  }
+  const months = (target.getFullYear() - anchorDate.getFullYear()) * 12 + (target.getMonth() - anchorDate.getMonth());
+  return Math.floor(months / freq.step);
 }
 
 function nextRenewalInfo(sub, today) {
@@ -2750,7 +2861,9 @@ function pastOccurrences(sub, today, maxYears = 15) {
     if (end && d > end) continue;
     if (wasPausedOn(sub, d)) continue;
     out.push(d);
-    if (out.length > 800) break;
+    // Fifteen years of a weekly plan is a little over seven hundred and eighty
+    // charges, which the old ceiling of eight hundred would have clipped.
+    if (out.length > 1600) break;
   }
   return out.reverse();
 }
@@ -2769,10 +2882,14 @@ function occurrencesInMonth(renewalDateStr, frequency, monthDate, startDateStr) 
   if (lowerBound > monthEnd) return [];
 
   const steps = periodsBetween(anchor, monthStart, frequency);
+  const freq = freqOf(frequency);
   const results = [];
-  // A calendar month holds at most one monthly (or yearly) occurrence, but the
-  // neighbouring steps are checked so month-length clamping can't drop one.
-  for (let k = steps - 1; k <= steps + 1; k++) {
+  // How many charges of this cadence can land inside one month, plus a step
+  // either side for month-length clamping. Scanning one step around the start
+  // was right while a month could hold only one charge; a weekly plan puts four
+  // or five in, and four of them would have gone missing from the calendar.
+  const span = freq.unit === "day" ? Math.ceil(31 / freq.step) + 1 : 2;
+  for (let k = steps - 1; k <= steps + span; k++) {
     const d = addPeriods(anchor, frequency, k);
     if (d >= monthStart && d <= monthEnd && d >= lowerBound) {
       if (!results.some((r) => r.getTime() === d.getTime())) results.push(d);
@@ -3401,7 +3518,7 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
 
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
-const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false };
+const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoCost: "", promoUntil: "", promoOpen: false };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
@@ -3558,7 +3675,7 @@ function HubboApp() {
     return { symbol, symbolFirst: symbol.length <= 1, number: text.replace(symbol, "").trim() };
   };
   // Amount converted into the user's main currency, for totals
-  const inMainCurrency = (sub) => convertAmount(sub.cost, sub.currency || settings.currency, settings.currency, rates);
+  const inMainCurrency = (sub) => convertAmount(costOn(sub, todayISO), sub.currency || settings.currency, settings.currency, rates);
   const dateFmt = (d) => formatDate(d, locale);
   const serviceIcon = (name) => {
     const svc = COMMON_SERVICES.find((s) => s.name === name);
@@ -3814,6 +3931,10 @@ function HubboApp() {
       name: isCommon ? sub.name : "__custom__",
       customName: isCommon ? "" : sub.name,
       cost: String(sub.sharedTotalCost != null ? sub.sharedTotalCost : sub.cost),
+      hasPromo: !!sub.promoUntil,
+      promoCost: sub.promoCost != null ? String(sub.promoCost) : "",
+      promoUntil: sub.promoUntil || "",
+      promoOpen: !!sub.promoUntil,
       currency: sub.currency || settings.currency,
       frequency: sub.frequency,
       category: sub.category,
@@ -3844,6 +3965,14 @@ function HubboApp() {
       }
       if (!form.cost || !(parseAmount(form.cost) > 0)) {
         setFormError(t.errNoCost);
+        return;
+      }
+      if (form.hasPromo && (!form.promoCost || !(parseAmount(form.promoCost) > 0))) {
+        setFormError(t.errNoPromoCost);
+        return;
+      }
+      if (form.hasPromo && !form.promoUntil) {
+        setFormError(t.errNoPromoUntil);
         return;
       }
       if (!form.renewalDate) {
@@ -3881,9 +4010,20 @@ function HubboApp() {
       const rawCost = parseAmount(form.cost);
       const effectiveCost = form.isShared ? Math.round((rawCost / people) * 100) / 100 : rawCost;
       const prevSub = editingId ? subs.find((s) => s.id === editingId) : null;
+
+      // What it costs today, before and after the edit. Comparing the stored
+      // prices instead would call it a rise every time someone declares an
+      // introductory offer on a subscription they had entered at the discounted
+      // price — which is the ordinary way of arriving at this screen.
+      const promoNow = form.hasPromo
+        ? { cost: effectiveCost, promoCost: form.isShared ? parseAmount(form.promoCost) / people : parseAmount(form.promoCost), promoUntil: form.promoUntil }
+        : { cost: effectiveCost };
+      const paidBefore = prevSub ? costOn(prevSub, todayISO) : null;
+      const paidAfter = costOn(promoNow, todayISO);
+
       let lastIncrease = prevSub ? prevSub.lastIncrease || null : null;
-      if (prevSub && effectiveCost !== prevSub.cost) {
-        lastIncrease = effectiveCost > prevSub.cost ? { from: prevSub.cost, to: effectiveCost, date: todayISO } : null;
+      if (prevSub && paidAfter !== paidBefore) {
+        lastIncrease = paidAfter > paidBefore ? { from: paidBefore, to: paidAfter, date: todayISO } : null;
       }
 
       // Every price the subscription has ever had, oldest first. Subscriptions
@@ -3896,17 +4036,22 @@ function HubboApp() {
         const base = Array.isArray(prevSub.priceHistory) && prevSub.priceHistory.length > 0
           ? prevSub.priceHistory
           : [{ cost: prevSub.cost, currency: prevSub.currency || settings.currency, date: prevSub.startDate || todayISO }];
-        if (effectiveCost === prevSub.cost) return base;
+        // Same test as the badge above: no new point in the history either,
+        // when what is actually paid today has not moved.
+        if (paidAfter === paidBefore) return base;
         // A second change on the same day replaces the first rather than
         // stacking two entries with an identical date.
         const trimmed = base.length > 1 && base[base.length - 1].date === todayISO ? base.slice(0, -1) : base;
-        return [...trimmed, { cost: effectiveCost, currency: form.currency || settings.currency, date: todayISO }];
+        return [...trimmed, { cost: paidAfter, currency: form.currency || settings.currency, date: todayISO }];
       })();
       const subData = {
         name: finalName,
         cost: effectiveCost,
         currency: form.currency || settings.currency,
         sharedTotalCost: form.isShared ? rawCost : null,
+        // Split the same way the ordinary price is when the plan is shared.
+        promoCost: form.hasPromo ? (form.isShared ? parseAmount(form.promoCost) / people : parseAmount(form.promoCost)) : null,
+        promoUntil: form.hasPromo ? form.promoUntil : null,
         sharedPeople: form.isShared ? people : null,
         frequency: form.frequency,
         category: form.category,
@@ -4368,8 +4513,8 @@ function HubboApp() {
       // Costs are compared as monthly amounts in the main currency, so a yearly
       // plan doesn't get ranked as if it were a monthly one.
       const monthlyOf = (s) => {
-        const v = convertAmount(s.cost, s.currency || settings.currency, settings.currency, rates);
-        return s.frequency === "annual" ? v / 12 : v;
+        const v = convertAmount(costOn(s, todayISO), s.currency || settings.currency, settings.currency, rates);
+        return monthlyEquivalent(v, s.frequency);
       };
       if (sortBy === "costDesc") return monthlyOf(b) - monthlyOf(a);
       if (sortBy === "costAsc") return monthlyOf(a) - monthlyOf(b);
@@ -4384,7 +4529,7 @@ function HubboApp() {
   );
 
   const monthlyTotal = useMemo(
-    () => totalsBase.reduce((sum, s) => sum + (s.frequency === "annual" ? inMainCurrency(s) / 12 : inMainCurrency(s)), 0),
+    () => totalsBase.reduce((sum, s) => sum + monthlyEquivalent(inMainCurrency(s), s.frequency), 0),
     [totalsBase, rates, settings.currency]
   );
   const annualTotal = monthlyTotal * 12;
@@ -4408,7 +4553,7 @@ function HubboApp() {
   const categoryTotals = useMemo(() => {
     const map = {};
     totalsBase.forEach((s) => {
-      const m = s.frequency === "annual" ? inMainCurrency(s) / 12 : inMainCurrency(s);
+      const m = monthlyEquivalent(inMainCurrency(s), s.frequency);
       map[s.category] = (map[s.category] || 0) + m;
     });
     return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }))
@@ -4442,10 +4587,12 @@ function HubboApp() {
           subId: sub.id,
           name: sub.name,
           category: sub.category,
-          amount: sub.cost,
+          // The amount actually charged that day, which during an offer is
+          // the offer price and not the ordinary one.
+          amount: costOn(sub, iso),
           currency,
           baseCurrency: base,
-          baseAmount: convertAmount(sub.cost, currency, base, rates),
+          baseAmount: convertAmount(costOn(sub, iso), currency, base, rates),
           date: iso,
           status: "paid",
           // Anything older than today was rebuilt from the cycle rather than
@@ -4683,9 +4830,11 @@ function HubboApp() {
     let total = 0;
     let count = 0;
     const catMap = {};
-    Object.values(byDay).forEach((arr) => {
+    Object.entries(byDay).forEach(([dayISO, arr]) => {
       arr.forEach((s) => {
-        const value = convertAmount(s.cost, s.currency || settings.currency, settings.currency, rates);
+        // Priced on the day it falls, not on today: an offer that ends inside
+        // the month being shown must change the total from that day onwards.
+        const value = convertAmount(costOn(s, dayISO), s.currency || settings.currency, settings.currency, rates);
         total += value;
         count++;
         catMap[s.category] = (catMap[s.category] || 0) + value;
@@ -5290,7 +5439,7 @@ function HubboApp() {
                           {s.daysLeft === 0 ? t.renewToday : s.daysLeft === 1 ? t.renewTomorrow : t.renewIn(s.daysLeft)}
                         </span>
                       )}
-                      {s.lastIncrease && s.lastIncrease.to === s.cost && !s.isEnded && (
+                      {s.lastIncrease && s.lastIncrease.to === costOn(s, todayISO) && !s.isEnded && (
                         <span style={{ color: ACCENT.amber }} className="text-xs font-medium">
                           · ⬆ +{Math.round(((s.lastIncrease.to - s.lastIncrease.from) / s.lastIncrease.from) * 100)}%
                         </span>
@@ -5312,10 +5461,10 @@ function HubboApp() {
                   </div>
                   <div className="flex-shrink-0 text-right">
                     <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-base font-semibold whitespace-nowrap">
-                      {money(s.cost, s.currency)}
+                      {money(costOn(s, todayISO), s.currency)}
                     </div>
                     <div style={{ color: colors.textFaint }} className="text-xs">
-                      {s.frequency === "annual" ? t.perYearShort : t.perMonthShort}
+                      {t.freqShort[s.frequency] || t.perMonthShort}
                     </div>
                   </div>
                 </button>
@@ -5492,7 +5641,7 @@ function HubboApp() {
                               <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
                               <span className="flex-1 text-sm font-medium truncate">{s.name}</span>
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold whitespace-nowrap">
-                                {money(s.cost, s.currency)}
+                                {money(costOn(s, todayISO), s.currency)}
                               </span>
                             </button>
                           );
@@ -6014,6 +6163,68 @@ function HubboApp() {
               </button>
             </div>
 
+            {/* Folded away by default. Most subscriptions have no introductory
+                offer, and a field that is usually empty earns its place only
+                behind a door. */}
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, promoOpen: !f.promoOpen }))}
+              style={{ color: form.hasPromo ? ACCENT.amber : colors.textSecondary }}
+              className="flex items-center gap-1.5 text-xs mb-3.5"
+            >
+              <Icon name="sparkles" size={14} />
+              {t.promoTitle}
+              <span style={{ color: colors.textFaint, fontSize: 10 }}>{form.promoOpen ? "▴" : "▾"}</span>
+            </button>
+
+            {form.promoOpen && (
+              <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl p-3 mb-3.5">
+                <label className="flex items-center justify-between mb-2">
+                  <span style={{ color: colors.textPrimary }} className="text-sm">{t.promoActive}</span>
+                  <input
+                    type="checkbox"
+                    checked={form.hasPromo}
+                    onChange={(e) => setForm((f) => ({ ...f, hasPromo: e.target.checked }))}
+                  />
+                </label>
+                {/* Stated plainly, because it is the one thing that could be
+                    read the wrong way round: the price in the field above is
+                    the ordinary one, not the discounted one. */}
+                <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-3">
+                  {t.promoHint}
+                </p>
+                {form.hasPromo && (
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
+                        {t.promoCostLabel}
+                      </ScrollingLabel>
+                      <input
+                        value={form.promoCost}
+                        onChange={(e) => setForm({ ...form, promoCost: e.target.value })}
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                        className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
+                        {t.promoUntilLabel}
+                      </ScrollingLabel>
+                      <input
+                        value={form.promoUntil}
+                        onChange={(e) => setForm({ ...form, promoUntil: e.target.value })}
+                        type="date"
+                        style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                        className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div data-tour="formCost" className="grid grid-cols-3 gap-2 mb-3.5">
               <div>
                 <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{form.isShared ? t.totalCostLabel : t.cost}</label>
@@ -6053,17 +6264,14 @@ function HubboApp() {
                     setOptionPicker({
                       title: t.frequency,
                       value: form.frequency,
-                      options: [
-                        { value: "monthly", label: t.monthly },
-                        { value: "annual", label: t.annual },
-                      ],
+                      options: FREQUENCIES.map((f) => ({ value: f.id, label: t.freqLabels[f.id] })),
                       onSelect: (v) => setForm((f) => ({ ...f, frequency: v })),
                     })
                   }
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
                   className="w-full rounded-xl px-2.5 py-2.5 text-sm text-left flex items-center justify-between"
                 >
-                  <span className="truncate">{form.frequency === "annual" ? t.annual : t.monthly}</span>
+                  <span className="truncate">{t.freqLabels[form.frequency] || t.freqLabels.monthly}</span>
                   <span style={{ color: colors.textFaint, fontSize: 10 }}>▾</span>
                 </button>
               </div>
@@ -7108,7 +7316,7 @@ function HubboApp() {
                               {t.deletedOn} {dateFmt(s.deletedAt)}
                             </div>
                           </div>
-                          <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold">{money(s.cost, s.currency)}</span>
+                          <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold">{money(costOn(s, todayISO), s.currency)}</span>
                         </div>
                         <div className="flex gap-2">
                           <button
@@ -7152,8 +7360,9 @@ function HubboApp() {
         const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
         const icon = serviceIcon(s.name);
         const brandColor = (icon && BRAND_COLORS[icon]) || cat.color;
-        const monthly = s.frequency === "annual" ? s.cost / 12 : s.cost;
-        const yearly = s.frequency === "annual" ? s.cost : s.cost * 12;
+        const priceNow = costOn(s, todayISO);
+        const monthly = monthlyEquivalent(priceNow, s.frequency);
+        const yearly = monthly * 12;
         return (
           <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-50 ${closingSheet === "detail" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("detail", () => setDetailSub(null))}>
             <div
@@ -7175,8 +7384,8 @@ function HubboApp() {
                   <div className="min-w-0">
                     <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium truncate">{s.name}</h2>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold">
-                      {money(s.cost, s.currency)}
-                      <span style={{ color: colors.textFaint }} className="font-normal text-xs">{s.frequency === "annual" ? t.perYearShort : t.perMonthShort}</span>
+                      {money(costOn(s, todayISO), s.currency)}
+                      <span style={{ color: colors.textFaint }} className="font-normal text-xs">{t.freqShort[s.frequency] || t.perMonthShort}</span>
                     </div>
                   </div>
                 </div>
@@ -7191,11 +7400,15 @@ function HubboApp() {
                 </div>
               )}
               {(() => {
-                const hist = buildPriceSeries(s, payments);
+                const hist = buildPriceSeries(s, payments, todayISO);
                 if (hist.length === 0) return null;
-                const unchanged = hist.length < 2;
-                const first = hist[0];
+                // The starting price is the first one that was not part of an
+                // offer. Comparing against the offer would report the end of a
+                // discount as a rise of several hundred per cent.
+                const settled = hist.filter((p) => !p.promo);
+                const first = settled[0] || hist[0];
                 const last = hist[hist.length - 1];
+                const unchanged = settled.length < 2;
                 const totalPct = first.cost > 0 ? Math.round(((last.cost - first.cost) / first.cost) * 100) : 0;
                 const up = totalPct > 0;
                 return (
@@ -7228,13 +7441,18 @@ function HubboApp() {
                       {hist.slice().reverse().map((entry, idx, list) => {
                         // Each row is compared with the price that preceded it.
                         const previous = list[idx + 1];
-                        const pct = previous && previous.cost > 0
+                        // No percentage across the edge of an offer: the step
+                        // from the discount to the ordinary price was agreed in
+                        // advance and is labelled instead.
+                        const acrossOffer = !!previous && previous.promo !== entry.promo;
+                        const pct = previous && previous.cost > 0 && !acrossOffer
                           ? Math.round(((entry.cost - previous.cost) / previous.cost) * 100)
                           : null;
                         return (
                           <div key={`${entry.date}-${idx}`} className="flex items-center justify-between gap-2">
                             <span style={{ color: colors.textSecondary }} className="text-sm truncate">
                               {entry.date ? t.priceFrom(dateFmt(entry.date)) : t.priceCurrent}
+                              {entry.promo && <span style={{ color: ACCENT.amber }}> · {t.promoTag}</span>}
                             </span>
                             <span className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold">
