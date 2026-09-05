@@ -286,7 +286,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v102";
+const APP_VERSION = "v103";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -305,6 +305,33 @@ function normaliseServiceName(name) {
 // nessuno ha datato, e resterebbe a schermo per anni. Senza data non passa.
 function offerIsLive(offer, todayISO) {
   return !!(offer && offer.scade && offer.scade >= todayISO);
+}
+
+// Sovrapposizioni. Stare nella stessa categoria non basta a fare un doppione:
+// Netflix e Disney+ hanno cataloghi diversi ed è normale pagarli entrambi, e il
+// catalogo mette la musica e il video sotto la stessa voce "streaming" benché
+// non siano lo stesso discorso. Qui stanno solo i gruppi in cui i servizi sono
+// alternativi fra loro, cioè quelli in cui tenerne uno per volta è una scelta
+// possibile e non una rinuncia. Le liste sono per nome, così si correggono una
+// riga alla volta senza toccare le categorie, che servono ad altro.
+const SAVINGS_VIDEO = new Set([
+  "Netflix", "Disney+", "Amazon Prime Video", "Now", "Sky", "DAZN", "Infinity+",
+  "Crunchyroll", "Paramount+", "Apple TV+", "MUBI", "Nebula", "YouTube Premium",
+]);
+const SAVINGS_MUSIC = new Set([
+  "Spotify", "Apple Music", "YouTube Music", "Deezer", "Tidal", "SoundCloud Go+",
+]);
+// Categorie intere in cui i servizi sono sostituibili fra loro.
+const SAVINGS_OVERLAP_CATEGORIES = new Set(["gaming", "ai"]);
+
+// Fuori da tutto restano i servizi che non sostituiscono niente: Audible sono
+// audiolibri, Plex Pass è un server, Apple One è un pacchetto. Metterli accanto
+// a Netflix vorrebbe dire suggerire di scegliere fra cose non confrontabili.
+function savingsOverlapGroup(sub) {
+  if (!sub) return null;
+  if (SAVINGS_VIDEO.has(sub.name)) return "video";
+  if (SAVINGS_MUSIC.has(sub.name)) return "music";
+  return SAVINGS_OVERLAP_CATEGORIES.has(sub.category) ? sub.category : null;
 }
 
 const FREE_LIMIT = 10;
@@ -1994,9 +2021,11 @@ const LEDGER_STRINGS = {
     savingsOpenSite: "Vai al sito",
     savingsOpenCard: "Apri la scheda",
     savingsDuplicates: "Ne hai più di uno",
-    savingsDuplicatesHint: "Non è per forza uno spreco, ma vale la pena guardarli insieme.",
+    savingsDuplicatesHint: "Servizi che si sostituiscono a vicenda. Averli tutti non è uno spreco, ma uno per volta è una scelta possibile.",
     savingsActiveCount: (n) => `${n} attivi`,
-    savingsKeepOne: (amount) => `Tenendo solo il più caro spenderesti ${amount} in meno al mese`,
+    savingsRotate: (amount) => `Uno per volta, a rotazione, spenderesti ${amount} in meno al mese`,
+    savingsGroupVideo: "Streaming video",
+    savingsGroupMusic: "Musica",
     savingsPlans: "Da controllare sul sito",
     savingsPlansHint: "Sappiamo che questi piani esistono, non quanto costano oggi: i prezzi cambiano troppo spesso perché l'app li tenga.",
     savingsYearly: "Esiste il piano annuale",
@@ -2068,9 +2097,11 @@ const LEDGER_STRINGS = {
     savingsOpenSite: "Go to the site",
     savingsOpenCard: "Open the card",
     savingsDuplicates: "You have more than one",
-    savingsDuplicatesHint: "Not necessarily waste, but worth looking at together.",
+    savingsDuplicatesHint: "Services that stand in for each other. Having them all is not waste, but one at a time is an option.",
     savingsActiveCount: (n) => `${n} active`,
-    savingsKeepOne: (amount) => `Keeping only the priciest one you would spend ${amount} less a month`,
+    savingsRotate: (amount) => `One at a time, in rotation, you would spend ${amount} less a month`,
+    savingsGroupVideo: "Video streaming",
+    savingsGroupMusic: "Music",
     savingsPlans: "Worth checking on the site",
     savingsPlansHint: "We know these plans exist, not what they cost today: prices move too often for the app to hold them.",
     savingsYearly: "There is a yearly plan",
@@ -2142,9 +2173,11 @@ const LEDGER_STRINGS = {
     savingsOpenSite: "Ir al sitio",
     savingsOpenCard: "Abrir la ficha",
     savingsDuplicates: "Tienes más de uno",
-    savingsDuplicatesHint: "No es forzosamente un derroche, pero conviene verlos juntos.",
+    savingsDuplicatesHint: "Servicios que se sustituyen entre sí. Tenerlos todos no es un derroche, pero de uno en uno es una opción.",
     savingsActiveCount: (n) => `${n} activas`,
-    savingsKeepOne: (amount) => `Quedándote solo con la más cara gastarías ${amount} menos al mes`,
+    savingsRotate: (amount) => `De uno en uno, por turnos, gastarías ${amount} menos al mes`,
+    savingsGroupVideo: "Streaming de vídeo",
+    savingsGroupMusic: "Música",
     savingsPlans: "Para comprobar en el sitio",
     savingsPlansHint: "Sabemos que estos planes existen, no cuánto cuestan hoy: los precios cambian demasiado a menudo.",
     savingsYearly: "Existe el plan anual",
@@ -2216,9 +2249,11 @@ const LEDGER_STRINGS = {
     savingsOpenSite: "Aller sur le site",
     savingsOpenCard: "Ouvrir la fiche",
     savingsDuplicates: "Vous en avez plusieurs",
-    savingsDuplicatesHint: "Pas forcément du gaspillage, mais autant les regarder ensemble.",
+    savingsDuplicatesHint: "Des services qui se remplacent l'un l'autre. Les avoir tous n'est pas du gaspillage, mais un à la fois reste possible.",
     savingsActiveCount: (n) => `${n} actifs`,
-    savingsKeepOne: (amount) => `En ne gardant que le plus cher, vous dépenseriez ${amount} de moins par mois`,
+    savingsRotate: (amount) => `Un à la fois, en alternance, vous dépenseriez ${amount} de moins par mois`,
+    savingsGroupVideo: "Streaming vidéo",
+    savingsGroupMusic: "Musique",
     savingsPlans: "À vérifier sur le site",
     savingsPlansHint: "Nous savons que ces formules existent, pas ce qu'elles coûtent aujourd'hui : les prix bougent trop souvent.",
     savingsYearly: "Il existe une formule annuelle",
@@ -2290,9 +2325,11 @@ const LEDGER_STRINGS = {
     savingsOpenSite: "Zur Website",
     savingsOpenCard: "Karte öffnen",
     savingsDuplicates: "Davon hast du mehrere",
-    savingsDuplicatesHint: "Nicht zwangsläufig Verschwendung, aber es lohnt sich, sie zusammen anzusehen.",
+    savingsDuplicatesHint: "Dienste, die einander ersetzen. Alle zu haben ist keine Verschwendung, eines nach dem anderen ist aber möglich.",
     savingsActiveCount: (n) => `${n} aktiv`,
-    savingsKeepOne: (amount) => `Nur das teuerste behalten: ${amount} weniger im Monat`,
+    savingsRotate: (amount) => `Eines nach dem anderen, im Wechsel: ${amount} weniger im Monat`,
+    savingsGroupVideo: "Video-Streaming",
+    savingsGroupMusic: "Musik",
     savingsPlans: "Auf der Website prüfen",
     savingsPlansHint: "Wir wissen, dass es diese Tarife gibt, nicht was sie heute kosten: die Preise ändern sich zu oft.",
     savingsYearly: "Es gibt einen Jahrestarif",
@@ -4950,19 +4987,24 @@ function HubboApp() {
   }, [enriched, todayISO, settings.currency, rates]);
 
   const savingsDuplicates = useMemo(() => {
-    const byCategory = new Map();
+    const byGroup = new Map();
     activeSubs.forEach((s) => {
-      // "Altro" è la categoria di scarico: due cose finite lì dentro non hanno
-      // niente in comune, e chiamarle sovrapposizione sarebbe un abbaglio.
-      if (s.category === "altro") return;
-      const list = byCategory.get(s.category) || [];
+      const group = savingsOverlapGroup(s);
+      if (!group) return;
+      const list = byGroup.get(group) || [];
       list.push(s);
-      byCategory.set(s.category, list);
+      byGroup.set(group, list);
     });
-    return Array.from(byCategory.entries())
+    return Array.from(byGroup.entries())
       .filter((entry) => entry[1].length >= 2)
       .map((entry) => {
-        const cat = CATEGORIES.find((c) => c.id === entry[0]) || CATEGORIES[CATEGORIES.length - 1];
+        const group = entry[0];
+        const label =
+          group === "video"
+            ? t.savingsGroupVideo
+            : group === "music"
+            ? t.savingsGroupMusic
+            : (CATEGORIES.find((c) => c.id === group) || CATEGORIES[CATEGORIES.length - 1]).label;
         const items = entry[1]
           .map((s) => ({
             sub: s,
@@ -4973,7 +5015,9 @@ function HubboApp() {
           }))
           .sort((a, b) => b.monthly - a.monthly);
         const monthly = items.reduce((sum, x) => sum + x.monthly, 0);
-        return { id: entry[0], label: cat.label, color: cat.color, items, monthly, saving: monthly - items[0].monthly };
+        // Quanto costa il fatto di averli insieme invece che uno per volta:
+        // il totale meno il più caro, cioè quello che resterebbe comunque.
+        return { id: group, label, items, monthly, saving: monthly - items[0].monthly };
       })
       .sort((a, b) => b.monthly - a.monthly);
   }, [activeSubs, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
@@ -6536,7 +6580,6 @@ function HubboApp() {
                       <div key={group.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4">
                         <div className="flex items-baseline justify-between gap-2 mb-3">
                           <div className="flex items-center gap-2 min-w-0">
-                            <span style={{ background: group.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
                             <span className="text-sm font-medium truncate">{group.label}</span>
                             <span style={{ color: colors.textFaint }} className="text-xs flex-shrink-0">{t.savingsActiveCount(group.items.length)}</span>
                           </div>
@@ -6568,7 +6611,7 @@ function HubboApp() {
                           })}
                         </div>
                         <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-3 pt-2.5 leading-relaxed">
-                          {t.savingsKeepOne(money(group.saving))}
+                          {t.savingsRotate(money(group.saving))}
                         </div>
                       </div>
                     ))}
