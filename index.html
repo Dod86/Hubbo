@@ -277,7 +277,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v91";
+const APP_VERSION = "v93";
 
 const FREE_LIMIT = 10;
 
@@ -869,12 +869,15 @@ const STRINGS = {
     dataTrustBody: "Nel piano gratuito i tuoi abbonamenti sono salvati solo qui, sul tuo telefono: nessun account richiesto, nessun dato condiviso con terzi. Con Premium potrai superare il limite di 10 abbonamenti e sincronizzarli anche su altri dispositivi.",
     errNoService: 'Scegli un servizio dal menu (o scrivi il nome in "Altro").',
     errNoCost: "Inserisci un costo valido.",
-    errNoPromoCost: "Inserisci il prezzo dell'offerta.",
     errNoPromoUntil: "Indica da quando pagherai il prezzo pieno.",
     promoTitle: "Offerta iniziale",
-    promoActive: "Questo abbonamento è in offerta",
-    promoHint: "Il costo qui sopra è quello pieno, che pagherai a offerta finita. Qui indichi quanto paghi adesso e da quando finisce.",
-    promoCostLabel: "Prezzo in offerta",
+    promoNo: "Prezzo normale",
+    promoYes: "In offerta",
+    promoFullLabel: "Poi pagherò",
+    promoHintPast: "L'offerta risulta già finita: quello che paghi adesso è il costo qui sopra. Serve solo la data per non contare il periodo scontato come prezzo di partenza.",
+    errNoPromoFull: "Indica quanto pagherai a offerta finita.",
+    errPromoNotHigher: "Il prezzo a offerta finita deve essere più alto di quello che paghi ora.",
+    promoHint: "Il costo qui sopra è quello che paghi adesso grazie all'offerta. Qui indichi fino a quando dura e quanto pagherai dopo.",
     promoUntilLabel: "Prezzo pieno dal",
     promoTag: "offerta",
     errRenewalPast: "Il prossimo rinnovo non può essere una data passata. Se l'abbonamento è finito, attiva «Abbonamento già terminato».",
@@ -1092,12 +1095,15 @@ const STRINGS = {
     dataTrustBody: "On the free plan, your subscriptions are stored only here, on your phone: no account needed, nothing shared with third parties. With Premium you can go beyond the 10-subscription limit and sync across other devices too.",
     errNoService: 'Choose a service from the list (or type a name under "Other").',
     errNoCost: "Enter a valid cost.",
-    errNoPromoCost: "Enter the offer price.",
     errNoPromoUntil: "Say when the full price starts.",
     promoTitle: "Introductory offer",
-    promoActive: "This subscription is on an offer",
-    promoHint: "The cost above is the ordinary one, which you'll pay once the offer ends. Here you say what you pay now and when that stops.",
-    promoCostLabel: "Offer price",
+    promoNo: "Normal price",
+    promoYes: "On an offer",
+    promoFullLabel: "Then I'll pay",
+    promoHintPast: "This offer has already ended, so what you pay now is the cost above. Only the date is needed, to keep the discounted stretch from counting as the starting price.",
+    errNoPromoFull: "Say what you'll pay once the offer ends.",
+    errPromoNotHigher: "The price after the offer has to be higher than what you pay now.",
+    promoHint: "The cost above is what you pay now thanks to the offer. Here you say how long it lasts and what comes after.",
     promoUntilLabel: "Full price from",
     promoTag: "offer",
     errRenewalPast: "The next renewal cannot be in the past. If the subscription has ended, turn on \"Already ended\".",
@@ -1315,12 +1321,15 @@ const STRINGS = {
     dataTrustBody: "En el plan gratuito, tus suscripciones se guardan solo aquí, en tu teléfono: sin cuenta y sin compartir nada con terceros. Con Premium podrás superar el límite de 10 suscripciones y sincronizarlas en otros dispositivos.",
     errNoService: 'Elige un servicio de la lista (o escribe un nombre en "Otro").',
     errNoCost: "Introduce un coste válido.",
-    errNoPromoCost: "Introduce el precio de la oferta.",
     errNoPromoUntil: "Indica desde cuándo pagarás el precio completo.",
     promoTitle: "Oferta inicial",
-    promoActive: "Esta suscripción está en oferta",
-    promoHint: "El coste de arriba es el normal, el que pagarás cuando acabe la oferta. Aquí indicas cuánto pagas ahora y hasta cuándo.",
-    promoCostLabel: "Precio en oferta",
+    promoNo: "Precio normal",
+    promoYes: "En oferta",
+    promoFullLabel: "Después pagaré",
+    promoHintPast: "La oferta ya ha terminado: lo que pagas ahora es el coste de arriba. Solo hace falta la fecha, para que el periodo con descuento no cuente como precio inicial.",
+    errNoPromoFull: "Indica cuánto pagarás cuando acabe la oferta.",
+    errPromoNotHigher: "El precio tras la oferta debe ser mayor que el que pagas ahora.",
+    promoHint: "El coste de arriba es lo que pagas ahora gracias a la oferta. Aquí indicas hasta cuándo dura y cuánto pagarás después.",
     promoUntilLabel: "Precio completo desde",
     promoTag: "oferta",
     errRenewalPast: "La próxima renovación no puede ser una fecha pasada. Si la suscripción ha terminado, activa «Ya finalizada».",
@@ -1538,12 +1547,15 @@ const STRINGS = {
     dataTrustBody: "Avec l'offre gratuite, vos abonnements sont enregistrés uniquement ici, sur votre téléphone : aucun compte requis, rien n'est partagé avec des tiers. Avec Premium, vous pourrez dépasser la limite de 10 abonnements et les synchroniser sur d'autres appareils.",
     errNoService: 'Choisissez un service dans la liste (ou saisissez un nom sous « Autre »).',
     errNoCost: "Saisissez un coût valide.",
-    errNoPromoCost: "Saisissez le prix de l'offre.",
     errNoPromoUntil: "Indiquez à partir de quand le plein tarif s'applique.",
     promoTitle: "Offre de lancement",
-    promoActive: "Cet abonnement est en offre",
-    promoHint: "Le coût ci-dessus est le tarif normal, celui que vous paierez une fois l'offre terminée. Ici vous indiquez ce que vous payez maintenant et jusqu'à quand.",
-    promoCostLabel: "Prix en offre",
+    promoNo: "Tarif normal",
+    promoYes: "En offre",
+    promoFullLabel: "Ensuite je paierai",
+    promoHintPast: "Cette offre est déjà terminée : ce que vous payez maintenant est le coût ci-dessus. Seule la date est nécessaire, pour que la période remisée ne compte pas comme prix de départ.",
+    errNoPromoFull: "Indiquez ce que vous paierez à la fin de l'offre.",
+    errPromoNotHigher: "Le tarif après l'offre doit être supérieur à ce que vous payez actuellement.",
+    promoHint: "Le coût ci-dessus est ce que vous payez maintenant grâce à l'offre. Ici vous indiquez jusqu'à quand elle dure et ce qui suit.",
     promoUntilLabel: "Plein tarif à partir du",
     promoTag: "offre",
     errRenewalPast: "Le prochain renouvellement ne peut pas être une date passée. Si l'abonnement est terminé, activez « Déjà terminé ».",
@@ -1761,12 +1773,15 @@ const STRINGS = {
     dataTrustBody: "Im Gratis-Tarif werden deine Abos nur hier auf deinem Handy gespeichert: kein Konto nötig, nichts wird an Dritte weitergegeben. Mit Premium kannst du das Limit von 10 Abos überschreiten und sie auch auf anderen Geräten synchronisieren.",
     errNoService: 'Wähle einen Dienst aus der Liste (oder gib unter „Anderer“ einen Namen ein).',
     errNoCost: "Gib gültige Kosten ein.",
-    errNoPromoCost: "Gib den Angebotspreis ein.",
     errNoPromoUntil: "Gib an, ab wann der volle Preis gilt.",
     promoTitle: "Einführungsangebot",
-    promoActive: "Dieses Abo läuft im Angebot",
-    promoHint: "Die Kosten oben sind der normale Preis, den du nach dem Angebot zahlst. Hier trägst du ein, was du jetzt zahlst und bis wann.",
-    promoCostLabel: "Angebotspreis",
+    promoNo: "Normalpreis",
+    promoYes: "Im Angebot",
+    promoFullLabel: "Danach zahle ich",
+    promoHintPast: "Dieses Angebot ist schon vorbei: Was du jetzt zahlst, sind die Kosten oben. Nötig ist nur das Datum, damit der vergünstigte Zeitraum nicht als Startpreis zählt.",
+    errNoPromoFull: "Gib an, was du nach dem Angebot zahlst.",
+    errPromoNotHigher: "Der Preis nach dem Angebot muss höher sein als der jetzige.",
+    promoHint: "Die Kosten oben sind das, was du jetzt dank des Angebots zahlst. Hier trägst du ein, wie lange es läuft und was danach kommt.",
     promoUntilLabel: "Voller Preis ab",
     promoTag: "Angebot",
     errRenewalPast: "Die nächste Verlängerung kann nicht in der Vergangenheit liegen. Ist das Abo beendet, aktiviere „Bereits beendet“.",
@@ -2231,8 +2246,12 @@ function costOn(sub, iso) {
   return sub.cost;
 }
 
+// Whether that date fell inside the introductory offer. Only the end date is
+// needed: an offer that is over has no price to impose on today, but the months
+// it covered still have to be marked so they are not read as the price this
+// subscription started from.
 function inPromo(sub, iso) {
-  return !!(sub && sub.promoUntil && sub.promoCost != null && iso && iso < sub.promoUntil);
+  return !!(sub && sub.promoUntil && iso && iso < sub.promoUntil);
 }
 
 function buildPriceSeries(sub, payments, todayISO) {
@@ -3518,7 +3537,7 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
 
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
-const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoCost: "", promoUntil: "", promoOpen: false };
+const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoFull: "", promoUntil: "" };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
@@ -3930,11 +3949,20 @@ function HubboApp() {
     setForm({
       name: isCommon ? sub.name : "__custom__",
       customName: isCommon ? "" : sub.name,
-      cost: String(sub.sharedTotalCost != null ? sub.sharedTotalCost : sub.cost),
+      cost: String(
+        sub.promoUntil && sub.promoCost != null
+          ? sub.sharedTotalCost != null
+            ? (sub.promoCost * (sub.sharedPeople || 1))
+            : sub.promoCost
+          : sub.sharedTotalCost != null
+          ? sub.sharedTotalCost
+          : sub.cost
+      ),
       hasPromo: !!sub.promoUntil,
-      promoCost: sub.promoCost != null ? String(sub.promoCost) : "",
+      // The main field always shows what is being paid now, so during an offer
+      // it shows the offer price and the panel holds the ordinary one.
+      promoFull: sub.promoUntil ? String(sub.sharedTotalCost != null ? sub.sharedTotalCost : sub.cost) : "",
       promoUntil: sub.promoUntil || "",
-      promoOpen: !!sub.promoUntil,
       currency: sub.currency || settings.currency,
       frequency: sub.frequency,
       category: sub.category,
@@ -3967,12 +3995,20 @@ function HubboApp() {
         setFormError(t.errNoCost);
         return;
       }
-      if (form.hasPromo && (!form.promoCost || !(parseAmount(form.promoCost) > 0))) {
-        setFormError(t.errNoPromoCost);
-        return;
-      }
       if (form.hasPromo && !form.promoUntil) {
         setFormError(t.errNoPromoUntil);
+        return;
+      }
+      // Only an offer that is still running needs to say what follows it.
+      const promoStillRunning = form.hasPromo && form.promoUntil > todayISO;
+      if (promoStillRunning && (!form.promoFull || !(parseAmount(form.promoFull) > 0))) {
+        setFormError(t.errNoPromoFull);
+        return;
+      }
+      // An offer that costs more than the ordinary price is a filled-in form,
+      // not an offer, and it would quietly report a fall when it ends.
+      if (promoStillRunning && parseAmount(form.promoFull) <= parseAmount(form.cost)) {
+        setFormError(t.errPromoNotHigher);
         return;
       }
       if (!form.renewalDate) {
@@ -4015,9 +4051,18 @@ function HubboApp() {
       // prices instead would call it a rise every time someone declares an
       // introductory offer on a subscription they had entered at the discounted
       // price — which is the ordinary way of arriving at this screen.
-      const promoNow = form.hasPromo
-        ? { cost: effectiveCost, promoCost: form.isShared ? parseAmount(form.promoCost) / people : parseAmount(form.promoCost), promoUntil: form.promoUntil }
-        : { cost: effectiveCost };
+      // The field holds what is paid now, so during an offer it is the offer
+      // price and the ordinary price comes from the panel.
+      // A finished offer leaves the cost alone: what is being paid now is what
+      // the field says, and the discount belongs to the past.
+      const fullEffective = promoStillRunning
+        ? form.isShared
+          ? Math.round((parseAmount(form.promoFull) / people) * 100) / 100
+          : parseAmount(form.promoFull)
+        : effectiveCost;
+      const promoNow = promoStillRunning
+        ? { cost: fullEffective, promoCost: effectiveCost, promoUntil: form.promoUntil }
+        : { cost: effectiveCost, promoUntil: form.hasPromo ? form.promoUntil : null };
       const paidBefore = prevSub ? costOn(prevSub, todayISO) : null;
       const paidAfter = costOn(promoNow, todayISO);
 
@@ -4031,7 +4076,7 @@ function HubboApp() {
       // series always has a starting point to measure against.
       const priceHistory = (() => {
         if (!prevSub) {
-          return [{ cost: effectiveCost, currency: form.currency || settings.currency, date: form.startDate || todayISO }];
+          return [{ cost: paidAfter, currency: form.currency || settings.currency, date: form.startDate || todayISO }];
         }
         const base = Array.isArray(prevSub.priceHistory) && prevSub.priceHistory.length > 0
           ? prevSub.priceHistory
@@ -4046,11 +4091,12 @@ function HubboApp() {
       })();
       const subData = {
         name: finalName,
-        cost: effectiveCost,
+        cost: fullEffective,
         currency: form.currency || settings.currency,
-        sharedTotalCost: form.isShared ? rawCost : null,
-        // Split the same way the ordinary price is when the plan is shared.
-        promoCost: form.hasPromo ? (form.isShared ? parseAmount(form.promoCost) / people : parseAmount(form.promoCost)) : null,
+        sharedTotalCost: form.isShared ? (promoStillRunning ? parseAmount(form.promoFull) : rawCost) : null,
+        // Null once the offer is over: there is no price left for it to impose,
+        // and the end date on its own is enough to mark the history.
+        promoCost: promoStillRunning ? effectiveCost : null,
         promoUntil: form.hasPromo ? form.promoUntil : null,
         sharedPeople: form.isShared ? people : null,
         frequency: form.frequency,
@@ -4535,6 +4581,9 @@ function HubboApp() {
   const annualTotal = monthlyTotal * 12;
   const dailyTotal = annualTotal / 365;
   const showYear = totalPeriod === "year";
+  // An offer ending today or later still governs what is paid; one that ended
+  // before today is only a piece of history to be labelled.
+  const promoRunning = !!form.promoUntil && form.promoUntil > todayISO;
 
   function changePeriod(next) {
     if (next === totalPeriod) return;
@@ -6163,68 +6212,6 @@ function HubboApp() {
               </button>
             </div>
 
-            {/* Folded away by default. Most subscriptions have no introductory
-                offer, and a field that is usually empty earns its place only
-                behind a door. */}
-            <button
-              type="button"
-              onClick={() => setForm((f) => ({ ...f, promoOpen: !f.promoOpen }))}
-              style={{ color: form.hasPromo ? ACCENT.amber : colors.textSecondary }}
-              className="flex items-center gap-1.5 text-xs mb-3.5"
-            >
-              <Icon name="sparkles" size={14} />
-              {t.promoTitle}
-              <span style={{ color: colors.textFaint, fontSize: 10 }}>{form.promoOpen ? "▴" : "▾"}</span>
-            </button>
-
-            {form.promoOpen && (
-              <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl p-3 mb-3.5">
-                <label className="flex items-center justify-between mb-2">
-                  <span style={{ color: colors.textPrimary }} className="text-sm">{t.promoActive}</span>
-                  <input
-                    type="checkbox"
-                    checked={form.hasPromo}
-                    onChange={(e) => setForm((f) => ({ ...f, hasPromo: e.target.checked }))}
-                  />
-                </label>
-                {/* Stated plainly, because it is the one thing that could be
-                    read the wrong way round: the price in the field above is
-                    the ordinary one, not the discounted one. */}
-                <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-3">
-                  {t.promoHint}
-                </p>
-                {form.hasPromo && (
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                      <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
-                        {t.promoCostLabel}
-                      </ScrollingLabel>
-                      <input
-                        value={form.promoCost}
-                        onChange={(e) => setForm({ ...form, promoCost: e.target.value })}
-                        inputMode="decimal"
-                        placeholder="0,00"
-                        style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-                        className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
-                        {t.promoUntilLabel}
-                      </ScrollingLabel>
-                      <input
-                        value={form.promoUntil}
-                        onChange={(e) => setForm({ ...form, promoUntil: e.target.value })}
-                        type="date"
-                        style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-                        className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
             <div data-tour="formCost" className="grid grid-cols-3 gap-2 mb-3.5">
               <div>
                 <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{form.isShared ? t.totalCostLabel : t.cost}</label>
@@ -6276,6 +6263,75 @@ function HubboApp() {
                 </button>
               </div>
             </div>
+
+            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.promoTitle}</label>
+            <div className="flex gap-2 mb-3.5">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, hasPromo: false })}
+                style={{
+                  background: !form.hasPromo ? ACCENT.terracotta : colors.surface2,
+                  color: !form.hasPromo ? INK : colors.textSecondary,
+                  border: `1px solid ${!form.hasPromo ? ACCENT.terracotta : colors.border}`,
+                }}
+                className="flex-1 rounded-xl py-2.5 text-xs font-medium"
+              >
+                {t.promoNo}
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, hasPromo: true })}
+                style={{
+                  background: form.hasPromo ? ACCENT.terracotta : colors.surface2,
+                  color: form.hasPromo ? INK : colors.textSecondary,
+                  border: `1px solid ${form.hasPromo ? ACCENT.terracotta : colors.border}`,
+                }}
+                className="flex-1 rounded-xl py-2.5 text-xs font-medium"
+              >
+                {t.promoYes}
+              </button>
+            </div>
+
+            {form.hasPromo && (
+              <>
+                {/* An offer whose end date has passed asks for nothing else:
+                    what came after it is what the cost field already says, and
+                    what was paid during it is already in the recorded history. */}
+                <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-2">
+                  {promoRunning ? t.promoHint : t.promoHintPast}
+                </p>
+                <div className="flex items-start gap-2 mb-3.5">
+                  <div className="flex-1 min-w-0">
+                    <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
+                      {t.promoUntilLabel}
+                    </ScrollingLabel>
+                    <input
+                      value={form.promoUntil}
+                      onChange={(e) => setForm({ ...form, promoUntil: e.target.value })}
+                      type="date"
+                      style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                      className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                    />
+                  </div>
+                  {promoRunning && (
+                    <div className="flex-1 min-w-0">
+                      <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
+                        {t.promoFullLabel}
+                      </ScrollingLabel>
+                      <input
+                        value={form.promoFull}
+                        onChange={(e) => setForm({ ...form, promoFull: e.target.value })}
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                        className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
 
             <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.sharedSectionLabel}</label>
             <div className="flex gap-2 mb-3.5">
