@@ -286,7 +286,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v104";
+const APP_VERSION = "v105";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -4145,10 +4145,13 @@ function HubboApp() {
         const cachedRaw = await window.storage.get("abbly:offers", false);
         if (cachedRaw && !cancelled) {
           const cached = JSON.parse(cachedRaw.value);
-          if (cached && cached.file) {
-            setOffersFile(cached.file);
-            if (Date.now() - (cached.fetchedAt || 0) < 12 * 60 * 60 * 1000) return;
-          }
+          // La copia locale serve solo a far comparire subito qualcosa e a
+          // reggere l'uso offline. Non ferma la lettura dal server: una
+          // finestra di freschezza qui significava che una correzione al
+          // listino non arrivava per mezza giornata, e che il file vecchio e
+          // quello nuovo erano indistinguibili a schermo. Stessa trappola dei
+          // tassi, terzo travestimento.
+          if (cached && cached.file) setOffersFile(cached.file);
         }
       } catch {
         // nessuna copia ancora
