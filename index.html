@@ -277,7 +277,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v96";
+const APP_VERSION = "v98";
 
 const FREE_LIMIT = 10;
 
@@ -3394,11 +3394,55 @@ function Wordmark({ colors, size = 21 }) {
   );
 }
 
+// Perceived lightness, the same measure used to decide text contrast.
+function luminance(hex) {
+  const value = String(hex).replace("#", "");
+  if (value.length !== 6) return 0.5;
+  const channels = [0, 2, 4].map((i) => {
+    const x = parseInt(value.slice(i, i + 2), 16) / 255;
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+function contrastRatio(a, b) {
+  const la = luminance(a);
+  const lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+function mixToward(hex, target, amount) {
+  const value = String(hex).replace("#", "");
+  if (value.length !== 6) return hex;
+  const pair = (i) => {
+    const from = parseInt(value.slice(i, i + 2), 16);
+    return Math.round(from + (target - from) * amount)
+      .toString(16)
+      .padStart(2, "0");
+  };
+  return `#${pair(0)}${pair(2)}${pair(4)}`;
+}
+
+// A brand colour nudged just far enough to stay visible on the surface it is
+// drawn on. A black mark on the dark theme and a near-white one on the light
+// theme are both invisible rings, and there are several of each among the real
+// brand colours. The nudge is the smallest one that works, so the colour still
+// reads as the brand's own.
+function legibleOn(hex, surface) {
+  if (!hex || contrastRatio(hex, surface) >= 1.7) return hex;
+  const towards = luminance(surface) > 0.4 ? 0 : 255;
+  for (let amount = 0.1; amount <= 0.85; amount += 0.05) {
+    const candidate = mixToward(hex, towards, amount);
+    if (contrastRatio(candidate, surface) >= 1.7) return candidate;
+  }
+  return mixToward(hex, towards, 0.85);
+}
+
 function RingIcon({ progress, ringColor, ended, colors, size = 52 }) {
   const r = 21;
   const c = 2 * Math.PI * r;
   const offset = c * (1 - progress);
-  const color = ended ? colors.textFaint : ringColor;
+  const color = ended ? colors.textFaint : legibleOn(ringColor, colors.surface);
   return (
     <svg width={size} height={size} viewBox="0 0 48 48">
       <circle cx="24" cy="24" r={r} fill="none" stroke={colors.border} strokeWidth="3" />
@@ -3412,6 +3456,53 @@ function RingIcon({ progress, ringColor, ended, colors, size = 52 }) {
     </svg>
   );
 }
+
+// Brand colours for services whose logo is fetched rather than bundled, so they
+// have no icon name to look a colour up by. Keyed by service name because four
+// Adobe programs share one domain and would otherwise all come out red.
+//
+// Only names whose colour is actually known belong here. Everything missing
+// falls back to the category colour, which is the right answer anyway for the
+// generic entries — "Palestra", "Abbonamento treno" — that have no brand at all.
+//
+// A near-black brand would disappear against the dark theme's ring track, so
+// brands whose mark is black are deliberately left out rather than guessed at.
+const SERVICE_COLORS = {
+  "Disney+": "#113CCF",
+  "Amazon Prime Video": "#00A8E1",
+  "Amazon Prime": "#00A8E1",
+  "Kindle Unlimited": "#FF9900",
+  "YouTube Music": "#FF0000",
+  "Plex Pass": "#E5A00D",
+  "SoundCloud Go+": "#FF5500",
+  "Microsoft 365": "#D83B01",
+  "Adobe Creative Cloud": "#FA0F00",
+  "Adobe Photoshop": "#31A8FF",
+  "Adobe Lightroom": "#31A8FF",
+  "Adobe Premiere Pro": "#9999FF",
+  "Adobe Illustrator": "#FF9A00",
+  "Canva Pro": "#00C4CC",
+  Vimeo: "#1AB7EA",
+  "Envato Elements": "#81B441",
+  // L'aubergine ufficiale sparisce sul fondo scuro: azzurro della stessa
+  // tavolozza, che si vede su entrambi i temi.
+  Slack: "#36C5F0",
+  "Google Workspace": "#4285F4",
+  "ChatGPT Plus": "#10A37F",
+  "Xbox Game Pass": "#107C10",
+  "Nintendo Switch Online": "#E60012",
+  "Chess.com": "#7FA650",
+  "Roblox Premium": "#E2231A",
+  "LinkedIn Premium": "#0A66C2",
+  "LinkedIn Learning": "#0A66C2",
+  "WhatsApp Premium": "#25D366",
+  "Reddit Premium": "#FF4500",
+  "Bumble Premium": "#FFC629",
+  Headspace: "#FF7E1D",
+  "The Economist": "#E3120B",
+  "Financial Times": "#FCD0B1",
+  "National Geographic": "#FFCC00",
+};
 
 // Brands without a bundled vector (Disney+, Canva, Adobe...) get their real
 // logo fetched by domain; failures are remembered so we don't retry endlessly,
@@ -5477,7 +5568,7 @@ function HubboApp() {
               const urgent = s.daysLeft <= 7;
               const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
               const icon = serviceIcon(s.name);
-              const brandColor = (icon && BRAND_COLORS[icon]) || cat.color;
+              const brandColor = (icon && BRAND_COLORS[icon]) || SERVICE_COLORS[s.name] || cat.color;
               return (
                 <button
                   key={s.id}
@@ -7450,7 +7541,7 @@ function HubboApp() {
         const s = enriched.find((x) => x.id === detailSub.id) || detailSub;
         const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
         const icon = serviceIcon(s.name);
-        const brandColor = (icon && BRAND_COLORS[icon]) || cat.color;
+        const brandColor = (icon && BRAND_COLORS[icon]) || SERVICE_COLORS[s.name] || cat.color;
         const priceNow = costOn(s, todayISO);
         const monthly = monthlyEquivalent(priceNow, s.frequency);
         const yearly = monthly * 12;
