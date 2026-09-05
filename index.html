@@ -286,7 +286,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v103";
+const APP_VERSION = "v104";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -2026,8 +2026,8 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `Uno per volta, a rotazione, spenderesti ${amount} in meno al mese`,
     savingsGroupVideo: "Streaming video",
     savingsGroupMusic: "Musica",
-    savingsPlans: "Da controllare sul sito",
-    savingsPlansHint: "Sappiamo che questi piani esistono, non quanto costano oggi: i prezzi cambiano troppo spesso perché l'app li tenga.",
+    savingsPlans: "Piani alternativi",
+    savingsPlansHint: "L'app non sa quale piano hai, e uno che costa meno di solito dà anche meno. Sotto c'è cosa comprende: il confronto con il tuo lo puoi fare solo tu, sul sito.",
     savingsYearly: "Esiste il piano annuale",
     savingsFamily: "Ha un piano famiglia",
     savingsFamilyN: (n) => `Ha un piano famiglia fino a ${n} persone`,
@@ -2102,8 +2102,8 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `One at a time, in rotation, you would spend ${amount} less a month`,
     savingsGroupVideo: "Video streaming",
     savingsGroupMusic: "Music",
-    savingsPlans: "Worth checking on the site",
-    savingsPlansHint: "We know these plans exist, not what they cost today: prices move too often for the app to hold them.",
+    savingsPlans: "Other plans",
+    savingsPlansHint: "The app does not know which plan you are on, and a cheaper one usually gives less. Below is what it includes: only you can compare it with yours, on the site.",
     savingsYearly: "There is a yearly plan",
     savingsFamily: "It has a family plan",
     savingsFamilyN: (n) => `It has a family plan for up to ${n} people`,
@@ -2178,8 +2178,8 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `De uno en uno, por turnos, gastarías ${amount} menos al mes`,
     savingsGroupVideo: "Streaming de vídeo",
     savingsGroupMusic: "Música",
-    savingsPlans: "Para comprobar en el sitio",
-    savingsPlansHint: "Sabemos que estos planes existen, no cuánto cuestan hoy: los precios cambian demasiado a menudo.",
+    savingsPlans: "Otros planes",
+    savingsPlansHint: "La app no sabe qué plan tienes, y uno más barato suele dar menos. Abajo está lo que incluye: la comparación con el tuyo solo puedes hacerla tú, en el sitio.",
     savingsYearly: "Existe el plan anual",
     savingsFamily: "Tiene un plan familiar",
     savingsFamilyN: (n) => `Tiene un plan familiar hasta ${n} personas`,
@@ -2254,8 +2254,8 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `Un à la fois, en alternance, vous dépenseriez ${amount} de moins par mois`,
     savingsGroupVideo: "Streaming vidéo",
     savingsGroupMusic: "Musique",
-    savingsPlans: "À vérifier sur le site",
-    savingsPlansHint: "Nous savons que ces formules existent, pas ce qu'elles coûtent aujourd'hui : les prix bougent trop souvent.",
+    savingsPlans: "Autres formules",
+    savingsPlansHint: "L'application ne sait pas quelle formule vous avez, et une moins chère donne souvent moins. Ci-dessous ce qu'elle comprend : la comparaison avec la vôtre, vous seul pouvez la faire, sur le site.",
     savingsYearly: "Il existe une formule annuelle",
     savingsFamily: "Il y a une formule famille",
     savingsFamilyN: (n) => `Il y a une formule famille jusqu'à ${n} personnes`,
@@ -2330,8 +2330,8 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `Eines nach dem anderen, im Wechsel: ${amount} weniger im Monat`,
     savingsGroupVideo: "Video-Streaming",
     savingsGroupMusic: "Musik",
-    savingsPlans: "Auf der Website prüfen",
-    savingsPlansHint: "Wir wissen, dass es diese Tarife gibt, nicht was sie heute kosten: die Preise ändern sich zu oft.",
+    savingsPlans: "Andere Tarife",
+    savingsPlansHint: "Die App weiß nicht, welchen Tarif du hast, und ein günstigerer gibt meist weniger. Unten steht, was er enthält: der Vergleich mit deinem geht nur auf der Website.",
     savingsYearly: "Es gibt einen Jahrestarif",
     savingsFamily: "Es gibt einen Familientarif",
     savingsFamilyN: (n) => `Es gibt einen Familientarif für bis zu ${n} Personen`,
@@ -5051,7 +5051,12 @@ function HubboApp() {
         // Solo se costa davvero meno di quello che paghi: su un piano già
         // economico il suggerimento sarebbe un invito a spendere di più.
         if (adPrice < monthly - 0.01) {
-          hints.push({ id: "ads", icon: "tag", text: t.savingsAds(money(adPrice)), note: plan.pubblicita.nome || "" });
+          hints.push({
+            id: "ads",
+            icon: "tag",
+            text: t.savingsAds(money(adPrice)),
+            note: plan.pubblicita.dettaglio || plan.pubblicita.nome || "",
+          });
         }
       }
       if (plan.studenti && plan.studenti.disponibile) {
@@ -6664,9 +6669,6 @@ function HubboApp() {
                             {row.note && (
                               <p style={{ color: colors.textFaint }} className="text-xs mt-1.5 leading-relaxed">{row.note}</p>
                             )}
-                            {row.checked && (
-                              <p style={{ color: colors.textFaint }} className="text-xs mt-1.5">{t.savingsChecked(dateFmt(row.checked))}</p>
-                            )}
                           </div>
                           {row.link && (
                             <a href={row.link} target="_blank" rel="noopener noreferrer" style={{ color: colors.textFaint }} className="flex-shrink-0 mt-1">
@@ -6677,6 +6679,11 @@ function HubboApp() {
                       );
                     })}
                   </div>
+                  {offersFile && offersFile.aggiornato && (
+                    <p style={{ color: colors.textFaint }} className="text-xs mt-2.5 px-1">
+                      {t.savingsChecked(dateFmt(offersFile.aggiornato))}
+                    </p>
+                  )}
                 </div>
               )}
             </>

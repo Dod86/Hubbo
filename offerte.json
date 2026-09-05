@@ -1,6 +1,6 @@
 {
   "versione": 1,
-  "aggiornato": "2026-09-05",
+  "aggiornato": "2026-09-06",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio. 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto.",
@@ -14,16 +14,6 @@
       "link": "https://www.spotify.com/it/premium/",
       "fonte": "spotify.com",
       "verificato": "2026-09-05"
-    },
-    {
-      "servizio": "Disney+",
-      "titolo": "Tre mesi scontati su tutti i piani mensili",
-      "dettaglio": "Da 4,99 € al mese per tre mesi, poi prezzo di listino. ESEMPIO GIA' SCADUTO: serve a verificare che l'app la nasconda da sola.",
-      "scade": "2026-08-09",
-      "soloNuoviClienti": true,
-      "link": "https://www.disneyplus.com/it-it",
-      "fonte": "mondomobileweb.it",
-      "verificato": "2026-09-05"
     }
   ],
   "piani": [
@@ -32,7 +22,8 @@
       "pubblicita": {
         "disponibile": true,
         "nome": "Standard con pubblicità",
-        "prezzo": 6.99
+        "prezzo": 6.99,
+        "dettaglio": "Con pubblicità, Full HD, 2 dispositivi insieme, download limitati"
       },
       "annuale": {
         "disponibile": false
@@ -43,7 +34,6 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Niente piano famiglia: chi vive fuori casa si aggiunge come utente extra, a pagamento.",
       "link": "https://www.netflix.com/it/",
       "verificato": "2026-09-05"
     },
@@ -52,7 +42,8 @@
       "pubblicita": {
         "disponibile": true,
         "nome": "Standard con pubblicità",
-        "prezzo": 6.99
+        "prezzo": 6.99,
+        "dettaglio": "Con pubblicità, Full HD, 2 dispositivi insieme, niente download"
       },
       "annuale": {
         "disponibile": true,
@@ -64,7 +55,6 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Come su Netflix, chi vive fuori casa si aggiunge come utente extra a pagamento.",
       "link": "https://www.disneyplus.com/it-it",
       "verificato": "2026-09-05"
     },
@@ -73,7 +63,8 @@
       "pubblicita": {
         "disponibile": true,
         "nome": "Spotify Free",
-        "prezzo": 0
+        "prezzo": 0,
+        "dettaglio": "Con pubblicità, niente ascolto offline, scelta dei brani limitata su telefono"
       },
       "annuale": {
         "disponibile": false
@@ -95,7 +86,8 @@
     {
       "servizio": "YouTube Premium",
       "annuale": {
-        "disponibile": true
+        "disponibile": true,
+        "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
         "disponibile": true,
@@ -163,7 +155,8 @@
     {
       "servizio": "Apple Music",
       "annuale": {
-        "disponibile": true
+        "disponibile": true,
+        "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
         "disponibile": true,
@@ -179,7 +172,8 @@
     {
       "servizio": "Apple TV+",
       "annuale": {
-        "disponibile": true
+        "disponibile": true,
+        "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
         "disponibile": true,
@@ -292,7 +286,8 @@
     {
       "servizio": "Canva Pro",
       "annuale": {
-        "disponibile": true
+        "disponibile": true,
+        "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
         "disponibile": true,
@@ -417,7 +412,8 @@
     {
       "servizio": "Nintendo Switch Online",
       "annuale": {
-        "disponibile": true
+        "disponibile": true,
+        "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
         "disponibile": true,
@@ -465,7 +461,8 @@
     {
       "servizio": "Audible",
       "annuale": {
-        "disponibile": true
+        "disponibile": true,
+        "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
         "disponibile": false
@@ -509,7 +506,8 @@
     {
       "servizio": "Crunchyroll",
       "annuale": {
-        "disponibile": true
+        "disponibile": true,
+        "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
         "disponibile": true,
