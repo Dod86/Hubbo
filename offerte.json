@@ -519,6 +519,186 @@
       },
       "link": "https://www.crunchyroll.com/it/premium",
       "verificato": "2026-09-05"
+    },
+    {
+      "servizio": "Norton",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "Norton 360 Deluxe copre fino a 5 dispositivi con un solo abbonamento, i piani più alti fino a 10."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://it.norton.com/",
+      "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "McAfee",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "I piani famiglia coprono molti dispositivi con un solo abbonamento."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.mcafee.com/it-it/",
+      "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "Bitdefender",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "Il Family Pack copre fino a 15 dispositivi con un solo abbonamento."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.bitdefender.it/",
+      "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "Kaspersky",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "Esistono piani multi-dispositivo, più convenienti di licenze separate."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.kaspersky.it/",
+      "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "Avast",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "Esistono piani multi-dispositivo."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.avast.com/it-it/",
+      "verificato": "2026-09-06",
+      "pubblicita": {
+        "disponibile": true,
+        "nome": "Versione gratuita",
+        "prezzo": 0,
+        "dettaglio": "Solo antivirus di base: niente VPN, niente firewall, niente assistenza."
+      }
+    },
+    {
+      "servizio": "AVG",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "Esistono piani multi-dispositivo."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.avg.com/it-it/",
+      "verificato": "2026-09-06",
+      "pubblicita": {
+        "disponibile": true,
+        "nome": "Versione gratuita",
+        "prezzo": 0,
+        "dettaglio": "Solo antivirus di base: niente VPN, niente firewall, niente assistenza."
+      }
+    },
+    {
+      "servizio": "ESET",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "ESET Home Security copre più dispositivi con un solo abbonamento."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.eset.com/it/",
+      "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "Malwarebytes",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "Esistono piani multi-dispositivo."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.malwarebytes.com/it",
+      "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "ExpressVPN",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://www.expressvpn.com/it",
+      "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "Proton VPN",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "link": "https://protonvpn.com/it",
+      "verificato": "2026-09-06"
     }
   ]
 }

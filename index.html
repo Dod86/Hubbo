@@ -286,7 +286,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v106";
+const APP_VERSION = "v107";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -321,8 +321,23 @@ const SAVINGS_VIDEO = new Set([
 const SAVINGS_MUSIC = new Set([
   "Spotify", "Apple Music", "YouTube Music", "Deezer", "Tidal", "SoundCloud Go+",
 ]);
+// "Sicurezza" tiene insieme antivirus, VPN e una casella di posta: la stessa
+// confusione di "streaming". Separati, perché un antivirus e una VPN fanno
+// mestieri diversi e tenerli entrambi è normale.
+const SAVINGS_ANTIVIRUS = new Set([
+  "Norton", "McAfee", "Bitdefender", "Kaspersky", "Avast", "AVG", "Malwarebytes", "ESET",
+]);
+const SAVINGS_VPN = new Set([
+  "NordVPN", "ExpressVPN", "Surfshark", "Proton VPN", "Mullvad VPN",
+]);
+
 // Categorie intere in cui i servizi sono sostituibili fra loro.
 const SAVINGS_OVERLAP_CATEGORIES = new Set(["gaming", "ai"]);
+
+// Non tutti i gruppi meritano lo stesso consiglio. Due servizi in streaming
+// hanno cataloghi diversi e si possono tenere a rotazione; di antivirus ne
+// serve uno e basta, e la rotazione lì sarebbe un suggerimento sbagliato.
+const SAVINGS_KEEP_ONE = new Set(["antivirus", "vpn"]);
 
 // Fuori da tutto restano i servizi che non sostituiscono niente: Audible sono
 // audiolibri, Plex Pass è un server, Apple One è un pacchetto. Metterli accanto
@@ -331,6 +346,8 @@ function savingsOverlapGroup(sub) {
   if (!sub) return null;
   if (SAVINGS_VIDEO.has(sub.name)) return "video";
   if (SAVINGS_MUSIC.has(sub.name)) return "music";
+  if (SAVINGS_ANTIVIRUS.has(sub.name)) return "antivirus";
+  if (SAVINGS_VPN.has(sub.name)) return "vpn";
   return SAVINGS_OVERLAP_CATEGORIES.has(sub.category) ? sub.category : null;
 }
 
@@ -2051,6 +2068,10 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `Uno per volta, a rotazione, spenderesti ${amount} in meno al mese`,
     savingsGroupVideo: "Streaming video",
     savingsGroupMusic: "Musica",
+    savingsGroupAntivirus: "Antivirus",
+    savingsGroupVpn: "VPN",
+    savingsOnlyOne: (amount) => `Ne serve uno solo: tenendo il resto spendi ${amount} al mese in più.`,
+    savingsAntivirusNote: "Due antivirus attivi insieme possono anche darsi fastidio a vicenda.",
     savingsPlans: "Piani alternativi",
     savingsPlansHint: "L'app non sa quale piano hai, e uno che costa meno di solito dà anche meno. Sotto c'è cosa comprende: il confronto con il tuo lo puoi fare solo tu, sul sito.",
     savingsYearly: "Esiste il piano annuale",
@@ -2127,6 +2148,10 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `One at a time, in rotation, you would spend ${amount} less a month`,
     savingsGroupVideo: "Video streaming",
     savingsGroupMusic: "Music",
+    savingsGroupAntivirus: "Antivirus",
+    savingsGroupVpn: "VPN",
+    savingsOnlyOne: (amount) => `You only need one: keeping the rest costs you ${amount} a month.`,
+    savingsAntivirusNote: "Two antivirus programs running together can also get in each other's way.",
     savingsPlans: "Other plans",
     savingsPlansHint: "The app does not know which plan you are on, and a cheaper one usually gives less. Below is what it includes: only you can compare it with yours, on the site.",
     savingsYearly: "There is a yearly plan",
@@ -2203,6 +2228,10 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `De uno en uno, por turnos, gastarías ${amount} menos al mes`,
     savingsGroupVideo: "Streaming de vídeo",
     savingsGroupMusic: "Música",
+    savingsGroupAntivirus: "Antivirus",
+    savingsGroupVpn: "VPN",
+    savingsOnlyOne: (amount) => `Basta con uno: mantener el resto te cuesta ${amount} al mes.`,
+    savingsAntivirusNote: "Dos antivirus activos a la vez también pueden estorbarse entre sí.",
     savingsPlans: "Otros planes",
     savingsPlansHint: "La app no sabe qué plan tienes, y uno más barato suele dar menos. Abajo está lo que incluye: la comparación con el tuyo solo puedes hacerla tú, en el sitio.",
     savingsYearly: "Existe el plan anual",
@@ -2279,6 +2308,10 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `Un à la fois, en alternance, vous dépenseriez ${amount} de moins par mois`,
     savingsGroupVideo: "Streaming vidéo",
     savingsGroupMusic: "Musique",
+    savingsGroupAntivirus: "Antivirus",
+    savingsGroupVpn: "VPN",
+    savingsOnlyOne: (amount) => `Un seul suffit : garder les autres vous coûte ${amount} par mois.`,
+    savingsAntivirusNote: "Deux antivirus actifs en même temps peuvent aussi se gêner l'un l'autre.",
     savingsPlans: "Autres formules",
     savingsPlansHint: "L'application ne sait pas quelle formule vous avez, et une moins chère donne souvent moins. Ci-dessous ce qu'elle comprend : la comparaison avec la vôtre, vous seul pouvez la faire, sur le site.",
     savingsYearly: "Il existe une formule annuelle",
@@ -2355,6 +2388,10 @@ const LEDGER_STRINGS = {
     savingsRotate: (amount) => `Eines nach dem anderen, im Wechsel: ${amount} weniger im Monat`,
     savingsGroupVideo: "Video-Streaming",
     savingsGroupMusic: "Musik",
+    savingsGroupAntivirus: "Antivirus",
+    savingsGroupVpn: "VPN",
+    savingsOnlyOne: (amount) => `Einer reicht: die übrigen kosten dich ${amount} im Monat.`,
+    savingsAntivirusNote: "Zwei gleichzeitig laufende Virenscanner können sich auch gegenseitig behindern.",
     savingsPlans: "Andere Tarife",
     savingsPlansHint: "Die App weiß nicht, welchen Tarif du hast, und ein günstigerer gibt meist weniger. Unten steht, was er enthält: der Vergleich mit deinem geht nur auf der Website.",
     savingsYearly: "Es gibt einen Jahrestarif",
@@ -5063,6 +5100,10 @@ function HubboApp() {
             ? t.savingsGroupVideo
             : group === "music"
             ? t.savingsGroupMusic
+            : group === "antivirus"
+            ? t.savingsGroupAntivirus
+            : group === "vpn"
+            ? t.savingsGroupVpn
             : (CATEGORIES.find((c) => c.id === group) || CATEGORIES[CATEGORIES.length - 1]).label;
         const items = entry[1]
           .map((s) => ({
@@ -5076,7 +5117,7 @@ function HubboApp() {
         const monthly = items.reduce((sum, x) => sum + x.monthly, 0);
         // Quanto costa il fatto di averli insieme invece che uno per volta:
         // il totale meno il più caro, cioè quello che resterebbe comunque.
-        return { id: group, label, items, monthly, saving: monthly - items[0].monthly };
+        return { id: group, label, items, monthly, saving: monthly - items[0].monthly, keepOne: SAVINGS_KEEP_ONE.has(group) };
       })
       .sort((a, b) => b.monthly - a.monthly);
   }, [activeSubs, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
@@ -6675,7 +6716,8 @@ function HubboApp() {
                           })}
                         </div>
                         <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-3 pt-2.5 leading-relaxed">
-                          {t.savingsRotate(money(group.saving))}
+                          {group.keepOne ? t.savingsOnlyOne(money(group.saving)) : t.savingsRotate(money(group.saving))}
+                          {group.id === "antivirus" && <span> {t.savingsAntivirusNote}</span>}
                         </div>
                       </div>
                     ))}
