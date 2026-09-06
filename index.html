@@ -286,7 +286,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v105";
+const APP_VERSION = "v106";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -1015,6 +1015,11 @@ const STRINGS = {
     cancelPromptBody: "Il telefono non lascia aprire la pagina da solo. Tocca qui per andarci.",
     cancelPromptOpen: "Vai alla disdetta",
     cancelPromptLater: "Non ora",
+    resumeTitle: (name) => `Riprendi ${name}`,
+    resumeBody: "Il vecchio giorno di rinnovo si riferiva a un ciclo che si è fermato. Quando arriva il prossimo addebito?",
+    resumeDateLabel: "Prossimo rinnovo",
+    resumeConfirm: "Riprendi",
+    resumeCancel: "Annulla",
     lastNotifOutcome: (ok, why, at) => `aperta: ${ok} · ${why} · ${at}`,
     yesWord: "sì",
     noWord: "no",
@@ -1241,6 +1246,11 @@ const STRINGS = {
     cancelPromptBody: "The phone won't let the page open on its own. Tap here to go there.",
     cancelPromptOpen: "Go to cancellation",
     cancelPromptLater: "Not now",
+    resumeTitle: (name) => `Resume ${name}`,
+    resumeBody: "The old renewal day belonged to a cycle that stopped. When is the next charge due?",
+    resumeDateLabel: "Next renewal",
+    resumeConfirm: "Resume",
+    resumeCancel: "Cancel",
     lastNotifOutcome: (ok, why, at) => `opened: ${ok} · ${why} · ${at}`,
     yesWord: "yes",
     noWord: "no",
@@ -1467,6 +1477,11 @@ const STRINGS = {
     cancelPromptBody: "El teléfono no deja abrir la página por su cuenta. Toca aquí para ir.",
     cancelPromptOpen: "Ir a la baja",
     cancelPromptLater: "Ahora no",
+    resumeTitle: (name) => `Reanudar ${name}`,
+    resumeBody: "El antiguo día de renovación pertenecía a un ciclo que se detuvo. ¿Cuándo llega el próximo cargo?",
+    resumeDateLabel: "Próxima renovación",
+    resumeConfirm: "Reanudar",
+    resumeCancel: "Cancelar",
     lastNotifOutcome: (ok, why, at) => `abierta: ${ok} · ${why} · ${at}`,
     yesWord: "sí",
     noWord: "no",
@@ -1693,6 +1708,11 @@ const STRINGS = {
     cancelPromptBody: "Le téléphone n'autorise pas l'ouverture automatique. Touchez ici pour y aller.",
     cancelPromptOpen: "Aller à la résiliation",
     cancelPromptLater: "Pas maintenant",
+    resumeTitle: (name) => `Reprendre ${name}`,
+    resumeBody: "L'ancien jour de renouvellement appartenait à un cycle qui s'est arrêté. Quand tombe le prochain prélèvement ?",
+    resumeDateLabel: "Prochain renouvellement",
+    resumeConfirm: "Reprendre",
+    resumeCancel: "Annuler",
     lastNotifOutcome: (ok, why, at) => `ouverte : ${ok} · ${why} · ${at}`,
     yesWord: "oui",
     noWord: "non",
@@ -1919,6 +1939,11 @@ const STRINGS = {
     cancelPromptBody: "Das Telefon lässt die Seite nicht von allein öffnen. Tippe hier, um hinzugehen.",
     cancelPromptOpen: "Zur Kündigung",
     cancelPromptLater: "Nicht jetzt",
+    resumeTitle: (name) => `${name} fortsetzen`,
+    resumeBody: "Der alte Verlängerungstag gehörte zu einem Zyklus, der angehalten wurde. Wann kommt die nächste Abbuchung?",
+    resumeDateLabel: "Nächste Verlängerung",
+    resumeConfirm: "Fortsetzen",
+    resumeCancel: "Abbrechen",
     lastNotifOutcome: (ok, why, at) => `geöffnet: ${ok} · ${why} · ${at}`,
     yesWord: "ja",
     noWord: "nein",
@@ -4569,23 +4594,53 @@ function HubboApp() {
   // history can tell a genuinely unpaid month from a paid one. Only pauses made
   // from this version onwards are known; anything earlier reads as active.
   async function handleTogglePause(id) {
+    const target = (subs || []).find((s) => s.id === id);
+    if (!target) return;
+
+    // Riprendere non è l'inverso di mettere in pausa. Il vecchio giorno di
+    // rinnovo descriveva un ciclo che nel frattempo si è fermato: il fornitore
+    // riparte da quando riattivi, e dedurre la data al posto di chi la conosce
+    // significa mettere un numero inventato dove ci si aspetta un fatto. Si
+    // propone il ciclo pieno da oggi, ma la parola resta a chi riattiva.
+    if (target.paused) {
+      setResumePrompt({
+        id,
+        name: target.name,
+        date: toLocalISO(addPeriods(parseLocalDate(todayISO), target.frequency, 1)),
+      });
+      return;
+    }
+
     await persist(
       subs.map((s) => {
         if (s.id !== id) return s;
         const periods = Array.isArray(s.pausePeriods) ? s.pausePeriods.slice() : [];
-        if (!s.paused) {
-          periods.push({ from: todayISO, to: null });
-        } else {
-          for (let i = periods.length - 1; i >= 0; i--) {
-            if (!periods[i].to) {
-              periods[i] = { ...periods[i], to: todayISO };
-              break;
-            }
-          }
-        }
-        return { ...s, paused: !s.paused, pausePeriods: periods };
+        periods.push({ from: todayISO, to: null });
+        return { ...s, paused: true, pausePeriods: periods };
       })
     );
+  }
+
+  async function handleResume() {
+    if (!resumePrompt || !resumePrompt.date) return;
+    const id = resumePrompt.id;
+    const date = resumePrompt.date;
+    await persist(
+      subs.map((s) => {
+        if (s.id !== id) return s;
+        const periods = Array.isArray(s.pausePeriods) ? s.pausePeriods.slice() : [];
+        // Si chiude l'ultima pausa rimasta aperta, non tutte: le precedenti
+        // hanno già la loro data di fine e riscriverle cancellerebbe lo storico.
+        for (let i = periods.length - 1; i >= 0; i--) {
+          if (!periods[i].to) {
+            periods[i] = { ...periods[i], to: todayISO };
+            break;
+          }
+        }
+        return { ...s, paused: false, renewalDate: date, pausePeriods: periods };
+      })
+    );
+    setResumePrompt(null);
   }
 
   const enriched = useMemo(() => {
@@ -4605,6 +4660,7 @@ function HubboApp() {
   // Guessing at this from the outside cost two versions.
   const [lastNotification, setLastNotification] = useState(null);
   const [cancelPrompt, setCancelPrompt] = useState(null);
+  const [resumePrompt, setResumePrompt] = useState(null);
   // The notification log is for chasing faults, not for the people using the
   // app. It stays behind a long press on the version line, where whoever needs
   // it can find it and nobody else trips over it.
@@ -6802,6 +6858,47 @@ function HubboApp() {
               >
                 {t.cancelPromptOpen}
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {resumePrompt && (
+        <div className="fixed inset-0 z-[85] flex items-center justify-center px-6" style={{ background: colors.overlay }}>
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="w-full max-w-sm rounded-2xl p-5">
+            <h3 style={{ fontFamily: "'Fraunces', serif", color: colors.textPrimary }} className="text-base font-medium mb-1">
+              {t.resumeTitle(resumePrompt.name)}
+            </h3>
+            <p style={{ color: colors.textSecondary }} className="text-sm leading-relaxed">
+              {t.resumeBody}
+            </p>
+            <label style={{ color: colors.textFaint }} className="text-xs block mt-4 mb-1">{t.resumeDateLabel}</label>
+            <input
+              value={resumePrompt.date}
+              onChange={(e) => setResumePrompt({ ...resumePrompt, date: e.target.value })}
+              type="date"
+              min={todayISO}
+              style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+              className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+            />
+            <div className="flex items-center gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => setResumePrompt(null)}
+                style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                className="flex-1 rounded-xl py-2.5 text-sm"
+              >
+                {t.resumeCancel}
+              </button>
+              <button
+                type="button"
+                onClick={handleResume}
+                disabled={!resumePrompt.date}
+                style={{ background: ACCENT.amber, color: INK, opacity: resumePrompt.date ? 1 : 0.5 }}
+                className="flex-1 rounded-xl py-2.5 text-sm font-semibold"
+              >
+                {t.resumeConfirm}
+              </button>
             </div>
           </div>
         </div>
