@@ -286,7 +286,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v107";
+const APP_VERSION = "v108";
+const APP_BUILD_DATE = "2026-09-08";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -938,7 +939,11 @@ const STRINGS = {
     light: "Chiaro",
     system: "Sistema",
     dataTrustTitle: "I tuoi dati restano sul tuo dispositivo",
+    tapSubToEdit: "Tocca un abbonamento per modificarlo",
     dataTrustBody: "Nel piano gratuito i tuoi abbonamenti sono salvati solo qui, sul tuo telefono: nessun account richiesto, nessun dato condiviso con terzi. Con Premium potrai superare il limite di 10 abbonamenti e sincronizzarli anche su altri dispositivi.",
+    privacyPolicy: "Privacy policy",
+    deleteAllData: "Elimina tutti i dati",
+    deleteAllDataConfirm: "Questa azione elimina definitivamente gli abbonamenti, i pagamenti, il cestino e le impostazioni salvati su questo dispositivo.",
     errNoService: 'Scegli un servizio dal menu (o scrivi il nome in "Altro").',
     errNoCost: "Inserisci un costo valido.",
     errNoPromoUntil: "Indica da quando pagherai il prezzo pieno.",
@@ -1169,7 +1174,11 @@ const STRINGS = {
     light: "Light",
     system: "System",
     dataTrustTitle: "Your data stays on your device",
+    tapSubToEdit: "Tap a subscription to edit it",
     dataTrustBody: "On the free plan, your subscriptions are stored only here, on your phone: no account needed, nothing shared with third parties. With Premium you can go beyond the 10-subscription limit and sync across other devices too.",
+    privacyPolicy: "Privacy policy",
+    deleteAllData: "Delete all data",
+    deleteAllDataConfirm: "This permanently deletes subscriptions, payments, trash and settings stored on this device.",
     errNoService: 'Choose a service from the list (or type a name under "Other").',
     errNoCost: "Enter a valid cost.",
     errNoPromoUntil: "Say when the full price starts.",
@@ -1400,7 +1409,11 @@ const STRINGS = {
     light: "Claro",
     system: "Sistema",
     dataTrustTitle: "Tus datos se quedan en tu dispositivo",
+    tapSubToEdit: "Toca una suscripción para modificarla",
     dataTrustBody: "En el plan gratuito, tus suscripciones se guardan solo aquí, en tu teléfono: sin cuenta y sin compartir nada con terceros. Con Premium podrás superar el límite de 10 suscripciones y sincronizarlas en otros dispositivos.",
+    privacyPolicy: "Política de privacidad",
+    deleteAllData: "Eliminar todos los datos",
+    deleteAllDataConfirm: "Esta acción elimina definitivamente las suscripciones, pagos, papelera y ajustes guardados en este dispositivo.",
     errNoService: 'Elige un servicio de la lista (o escribe un nombre en "Otro").',
     errNoCost: "Introduce un coste válido.",
     errNoPromoUntil: "Indica desde cuándo pagarás el precio completo.",
@@ -1631,7 +1644,11 @@ const STRINGS = {
     light: "Clair",
     system: "Système",
     dataTrustTitle: "Vos données restent sur votre appareil",
+    tapSubToEdit: "Touchez un abonnement pour le modifier",
     dataTrustBody: "Avec l'offre gratuite, vos abonnements sont enregistrés uniquement ici, sur votre téléphone : aucun compte requis, rien n'est partagé avec des tiers. Avec Premium, vous pourrez dépasser la limite de 10 abonnements et les synchroniser sur d'autres appareils.",
+    privacyPolicy: "Politique de confidentialité",
+    deleteAllData: "Supprimer toutes les données",
+    deleteAllDataConfirm: "Cette action supprime définitivement les abonnements, paiements, corbeille et réglages enregistrés sur cet appareil.",
     errNoService: 'Choisissez un service dans la liste (ou saisissez un nom sous « Autre »).',
     errNoCost: "Saisissez un coût valide.",
     errNoPromoUntil: "Indiquez à partir de quand le plein tarif s'applique.",
@@ -1862,7 +1879,11 @@ const STRINGS = {
     light: "Hell",
     system: "System",
     dataTrustTitle: "Deine Daten bleiben auf deinem Gerät",
+    tapSubToEdit: "Tippe auf ein Abo, um es zu bearbeiten",
     dataTrustBody: "Im Gratis-Tarif werden deine Abos nur hier auf deinem Handy gespeichert: kein Konto nötig, nichts wird an Dritte weitergegeben. Mit Premium kannst du das Limit von 10 Abos überschreiten und sie auch auf anderen Geräten synchronisieren.",
+    privacyPolicy: "Datenschutzerklärung",
+    deleteAllData: "Alle Daten löschen",
+    deleteAllDataConfirm: "Dadurch werden Abonnements, Zahlungen, Papierkorb und Einstellungen auf diesem Gerät dauerhaft gelöscht.",
     errNoService: 'Wähle einen Dienst aus der Liste (oder gib unter „Anderer“ einen Namen ein).',
     errNoCost: "Gib gültige Kosten ein.",
     errNoPromoUntil: "Gib an, ab wann der volle Preis gilt.",
@@ -2055,6 +2076,13 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Dove puoi spendere meno",
     savingsSoon: "Nessuna occasione, per ora",
     savingsSoonHint: "Qui compaiono le offerte in scadenza, gli abbonamenti che si sovrappongono e i piani che potresti pagare meno.",
+    savingsPotentialHeadline: (amount) => `Puoi risparmiare fino a ${amount} al mese`,
+    savingsPotentialLabel: "Risparmio potenziale",
+    savingsPotentialHint: "È una stima: dipende dalle alternative che scegli e da ciò che vuoi mantenere.",
+    savingsIfOne: (amount) => `Se ne mantieni uno solo, potresti ridurre la spesa di ${amount} al mese`,
+    savingsReplaces: "Sostituisce",
+    savingsWith: "Con",
+    savingsOpportunity: "Opportunità di risparmio",
     savingsDecideNow: "Da decidere adesso",
     savingsPromoEnds: (date, days) => `L'offerta finisce il ${date} · fra ${days} giorni`,
     savingsPromoEndsToday: "L'offerta finisce oggi",
@@ -2135,6 +2163,13 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Where you could spend less",
     savingsSoon: "Nothing to act on yet",
     savingsSoonHint: "Offers about to end, subscriptions that overlap and plans you could pay less for all show up here.",
+    savingsPotentialHeadline: (amount) => `You could save up to ${amount} a month`,
+    savingsPotentialLabel: "Potential saving",
+    savingsPotentialHint: "An estimate: it depends on the alternatives you choose and what you want to keep.",
+    savingsIfOne: (amount) => `If you keep only one, you could reduce spending by ${amount} a month`,
+    savingsReplaces: "Replaces",
+    savingsWith: "With",
+    savingsOpportunity: "Saving opportunity",
     savingsDecideNow: "Decide now",
     savingsPromoEnds: (date, days) => `The offer ends on ${date} · in ${days} days`,
     savingsPromoEndsToday: "The offer ends today",
@@ -2215,6 +2250,13 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Dónde puedes gastar menos",
     savingsSoon: "Ninguna oportunidad, por ahora",
     savingsSoonHint: "Aquí aparecen las ofertas que están por terminar, las suscripciones que se solapan y los planes que podrías pagar menos.",
+    savingsPotentialHeadline: (amount) => `Podrías ahorrar hasta ${amount} al mes`,
+    savingsPotentialLabel: "Ahorro potencial",
+    savingsPotentialHint: "Es una estimación: depende de las alternativas que elijas y de lo que quieras mantener.",
+    savingsIfOne: (amount) => `Si mantienes solo uno, podrías reducir el gasto en ${amount} al mes`,
+    savingsReplaces: "Sustituye",
+    savingsWith: "Con",
+    savingsOpportunity: "Oportunidad de ahorro",
     savingsDecideNow: "Para decidir ahora",
     savingsPromoEnds: (date, days) => `La oferta termina el ${date} · en ${days} días`,
     savingsPromoEndsToday: "La oferta termina hoy",
@@ -2295,6 +2337,13 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Où vous pourriez dépenser moins",
     savingsSoon: "Aucune occasion, pour l'instant",
     savingsSoonHint: "Les offres qui se terminent, les abonnements qui se recoupent et les formules moins chères apparaissent ici.",
+    savingsPotentialHeadline: (amount) => `Vous pourriez économiser jusqu’à ${amount} par mois`,
+    savingsPotentialLabel: "Économie potentielle",
+    savingsPotentialHint: "Estimation : elle dépend des alternatives choisies et de ce que vous souhaitez conserver.",
+    savingsIfOne: (amount) => `En n’en gardant qu’un, vous pourriez réduire la dépense de ${amount} par mois`,
+    savingsReplaces: "Remplace",
+    savingsWith: "Avec",
+    savingsOpportunity: "Opportunité d’économie",
     savingsDecideNow: "À décider maintenant",
     savingsPromoEnds: (date, days) => `L'offre se termine le ${date} · dans ${days} jours`,
     savingsPromoEndsToday: "L'offre se termine aujourd'hui",
@@ -2375,6 +2424,13 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Wo du weniger ausgeben kannst",
     savingsSoon: "Noch keine Gelegenheit",
     savingsSoonHint: "Hier erscheinen auslaufende Angebote, Abos die sich überschneiden und Tarife die günstiger sein könnten.",
+    savingsPotentialHeadline: (amount) => `Du könntest bis zu ${amount} im Monat sparen`,
+    savingsPotentialLabel: "Potenzielle Ersparnis",
+    savingsPotentialHint: "Eine Schätzung: Sie hängt von den gewählten Alternativen und deinen behaltenen Diensten ab.",
+    savingsIfOne: (amount) => `Wenn du nur einen behältst, könntest du ${amount} im Monat sparen`,
+    savingsReplaces: "Ersetzt",
+    savingsWith: "Mit",
+    savingsOpportunity: "Sparmöglichkeit",
     savingsDecideNow: "Jetzt entscheiden",
     savingsPromoEnds: (date, days) => `Das Angebot endet am ${date} · in ${days} Tagen`,
     savingsPromoEndsToday: "Das Angebot endet heute",
@@ -3043,7 +3099,7 @@ const EQUIVALENT_LABELS = {
 // the cheapest reference that lands at five or fewer wins. That keeps coffee —
 // the one everybody has priced in their head — covering the budgets people
 // actually have, and brings the dearer items in only when the sum demands it.
-const EQUIVALENT_MAX = 5;
+const EQUIVALENT_MAX = 3;
 
 // Which drawing stands for which reference. Kept apart from EQUIVALENTS so the
 // prices stay readable as a table.
@@ -3792,7 +3848,9 @@ const LOGO_SOURCES = [
 ];
 
 // Domains that should skip the remote lookup entirely.
-const NO_REMOTE_LOGO_DOMAINS = new Set([]);
+const NO_REMOTE_LOGO_DOMAINS = new Set([
+  "norton.com", "ea.com", "stock.adobe.com", "fantagazzetta.com", "wired.it", "framer.com",
+]);
 
 function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
@@ -4137,6 +4195,17 @@ function HubboApp() {
       await window.storage.set("abbly:trash", JSON.stringify(next), false);
     } catch {
       // best effort
+    }
+  }
+
+  async function handleDeleteAllData() {
+    if (!window.confirm(t.deleteAllDataConfirm)) return;
+    const keys = ["abbly:subscriptions", "abbly:trash", "abbly:payments", "abbly:settings", "abbly:rates", "abbly:offers", "abbly:lastNotif"];
+    try {
+      for (const key of keys) await window.storage.delete(key, false);
+      window.location.reload();
+    } catch (err) {
+      setFormError(t.errUnexpected + (err && err.message ? err.message : String(err)));
     }
   }
 
@@ -5096,15 +5165,11 @@ function HubboApp() {
       .map((entry) => {
         const group = entry[0];
         const label =
-          group === "video"
-            ? t.savingsGroupVideo
-            : group === "music"
-            ? t.savingsGroupMusic
-            : group === "antivirus"
-            ? t.savingsGroupAntivirus
-            : group === "vpn"
-            ? t.savingsGroupVpn
-            : (CATEGORIES.find((c) => c.id === group) || CATEGORIES[CATEGORIES.length - 1]).label;
+          group === "video" ? t.savingsGroupVideo :
+          group === "music" ? t.savingsGroupMusic :
+          group === "antivirus" ? t.savingsGroupAntivirus :
+          group === "vpn" ? t.savingsGroupVpn :
+          (CATEGORIES.find((c) => c.id === group) || CATEGORIES[CATEGORIES.length - 1]).label;
         const items = entry[1]
           .map((s) => ({
             sub: s,
@@ -5115,12 +5180,47 @@ function HubboApp() {
           }))
           .sort((a, b) => b.monthly - a.monthly);
         const monthly = items.reduce((sum, x) => sum + x.monthly, 0);
-        // Quanto costa il fatto di averli insieme invece che uno per volta:
-        // il totale meno il più caro, cioè quello che resterebbe comunque.
-        return { id: group, label, items, monthly, saving: monthly - items[0].monthly, keepOne: SAVINGS_KEEP_ONE.has(group) };
+        const cheapest = items[items.length - 1].monthly;
+        const saving = Math.max(0, monthly - cheapest);
+        return { id: group, label, items, monthly, saving, keepOne: SAVINGS_KEEP_ONE.has(group), potential: true };
       })
-      .sort((a, b) => b.monthly - a.monthly);
+      .sort((a, b) => b.saving - a.saving);
   }, [activeSubs, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
+
+  const savingsOpportunities = useMemo(() => {
+    const raw = offersFile && (offersFile.opportunita || offersFile.risparmi);
+    if (!Array.isArray(raw)) return [];
+    const byName = new Map(activeSubs.map((s) => [normaliseServiceName(s.name), s]));
+    return raw.map((o, index) => {
+      const names = o.sostituisce || o.replaces || [];
+      if (!Array.isArray(names) || names.length === 0) return null;
+      const subs = names.map((name) => byName.get(normaliseServiceName(name))).filter(Boolean);
+      if (subs.length !== names.length) return null;
+      const currentCost = subs.reduce((sum, sub) => sum + monthlyEquivalent(convertAmount(costOn(sub, todayISO), sub.currency || settings.currency, settings.currency, rates), sub.frequency), 0);
+      const altRaw = o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
+      if (altRaw == null || !Number.isFinite(Number(altRaw))) return null;
+      const alternativeCost = monthlyEquivalent(convertAmount(Number(altRaw), o.valuta || savingsFileCurrency, settings.currency, rates), o.frequenzaAlternativa || "monthly");
+      const saving = currentCost - alternativeCost;
+      if (!(saving > 0.01)) return null;
+      return { id: o.id || `opportunity-${index}`, ...o, subs, currentCost, alternativeCost, saving };
+    }).filter(Boolean).sort((a, b) => b.saving - a.saving);
+  }, [offersFile, activeSubs, todayISO, settings.currency, settings.language, rates, savingsFileCurrency]);
+
+  const savingsHeadline = useMemo(() => {
+    const candidates = [
+      ...savingsOpportunities.map((o) => ({ ...o, services: new Set(o.subs.map((s) => s.id)) })),
+      ...savingsDuplicates.map((g) => ({ ...g, services: new Set(g.items.map((x) => x.sub.id)) })),
+    ].sort((a, b) => b.saving - a.saving);
+    const used = new Set();
+    const selected = [];
+    candidates.forEach((c) => {
+      const overlap = Array.from(c.services).some((id) => used.has(id));
+      if (overlap) return;
+      c.services.forEach((id) => used.add(id));
+      selected.push(c);
+    });
+    return { amount: selected.reduce((sum, c) => sum + c.saving, 0), selected };
+  }, [savingsOpportunities, savingsDuplicates]);
 
   const savingsPlanHints = useMemo(() => {
     if (savingsPlansByService.size === 0) return [];
@@ -5198,7 +5298,8 @@ function HubboApp() {
     savingsEndingPromos.length === 0 &&
     savingsOffers.length === 0 &&
     savingsDuplicates.length === 0 &&
-    savingsPlanHints.length === 0;
+    savingsPlanHints.length === 0 &&
+    savingsOpportunities.length === 0;
 
   // Payments are *recorded*, not recalculated. Each billing date that passes
   // gets written once with the amount, currency and converted total frozen as
@@ -5242,19 +5343,11 @@ function HubboApp() {
       });
     });
 
-    // A correction to a start or end date should drop the records it
-    // invalidates — but only for subscriptions that still exist, so history
-    // from deleted services stays in the totals.
-    const liveIds = new Set(subs.map((s) => s.id));
-    const next = [];
-    byId.forEach((p) => {
-      if (liveIds.has(p.subId) && !valid.has(p.id)) {
-        changed = true;
-        return;
-      }
-      next.push(p);
-    });
-
+    // Historical payments are an immutable ledger. Once a payment record
+    // exists, changing the subscription's start/end date, frequency, pause
+    // state or price must never delete it automatically. Future recurrence
+    // rules may change; past paid records do not.
+    const next = Array.from(byId.values());
     if (changed) persistPayments(next.sort((a, b) => (a.date < b.date ? 1 : -1)));
   }, [subs, payments, paymentsLoaded, todayISO, settings.currency, rates]);
 
@@ -5460,9 +5553,13 @@ function HubboApp() {
         // Subscriptions paused before pause dates were recorded have no periods
         // to check, so they are simply hidden from today onwards.
         if (s.paused && occDate >= today) return;
+        const dateISO = toLocalISO(occDate);
         const key = occDate.getDate();
         if (!byDay[key]) byDay[key] = [];
-        byDay[key].push(s);
+        const payment = occDate <= today ? payments.find((p) => p.id === `${s.id}::${dateISO}`) : null;
+        // Past calendar entries use the recorded payment when available.
+        // Future entries use the current subscription rules.
+        byDay[key].push({ ...s, _calendarDate: dateISO, _calendarPayment: payment || null });
       });
     });
 
@@ -5473,7 +5570,11 @@ function HubboApp() {
       arr.forEach((s) => {
         // Priced on the day it falls, not on today: an offer that ends inside
         // the month being shown must change the total from that day onwards.
-        const value = convertAmount(costOn(s, dayISO), s.currency || settings.currency, settings.currency, rates);
+        const dateISO = `${year}-${String(month + 1).padStart(2, "0")}-${String(dayISO).padStart(2, "0")}`;
+        const payment = s._calendarPayment;
+        const value = payment
+          ? paymentInBase(payment)
+          : convertAmount(costOn(s, dateISO), s.currency || settings.currency, settings.currency, rates);
         total += value;
         count++;
         catMap[s.category] = (catMap[s.category] || 0) + value;
@@ -5492,7 +5593,7 @@ function HubboApp() {
       current: buildMonthView(calendarOffset),
       next: buildMonthView(calendarOffset + 1),
     }),
-    [calendarOffset, enriched, rates, settings.currency, todayISO, settings.categoryColors]
+    [calendarOffset, enriched, payments, rates, settings.currency, todayISO, settings.categoryColors]
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
@@ -5890,7 +5991,7 @@ function HubboApp() {
               </div>
               {/* One drawing per unit, so the count is read before the words are:
                   two cups is a quantity you feel, "2" is one you parse. Capped
-                  at five by EQUIVALENT_MAX, which is also where a row of them
+                  at EQUIVALENT_MAX, which is also where a row of them
                   stops being countable at a glance. */}
               {dailyEquivalence && (
                 <div className="flex items-center gap-2 mt-1.5">
@@ -6040,6 +6141,9 @@ function HubboApp() {
 
       {/* List */}
       <div className="px-5 mt-3">
+        {visibleSubs.length > 0 && !listSearch && (
+          <p style={{ color: colors.textFaint }} className="text-[11px] mb-2 px-1">{t.tapSubToEdit}</p>
+        )}
         {enriched.length === 0 ? (
           <div style={{ border: `1px dashed ${colors.border}`, color: colors.textSecondary }} className="rounded-2xl p-8 text-center text-sm mt-6">
             {t.emptyTitle}<br />{t.emptySubtitle}
@@ -6289,7 +6393,9 @@ function HubboApp() {
                               <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
                               <span className="flex-1 text-sm font-medium truncate">{s.name}</span>
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold whitespace-nowrap">
-                                {money(costOn(s, todayISO), s.currency)}
+                                {s._calendarPayment
+                                  ? money(s._calendarPayment.amount, s._calendarPayment.currency)
+                                  : money(costOn(s, s._calendarDate || todayISO), s.currency)}
                               </span>
                             </button>
                           );
@@ -6535,7 +6641,24 @@ function HubboApp() {
       {view === "savings" && (
       <div key="view-savings" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4 pb-28">
-          {savingsEmpty ? (
+          {savingsHeadline.amount > 0.01 && (
+            <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-3xl p-4 mb-6">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0 w-[68px] h-[68px] flex items-center justify-center">
+                  <RingIcon progress={Math.min(1, savingsHeadline.amount / Math.max(monthlyTotal, savingsHeadline.amount))} ringColor={ACCENT.green} colors={colors} size={68} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Icon name="piggyBank" size={24} color={ACCENT.green} />
+                  </div>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight">{t.savingsPotentialHeadline(money(savingsHeadline.amount))}</div>
+                  <div style={{ color: colors.textSecondary }} className="text-xs mt-1">{t.savingsPotentialLabel}</div>
+                  <div style={{ color: colors.textFaint }} className="text-xs mt-1 leading-relaxed">{t.savingsPotentialHint}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          {savingsEmpty && savingsHeadline.amount <= 0.01 ? (
             <div className="text-center py-16">
               <div className="flex justify-center mb-3" style={{ color: colors.textFaint }}>
                 <Icon name="piggyBank" size={34} strokeWidth={1.5} />
@@ -6716,9 +6839,37 @@ function HubboApp() {
                           })}
                         </div>
                         <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-3 pt-2.5 leading-relaxed">
-                          {group.keepOne ? t.savingsOnlyOne(money(group.saving)) : t.savingsRotate(money(group.saving))}
+                          {group.keepOne ? t.savingsOnlyOne(money(group.saving)) : t.savingsIfOne(money(group.saving))}
                           {group.id === "antivirus" && <span> {t.savingsAntivirusNote}</span>}
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {savingsOpportunities.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="flex-shrink-0" style={{ color: ACCENT.green }}><Icon name="piggyBank" size={15} /></span>
+                    <span style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>{t.savingsOpportunity}</span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {savingsOpportunities.map((o) => (
+                      <div key={o.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4">
+                        <div className="text-sm font-medium">{o.titolo || o.title || o.alternativa || o.alternative || t.savingsOpportunity}</div>
+                        <div style={{ color: colors.textSecondary }} className="text-xs mt-2">{t.savingsReplaces}: {o.subs.map((s) => s.name).join(', ')}</div>
+                        <div className="flex items-center gap-2 mt-2 text-xs">
+                          <span style={{ fontFamily: "'JetBrains Mono', monospace", textDecoration: 'line-through', color: colors.textFaint }}>{money(o.currentCost)}</span>
+                          <Icon name="arrowRight" size={12} color={colors.textFaint} />
+                          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{money(o.alternativeCost)}</span>
+                          <span style={{ color: ACCENT.green }} className="ml-auto font-semibold">−{money(o.saving)}</span>
+                        </div>
+                        {(o.link || o.url) && (
+                          <a href={o.link || o.url} target="_blank" rel="noopener noreferrer" style={{ color: colors.textSecondary }} className="inline-flex items-center gap-1.5 text-xs mt-3">
+                            <Icon name="externalLink" size={12} /> {t.savingsOpenSite}
+                          </a>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -7727,7 +7878,16 @@ function HubboApp() {
                     <span style={{ color: colors.textPrimary }} className="text-xs font-medium">{t.dataTrustTitle}</span>
                   </div>
                   <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed">{t.dataTrustBody}</p>
+                  <a href="privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: ACCENT.amber }} className="inline-block text-xs font-medium mt-2">{t.privacyPolicy}</a>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleDeleteAllData}
+                  style={{ color: colors.textSecondary, border: `1px solid ${colors.border}`, background: colors.surface }}
+                  className="w-full rounded-xl py-2.5 text-xs font-medium mb-3"
+                >
+                  {t.deleteAllData}
+                </button>
                 <button
                   type="button"
                   onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowPaywall(true); })}
@@ -7801,7 +7961,7 @@ function HubboApp() {
                 </>
                 )}
                 <p style={{ color: colors.textFaint }} className="text-xs text-center opacity-70">
-                  {t.installedOn} {dateFmt(todayISO)}
+                  {t.installedOn} {dateFmt(APP_BUILD_DATE)}
                 </p>
               </div>
             </div>
