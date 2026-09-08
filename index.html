@@ -141,6 +141,8 @@ const LUCIDE_ICONS = {
   beer: `<path d="M17 11h1a3 3 0 0 1 0 6h-1" /> <path d="M9 12v6" /> <path d="M13 12v6" /> <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" /> <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />`,
   pizza: `<path d="m12 14-1 1" /> <path d="m13.75 18.25-1.25 1.42" /> <path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12" /> <path d="M18.8 9.3a1 1 0 0 0 2.1 7.7" /> <path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z" />`,
   utensils: `<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /> <path d="M7 2v20" /> <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />`,
+  pool: `<path d="M3 9c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2" /> <path d="M3 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2" /> <path d="M7 19v2" /> <path d="M17 19v2" />`,
+  padel: `<path d="M15.5 3.5c2.8 2.8 2.8 7.3 0 10.1l-4.4 4.4a3.5 3.5 0 0 1-5-5l4.4-4.4c2.8-2.8 7.3-2.8 10.1 0" /> <circle cx="14.5" cy="7.5" r="1" /> <circle cx="17" cy="10" r="1" /> <path d="m8.5 15.5-5 5" />`,
   check: `<path d="M20 6 9 17l-5-5" />`,
 };
 
@@ -3852,7 +3854,9 @@ const NO_REMOTE_LOGO_DOMAINS = new Set([
   "norton.com", "ea.com", "stock.adobe.com", "fantagazzetta.com", "wired.it", "framer.com",
 ]);
 
-function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain = false }) {
+const LOCAL_SERVICE_ICONS = { Palestra: "dumbbell", Piscina: "pool", Padel: "padel" };
+
+function ServiceLogo({ icon, category, domain, letter, serviceName, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
   const brandColor = (icon && BRAND_COLORS[icon]) || color;
   const fallbackIconName = CATEGORY_FALLBACK_ICON[category] || "package";
@@ -3869,7 +3873,8 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
   // Nothing is lost by trying: a source that answers with a 16-pixel generic
   // placeholder is already rejected below, and when every source fails — or
   // there is no network at all — the vector underneath is still drawn.
-  const useRemote = !!domain && stage < LOGO_SOURCES.length && !NO_REMOTE_LOGO_DOMAINS.has(domain);
+  const localSpecial = serviceName ? LOCAL_SERVICE_ICONS[serviceName] : null;
+  const useRemote = !!domain && stage < LOGO_SOURCES.length && !NO_REMOTE_LOGO_DOMAINS.has(domain) && !!path;
 
   const advanceSource = () => {
     const next = stage + 1;
@@ -3929,6 +3934,8 @@ function ServiceLogo({ icon, category, domain, letter, color, size = 22, plain =
         <svg viewBox="0 0 24 24" width={size * 0.55} height={size * 0.55} fill={glyphColor}>
           <path d={path} />
         </svg>
+      ) : localSpecial ? (
+        <Icon name={localSpecial} size={size * 0.56} color={glyphColor} strokeWidth={2} />
       ) : letter ? (
         // No vector mark and no working remote favicon: an initial reads far
         // better than a generic category icon that every other unmatched
@@ -5222,6 +5229,22 @@ function HubboApp() {
     return { amount: selected.reduce((sum, c) => sum + c.saving, 0), selected };
   }, [savingsOpportunities, savingsDuplicates]);
 
+  const savingsCategoryTotals = useMemo(() => {
+    const map = {};
+    savingsHeadline.selected.forEach((item) => {
+      const subs = item.subs || (item.items || []).map((x) => x.sub);
+      const totalCurrent = item.currentCost || item.monthly || 0;
+      subs.forEach((s) => {
+        const m = monthlyEquivalent(convertAmount(costOn(s, todayISO), s.currency || settings.currency, settings.currency, rates), s.frequency);
+        const share = totalCurrent > 0 ? m / totalCurrent : 0;
+        map[s.category] = (map[s.category] || 0) + item.saving * share;
+      });
+    });
+    return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }))
+      .filter((c) => c.total > 0)
+      .sort((a, b) => b.total - a.total);
+  }, [savingsHeadline, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
+
   const savingsPlanHints = useMemo(() => {
     if (savingsPlansByService.size === 0) return [];
     const out = [];
@@ -5469,6 +5492,18 @@ function HubboApp() {
     });
     return { total, count };
   }, [filteredPayments, settings.currency, rates]);
+
+  const historyCategoryTotals = useMemo(() => {
+    const map = {};
+    filteredPayments.forEach((p) => {
+      if (p.status === "skipped") return;
+      const value = paymentInBase(p);
+      map[p.category] = (map[p.category] || 0) + value;
+    });
+    return CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }))
+      .filter((c) => c.total > 0)
+      .sort((a, b) => b.total - a.total);
+  }, [filteredPayments, settings.currency, rates, settings.language, settings.categoryColors]);
 
   const missingStartCount = useMemo(
     () => (subs || []).filter((s) => !s.startDate && !s.endDate).length,
@@ -6172,7 +6207,7 @@ function HubboApp() {
                   <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
                     <RingIcon progress={s.progress} ringColor={brandColor} ended={s.isEnded || s.paused} colors={colors} />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
+                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={30} />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -6390,7 +6425,7 @@ function HubboApp() {
                               style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
                               className="rounded-xl p-3 flex items-center gap-3 w-full text-left transition-transform active:scale-[0.98]"
                             >
-                              <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
+                              <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
                               <span className="flex-1 text-sm font-medium truncate">{s.name}</span>
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold whitespace-nowrap">
                                 {s._calendarPayment
@@ -6415,17 +6450,16 @@ function HubboApp() {
       {view === "history" && (
       <div key="view-history" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pb-28">
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-3 flex gap-4">
-            <div className="flex-1 min-w-0">
-              <div style={{ color: colors.textSecondary }} className="text-xs mb-1 truncate">{historyPeriodLabel}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xl font-semibold truncate">
-                {money(historyTotals.total, settings.currency)}
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-3 overflow-hidden">
+            <div style={{ color: colors.textSecondary }} className="text-xs mb-2 truncate">{historyPeriodLabel}</div>
+            <div className="flex items-center gap-3">
+              <div style={{ position: "relative", width: 120, height: 120 }} className="flex-shrink-0">
+                <CategoryRing segments={historyCategoryTotals} total={historyTotals.total} colors={colors} size={120} stroke={13} />
               </div>
-            </div>
-            <div style={{ borderLeft: `1px solid ${colors.border}` }} className="flex-1 min-w-0 pl-4">
-              <div style={{ color: colors.textSecondary }} className="text-xs mb-1 truncate">{t.historyPaymentsCount}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xl font-semibold truncate">
-                {historyTotals.count}
+              <div className="flex-1 min-w-0">
+                <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xl font-semibold truncate">{money(historyTotals.total, settings.currency)}</div>
+                <div style={{ color: colors.textSecondary }} className="text-xs mt-1">{historyTotals.count} · {t.historyPaymentsCount}</div>
+                <CategoryLegend segments={historyCategoryTotals} total={historyTotals.total} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
               </div>
             </div>
           </div>
@@ -6597,7 +6631,7 @@ function HubboApp() {
                           className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-transform active:scale-[0.99]"
                         >
                           <div style={{ opacity: skipped ? 0.45 : 1 }}>
-                            <ServiceLogo icon={serviceIcon(p.name)} domain={serviceDomain(p.name)} category={p.category} letter={p.name.charAt(0).toUpperCase()} color={cat.color} size={28} />
+                            <ServiceLogo icon={serviceIcon(p.name)} domain={serviceDomain(p.name)} category={p.category} letter={p.name.charAt(0).toUpperCase()} serviceName={p.name} color={cat.color} size={28} />
                           </div>
                           <div className="flex-1 min-w-0" style={{ opacity: skipped ? 0.45 : 1 }}>
                             <div className="text-sm font-medium truncate" style={{ textDecoration: skipped ? "line-through" : "none" }}>
@@ -6644,11 +6678,9 @@ function HubboApp() {
           {savingsHeadline.amount > 0.01 && (
             <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-3xl p-4 mb-6">
               <div className="flex items-center gap-4">
-                <div className="relative flex-shrink-0 w-[68px] h-[68px] flex items-center justify-center">
-                  <RingIcon progress={Math.min(1, savingsHeadline.amount / Math.max(monthlyTotal, savingsHeadline.amount))} ringColor={ACCENT.green} colors={colors} size={68} />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Icon name="piggyBank" size={24} color={ACCENT.green} />
-                  </div>
+                <div style={{ position: "relative", width: 120, height: 120 }} className="flex-shrink-0">
+                  <CategoryRing segments={savingsCategoryTotals} total={savingsHeadline.amount} colors={colors} size={120} stroke={13} />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><Icon name="piggyBank" size={22} color={ACCENT.green} /></div>
                 </div>
                 <div className="min-w-0 flex-1">
                   <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight">{t.savingsPotentialHeadline(money(savingsHeadline.amount))}</div>
@@ -6692,7 +6724,7 @@ function HubboApp() {
                             <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
                               <RingIcon progress={s.progress} ringColor={brandColor} colors={colors} />
                               <div className="absolute inset-0 flex items-center justify-center">
-                                <ServiceLogo icon={icon} domain={site} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
+                                <ServiceLogo icon={icon} domain={site} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={30} />
                               </div>
                             </div>
                             <div className="min-w-0 flex-1">
@@ -6768,7 +6800,7 @@ function HubboApp() {
                       return (
                         <div key={`${x.offer.servizio}-${x.offer.scade}`} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
                           <div className="flex-shrink-0 mt-0.5">
-                            <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
+                            <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="text-sm font-medium truncate">{x.offer.titolo || s.name}</div>
@@ -6826,7 +6858,7 @@ function HubboApp() {
                                 onClick={() => setDetailSub(s)}
                                 className="flex items-center gap-2.5 w-full text-left"
                               >
-                                <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={26} />
+                                <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={26} />
                                 <span style={{ color: colors.textSecondary }} className="text-xs flex-1 truncate">{s.name}</span>
                                 <span style={{ fontFamily: "'JetBrains Mono', monospace", color: colors.textSecondary }} className="text-xs flex-shrink-0">
                                   {money(item.monthly)}
@@ -6896,7 +6928,7 @@ function HubboApp() {
                       return (
                         <div key={s.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
                           <div className="flex-shrink-0 mt-0.5">
-                            <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={34} />
+                            <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline justify-between gap-2">
@@ -7164,7 +7196,7 @@ function HubboApp() {
                         onClick={() => { setForm({ ...form, name: s.name, category: s.category }); setPickerOpen(false); }}
                         className="flex items-center gap-3.5 rounded-xl px-2 py-2.5"
                       >
-                        <ServiceLogo icon={s.icon} domain={s.domain} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={40} />
+                        <ServiceLogo icon={s.icon} domain={s.domain} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={40} />
                         <span style={{ color: colors.textPrimary }} className="text-base">{s.name}</span>
                       </button>
                     );
@@ -7198,6 +7230,7 @@ function HubboApp() {
                     domain={form.name === "__custom__" ? null : serviceDomain(form.name)}
                     category={form.category}
                     letter={(form.name === "__custom__" ? form.customName || "?" : form.name).charAt(0).toUpperCase()}
+                    serviceName={form.name === "__custom__" ? form.customName : form.name}
                     color={(CATEGORIES.find((c) => c.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).color}
                     size={26}
                   />
@@ -7991,6 +8024,7 @@ function HubboApp() {
                 domain={serviceDomain(paymentAction.name)}
                 category={paymentAction.category}
                 letter={paymentAction.name.charAt(0).toUpperCase()}
+                serviceName={paymentAction.name}
                 color={(CATEGORIES.find((c) => c.id === paymentAction.category) || CATEGORIES[CATEGORIES.length - 1]).color}
                 size={38}
               />
@@ -8178,6 +8212,7 @@ function HubboApp() {
                         domain={serviceDomain(o.logo)}
                         category={o.logoCategory}
                         letter={String(o.label).charAt(0).toUpperCase()}
+                        serviceName={o.logo || o.label}
                         color={o.color || colors.textSecondary}
                         size={26}
                       />
@@ -8336,7 +8371,8 @@ function HubboApp() {
                         type="button"
                         onClick={() => {
                           if (current === hex) return;
-                          const owner = CATEGORIES.find((c) => c.id !== colorEditing && c.color === hex);
+                          const norm = (v) => String(v || "").trim().toLowerCase();
+                          const owner = CATEGORIES.find((c) => c.id !== colorEditing && norm(c.color) === norm(hex));
                           if (owner) {
                             setColorSwap({ target: colorEditing, hex, ownerId: owner.id, ownerLabel: owner.label, previous: current });
                             return;
@@ -8428,7 +8464,7 @@ function HubboApp() {
                     return (
                       <div key={s.id} style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl p-3">
                         <div className="flex items-center gap-2.5 mb-2">
-                          <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={26} />
+                          <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={26} />
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium truncate">{s.name}</div>
                             <div style={{ color: colors.textFaint }} className="text-xs">
@@ -8497,7 +8533,7 @@ function HubboApp() {
                   <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
                     <RingIcon progress={s.progress} ringColor={brandColor} ended={s.isEnded || s.paused} colors={colors} />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} color={cat.color} size={30} />
+                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={30} />
                     </div>
                   </div>
                   <div className="min-w-0">
