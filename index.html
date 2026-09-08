@@ -228,13 +228,14 @@ const CATEGORY_META = [
   { id: "altro", color: "#816F6A" },
 ];
 
-// Offered when recolouring a category. Deliberately a fixed set rather than a
-// free picker: any colour is possible on paper, but only a spaced-out palette
-// keeps the ring's slices telling each other apart.
+// Palette offered when recolouring a category. The first colours MUST be
+// the same colours used by CATEGORY_META: otherwise selecting a default
+// category colour would never match the colour already owned by that category
+// and the swap prompt could not appear. Extra colours are appended only as
+// genuinely new choices.
 const CATEGORY_PALETTE = [
-  "#8F7BF4", "#6C8AE4", "#5AA9E6", "#5FBFA8", "#4CAF7D", "#98C379",
-  "#A1AA41", "#E3A857", "#E8734A", "#C4643C", "#F2789F", "#D0A1ED",
-  "#C99CC6", "#B0879B", "#7E8AA2", "#8B8D98",
+  ...CATEGORY_META.map((c) => c.color),
+  "#6C8AE4", "#5AA9E6", "#5FBFA8",
 ];
 
 const CATEGORY_FALLBACK_ICON = {
@@ -6449,7 +6450,7 @@ function HubboApp() {
       {/* History view */}
       {view === "history" && (
       <div key="view-history" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
-        <div className="px-5 pb-28">
+        <div className="px-5 pt-4 pb-28">
           <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-3 overflow-hidden">
             <div style={{ color: colors.textSecondary }} className="text-xs mb-2 truncate">{historyPeriodLabel}</div>
             <div className="flex items-center gap-3">
