@@ -3874,7 +3874,7 @@ function ServiceLogo({ icon, category, domain, letter, serviceName, color, size 
   // placeholder is already rejected below, and when every source fails — or
   // there is no network at all — the vector underneath is still drawn.
   const localSpecial = serviceName ? LOCAL_SERVICE_ICONS[serviceName] : null;
-  const useRemote = !!domain && stage < LOGO_SOURCES.length && !NO_REMOTE_LOGO_DOMAINS.has(domain) && !!path;
+  const useRemote = !!domain && stage < LOGO_SOURCES.length && !NO_REMOTE_LOGO_DOMAINS.has(domain);
 
   const advanceSource = () => {
     const next = stage + 1;
@@ -6453,15 +6453,20 @@ function HubboApp() {
           <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-3 overflow-hidden">
             <div style={{ color: colors.textSecondary }} className="text-xs mb-2 truncate">{historyPeriodLabel}</div>
             <div className="flex items-center gap-3">
-              <div style={{ position: "relative", width: 120, height: 120 }} className="flex-shrink-0">
-                <CategoryRing segments={historyCategoryTotals} total={historyTotals.total} colors={colors} size={120} stroke={13} />
+              <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
+                <TotalFigure
+                  value={historyTotals.total}
+                  lead={(historyCategoryTotals[0] || {}).color || colors.textPrimary}
+                  colors={colors}
+                  moneyParts={moneyParts}
+                />
+                <div style={{ position: "absolute", left: 30, top: 20 }}>
+                  <CategoryRing segments={historyCategoryTotals} total={historyTotals.total} colors={colors} size={120} stroke={13} />
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xl font-semibold truncate">{money(historyTotals.total, settings.currency)}</div>
-                <div style={{ color: colors.textSecondary }} className="text-xs mt-1">{historyTotals.count} · {t.historyPaymentsCount}</div>
-                <CategoryLegend segments={historyCategoryTotals} total={historyTotals.total} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
-              </div>
+              <CategoryLegend segments={historyCategoryTotals} total={historyTotals.total} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
             </div>
+            <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{historyTotals.count} · {t.historyPaymentsCount}</div>
           </div>
 
           {payments.length > 0 && (
@@ -6676,18 +6681,24 @@ function HubboApp() {
       <div key="view-savings" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4 pb-28">
           {savingsHeadline.amount > 0.01 && (
-            <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-3xl p-4 mb-6">
-              <div className="flex items-center gap-4">
-                <div style={{ position: "relative", width: 120, height: 120 }} className="flex-shrink-0">
-                  <CategoryRing segments={savingsCategoryTotals} total={savingsHeadline.amount} colors={colors} size={120} stroke={13} />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><Icon name="piggyBank" size={22} color={ACCENT.green} /></div>
+            <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-6 overflow-hidden">
+              <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.savingsPotentialLabel}</div>
+              <div className="flex items-center gap-3">
+                <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
+                  <TotalFigure
+                    value={savingsHeadline.amount}
+                    lead={(savingsCategoryTotals[0] || {}).color || ACCENT.green}
+                    colors={colors}
+                    moneyParts={moneyParts}
+                  />
+                  <div style={{ position: "absolute", left: 30, top: 20 }}>
+                    <CategoryRing segments={savingsCategoryTotals} total={savingsHeadline.amount} colors={colors} size={120} stroke={13} />
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight">{t.savingsPotentialHeadline(money(savingsHeadline.amount))}</div>
-                  <div style={{ color: colors.textSecondary }} className="text-xs mt-1">{t.savingsPotentialLabel}</div>
-                  <div style={{ color: colors.textFaint }} className="text-xs mt-1 leading-relaxed">{t.savingsPotentialHint}</div>
-                </div>
+                <CategoryLegend segments={savingsCategoryTotals} total={savingsHeadline.amount} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
               </div>
+              <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight mt-1">{t.savingsPotentialHeadline(money(savingsHeadline.amount))}</div>
+              <div style={{ color: colors.textFaint }} className="text-xs mt-1 leading-relaxed">{t.savingsPotentialHint}</div>
             </div>
           )}
           {savingsEmpty && savingsHeadline.amount <= 0.01 ? (
@@ -8364,14 +8375,14 @@ function HubboApp() {
                 <div className="grid grid-cols-6 gap-2.5 mb-4">
                   {CATEGORY_PALETTE.map((hex) => {
                     const current = (CATEGORIES.find((c) => c.id === colorEditing) || {}).color;
-                    const active = current === hex;
+                    const norm = (v) => String(v || "").trim().toLowerCase();
+                    const active = norm(current) === norm(hex);
                     return (
                       <button
                         key={hex}
                         type="button"
                         onClick={() => {
                           if (current === hex) return;
-                          const norm = (v) => String(v || "").trim().toLowerCase();
                           const owner = CATEGORIES.find((c) => c.id !== colorEditing && norm(c.color) === norm(hex));
                           if (owner) {
                             setColorSwap({ target: colorEditing, hex, ownerId: owner.id, ownerLabel: owner.label, previous: current });
@@ -8392,7 +8403,18 @@ function HubboApp() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => applyCategoryColor({ [colorEditing]: null })}
+                  onClick={() => {
+                    const target = CATEGORIES.find((c) => c.id === colorEditing);
+                    if (!target) return;
+                    const defaultHex = (CATEGORY_META.find((c) => c.id === colorEditing) || {}).color;
+                    const norm = (v) => String(v || "").trim().toLowerCase();
+                    const owner = CATEGORIES.find((c) => c.id !== colorEditing && norm(c.color) === norm(defaultHex));
+                    if (owner) {
+                      setColorSwap({ target: colorEditing, hex: defaultHex, ownerId: owner.id, ownerLabel: owner.label, previous: target.color });
+                      return;
+                    }
+                    applyCategoryColor({ [colorEditing]: null });
+                  }}
                   style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
                   className="w-full rounded-xl py-2.5 text-sm font-medium"
                 >
