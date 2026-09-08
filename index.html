@@ -902,8 +902,8 @@ const STRINGS = {
     resumeAria: "Riattiva",
     pausedCount: (n) => `${n} in pausa`,
     confirmDeleteTitle: "Eliminare questo abbonamento?",
-    confirmDeleteBody: (name) => `"${name}" verrà spostato nel cestino. Potrai ripristinarlo da lì.`,
-    confirmDeleteYes: "Sposta nel cestino",
+    confirmDeleteBody: (name) => `"${name}" verrà eliminato e spostato nel cestino. Verranno eliminati anche tutti i suoi pagamenti dallo Storico e quindi dal Calendario. Potrai ripristinare abbonamento e storico dal cestino.`,
+    confirmDeleteYes: "Elimina abbonamento",
     confirmDeleteNo: "Annulla",
     trash: "Cestino",
     categoryColors: "Colori categorie",
@@ -1137,8 +1137,8 @@ const STRINGS = {
     resumeAria: "Resume",
     pausedCount: (n) => `${n} paused`,
     confirmDeleteTitle: "Delete this subscription?",
-    confirmDeleteBody: (name) => `"${name}" will be moved to the trash. You can restore it from there.`,
-    confirmDeleteYes: "Move to trash",
+    confirmDeleteBody: (name) => `"${name}" will be deleted and moved to the trash. All its payment records will also be deleted from History and therefore from Calendar. You can restore the subscription and its history from the trash.`,
+    confirmDeleteYes: "Delete subscription",
     confirmDeleteNo: "Cancel",
     trash: "Trash",
     categoryColors: "Category colours",
@@ -1372,8 +1372,8 @@ const STRINGS = {
     resumeAria: "Reanudar",
     pausedCount: (n) => `${n} en pausa`,
     confirmDeleteTitle: "¿Eliminar esta suscripción?",
-    confirmDeleteBody: (name) => `"${name}" se moverá a la papelera. Podrás restaurarla desde allí.`,
-    confirmDeleteYes: "Mover a la papelera",
+    confirmDeleteBody: (name) => `"${name}" se eliminará y se moverá a la papelera. También se eliminarán todos sus pagos del Historial y, por tanto, del Calendario. Puedes restaurar el abono y su historial desde la papelera.`,
+    confirmDeleteYes: "Eliminar suscripción",
     confirmDeleteNo: "Cancelar",
     trash: "Papelera",
     categoryColors: "Colores de categorías",
@@ -1607,8 +1607,8 @@ const STRINGS = {
     resumeAria: "Reprendre",
     pausedCount: (n) => `${n} en pause`,
     confirmDeleteTitle: "Supprimer cet abonnement ?",
-    confirmDeleteBody: (name) => `« ${name} » sera déplacé dans la corbeille. Vous pourrez le restaurer depuis là.`,
-    confirmDeleteYes: "Mettre à la corbeille",
+    confirmDeleteBody: (name) => `« ${name} » sera supprimé et déplacé dans la corbeille. Tous ses paiements seront également supprimés de l’Historique et donc du Calendrier. Vous pourrez restaurer l’abonnement et son historique depuis la corbeille.`,
+    confirmDeleteYes: "Supprimer l’abonnement",
     confirmDeleteNo: "Annuler",
     trash: "Corbeille",
     categoryColors: "Couleurs des catégories",
@@ -1842,8 +1842,8 @@ const STRINGS = {
     resumeAria: "Fortsetzen",
     pausedCount: (n) => `${n} pausiert`,
     confirmDeleteTitle: "Dieses Abo löschen?",
-    confirmDeleteBody: (name) => `„${name}“ wird in den Papierkorb verschoben. Von dort kannst du es wiederherstellen.`,
-    confirmDeleteYes: "In den Papierkorb",
+    confirmDeleteBody: (name) => `„${name}“ wird gelöscht und in den Papierkorb verschoben. Alle zugehörigen Zahlungen werden ebenfalls aus dem Verlauf und damit aus dem Kalender gelöscht. Du kannst das Abo und seinen Verlauf aus dem Papierkorb wiederherstellen.`,
+    confirmDeleteYes: "Abo löschen",
     confirmDeleteNo: "Abbrechen",
     trash: "Papierkorb",
     categoryColors: "Kategoriefarben",
@@ -4005,6 +4005,7 @@ function HubboApp() {
   const [historyPeriod, setHistoryPeriod] = useState("all");
   const [historySub, setHistorySub] = useState("all");
   const [historyCat, setHistoryCat] = useState("all");
+  const [historyCats, setHistoryCats] = useState([]);
   const [historyFrom, setHistoryFrom] = useState("");
   const [historyTo, setHistoryTo] = useState("");
   const [historyShownYears, setHistoryShownYears] = useState(1);
@@ -4613,8 +4614,12 @@ function HubboApp() {
   async function handleDelete(id) {
     const sub = subs.find((s) => s.id === id);
     if (!sub) return;
-    await persist(subs.filter((s) => s.id !== id));
-    await persistTrash([{ ...sub, deletedAt: todayISO }, ...trash]);
+    const deletedPayments = payments.filter((p) => p.subId === id);
+    const nextSubs = subs.filter((s) => s.id !== id);
+    const nextPayments = payments.filter((p) => p.subId !== id);
+    await persist(nextSubs);
+    await persistPayments(nextPayments);
+    await persistTrash([{ ...sub, deletedAt: todayISO, _deletedPayments: deletedPayments }, ...trash]);
     setConfirmDelete(null);
   }
 
@@ -4705,9 +4710,17 @@ function HubboApp() {
   async function handleRestore(id) {
     const sub = trash.find((s) => s.id === id);
     if (!sub) return;
-    const { deletedAt, ...restored } = sub;
-    await persistTrash(trash.filter((s) => s.id !== id));
-    await persist([...subs, restored]);
+    const { deletedAt, _deletedPayments, ...restored } = sub;
+    const nextTrash = trash.filter((s) => s.id !== id);
+    const nextSubs = [...subs, restored];
+    const known = new Set(payments.map((p) => p.id));
+    const restoredPayments = Array.isArray(_deletedPayments)
+      ? _deletedPayments.filter((p) => p && p.id && !known.has(p.id))
+      : [];
+    const nextPayments = [...payments, ...restoredPayments].sort((a, b) => (a.date < b.date ? 1 : -1));
+    await persistTrash(nextTrash);
+    await persist(nextSubs);
+    if (restoredPayments.length > 0) await persistPayments(nextPayments);
   }
 
   async function handlePurge(id) {
@@ -4956,7 +4969,7 @@ function HubboApp() {
     if (!pendingSubId || !subs) return;
     const target = enriched.find((x) => x.id === pendingSubId);
     setPendingSubId(null);
-    if (target) setDetailSub(target);
+    if (target) openEdit(target);
   }, [pendingSubId, subs, enriched]);
 
   // The fallback that arrives by address carries only the id, so the address
@@ -5427,6 +5440,7 @@ function HubboApp() {
     return payments.filter((p) => {
       if (historySub !== "all" && p.subId !== historySub) return false;
       if (historyCat !== "all" && p.category !== historyCat) return false;
+      if (historyCats.length > 0 && !historyCats.includes(p.category)) return false;
       if (historyPeriod === "custom") {
         if (historyFrom && p.date < historyFrom) return false;
         if (historyTo && p.date > historyTo) return false;
@@ -5437,9 +5451,9 @@ function HubboApp() {
       if (/^\d{4}$/.test(historyPeriod)) return p.date.startsWith(historyPeriod);
       return true;
     });
-  }, [payments, historyPeriod, historySub, historyCat, historyFrom, historyTo, todayISO]);
+  }, [payments, historyPeriod, historySub, historyCat, historyCats, historyFrom, historyTo, todayISO]);
 
-  const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCat !== "all";
+  const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCat !== "all" || historyCats.length > 0;
 
   const historyPeriodLabel =
     historyPeriod === "year" ? t.historyPeriodYear
@@ -5594,35 +5608,53 @@ function HubboApp() {
     for (let d = 1; d <= daysInMonth; d++) days.push(d);
 
     const byDay = {};
-    // Built from every subscription rather than only the active ones: a service
-    // cancelled in June was genuinely being billed in March, and a past month
-    // should show it. Each occurrence is then filtered on its own date.
+    const paymentSubDates = new Set();
+
+    // Recorded payments are the source of truth for past dates. This keeps
+    // Calendar aligned with History even after the subscription rules change
+    // or the subscription is moved to the trash.
+    payments.forEach((payment) => {
+      if (!payment || !payment.date || !payment.date.startsWith(`${year}-${String(month + 1).padStart(2, "0")}-`)) return;
+      const key = Number(payment.date.slice(8, 10));
+      if (!byDay[key]) byDay[key] = [];
+      const source = enriched.find((x) => x.id === payment.subId) || subs.find((x) => x.id === payment.subId) || trash.find((x) => x.id === payment.subId);
+      const category = payment.category || (source && source.category) || CATEGORIES[CATEGORIES.length - 1].id;
+      byDay[key].push({
+        ...(source || {}),
+        id: payment.subId || payment.id,
+        name: payment.name || (source && source.name) || "Hubbo",
+        category,
+        currency: payment.currency || (source && source.currency) || settings.currency,
+        _calendarDate: payment.date,
+        _calendarPayment: payment,
+      });
+      if (payment.subId) paymentSubDates.add(`${payment.subId}::${payment.date}`);
+    });
+
+    // Current rules generate future occurrences. Past occurrences are only
+    // generated when there is no recorded payment for that subscription/date.
     enriched.forEach((s) => {
       const occs = occurrencesInMonth(s.renewalDate, s.frequency, monthDate, s.startDate);
       occs.forEach((occDate) => {
         if (s.endDate && occDate > parseLocalDate(s.endDate)) return;
         if (wasPausedOn(s, occDate)) return;
-        // Subscriptions paused before pause dates were recorded have no periods
-        // to check, so they are simply hidden from today onwards.
         if (s.paused && occDate >= today) return;
         const dateISO = toLocalISO(occDate);
+        if (occDate <= today && paymentSubDates.has(`${s.id}::${dateISO}`)) return;
         const key = occDate.getDate();
         if (!byDay[key]) byDay[key] = [];
-        const payment = occDate <= today ? payments.find((p) => p.id === `${s.id}::${dateISO}`) : null;
-        // Past calendar entries use the recorded payment when available.
-        // Future entries use the current subscription rules.
-        byDay[key].push({ ...s, _calendarDate: dateISO, _calendarPayment: payment || null });
+        byDay[key].push({ ...s, _calendarDate: dateISO, _calendarPayment: null });
       });
     });
 
     let total = 0;
     let count = 0;
     const catMap = {};
-    Object.entries(byDay).forEach(([dayISO, arr]) => {
+    Object.entries(byDay).forEach(([day, arr]) => {
       arr.forEach((s) => {
-        // Priced on the day it falls, not on today: an offer that ends inside
-        // the month being shown must change the total from that day onwards.
-        const dateISO = `${year}-${String(month + 1).padStart(2, "0")}-${String(dayISO).padStart(2, "0")}`;
+        // Future entries are priced by current rules; recorded payments use
+        // their frozen amount instead.
+        const dateISO = s._calendarDate || `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         const payment = s._calendarPayment;
         const value = payment
           ? paymentInBase(payment)
@@ -5645,7 +5677,7 @@ function HubboApp() {
       current: buildMonthView(calendarOffset),
       next: buildMonthView(calendarOffset + 1),
     }),
-    [calendarOffset, enriched, payments, rates, settings.currency, todayISO, settings.categoryColors]
+    [calendarOffset, enriched, subs, trash, payments, rates, settings.currency, todayISO, settings.categoryColors]
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
@@ -6492,7 +6524,7 @@ function HubboApp() {
                 <label style={{ color: colors.textFaint }} className="text-xs">{t.historyPeriodLabelTitle}</label>
                 {historyFiltered && (
                   <button
-                    onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryFrom(""); setHistoryTo(""); }}
+                    onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryCats([]); setHistoryFrom(""); setHistoryTo(""); }}
                     style={{ color: ACCENT.amber }}
                     className="text-xs font-medium"
                   >
@@ -6574,7 +6606,7 @@ function HubboApp() {
                       ],
                       // Picking one service makes a category filter meaningless,
                       // and the two together would usually give an empty list.
-                      onSelect: (v) => { setHistorySub(v); if (v !== "all") setHistoryCat("all"); },
+                      onSelect: (v) => { setHistorySub(v); if (v !== "all") { setHistoryCat("all"); setHistoryCats([]); } },
                     })
                   }
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historySub === "all" ? colors.textSecondary : colors.textPrimary }}
@@ -6593,16 +6625,19 @@ function HubboApp() {
                   onClick={() =>
                     setOptionPicker({
                       title: t.historyCategoryLabel,
-                      value: historyCat,
-                      options: [{ value: "all", label: t.historyAllCategories }, ...historyCategories.map((c) => ({ value: c.id, label: c.label }))],
-                      onSelect: (v) => { setHistoryCat(v); if (v !== "all") setHistorySub("all"); },
+                      value: historyCats,
+                      selectedValues: historyCats,
+                      multi: true,
+                      options: historyCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
+                      onToggle: (v) => setHistoryCats((current) => current.includes(v) ? current.filter((x) => x !== v) : [...current, v]),
+                      onClear: () => setHistoryCats([]),
                     })
                   }
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCat === "all" ? colors.textSecondary : colors.textPrimary }}
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCats.length === 0 ? colors.textSecondary : colors.textPrimary }}
                   className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
                 >
                   <span className="truncate">
-                    {historyCat === "all" ? t.historyAllCategories : (historyCategories.find((c) => c.id === historyCat) || {}).label || t.historyAllCategories}
+                    {historyCats.length === 0 ? t.historyAllCategories : historyCats.length === 1 ? ((historyCategories.find((c) => c.id === historyCats[0]) || {}).label || t.historyAllCategories) : t.filterNCategories(historyCats.length)}
                   </span>
                   <span style={{ fontSize: 9 }}>▾</span>
                 </button>
@@ -8149,7 +8184,7 @@ function HubboApp() {
                     const target = enriched.find((x) => x.id === paymentAction.subId);
                     closeSheet("payment", () => {
                       setPaymentAction(null);
-                      if (target) setDetailSub(target);
+                      if (target) openEdit(target);
                     });
                   }}
                   style={{ border: `1px solid ${colors.border}` }}
@@ -8211,7 +8246,7 @@ function HubboApp() {
                 // In multi mode the selection lives in the list's own state, so
                 // the sheet reads it directly and stays open while you tick.
                 const active = optionPicker.multi
-                  ? filterCategories.includes(o.value)
+                  ? (optionPicker.selectedValues || filterCategories).includes(o.value)
                   : o.value === optionPicker.value;
                 return (
                   <button
@@ -8219,9 +8254,13 @@ function HubboApp() {
                     type="button"
                     onClick={() => {
                       if (optionPicker.multi) {
-                        setFilterCategories((current) =>
-                          current.includes(o.value) ? current.filter((x) => x !== o.value) : [...current, o.value]
-                        );
+                        if (optionPicker.onToggle) {
+                          optionPicker.onToggle(o.value);
+                        } else {
+                          setFilterCategories((current) =>
+                            current.includes(o.value) ? current.filter((x) => x !== o.value) : [...current, o.value]
+                          );
+                        }
                         return;
                       }
                       optionPicker.onSelect(o.value);
@@ -8256,10 +8295,10 @@ function HubboApp() {
 
             {optionPicker.multi && (
               <div className="flex items-center gap-2 mt-4">
-                {filterCategories.length > 0 && (
+                {((optionPicker.selectedValues || filterCategories).length > 0) && (
                   <button
                     type="button"
-                    onClick={() => setFilterCategories([])}
+                    onClick={() => optionPicker.onClear ? optionPicker.onClear() : setFilterCategories([])}
                     style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
                     className="flex-1 rounded-xl py-2.5 text-sm font-medium"
                   >
@@ -8757,7 +8796,7 @@ function HubboApp() {
         );
       })()}
 
-      {/* Confirm delete (move to trash) */}
+      {/* Confirm delete (delete subscription + history, then move to trash) */}
       {confirmDelete && (
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[60] ${closingSheet === "cdel" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("cdel", () => setConfirmDelete(null))}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 ${closingSheet === "cdel" ? "rb-dialog-out" : "rb-dialog"}`}>
