@@ -902,7 +902,7 @@ const STRINGS = {
     resumeAria: "Riattiva",
     pausedCount: (n) => `${n} in pausa`,
     confirmDeleteTitle: "Eliminare questo abbonamento?",
-    confirmDeleteBody: (name) => `"${name}" verrà spostato nel cestino. Potrai ripristinarlo da lì.`,
+    confirmDeleteBody: (name) => `"${name}" verrà spostato nel cestino e tutti i suoi pagamenti verranno eliminati dallo storico. Potrai ripristinare abbonamento e storico dal cestino.`,
     confirmDeleteYes: "Sposta nel cestino",
     confirmDeleteNo: "Annulla",
     trash: "Cestino",
@@ -1607,7 +1607,7 @@ const STRINGS = {
     resumeAria: "Reprendre",
     pausedCount: (n) => `${n} en pause`,
     confirmDeleteTitle: "Supprimer cet abonnement ?",
-    confirmDeleteBody: (name) => `« ${name} » sera déplacé dans la corbeille. Vous pourrez le restaurer depuis là.`,
+    confirmDeleteBody: (name) => `« ${name} » sera déplacé dans la corbeille et tous ses paiements seront supprimés de l’historique. Vous pourrez restaurer l’abonnement et son historique depuis la corbeille.`,
     confirmDeleteYes: "Mettre à la corbeille",
     confirmDeleteNo: "Annuler",
     trash: "Corbeille",
@@ -1842,7 +1842,7 @@ const STRINGS = {
     resumeAria: "Fortsetzen",
     pausedCount: (n) => `${n} pausiert`,
     confirmDeleteTitle: "Dieses Abo löschen?",
-    confirmDeleteBody: (name) => `„${name}“ wird in den Papierkorb verschoben. Von dort kannst du es wiederherstellen.`,
+    confirmDeleteBody: (name) => `„${name}“ wird in den Papierkorb verschoben und alle Zahlungen werden aus dem Verlauf gelöscht. Du kannst Abo und Verlauf aus dem Papierkorb wiederherstellen.`,
     confirmDeleteYes: "In den Papierkorb",
     confirmDeleteNo: "Abbrechen",
     trash: "Papierkorb",
@@ -2159,7 +2159,7 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Solo questo",
     paymentScopeBefore: "Questo e i precedenti",
     paymentScopeAfter: "Questo e i successivi",
-    paymentOpenSub: "Apri abbonamento",
+    paymentOpenSub: "Modifica abbonamento",
     paymentSheetHint: "Correggere l'importo cambia solo questo pagamento, non il prezzo dell'abbonamento.",
     pastSubToggle: "Abbonamento già terminato",
     pastSubHint: "Indica quando è iniziato e quando è finito: il giorno di rinnovo serve solo a ricostruire il ciclo di addebito.",
@@ -2246,7 +2246,7 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "This one only",
     paymentScopeBefore: "This and earlier",
     paymentScopeAfter: "This and later",
-    paymentOpenSub: "Open subscription",
+    paymentOpenSub: "Edit subscription",
     paymentSheetHint: "Correcting the amount only changes this payment, not the subscription price.",
     pastSubToggle: "Already ended",
     pastSubHint: "Set when it started and ended: the renewal day is only used to rebuild the billing cycle.",
@@ -2333,7 +2333,7 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Solo este",
     paymentScopeBefore: "Este y los anteriores",
     paymentScopeAfter: "Este y los siguientes",
-    paymentOpenSub: "Abrir suscripción",
+    paymentOpenSub: "Editar suscripción",
     paymentSheetHint: "Corregir el importe solo cambia este pago, no el precio de la suscripción.",
     pastSubToggle: "Ya finalizada",
     pastSubHint: "Indica cuándo empezó y terminó: el día de renovación solo sirve para reconstruir el ciclo de cobro.",
@@ -2420,7 +2420,7 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Celui-ci uniquement",
     paymentScopeBefore: "Celui-ci et les précédents",
     paymentScopeAfter: "Celui-ci et les suivants",
-    paymentOpenSub: "Ouvrir l'abonnement",
+    paymentOpenSub: "Modifier l'abonnement",
     paymentSheetHint: "Corriger le montant ne change que ce paiement, pas le prix de l'abonnement.",
     pastSubToggle: "Déjà terminé",
     pastSubHint: "Indiquez le début et la fin : le jour de renouvellement sert uniquement à reconstituer le cycle de facturation.",
@@ -2507,7 +2507,7 @@ const LEDGER_STRINGS = {
     paymentScopeOne: "Nur diese",
     paymentScopeBefore: "Diese und frühere",
     paymentScopeAfter: "Diese und spätere",
-    paymentOpenSub: "Abo öffnen",
+    paymentOpenSub: "Abo bearbeiten",
     paymentSheetHint: "Eine Betragskorrektur ändert nur diese Zahlung, nicht den Abo-Preis.",
     pastSubToggle: "Bereits beendet",
     pastSubHint: "Gib Beginn und Ende an: der Verlängerungstag dient nur dazu, den Abrechnungszyklus zu rekonstruieren.",
@@ -3528,11 +3528,22 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner
       {total > 0 &&
         segments.map((seg) => {
           const slice = (seg.total / total) * sweepAngle;
-          const a0 = cursor + gapAngle / 2;
-          const a1 = cursor + slice - gapAngle / 2;
+          const rawA0 = cursor + gapAngle / 2;
+          const rawA1 = cursor + slice - gapAngle / 2;
           cursor += slice;
-          if (a1 <= a0) return null;
-          return <path key={seg.id} d={annularSectorPath(cx, cy, ri, ro, a0, a1, corner)} fill={seg.color} />;
+          if (slice <= 0) return null;
+          // Very small categories must remain visible. When the normal gap would
+          // swallow the whole slice, draw a hairline radial marker in the same
+          // colour instead of silently dropping the category.
+          if (rawA1 <= rawA0) {
+            const mid = cursor - slice / 2;
+            const x1 = cx + ri * Math.cos(mid);
+            const y1 = cy + ri * Math.sin(mid);
+            const x2 = cx + ro * Math.cos(mid);
+            const y2 = cy + ro * Math.sin(mid);
+            return <line key={seg.id} x1={x1} y1={y1} x2={x2} y2={y2} stroke={seg.color} strokeWidth={2.2} strokeLinecap="round" />;
+          }
+          return <path key={seg.id} d={annularSectorPath(cx, cy, ri, ro, rawA0, rawA1, corner)} fill={seg.color} />;
         })}
     </svg>
   );
@@ -4005,6 +4016,7 @@ function HubboApp() {
   const [historyPeriod, setHistoryPeriod] = useState("all");
   const [historySub, setHistorySub] = useState("all");
   const [historyCat, setHistoryCat] = useState("all");
+  const [historyCats, setHistoryCats] = useState([]);
   const [historyFrom, setHistoryFrom] = useState("");
   const [historyTo, setHistoryTo] = useState("");
   const [historyShownYears, setHistoryShownYears] = useState(1);
@@ -4613,8 +4625,10 @@ function HubboApp() {
   async function handleDelete(id) {
     const sub = subs.find((s) => s.id === id);
     if (!sub) return;
+    const deletedPayments = payments.filter((p) => p.subId === id);
     await persist(subs.filter((s) => s.id !== id));
-    await persistTrash([{ ...sub, deletedAt: todayISO }, ...trash]);
+    await persistPayments(payments.filter((p) => p.subId !== id));
+    await persistTrash([{ ...sub, deletedAt: todayISO, _deletedPayments: deletedPayments }, ...trash]);
     setConfirmDelete(null);
   }
 
@@ -4705,9 +4719,13 @@ function HubboApp() {
   async function handleRestore(id) {
     const sub = trash.find((s) => s.id === id);
     if (!sub) return;
-    const { deletedAt, ...restored } = sub;
+    const { deletedAt, _deletedPayments, ...restored } = sub;
     await persistTrash(trash.filter((s) => s.id !== id));
     await persist([...subs, restored]);
+    if (Array.isArray(_deletedPayments) && _deletedPayments.length > 0) {
+      const known = new Set(payments.map((p) => p.id));
+      await persistPayments([...payments, ..._deletedPayments.filter((p) => p && p.id && !known.has(p.id))].sort((a, b) => (a.date < b.date ? 1 : -1)));
+    }
   }
 
   async function handlePurge(id) {
@@ -5427,6 +5445,7 @@ function HubboApp() {
     return payments.filter((p) => {
       if (historySub !== "all" && p.subId !== historySub) return false;
       if (historyCat !== "all" && p.category !== historyCat) return false;
+      if (historyCats.length > 0 && !historyCats.includes(p.category)) return false;
       if (historyPeriod === "custom") {
         if (historyFrom && p.date < historyFrom) return false;
         if (historyTo && p.date > historyTo) return false;
@@ -5437,9 +5456,9 @@ function HubboApp() {
       if (/^\d{4}$/.test(historyPeriod)) return p.date.startsWith(historyPeriod);
       return true;
     });
-  }, [payments, historyPeriod, historySub, historyCat, historyFrom, historyTo, todayISO]);
+  }, [payments, historyPeriod, historySub, historyCat, historyCats, historyFrom, historyTo, todayISO]);
 
-  const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCat !== "all";
+  const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCat !== "all" || historyCats.length > 0;
 
   const historyPeriodLabel =
     historyPeriod === "year" ? t.historyPeriodYear
@@ -5594,35 +5613,53 @@ function HubboApp() {
     for (let d = 1; d <= daysInMonth; d++) days.push(d);
 
     const byDay = {};
-    // Built from every subscription rather than only the active ones: a service
-    // cancelled in June was genuinely being billed in March, and a past month
-    // should show it. Each occurrence is then filtered on its own date.
+    const paymentIds = new Set();
+    const paymentSubIds = new Set();
+
+    // The payment ledger is the authority for every past date. Start from it
+    // so a recorded payment can never disappear from Calendar merely because
+    // the subscription's current recurrence rule has changed.
+    payments.forEach((payment) => {
+      if (!payment || !payment.date || !payment.date.startsWith(`${year}-${String(month + 1).padStart(2, "0")}-`)) return;
+      const key = Number(payment.date.slice(8, 10));
+      if (!byDay[key]) byDay[key] = [];
+      const source = enriched.find((x) => x.id === payment.subId) || subs.find((x) => x.id === payment.subId) || trash.find((x) => x.id === payment.subId);
+      const category = payment.category || (source && source.category) || CATEGORIES[CATEGORIES.length - 1].id;
+      byDay[key].push({
+        ...(source || {}),
+        id: payment.subId || payment.id,
+        name: payment.name || (source && source.name) || "Hubbo",
+        category,
+        currency: payment.currency || (source && source.currency) || settings.currency,
+        _calendarDate: payment.date,
+        _calendarPayment: payment,
+      });
+      paymentIds.add(payment.id);
+      if (payment.subId) paymentSubIds.add(`${payment.subId}::${payment.date}`);
+    });
+
+    // Future recurrences come from the current subscription rules. Past
+    // recurrences are added only when there is no recorded payment for them.
     enriched.forEach((s) => {
       const occs = occurrencesInMonth(s.renewalDate, s.frequency, monthDate, s.startDate);
       occs.forEach((occDate) => {
         if (s.endDate && occDate > parseLocalDate(s.endDate)) return;
         if (wasPausedOn(s, occDate)) return;
-        // Subscriptions paused before pause dates were recorded have no periods
-        // to check, so they are simply hidden from today onwards.
         if (s.paused && occDate >= today) return;
         const dateISO = toLocalISO(occDate);
+        if (occDate <= today && paymentSubIds.has(`${s.id}::${dateISO}`)) return;
         const key = occDate.getDate();
         if (!byDay[key]) byDay[key] = [];
-        const payment = occDate <= today ? payments.find((p) => p.id === `${s.id}::${dateISO}`) : null;
-        // Past calendar entries use the recorded payment when available.
-        // Future entries use the current subscription rules.
-        byDay[key].push({ ...s, _calendarDate: dateISO, _calendarPayment: payment || null });
+        byDay[key].push({ ...s, _calendarDate: dateISO, _calendarPayment: null });
       });
     });
 
     let total = 0;
     let count = 0;
     const catMap = {};
-    Object.entries(byDay).forEach(([dayISO, arr]) => {
+    Object.entries(byDay).forEach(([day, arr]) => {
       arr.forEach((s) => {
-        // Priced on the day it falls, not on today: an offer that ends inside
-        // the month being shown must change the total from that day onwards.
-        const dateISO = `${year}-${String(month + 1).padStart(2, "0")}-${String(dayISO).padStart(2, "0")}`;
+        const dateISO = s._calendarDate || `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         const payment = s._calendarPayment;
         const value = payment
           ? paymentInBase(payment)
@@ -5645,7 +5682,7 @@ function HubboApp() {
       current: buildMonthView(calendarOffset),
       next: buildMonthView(calendarOffset + 1),
     }),
-    [calendarOffset, enriched, payments, rates, settings.currency, todayISO, settings.categoryColors]
+    [calendarOffset, enriched, subs, trash, payments, rates, settings.currency, todayISO, settings.categoryColors]
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
@@ -6492,7 +6529,7 @@ function HubboApp() {
                 <label style={{ color: colors.textFaint }} className="text-xs">{t.historyPeriodLabelTitle}</label>
                 {historyFiltered && (
                   <button
-                    onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryFrom(""); setHistoryTo(""); }}
+                    onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryCats([]); setHistoryFrom(""); setHistoryTo(""); }}
                     style={{ color: ACCENT.amber }}
                     className="text-xs font-medium"
                   >
@@ -6574,7 +6611,7 @@ function HubboApp() {
                       ],
                       // Picking one service makes a category filter meaningless,
                       // and the two together would usually give an empty list.
-                      onSelect: (v) => { setHistorySub(v); if (v !== "all") setHistoryCat("all"); },
+                      onSelect: (v) => { setHistorySub(v); if (v !== "all") { setHistoryCat("all"); setHistoryCats([]); } },
                     })
                   }
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historySub === "all" ? colors.textSecondary : colors.textPrimary }}
@@ -6593,16 +6630,19 @@ function HubboApp() {
                   onClick={() =>
                     setOptionPicker({
                       title: t.historyCategoryLabel,
-                      value: historyCat,
-                      options: [{ value: "all", label: t.historyAllCategories }, ...historyCategories.map((c) => ({ value: c.id, label: c.label }))],
-                      onSelect: (v) => { setHistoryCat(v); if (v !== "all") setHistorySub("all"); },
+                      value: historyCats,
+                      selectedValues: historyCats,
+                      multi: true,
+                      options: historyCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
+                      onToggle: (v) => setHistoryCats((current) => current.includes(v) ? current.filter((x) => x !== v) : [...current, v]),
+                      onClear: () => setHistoryCats([]),
                     })
                   }
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCat === "all" ? colors.textSecondary : colors.textPrimary }}
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCats.length === 0 ? colors.textSecondary : colors.textPrimary }}
                   className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
                 >
                   <span className="truncate">
-                    {historyCat === "all" ? t.historyAllCategories : (historyCategories.find((c) => c.id === historyCat) || {}).label || t.historyAllCategories}
+                    {historyCats.length === 0 ? t.historyAllCategories : historyCats.length === 1 ? ((historyCategories.find((c) => c.id === historyCats[0]) || {}).label || t.historyAllCategories) : t.filterNCategories(historyCats.length)}
                   </span>
                   <span style={{ fontSize: 9 }}>▾</span>
                 </button>
@@ -8149,7 +8189,7 @@ function HubboApp() {
                     const target = enriched.find((x) => x.id === paymentAction.subId);
                     closeSheet("payment", () => {
                       setPaymentAction(null);
-                      if (target) setDetailSub(target);
+                      if (target) openEdit(target);
                     });
                   }}
                   style={{ border: `1px solid ${colors.border}` }}
@@ -8210,8 +8250,9 @@ function HubboApp() {
                 .map((o) => {
                 // In multi mode the selection lives in the list's own state, so
                 // the sheet reads it directly and stays open while you tick.
+                const selectedValues = optionPicker.selectedValues || filterCategories;
                 const active = optionPicker.multi
-                  ? filterCategories.includes(o.value)
+                  ? selectedValues.includes(o.value)
                   : o.value === optionPicker.value;
                 return (
                   <button
@@ -8219,9 +8260,13 @@ function HubboApp() {
                     type="button"
                     onClick={() => {
                       if (optionPicker.multi) {
-                        setFilterCategories((current) =>
-                          current.includes(o.value) ? current.filter((x) => x !== o.value) : [...current, o.value]
-                        );
+                        if (optionPicker.onToggle) {
+                          optionPicker.onToggle(o.value);
+                        } else {
+                          setFilterCategories((current) =>
+                            current.includes(o.value) ? current.filter((x) => x !== o.value) : [...current, o.value]
+                          );
+                        }
                         return;
                       }
                       optionPicker.onSelect(o.value);
@@ -8256,10 +8301,10 @@ function HubboApp() {
 
             {optionPicker.multi && (
               <div className="flex items-center gap-2 mt-4">
-                {filterCategories.length > 0 && (
+                {((optionPicker.selectedValues || filterCategories).length > 0) && (
                   <button
                     type="button"
-                    onClick={() => setFilterCategories([])}
+                    onClick={() => optionPicker.onClear ? optionPicker.onClear() : setFilterCategories([])}
                     style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
                     className="flex-1 rounded-xl py-2.5 text-sm font-medium"
                   >
