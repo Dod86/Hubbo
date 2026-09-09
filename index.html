@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v111";
+const APP_VERSION = "v113";
 const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -2163,7 +2163,7 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Dove puoi spendere meno",
     savingsSoon: "Nessuna occasione, per ora",
     savingsSoonHint: "Qui compaiono le offerte in scadenza, gli abbonamenti che si sovrappongono e i piani che potresti pagare meno.",
-    savingsPotentialHeadline: (amount) => `Puoi risparmiare fino a ${amount} al mese`,
+    savingsPotentialHeadline: (amount) => `Puoi risparmiare fino a ${amount} all'anno`,
     savingsPotentialLabel: "Risparmio potenziale",
     savingsPotentialHint: "È una stima: dipende dalle alternative che scegli e da ciò che vuoi mantenere.",
     savingsIfOne: (amount) => `Se ne mantieni uno solo, potresti ridurre la spesa di ${amount} al mese`,
@@ -2252,7 +2252,7 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Where you could spend less",
     savingsSoon: "Nothing to act on yet",
     savingsSoonHint: "Offers about to end, subscriptions that overlap and plans you could pay less for all show up here.",
-    savingsPotentialHeadline: (amount) => `You could save up to ${amount} a month`,
+    savingsPotentialHeadline: (amount) => `You could save up to ${amount} a year`,
     savingsPotentialLabel: "Potential saving",
     savingsPotentialHint: "An estimate: it depends on the alternatives you choose and what you want to keep.",
     savingsIfOne: (amount) => `If you keep only one, you could reduce spending by ${amount} a month`,
@@ -2341,7 +2341,7 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Dónde puedes gastar menos",
     savingsSoon: "Ninguna oportunidad, por ahora",
     savingsSoonHint: "Aquí aparecen las ofertas que están por terminar, las suscripciones que se solapan y los planes que podrías pagar menos.",
-    savingsPotentialHeadline: (amount) => `Podrías ahorrar hasta ${amount} al mes`,
+    savingsPotentialHeadline: (amount) => `Podrías ahorrar hasta ${amount} al año`,
     savingsPotentialLabel: "Ahorro potencial",
     savingsPotentialHint: "Es una estimación: depende de las alternativas que elijas y de lo que quieras mantener.",
     savingsIfOne: (amount) => `Si mantienes solo uno, podrías reducir el gasto en ${amount} al mes`,
@@ -2430,7 +2430,7 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Où vous pourriez dépenser moins",
     savingsSoon: "Aucune occasion, pour l'instant",
     savingsSoonHint: "Les offres qui se terminent, les abonnements qui se recoupent et les formules moins chères apparaissent ici.",
-    savingsPotentialHeadline: (amount) => `Vous pourriez économiser jusqu’à ${amount} par mois`,
+    savingsPotentialHeadline: (amount) => `Vous pourriez économiser jusqu’à ${amount} par an`,
     savingsPotentialLabel: "Économie potentielle",
     savingsPotentialHint: "Estimation : elle dépend des alternatives choisies et de ce que vous souhaitez conserver.",
     savingsIfOne: (amount) => `En n’en gardant qu’un, vous pourriez réduire la dépense de ${amount} par mois`,
@@ -2519,7 +2519,7 @@ const LEDGER_STRINGS = {
     subtitleSavings: "Wo du weniger ausgeben kannst",
     savingsSoon: "Noch keine Gelegenheit",
     savingsSoonHint: "Hier erscheinen auslaufende Angebote, Abos die sich überschneiden und Tarife die günstiger sein könnten.",
-    savingsPotentialHeadline: (amount) => `Du könntest bis zu ${amount} im Monat sparen`,
+    savingsPotentialHeadline: (amount) => `Du könntest bis zu ${amount} im Jahr sparen`,
     savingsPotentialLabel: "Potenzielle Ersparnis",
     savingsPotentialHint: "Eine Schätzung: Sie hängt von den gewählten Alternativen und deinen behaltenen Diensten ab.",
     savingsIfOne: (amount) => `Wenn du nur einen behältst, könntest du ${amount} im Monat sparen`,
@@ -3601,13 +3601,39 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner
   const cy = size / 2;
   const sweepAngle = 2 * Math.PI * RING_SWEEP;
   const gapAngle = segments.length > 1 ? 4 / r : 0;
+  // Sotto una certa quota una fetta proporzionale diventa più stretta del
+  // solo spazio riservato al distacco fra le fette (`gapAngle`): il disegno
+  // non ha più margine per tracciarla e sparisce, non per una scelta ma per
+  // mancanza di spazio. Una categoria che c'è, anche per un euro, deve
+  // restare leggibile: si garantisce ad ogni fetta con importo positivo
+  // un arco visibile di almeno un paio di pixel, sottraendo la differenza
+  // alle fette più larghe in proporzione a quanto sono larghe, così la somma
+  // degli archi resta esattamente uguale all'apertura totale dell'anello.
+  const minVisibleArc = 2;
+  const minSlice = gapAngle + minVisibleArc / r;
+  const rawSlices = segments.map((seg) => (total > 0 ? (seg.total / total) * sweepAngle : 0));
+  let slices = rawSlices.slice();
+  for (let pass = 0; pass < 4; pass++) {
+    let boostSum = 0;
+    const boosted = slices.map((a, i) => {
+      const needsBoost = segments[i].total > 0 && a < minSlice;
+      if (needsBoost) boostSum += minSlice - a;
+      return needsBoost;
+    });
+    if (boostSum === 0) break;
+    const freeSum = slices.reduce((sum, a, i) => (boosted[i] ? sum : sum + a), 0);
+    // Non c'è più niente da cui prendere spazio (troppe categorie piccole
+    // insieme): meglio fermarsi qui che far sovrapporre gli archi.
+    if (freeSum <= boostSum) break;
+    slices = slices.map((a, i) => (boosted[i] ? minSlice : a - boostSum * (a / freeSum)));
+  }
   let cursor = 0;
   return (
     <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
       <path d={annularSectorPath(cx, cy, ri, ro, 0, sweepAngle, corner)} fill={colors.surface2} />
       {total > 0 &&
-        segments.map((seg) => {
-          const slice = (seg.total / total) * sweepAngle;
+        segments.map((seg, i) => {
+          const slice = slices[i];
           const a0 = cursor + gapAngle / 2;
           const a1 = cursor + slice - gapAngle / 2;
           cursor += slice;
@@ -6906,27 +6932,36 @@ function HubboApp() {
       {view === "savings" && (
       <div key="view-savings" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4 pb-28">
-          {savingsHeadline.amount > 0.01 && (
+          {savingsHeadline.amount > 0.01 && (() => {
+            // In cima si mostra l'annuale: lo stesso risparmio ha più peso
+            // detto una volta sola invece che spalmato su dodici rate, ed è
+            // il numero che dà l'idea vera di cosa c'è in gioco in un anno.
+            // Il mensile resta la base di calcolo per tutte le sotto-schede,
+            // dove "quanto pago ogni mese" è la domanda giusta.
+            const annualAmount = savingsHeadline.amount * 12;
+            const annualCategoryTotals = savingsCategoryTotals.map((c) => ({ ...c, total: c.total * 12 }));
+            return (
             <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-6 overflow-hidden">
               <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.savingsPotentialLabel}</div>
               <div className="flex items-center gap-3">
                 <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
                   <TotalFigure
-                    value={savingsHeadline.amount}
-                    lead={(savingsCategoryTotals[0] || {}).color || ACCENT.green}
+                    value={annualAmount}
+                    lead={(annualCategoryTotals[0] || {}).color || ACCENT.green}
                     colors={colors}
                     moneyParts={moneyParts}
                   />
                   <div style={{ position: "absolute", left: 30, top: 20 }}>
-                    <CategoryRing segments={savingsCategoryTotals} total={savingsHeadline.amount} colors={colors} size={120} stroke={13} />
+                    <CategoryRing segments={annualCategoryTotals} total={annualAmount} colors={colors} size={120} stroke={13} />
                   </div>
                 </div>
-                <CategoryLegend segments={savingsCategoryTotals} total={savingsHeadline.amount} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
+                <CategoryLegend segments={annualCategoryTotals} total={annualAmount} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
               </div>
-              <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight mt-1">{t.savingsPotentialHeadline(money(savingsHeadline.amount))}</div>
+              <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight mt-1">{t.savingsPotentialHeadline(money(annualAmount))}</div>
               <div style={{ color: colors.textFaint }} className="text-xs mt-1 leading-relaxed">{t.savingsPotentialHint}</div>
             </div>
-          )}
+            );
+          })()}
           {savingsEmpty && savingsHeadline.amount <= 0.01 ? (
             <div className="text-center py-16">
               <div className="flex justify-center mb-3" style={{ color: colors.textFaint }}>

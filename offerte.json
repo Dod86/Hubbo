@@ -699,6 +699,1653 @@
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://account.proton.me/",
       "verificato": "2026-09-06"
+    },
+    {
+      "servizio": "Amazon Prime Video",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Incluso in Amazon Prime: l'annuale costa meno di dodici mensilità."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Esiste anche da solo, senza il resto di Prime.",
+      "link": "https://www.amazon.it/gp/primecentral",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Sky",
+      "annuale": {
+        "disponibile": true,
+        "nota": "I pacchetti con vincolo di dodici o diciotto mesi costano meno del mese singolo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.sky.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Infinity+",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.infinitytv.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "YouTube Music",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 5,
+        "nota": "Compreso nel piano famiglia di YouTube Premium/Music."
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "nota": "Incluso nell'abbonamento a YouTube Premium.",
+      "link": "https://myaccount.google.com/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Deezer",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Fino a 6 account nello stesso indirizzo."
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.deezer.com/it/offers",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Tidal",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://tidal.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Apple One",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Il piano famiglia copre tutti i servizi Apple inclusi."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Pacchetto: musica, video, iCloud+ e Arcade insieme, spesso conviene rispetto a prenderli separati.",
+      "link": "https://apps.apple.com/account/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "MUBI",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://mubi.com/it/plans",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Plex Pass",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Esiste anche un piano \"a vita\" a pagamento unico, alternativo all'abbonamento.",
+      "link": "https://www.plex.tv/plans/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "SoundCloud Go+",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://soundcloud.com/subscribe",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Nebula",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Spesso inclusa gratis in abbonamenti ad alcuni canali YouTube dei creator partner.",
+      "link": "https://nebula.tv/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Trello",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://trello.com/billing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Asana",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://app.asana.com/-/billing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Zoom",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://zoom.us/billing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "1Password",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 5,
+        "nota": "Piano Famiglie, fino a 5 persone."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://my.1password.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Bitwarden",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Piano Famiglia a un prezzo fisso annuale."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Ha anche una versione gratuita con le funzioni essenziali.",
+      "link": "https://vault.bitwarden.com/#/settings/subscription",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "LastPass",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://lastpass.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "GitHub",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Il GitHub Student Pack include Copilot e altri strumenti gratis con email universitaria."
+      },
+      "link": "https://github.com/settings/billing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Todoist",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://todoist.com/app/settings/subscription",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Evernote",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.evernote.com/PricingCards.action",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Obsidian",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "L'app di base è gratuita; si paga solo la sincronizzazione o la pubblicazione.",
+      "link": "https://obsidian.md/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Airtable",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://airtable.com/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "ClickUp",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://app.clickup.com/settings/billing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Linear",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://linear.app/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Grammarly",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://account.grammarly.com/subscription",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "WeTransfer",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://wetransfer.com/plans",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Backblaze",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Esistono anche piani biennali e triennali, ancora più economici a parità di mese."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.backblaze.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "MEGA",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://mega.io/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "JetBrains",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'abbonamento annuale costa meno di dodici mensilità; dopo un anno di pagamenti continui si sblocca la licenza perpetua della versione in uso."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Gratuito per studenti e insegnanti con email dell'istituto."
+      },
+      "link": "https://www.jetbrains.com/store/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Setapp",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 4,
+        "nota": "Piano Famiglia, fino a 4 persone."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://setapp.com/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Proton Mail",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Piano Proton Unlimited Famiglia, condiviso con Proton VPN e Drive."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Esiste anche una versione gratuita con funzioni ridotte.",
+      "link": "https://account.proton.me/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Mullvad VPN",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Prezzo fisso al mese qualunque sia la durata: nessuno sconto per pagare più mesi insieme, a differenza della maggior parte delle altre VPN.",
+      "link": "https://mullvad.net/it/account",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "GeForce NOW",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "I piani più alti si pagano a blocchi di sei mesi, non con uno sconto annuale vero e proprio.",
+      "link": "https://www.nvidia.com/it-it/geforce-now/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "EA Play",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Incluso automaticamente in Xbox Game Pass Ultimate e in PC Game Pass.",
+      "link": "https://www.ea.com/it-it/ea-play",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Ubisoft+",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.ubisoft.com/it-it/ubisoft-plus",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Twitch Turbo",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.twitch.tv/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Apple Arcade",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Compreso in Apple One.",
+      "link": "https://apps.apple.com/account/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Google Play Pass",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://play.google.com/store/account/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Humble Choice",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Solo mensile: non esiste un piano annuale.",
+      "link": "https://www.humblebundle.com/subscription",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Epic Games",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il negozio è gratuito; qui in Hubbo di solito rappresenta un acquisto singolo, non un abbonamento ricorrente vero.",
+      "link": "https://www.epicgames.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Chess.com",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Il piano pluriennale costa molto meno all'anno del mensile."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.chess.com/subscribe",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Roblox Premium",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Livelli mensili fissi; niente sconto per l'anno intero.",
+      "link": "https://www.roblox.com/premium/membership",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Adobe Lightroom",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://account.adobe.com/plans",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Adobe Premiere Pro",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://account.adobe.com/plans",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Adobe Illustrator",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://account.adobe.com/plans",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "CapCut Pro",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.capcut.com/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Figma",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Gratuito per studenti e insegnanti."
+      },
+      "link": "https://www.figma.com/pricing/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Framer",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.framer.com/pricing/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Sketch",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.sketch.com/pricing/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Affinity",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Pagamento unico, non un abbonamento: si compra una volta e resta.",
+      "link": "https://affinity.serif.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "DaVinci Resolve",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Ha una versione gratuita molto completa; la versione Studio si compra una volta sola, non è un abbonamento.",
+      "link": "https://www.blackmagicdesign.com/products/davinciresolve",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Blender Studio",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "A sostegno del progetto Blender, che resta gratuito e open source.",
+      "link": "https://studio.blender.org/pricing/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Autodesk",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'annuale costa sensibilmente meno del mensile."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Gratuito per studenti e istituti con email dell'ateneo."
+      },
+      "link": "https://www.autodesk.it/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Vimeo",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://vimeo.com/upgrade",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Envato Elements",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://elements.envato.com/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Freepik",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.freepik.com/pricing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Adobe Stock",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'annuale prepagato costa meno del mensile."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://stock.adobe.com/it/plans",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Perplexity Pro",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.perplexity.ai/settings/billing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Gemini Advanced",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Compreso nell'abbonamento Google One AI Premium, che porta anche più spazio di archiviazione.",
+      "link": "https://myaccount.google.com/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Midjourney",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Pagando l'anno in anticipo si risparmia circa due mensilità."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.midjourney.com/account",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "ElevenLabs",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://elevenlabs.io/app/subscription",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "DeepL Pro",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.deepl.com/it/pro-account",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Telegram Premium",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'abbonamento annuale, acquistato dall'app, costa meno di dodici mensilità."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://telegram.org/premium",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Discord Nitro",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa il 17% in meno pagando l'anno intero. Esiste anche Nitro Basic, un livello ridotto più economico."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Nessun piano famiglia.",
+      "link": "https://discord.com/settings/billing",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Snapchat+",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.snapchat.com/plus",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Tinder Gold",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "I piani più lunghi (6 o 12 mesi) costano meno al mese di quello mensile, ma senza un vero \"abbonamento annuale\" a parte.",
+      "link": "https://tinder.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "X Premium",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://help.x.com/en/using-x/x-premium",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Meta Verified",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.facebook.com/settings/?tab=meta_verified",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "LinkedIn Premium",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Lo sconto sull'annuale è spesso consistente, anche oltre un terzo del prezzo mensile."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "LinkedIn Learning incluso è gratis con alcune tessere universitarie e bibliotecarie."
+      },
+      "link": "https://www.linkedin.com/premium/products/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "WhatsApp Premium",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Non esiste un piano Premium per il singolo utente: questa voce riguarda più spesso WhatsApp Business.",
+      "link": "https://www.whatsapp.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Reddit Premium",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.reddit.com/premium/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Bumble Premium",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "I piani più lunghi costano meno al mese, ma non c'è un vero annuale scontato a parte.",
+      "link": "https://bumble.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Hinge+",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://hinge.co/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Badoo Premium",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://badoo.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Corriere della Sera",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.corriere.it/abbonati/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "la Repubblica",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://ilmiogiornale.repubblica.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "La Stampa",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://abbonamenti.lastampa.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Il Sole 24 Ore",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://sededigitale.ilsole24ore.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Il Fatto Quotidiano",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.ilfattoquotidiano.it/abbonamenti/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Il Messaggero",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://abbonamenti.ilmessaggero.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "La Gazzetta dello Sport",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://abbonamenti.gazzetta.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Corriere dello Sport",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.corrieredellosport.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Tuttosport",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.tuttosport.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Il Post",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'annuale costa sensibilmente meno di dodici mensilità."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.ilpost.it/abbonati/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Internazionale",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.internazionale.it/abbonati",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "The New York Times",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "I prezzi promozionali di partenza salgono parecchio al rinnovo, come per gli antivirus: controllare la data di fine promo.",
+      "link": "https://www.nytimes.com/subscription",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "The Guardian",
+      "annuale": {
+        "disponibile": true,
+        "nota": "È un contributo libero più che un vero abbonamento a fasce fisse."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://support.theguardian.com/it/contribute",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Financial Times",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.ft.com/products",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "The Economist",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true
+      },
+      "link": "https://www.economist.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "The Washington Post",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.washingtonpost.com/subscribe/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Wired",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.wired.it/abbonati/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "National Geographic",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Quasi tutti i giornali fanno sconti sull'annuale, ma la percentuale varia troppo e troppo spesso per tenerla qui: verificare sul sito."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.nationalgeographic.it/abbonamenti",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Coursera Plus",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.coursera.org/account/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Udemy",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Perlopiù corsi singoli acquistati una volta, non un vero abbonamento; esiste anche Udemy Business in abbonamento per aziende.",
+      "link": "https://www.udemy.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Skillshare",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.skillshare.com/en/membership",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Patreon",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il costo dipende dal creator che sostieni, non da un listino unico di Patreon stessa.",
+      "link": "https://www.patreon.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Medium",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://medium.com/me/settings/membership",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Calm",
+      "annuale": {
+        "disponibile": true,
+        "nota": "L'annuale costa una piccola frazione di dodici mensilità: è pensato per essere preso ad anni, non a mesi."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Piano Calm Family."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.calm.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Headspace",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Stesso schema di Calm: l'annuale costa molto meno del mensile ripetuto per dodici volte."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Gratuito per studenti universitari statunitensi con email .edu; altrove verificare."
+      },
+      "link": "https://www.headspace.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Babbel",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Più mesi si comprano insieme, meno costa ciascuno: trimestrale, semestrale e annuale scalano il prezzo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.babbel.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Busuu",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.busuu.com/it/premium",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Blinkist",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.blinkist.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Storytel",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 2,
+        "nota": "Piano Duo per due persone nella stessa casa."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.storytel.com/it/it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "MasterClass",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Si vende solo ad anni: non esiste un piano mensile separato."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Il piano più alto permette più profili nella stessa famiglia."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://www.masterclass.com/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "LinkedIn Learning",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Compreso nei piani Premium Career/Business di LinkedIn.",
+      "link": "https://www.linkedin.com/premium/products/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Peloton",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Un abbonamento App copre più persone della stessa casa; quello con la bici/tapis roulette è diverso e più caro.",
+      "link": "https://www.onepeloton.it/",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Fitbit Premium",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Incluso nel piano famiglia di Google One con abbastanza spazio."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "link": "https://myaccount.google.com/subscriptions",
+      "verificato": "2026-09-09"
+    },
+    {
+      "servizio": "Nike Training Club",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il grosso dei contenuti è gratuito; verificare se la versione a pagamento esiste ancora nel tuo paese.",
+      "link": "https://www.nike.com/it/ntc-app",
+      "verificato": "2026-09-09"
     }
   ]
 }
