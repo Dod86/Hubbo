@@ -289,8 +289,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v125";
-const APP_BUILD_DATE = "2026-09-09";
+const APP_VERSION = "v126";
+const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -1063,6 +1063,10 @@ const STRINGS = {
     resumeDateLabel: "Prossimo rinnovo",
     resumeConfirm: "Riprendi",
     resumeCancel: "Annulla",
+    duplicateTitle: (name) => `Hai già ${name}`,
+    duplicateBody: "C'è già un abbonamento attivo con questo nome. Per tenerli distinti nella Scheda Risparmio, questo verrà aggiunto con un nome diverso — potrai comunque rinominarlo in seguito.",
+    duplicateAddRenamed: (name) => `Aggiungi come «${name}»`,
+    duplicateCancel: "Annulla",
     lastNotifOutcome: (ok, why, at) => `aperta: ${ok} · ${why} · ${at}`,
     yesWord: "sì",
     noWord: "no",
@@ -1314,6 +1318,10 @@ const STRINGS = {
     resumeDateLabel: "Next renewal",
     resumeConfirm: "Resume",
     resumeCancel: "Cancel",
+    duplicateTitle: (name) => `You already have ${name}`,
+    duplicateBody: "There's already an active subscription with this name. To keep them distinct in the Savings tab, this one will be added with a different name — you can rename it later.",
+    duplicateAddRenamed: (name) => `Add as "${name}"`,
+    duplicateCancel: "Cancel",
     lastNotifOutcome: (ok, why, at) => `opened: ${ok} · ${why} · ${at}`,
     yesWord: "yes",
     noWord: "no",
@@ -1565,6 +1573,10 @@ const STRINGS = {
     resumeDateLabel: "Próxima renovación",
     resumeConfirm: "Reanudar",
     resumeCancel: "Cancelar",
+    duplicateTitle: (name) => `Ya tienes ${name}`,
+    duplicateBody: "Ya hay una suscripción activa con este nombre. Para distinguirlos en la pestaña de Ahorro, este se añadirá con un nombre distinto — podrás renombrarlo después.",
+    duplicateAddRenamed: (name) => `Añadir como «${name}»`,
+    duplicateCancel: "Cancelar",
     lastNotifOutcome: (ok, why, at) => `abierta: ${ok} · ${why} · ${at}`,
     yesWord: "sí",
     noWord: "no",
@@ -1816,6 +1828,10 @@ const STRINGS = {
     resumeDateLabel: "Prochain renouvellement",
     resumeConfirm: "Reprendre",
     resumeCancel: "Annuler",
+    duplicateTitle: (name) => `Vous avez déjà ${name}`,
+    duplicateBody: "Il existe déjà un abonnement actif portant ce nom. Pour les distinguer dans l'onglet Économies, celui-ci sera ajouté avec un nom différent — vous pourrez le renommer plus tard.",
+    duplicateAddRenamed: (name) => `Ajouter comme « ${name} »`,
+    duplicateCancel: "Annuler",
     lastNotifOutcome: (ok, why, at) => `ouverte : ${ok} · ${why} · ${at}`,
     yesWord: "oui",
     noWord: "non",
@@ -2067,6 +2083,10 @@ const STRINGS = {
     resumeDateLabel: "Nächste Verlängerung",
     resumeConfirm: "Fortsetzen",
     resumeCancel: "Abbrechen",
+    duplicateTitle: (name) => `${name} ist schon vorhanden`,
+    duplicateBody: "Es gibt bereits ein aktives Abo mit diesem Namen. Damit sie im Tab „Ersparnis“ unterscheidbar bleiben, wird dieses mit einem anderen Namen hinzugefügt — du kannst es später umbenennen.",
+    duplicateAddRenamed: (name) => `Als „${name}“ hinzufügen`,
+    duplicateCancel: "Abbrechen",
     lastNotifOutcome: (ok, why, at) => `geöffnet: ${ok} · ${why} · ${at}`,
     yesWord: "ja",
     noWord: "nein",
@@ -3268,60 +3288,132 @@ function wasPausedOn(sub, date) {
   });
 }
 
-// Every billing date that has already happened, newest last.
+// Ogni "ancora" (data di rinnovo + cadenza) che l'abbonamento ha avuto nel
+// tempo, dalla più vecchia alla più recente, ciascuna con il giorno da cui
+// vale. Un `from` a null vuol dire "da sempre" — o perché è il primissimo
+// segmento, o perché l'abbonamento è stato salvato prima che questa
+// cronologia esistesse, nel qual caso tutta la sua vita viene letta con
+// l'unica ancora che conosciamo, quella attuale.
 //
-// The cycle's phase comes from renewalDate (which is the *next* renewal, so it
-// is normally in the future) while how far back the history reaches comes from
-// startDate. Without a startDate there is nothing honest to reconstruct, so the
-// subscription contributes no history at all rather than an invented one.
+// Riprendere da una pausa, o modificare la data di rinnovo su un abbonamento
+// attivo, cambiano entrambi questa ancora: senza questa cronologia, l'unico
+// modo di ricostruire lo storico sarebbe applicare l'ancora di oggi a tutta
+// la vita dell'abbonamento, riscrivendo anche i mesi già passati su un
+// giorno diverso da quello vero. Questa funzione è il punto unico da cui
+// pastOccurrences e occurrencesInMonth leggono, così restano sempre coerenti
+// fra loro.
+function cycleSegments(sub) {
+  const history =
+    Array.isArray(sub.cycleHistory) && sub.cycleHistory.length > 0
+      ? sub.cycleHistory
+      : [{ from: null, renewalDate: sub.renewalDate, frequency: sub.frequency }];
+  // I campi live restano comunque la verità per il segmento più recente: se
+  // per qualche motivo un cambiamento non finisse mai registrato qui, da oggi
+  // in poi la fase torna comunque corretta.
+  return history.map((seg, i) =>
+    i === history.length - 1 ? { from: seg.from, renewalDate: sub.renewalDate, frequency: sub.frequency } : seg
+  );
+}
+
+// Every billing date that has already happened, oldest first.
+//
+// Segmentata per lo stesso motivo di cycleSegments: ogni segmento genera solo
+// le date che ricadono nel proprio intervallo, usando la propria ancora — mai
+// quella di un altro segmento. Senza startDate non c'è nulla di onesto da
+// ricostruire, quindi l'abbonamento non contribuisce storico.
 function pastOccurrences(sub, today, maxYears = 15) {
   if (!sub || !sub.startDate || !sub.renewalDate) return [];
-  const anchor = parseLocalDate(sub.renewalDate);
   const start = parseLocalDate(sub.startDate);
   const floor = new Date(today.getFullYear() - maxYears, today.getMonth(), today.getDate());
   const lowerBound = start > floor ? start : floor;
   const end = sub.endDate ? parseLocalDate(sub.endDate) : null;
 
+  const segments = cycleSegments(sub);
   const out = [];
-  for (let k = 0; k > -100000; k--) {
-    const d = addPeriods(anchor, sub.frequency, k);
-    if (d < lowerBound) break;
-    if (d > today) continue;
-    if (end && d > end) continue;
-    if (wasPausedOn(sub, d)) continue;
-    out.push(d);
-    // Fifteen years of a weekly plan is a little over seven hundred and eighty
-    // charges, which the old ceiling of eight hundred would have clipped.
-    if (out.length > 1600) break;
+  outer: for (let si = 0; si < segments.length; si++) {
+    const seg = segments[si];
+    const anchor = parseLocalDate(seg.renewalDate);
+    if (isNaN(anchor.getTime())) continue;
+    const segFrom = seg.from ? parseLocalDate(seg.from) : null;
+    const nextFrom = si + 1 < segments.length && segments[si + 1].from ? parseLocalDate(segments[si + 1].from) : null;
+
+    // Un segmento copre da dove inizia fino al giorno prima che inizi quello
+    // dopo (o oggi, per l'ultimo): mai oltre, altrimenti due segmenti
+    // finirebbero per generare la stessa data due volte.
+    let segLower = lowerBound;
+    if (segFrom && segFrom > segLower) segLower = segFrom;
+    let segUpper = today;
+    if (nextFrom) {
+      const dayBefore = new Date(nextFrom.getFullYear(), nextFrom.getMonth(), nextFrom.getDate() - 1);
+      if (dayBefore < segUpper) segUpper = dayBefore;
+    }
+    if (segLower > segUpper) continue;
+
+    // L'ancora di un segmento non è sempre nel futuro rispetto al proprio
+    // intervallo: per l'ultimo segmento sì (è la prossima scadenza), ma per
+    // uno passato può essere il primissimo canone mai registrato, a metà
+    // dell'intervallo o all'inizio. Si parte dal passo più vicino al limite
+    // inferiore e si percorre in avanti, così funziona in entrambi i casi.
+    let k = periodsBetween(anchor, segLower, seg.frequency);
+    for (let guard = 0; guard < 100000; guard++, k++) {
+      const d = addPeriods(anchor, seg.frequency, k);
+      if (d > segUpper) break;
+      if (d < segLower) continue;
+      if (end && d > end) continue;
+      if (wasPausedOn(sub, d)) continue;
+      out.push(d);
+      // Fifteen years of a weekly plan is a little over seven hundred and eighty
+      // charges, which the old ceiling of eight hundred would have clipped.
+      if (out.length > 1600) break outer;
+    }
   }
-  return out.reverse();
+  return out.sort((a, b) => a - b);
 }
 
 // Occurrences falling inside one calendar month.
 //
-// The anchor (renewalDate) sets the cycle's phase but is normally in the
-// future, so on its own it can only describe months from today onwards. When a
-// start date is known the same cycle is walked backwards to it, which is what
-// lets the calendar show past months instead of drawing them empty.
-function occurrencesInMonth(renewalDateStr, frequency, monthDate, startDateStr) {
-  const anchor = parseLocalDate(renewalDateStr);
+// Stessa logica a segmenti di pastOccurrences: un mese già passato deve
+// continuare a mostrare il giorno su cui è caduto davvero, anche dopo che una
+// ripresa o una modifica successiva sposta l'abbonamento su un altro giorno
+// da quel momento in poi.
+function occurrencesInMonth(sub, monthDate) {
   const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
-  const lowerBound = startDateStr ? parseLocalDate(startDateStr) : anchor;
-  if (lowerBound > monthEnd) return [];
+  const overallLower = sub.startDate ? parseLocalDate(sub.startDate) : null;
+  if (overallLower && overallLower > monthEnd) return [];
 
-  const steps = periodsBetween(anchor, monthStart, frequency);
-  const freq = freqOf(frequency);
+  const segments = cycleSegments(sub);
   const results = [];
-  // How many charges of this cadence can land inside one month, plus a step
-  // either side for month-length clamping. Scanning one step around the start
-  // was right while a month could hold only one charge; a weekly plan puts four
-  // or five in, and four of them would have gone missing from the calendar.
-  const span = freq.unit === "day" ? Math.ceil(31 / freq.step) + 1 : 2;
-  for (let k = steps - 1; k <= steps + span; k++) {
-    const d = addPeriods(anchor, frequency, k);
-    if (d >= monthStart && d <= monthEnd && d >= lowerBound) {
-      if (!results.some((r) => r.getTime() === d.getTime())) results.push(d);
+  for (let si = 0; si < segments.length; si++) {
+    const seg = segments[si];
+    const anchor = parseLocalDate(seg.renewalDate);
+    if (isNaN(anchor.getTime())) continue;
+    const segFrom = seg.from ? parseLocalDate(seg.from) : null;
+    const nextFrom = si + 1 < segments.length && segments[si + 1].from ? parseLocalDate(segments[si + 1].from) : null;
+
+    let lower = overallLower || anchor;
+    if (segFrom && segFrom > lower) lower = segFrom;
+    if (lower > monthEnd) continue;
+
+    let upper = monthEnd;
+    if (nextFrom) {
+      const dayBefore = new Date(nextFrom.getFullYear(), nextFrom.getMonth(), nextFrom.getDate() - 1);
+      if (dayBefore < upper) upper = dayBefore;
+    }
+    if (upper < monthStart) continue;
+
+    const steps = periodsBetween(anchor, monthStart, seg.frequency);
+    const freq = freqOf(seg.frequency);
+    // How many charges of this cadence can land inside one month, plus a step
+    // either side for month-length clamping. Scanning one step around the start
+    // was right while a month could hold only one charge; a weekly plan puts four
+    // or five in, and four of them would have gone missing from the calendar.
+    const span = freq.unit === "day" ? Math.ceil(31 / freq.step) + 1 : 2;
+    for (let k = steps - 1; k <= steps + span; k++) {
+      const d = addPeriods(anchor, seg.frequency, k);
+      if (d >= monthStart && d <= monthEnd && d >= lower && d <= upper) {
+        if (!results.some((r) => r.getTime() === d.getTime())) results.push(d);
+      }
     }
   }
   return results.sort((a, b) => a - b);
@@ -4661,6 +4753,120 @@ function HubboApp() {
     setShowForm(true);
   }
 
+  // La parte di handleAdd che scrive davvero l'abbonamento, isolata perché va
+  // richiamata da due punti: subito, quando tutto è a posto, oppure dopo che
+  // l'utente ha risposto all'avviso di doppione — con lo stesso nome digitato
+  // o con quello suggerito ("Netflix 2"). Legge il resto dei campi dal form
+  // così com'è, perché il doppione è l'unica cosa che può cambiare fra i due
+  // percorsi.
+  async function commitSubscription(finalName) {
+    const people = form.isShared ? parseInt(form.peopleCount, 10) : null;
+    const promoStillRunning = form.hasPromo && form.promoUntil > todayISO;
+    const rawCost = parseAmount(form.cost);
+    const effectiveCost = form.isShared ? Math.round((rawCost / people) * 100) / 100 : rawCost;
+    const prevSub = editingId ? subs.find((s) => s.id === editingId) : null;
+
+    // What it costs today, before and after the edit. Comparing the stored
+    // prices instead would call it a rise every time someone declares an
+    // introductory offer on a subscription they had entered at the discounted
+    // price — which is the ordinary way of arriving at this screen.
+    // The field holds what is paid now, so during an offer it is the offer
+    // price and the ordinary price comes from the panel.
+    // A finished offer leaves the cost alone: what is being paid now is what
+    // the field says, and the discount belongs to the past.
+    const fullEffective = promoStillRunning
+      ? form.isShared
+        ? Math.round((parseAmount(form.promoFull) / people) * 100) / 100
+        : parseAmount(form.promoFull)
+      : effectiveCost;
+    const promoNow = promoStillRunning
+      ? { cost: fullEffective, promoCost: effectiveCost, promoUntil: form.promoUntil }
+      : { cost: effectiveCost, promoUntil: form.hasPromo ? form.promoUntil : null };
+    const paidBefore = prevSub ? costOn(prevSub, todayISO) : null;
+    const paidAfter = costOn(promoNow, todayISO);
+
+    let lastIncrease = prevSub ? prevSub.lastIncrease || null : null;
+    if (prevSub && paidAfter !== paidBefore) {
+      lastIncrease = paidAfter > paidBefore ? { from: paidBefore, to: paidAfter, date: todayISO } : null;
+    }
+
+    // Every price the subscription has ever had, oldest first. Subscriptions
+    // created before this existed get seeded with their current price so the
+    // series always has a starting point to measure against.
+    const priceHistory = (() => {
+      if (!prevSub) {
+        return [{ cost: paidAfter, currency: form.currency || settings.currency, date: form.startDate || todayISO }];
+      }
+      const base = Array.isArray(prevSub.priceHistory) && prevSub.priceHistory.length > 0
+        ? prevSub.priceHistory
+        : [{ cost: prevSub.cost, currency: prevSub.currency || settings.currency, date: prevSub.startDate || todayISO }];
+      // Same test as the badge above: no new point in the history either,
+      // when what is actually paid today has not moved.
+      if (paidAfter === paidBefore) return base;
+      // A second change on the same day replaces the first rather than
+      // stacking two entries with an identical date.
+      const trimmed = base.length > 1 && base[base.length - 1].date === todayISO ? base.slice(0, -1) : base;
+      return [...trimmed, { cost: paidAfter, currency: form.currency || settings.currency, date: todayISO }];
+    })();
+
+    // Stesso principio della ripresa da pausa: cambiare la data di rinnovo o
+    // la cadenza di un abbonamento già attivo sposta la fase del ciclo da
+    // oggi in poi, non nei mesi già passati. Senza registrare il cambiamento
+    // come nuovo segmento, lo storico e il calendario di quei mesi
+    // verrebbero ricalcolati sulla nuova fase — stesso bug, causa diversa
+    // (vedi cycleSegments, pastOccurrences).
+    const cycleChanged = !!prevSub && (prevSub.renewalDate !== form.renewalDate || prevSub.frequency !== form.frequency);
+    const cycleHistory = !prevSub
+      ? [{ from: null, renewalDate: form.renewalDate, frequency: form.frequency }]
+      : (() => {
+          const base =
+            Array.isArray(prevSub.cycleHistory) && prevSub.cycleHistory.length > 0
+              ? prevSub.cycleHistory
+              : [{ from: null, renewalDate: prevSub.renewalDate, frequency: prevSub.frequency }];
+          return cycleChanged ? [...base, { from: todayISO, renewalDate: form.renewalDate, frequency: form.frequency }] : base;
+        })();
+    const subData = {
+      name: finalName,
+      cost: fullEffective,
+      currency: form.currency || settings.currency,
+      sharedTotalCost: form.isShared ? (promoStillRunning ? parseAmount(form.promoFull) : rawCost) : null,
+      // Null once the offer is over: there is no price left for it to impose,
+      // and the end date on its own is enough to mark the history.
+      promoCost: promoStillRunning ? effectiveCost : null,
+      promoUntil: form.hasPromo ? form.promoUntil : null,
+      sharedPeople: form.isShared ? people : null,
+      frequency: form.frequency,
+      category: form.category,
+      renewalDate: form.renewalDate,
+      startDate: form.startDate || null,
+      endDate: form.hasEndDate ? form.endDate : null,
+      note: form.note.trim() || null,
+      lastIncrease,
+      priceHistory,
+      cycleHistory,
+    };
+    const next = editingId
+      ? subs.map((s) => (s.id === editingId ? { ...s, ...subData } : s))
+      : [...subs, { id: uid(), ...subData }];
+    await persist(next);
+    setSaving(false);
+    setShowForm(false);
+    setEditingId(null);
+  }
+
+  // La prima variante di un nome ancora libera fra gli abbonamenti tuttora
+  // attivi: "Netflix 2", oppure "Netflix 3" se anche quella esiste già, e così
+  // via. Serve solo a suggerire qualcosa di sensato nell'avviso di doppione —
+  // l'utente resta comunque libero di tenere il nome originale.
+  function nextAvailableName(base) {
+    const taken = new Set(
+      subs.filter((s) => !s.endDate || s.endDate >= todayISO).map((s) => s.name.trim().toLowerCase())
+    );
+    let n = 2;
+    while (taken.has(`${base} ${n}`.trim().toLowerCase())) n++;
+    return `${base} ${n}`;
+  }
+
   async function handleAdd(e) {
     if (e && e.preventDefault) e.preventDefault();
     try {
@@ -4719,80 +4925,44 @@ function HubboApp() {
         setFormError(t.errNoPeople);
         return;
       }
-      setFormError("");
-      setSaving(true);
-      const rawCost = parseAmount(form.cost);
-      const effectiveCost = form.isShared ? Math.round((rawCost / people) * 100) / 100 : rawCost;
-      const prevSub = editingId ? subs.find((s) => s.id === editingId) : null;
 
-      // What it costs today, before and after the edit. Comparing the stored
-      // prices instead would call it a rise every time someone declares an
-      // introductory offer on a subscription they had entered at the discounted
-      // price — which is the ordinary way of arriving at this screen.
-      // The field holds what is paid now, so during an offer it is the offer
-      // price and the ordinary price comes from the panel.
-      // A finished offer leaves the cost alone: what is being paid now is what
-      // the field says, and the discount belongs to the past.
-      const fullEffective = promoStillRunning
-        ? form.isShared
-          ? Math.round((parseAmount(form.promoFull) / people) * 100) / 100
-          : parseAmount(form.promoFull)
-        : effectiveCost;
-      const promoNow = promoStillRunning
-        ? { cost: fullEffective, promoCost: effectiveCost, promoUntil: form.promoUntil }
-        : { cost: effectiveCost, promoUntil: form.hasPromo ? form.promoUntil : null };
-      const paidBefore = prevSub ? costOn(prevSub, todayISO) : null;
-      const paidAfter = costOn(promoNow, todayISO);
-
-      let lastIncrease = prevSub ? prevSub.lastIncrease || null : null;
-      if (prevSub && paidAfter !== paidBefore) {
-        lastIncrease = paidAfter > paidBefore ? { from: paidBefore, to: paidAfter, date: todayISO } : null;
+      // Vale sia per un abbonamento nuovo sia per una modifica che rinomina
+      // un abbonamento esistente facendogli assumere il nome di un altro:
+      // due abbonamenti attivi con lo stesso nome non sono solo confusi da
+      // vedere, creano un vero buco nella Scheda Risparmio, che riconosce i
+      // servizi dal nome — un'offerta o un consiglio su quel servizio si
+      // agganceria solo al primo trovato, lasciando l'altro invisibile.
+      // Per questo qui non si avvisa soltanto: si obbliga a un nome diverso.
+      {
+        const nameKey = finalName.trim().toLowerCase();
+        const clash = subs.find(
+          (s) => s.id !== editingId && s.name.trim().toLowerCase() === nameKey && (!s.endDate || s.endDate >= todayISO)
+        );
+        if (clash) {
+          setFormError("");
+          setDuplicateConfirm({ name: finalName, suggested: nextAvailableName(finalName) });
+          return;
+        }
       }
 
-      // Every price the subscription has ever had, oldest first. Subscriptions
-      // created before this existed get seeded with their current price so the
-      // series always has a starting point to measure against.
-      const priceHistory = (() => {
-        if (!prevSub) {
-          return [{ cost: paidAfter, currency: form.currency || settings.currency, date: form.startDate || todayISO }];
-        }
-        const base = Array.isArray(prevSub.priceHistory) && prevSub.priceHistory.length > 0
-          ? prevSub.priceHistory
-          : [{ cost: prevSub.cost, currency: prevSub.currency || settings.currency, date: prevSub.startDate || todayISO }];
-        // Same test as the badge above: no new point in the history either,
-        // when what is actually paid today has not moved.
-        if (paidAfter === paidBefore) return base;
-        // A second change on the same day replaces the first rather than
-        // stacking two entries with an identical date.
-        const trimmed = base.length > 1 && base[base.length - 1].date === todayISO ? base.slice(0, -1) : base;
-        return [...trimmed, { cost: paidAfter, currency: form.currency || settings.currency, date: todayISO }];
-      })();
-      const subData = {
-        name: finalName,
-        cost: fullEffective,
-        currency: form.currency || settings.currency,
-        sharedTotalCost: form.isShared ? (promoStillRunning ? parseAmount(form.promoFull) : rawCost) : null,
-        // Null once the offer is over: there is no price left for it to impose,
-        // and the end date on its own is enough to mark the history.
-        promoCost: promoStillRunning ? effectiveCost : null,
-        promoUntil: form.hasPromo ? form.promoUntil : null,
-        sharedPeople: form.isShared ? people : null,
-        frequency: form.frequency,
-        category: form.category,
-        renewalDate: form.renewalDate,
-        startDate: form.startDate || null,
-        endDate: form.hasEndDate ? form.endDate : null,
-        note: form.note.trim() || null,
-        lastIncrease,
-        priceHistory,
-      };
-      const next = editingId
-        ? subs.map((s) => (s.id === editingId ? { ...s, ...subData } : s))
-        : [...subs, { id: uid(), ...subData }];
-      await persist(next);
+      setFormError("");
+      setSaving(true);
+      await commitSubscription(finalName);
+    } catch (err) {
       setSaving(false);
-      setShowForm(false);
-      setEditingId(null);
+      setFormError(t.errUnexpected + (err && err.message ? err.message : String(err)));
+    }
+  }
+
+  // Richiamata dai due bottoni dell'avviso di doppione: `nameToUse` è il nome
+  // originale se si è scelto di tenerlo comunque, o quello suggerito se si è
+  // accettato il rinominato.
+  async function confirmDuplicateAdd(nameToUse) {
+    if (!duplicateConfirm) return;
+    setDuplicateConfirm(null);
+    try {
+      setSaving(true);
+      await commitSubscription(nameToUse);
     } catch (err) {
       setSaving(false);
       setFormError(t.errUnexpected + (err && err.message ? err.message : String(err)));
@@ -5088,7 +5258,19 @@ function HubboApp() {
             break;
           }
         }
-        return { ...s, paused: false, renewalDate: date, pausePeriods: periods };
+        // La ripresa dà all'abbonamento una nuova ancora da oggi in poi: i
+        // mesi precedenti devono continuare a leggersi con l'ancora che era
+        // davvero in vigore allora, quindi il cambiamento si registra come un
+        // nuovo segmento invece di sovrascrivere l'unico che c'era (vedi
+        // cycleSegments, pastOccurrences). Se per caso la nuova data coincide
+        // con quella vecchia non c'è davvero nulla di nuovo da segmentare.
+        const baseHistory =
+          Array.isArray(s.cycleHistory) && s.cycleHistory.length > 0
+            ? s.cycleHistory
+            : [{ from: null, renewalDate: s.renewalDate, frequency: s.frequency }];
+        const cycleHistory =
+          date !== s.renewalDate ? [...baseHistory, { from: todayISO, renewalDate: date, frequency: s.frequency }] : baseHistory;
+        return { ...s, paused: false, renewalDate: date, pausePeriods: periods, cycleHistory };
       })
     );
     setResumePrompt(null);
@@ -5112,6 +5294,11 @@ function HubboApp() {
   const [lastNotification, setLastNotification] = useState(null);
   const [cancelPrompt, setCancelPrompt] = useState(null);
   const [resumePrompt, setResumePrompt] = useState(null);
+  // Popolato solo quando si aggiunge (non si modifica) un abbonamento il cui
+  // nome coincide con uno già attivo: { name, suggested }. `name` è quanto
+  // scritto in form, `suggested` la prima variante libera ("Netflix 2",
+  // "Netflix 3", ...). null quando non c'è nulla da chiedere.
+  const [duplicateConfirm, setDuplicateConfirm] = useState(null);
   // The notification log is for chasing faults, not for the people using the
   // app. It stays behind a long press on the version line, where whoever needs
   // it can find it and nobody else trips over it.
@@ -5735,6 +5922,7 @@ function HubboApp() {
     const base = settings.currency;
     const byId = new Map(payments.map((p) => [p.id, p]));
     const valid = new Set();
+    const currentSubIds = new Set(subs.map((s) => s.id));
     let changed = false;
 
     subs.forEach((sub) => {
@@ -5765,12 +5953,26 @@ function HubboApp() {
       });
     });
 
-    // Historical payments are an immutable ledger. Once a payment record
-    // exists, changing the subscription's start/end date, frequency, pause
-    // state or price must never delete it automatically. Future recurrence
-    // rules may change; past paid records do not.
-    const next = Array.from(byId.values());
-    if (changed) persistPayments(next.sort((a, b) => (a.date < b.date ? 1 : -1)));
+    // Historical payments are an immutable ledger: once a payment is on
+    // record, a later price rise, currency switch, pause or edit must never
+    // rewrite it. But a record that was only ever a guess (estimated: true,
+    // never actually observed on the day itself) and that the corrected
+    // cycle — segmented per cycleSegments — no longer recognises as a real
+    // billing date at all, was never a legitimate entry to begin with: it is
+    // the exact shape of the duplicate created by the old pause/resume and
+    // renewal-date-edit bug. Those, and only those, are dropped here, which
+    // is what lets subscriptions affected before this fix heal on their own
+    // the next time the app runs. A hand-made "segna come non pagato" is
+    // untouched, because it stays on a date the cycle still recognises.
+    // Trashed or otherwise no-longer-existing subscriptions are left alone
+    // entirely, since they never enter `valid` in the first place.
+    const beforeCount = byId.size;
+    const next = Array.from(byId.values()).filter((p) => {
+      if (!p.estimated) return true;
+      if (!currentSubIds.has(p.subId)) return true;
+      return valid.has(p.id);
+    });
+    if (changed || next.length !== beforeCount) persistPayments(next.sort((a, b) => (a.date < b.date ? 1 : -1)));
   }, [subs, payments, paymentsLoaded, todayISO, settings.currency, rates]);
 
   // Snapshots stay authoritative while the main currency is unchanged; if it
@@ -6002,7 +6204,7 @@ function HubboApp() {
     // cancelled in June was genuinely being billed in March, and a past month
     // should show it. Each occurrence is then filtered on its own date.
     enriched.forEach((s) => {
-      const occs = occurrencesInMonth(s.renewalDate, s.frequency, monthDate, s.startDate);
+      const occs = occurrencesInMonth(s, monthDate);
       occs.forEach((occDate) => {
         if (s.endDate && occDate > parseLocalDate(s.endDate)) return;
         if (wasPausedOn(s, occDate)) return;
@@ -7660,6 +7862,39 @@ function HubboApp() {
                 {t.resumeConfirm}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Un servizio con lo stesso nome è già attivo: non si può tenere lo
+          stesso nome (crea un buco nella Scheda Risparmio, che riconosce i
+          servizi per nome), quindi qui si propone solo la variante numerata
+          o si annulla. Sopra al form (z più alto), che resta aperto sotto. */}
+      {duplicateConfirm && (
+        <div className="fixed inset-0 z-[85] flex items-center justify-center px-6" style={{ background: colors.overlay }}>
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="w-full max-w-sm rounded-2xl p-5">
+            <h3 style={{ fontFamily: "'Fraunces', serif", color: colors.textPrimary }} className="text-base font-medium mb-1">
+              {t.duplicateTitle(duplicateConfirm.name)}
+            </h3>
+            <p style={{ color: colors.textSecondary }} className="text-sm leading-relaxed mb-4">
+              {t.duplicateBody}
+            </p>
+            <button
+              type="button"
+              onClick={() => confirmDuplicateAdd(duplicateConfirm.suggested)}
+              style={{ background: ACCENT.amber, color: INK }}
+              className="w-full rounded-xl py-3 text-sm font-semibold mb-2"
+            >
+              {t.duplicateAddRenamed(duplicateConfirm.suggested)}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDuplicateConfirm(null)}
+              style={{ color: colors.textFaint }}
+              className="w-full rounded-xl py-2 text-sm"
+            >
+              {t.duplicateCancel}
+            </button>
           </div>
         </div>
       )}
