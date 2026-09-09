@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v118";
+const APP_VERSION = "v120";
 const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -2228,12 +2228,12 @@ const LEDGER_STRINGS = {
     historyMarkPaid: "Segna come pagato",
     historyEstimated: "ricostruito",
     historyEdited: "corretto",
-    paymentAmountLabel: "Importo pagato",
+    paymentAmountLabel: "Correggi l'importo",
     paymentSaveAmount: "Salva",
     paymentApplyTo: "Applica a",
     paymentScopeOne: "Solo questo",
-    paymentScopeBefore: "Questo e i precedenti",
-    paymentScopeAfter: "Questo e i successivi",
+    paymentScopeBefore: "Precedenti",
+    paymentScopeAfter: "Successivi",
     paymentOpenSub: "Apri abbonamento",
     paymentSheetHint: "Correggere l'importo cambia solo questo pagamento, non il prezzo dell'abbonamento.",
     pastSubToggle: "Abbonamento già terminato",
@@ -2320,12 +2320,12 @@ const LEDGER_STRINGS = {
     historyMarkPaid: "Mark as paid",
     historyEstimated: "reconstructed",
     historyEdited: "corrected",
-    paymentAmountLabel: "Amount paid",
+    paymentAmountLabel: "Correct the amount",
     paymentSaveAmount: "Save",
     paymentApplyTo: "Apply to",
-    paymentScopeOne: "This one only",
-    paymentScopeBefore: "This and earlier",
-    paymentScopeAfter: "This and later",
+    paymentScopeOne: "This only",
+    paymentScopeBefore: "Earlier",
+    paymentScopeAfter: "Later",
     paymentOpenSub: "Open subscription",
     paymentSheetHint: "Correcting the amount only changes this payment, not the subscription price.",
     pastSubToggle: "Already ended",
@@ -2412,12 +2412,12 @@ const LEDGER_STRINGS = {
     historyMarkPaid: "Marcar como pagado",
     historyEstimated: "reconstruido",
     historyEdited: "corregido",
-    paymentAmountLabel: "Importe pagado",
+    paymentAmountLabel: "Corregir el importe",
     paymentSaveAmount: "Guardar",
     paymentApplyTo: "Aplicar a",
     paymentScopeOne: "Solo este",
-    paymentScopeBefore: "Este y los anteriores",
-    paymentScopeAfter: "Este y los siguientes",
+    paymentScopeBefore: "Anteriores",
+    paymentScopeAfter: "Siguientes",
     paymentOpenSub: "Abrir suscripción",
     paymentSheetHint: "Corregir el importe solo cambia este pago, no el precio de la suscripción.",
     pastSubToggle: "Ya finalizada",
@@ -2504,12 +2504,12 @@ const LEDGER_STRINGS = {
     historyMarkPaid: "Marquer comme payé",
     historyEstimated: "reconstitué",
     historyEdited: "corrigé",
-    paymentAmountLabel: "Montant payé",
+    paymentAmountLabel: "Corriger le montant",
     paymentSaveAmount: "Enregistrer",
     paymentApplyTo: "Appliquer à",
-    paymentScopeOne: "Celui-ci uniquement",
-    paymentScopeBefore: "Celui-ci et les précédents",
-    paymentScopeAfter: "Celui-ci et les suivants",
+    paymentScopeOne: "Celui-ci",
+    paymentScopeBefore: "Précédents",
+    paymentScopeAfter: "Suivants",
     paymentOpenSub: "Ouvrir l'abonnement",
     paymentSheetHint: "Corriger le montant ne change que ce paiement, pas le prix de l'abonnement.",
     pastSubToggle: "Déjà terminé",
@@ -2596,12 +2596,12 @@ const LEDGER_STRINGS = {
     historyMarkPaid: "Als bezahlt markieren",
     historyEstimated: "rekonstruiert",
     historyEdited: "korrigiert",
-    paymentAmountLabel: "Gezahlter Betrag",
+    paymentAmountLabel: "Betrag korrigieren",
     paymentSaveAmount: "Speichern",
     paymentApplyTo: "Anwenden auf",
     paymentScopeOne: "Nur diese",
-    paymentScopeBefore: "Diese und frühere",
-    paymentScopeAfter: "Diese und spätere",
+    paymentScopeBefore: "Frühere",
+    paymentScopeAfter: "Spätere",
     paymentOpenSub: "Abo öffnen",
     paymentSheetHint: "Eine Betragskorrektur ändert nur diese Zahlung, nicht den Abo-Preis.",
     pastSubToggle: "Bereits beendet",
@@ -4152,7 +4152,11 @@ function HubboApp() {
   const [paymentsLoaded, setPaymentsLoaded] = useState(false);
   const [historyPeriod, setHistoryPeriod] = useState("all");
   const [historySub, setHistorySub] = useState("all");
-  const [historyCat, setHistoryCat] = useState("all");
+    // Vuoto = nessun filtro: stesso linguaggio del filtro categorie
+  // dell'Elenco (`filterCategories`), che è già multi-selezione. Prima qui
+  // era una stringa singola ("all" o un solo id): la scheda Storico non
+  // permetteva di scegliere più di una categoria insieme, mentre l'Elenco sì.
+  const [historyCats, setHistoryCats] = useState([]);
   const [historyFrom, setHistoryFrom] = useState("");
   const [historyTo, setHistoryTo] = useState("");
   const [historyShownYears, setHistoryShownYears] = useState(1);
@@ -4167,6 +4171,10 @@ function HubboApp() {
   // L'unico pagamento rimasto per un servizio: segnarlo "non pagato" senza
   // avvisare lo lascerebbe come una riga vuota, isolata, nello storico.
   const [wipeHistoryPrompt, setWipeHistoryPrompt] = useState(null);
+  // Sostituisce il confirm nativo del browser, che apre il popup di sistema —
+  // bordi squadrati, font di sistema, nessuna delle tinte di Hubbo — proprio
+  // sull'azione più seria dell'app.
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
@@ -4380,7 +4388,6 @@ function HubboApp() {
   }
 
   async function handleDeleteAllData() {
-    if (!window.confirm(t.deleteAllDataConfirm)) return;
     const keys = ["abbly:subscriptions", "abbly:trash", "abbly:payments", "abbly:settings", "abbly:rates", "abbly:offers", "abbly:lastNotif"];
     try {
       for (const key of keys) await window.storage.delete(key, false);
@@ -5215,7 +5222,7 @@ function HubboApp() {
 
   const anyModalOpen =
     showForm || showSettings || showPaywall || showTrash || showColors || showMonthPicker ||
-    !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction || !!colorSwap || !!wipeHistoryPrompt;
+    !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction || !!colorSwap || !!wipeHistoryPrompt || confirmDeleteAll;
 
   useEffect(() => {
     if (!anyModalOpen) return;
@@ -5742,7 +5749,7 @@ function HubboApp() {
     const from12 = new Date(today.getFullYear(), today.getMonth() - 11, 1);
     return visiblePayments.filter((p) => {
       if (historySub !== "all" && p.subId !== historySub) return false;
-      if (historyCat !== "all" && p.category !== historyCat) return false;
+      if (historyCats.length > 0 && !historyCats.includes(p.category)) return false;
       if (historyPeriod === "custom") {
         if (historyFrom && p.date < historyFrom) return false;
         if (historyTo && p.date > historyTo) return false;
@@ -5753,9 +5760,9 @@ function HubboApp() {
       if (/^\d{4}$/.test(historyPeriod)) return p.date.startsWith(historyPeriod);
       return true;
     });
-  }, [visiblePayments, historyPeriod, historySub, historyCat, historyFrom, historyTo, todayISO]);
+  }, [visiblePayments, historyPeriod, historySub, historyCats, historyFrom, historyTo, todayISO]);
 
-  const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCat !== "all";
+  const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCats.length > 0;
 
   const historyPeriodLabel =
     historyPeriod === "year" ? t.historyPeriodYear
@@ -5880,7 +5887,7 @@ function HubboApp() {
 
   useEffect(() => {
     setHistoryShownYears(1);
-  }, [historyPeriod, historySub, historyCat, historyFrom, historyTo]);
+  }, [historyPeriod, historySub, historyCats, historyFrom, historyTo]);
 
   async function togglePaymentStatus(id) {
     await persistPayments(
@@ -6202,6 +6209,7 @@ function HubboApp() {
       ["payment", paymentAction, () => setPaymentAction(null)],
       ["cpurge", confirmPurge, () => setConfirmPurge(null)],
       ["wipehist", wipeHistoryPrompt, () => setWipeHistoryPrompt(null)],
+      ["cdelall", confirmDeleteAll, () => setConfirmDeleteAll(false)],
       ["cdel", confirmDelete, () => setConfirmDelete(null)],
       ["import", pendingImport, () => setPendingImport(null)],
       ["picker", pickerOpen, () => setPickerOpen(false), true],
@@ -6817,7 +6825,7 @@ function HubboApp() {
                 <label style={{ color: colors.textFaint }} className="text-xs">{t.historyPeriodLabelTitle}</label>
                 {historyFiltered && (
                   <button
-                    onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCat("all"); setHistoryFrom(""); setHistoryTo(""); }}
+                    onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCats([]); setHistoryFrom(""); setHistoryTo(""); }}
                     style={{ color: ACCENT.amber }}
                     className="text-xs font-medium"
                   >
@@ -6918,16 +6926,21 @@ function HubboApp() {
                   onClick={() =>
                     setOptionPicker({
                       title: t.historyCategoryLabel,
-                      value: historyCat,
-                      options: [{ value: "all", label: t.historyAllCategories }, ...historyCategories.map((c) => ({ value: c.id, label: c.label }))],
-                      onSelect: (v) => { setHistoryCat(v); if (v !== "all") setHistorySub("all"); },
+                      multi: true,
+                      values: historyCats,
+                      onToggle: setHistoryCats,
+                      options: historyCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
                     })
                   }
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCat === "all" ? colors.textSecondary : colors.textPrimary }}
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCats.length === 0 ? colors.textSecondary : colors.textPrimary }}
                   className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
                 >
                   <span className="truncate">
-                    {historyCat === "all" ? t.historyAllCategories : (historyCategories.find((c) => c.id === historyCat) || {}).label || t.historyAllCategories}
+                    {historyCats.length === 0
+                      ? t.historyAllCategories
+                      : historyCats.length === 1
+                      ? (historyCategories.find((c) => c.id === historyCats[0]) || {}).label || t.historyAllCategories
+                      : t.filterNCategories(historyCats.length)}
                   </span>
                   <span style={{ fontSize: 9 }}>▾</span>
                 </button>
@@ -8353,7 +8366,7 @@ function HubboApp() {
                 </div>
                 <button
                   type="button"
-                  onClick={handleDeleteAllData}
+                  onClick={() => setConfirmDeleteAll(true)}
                   style={{ color: colors.textSecondary, border: `1px solid ${colors.border}`, background: colors.surface }}
                   className="w-full rounded-xl py-2.5 text-xs font-medium mb-3"
                 >
@@ -8477,8 +8490,67 @@ function HubboApp() {
               </button>
             </div>
 
-            {/* Amount, scope and save read as one operation, so they share a card */}
-            <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-2xl p-3.5 mb-4">
+            {/* Le due azioni più frequenti quando si tocca una riga dello
+                storico: segnare non pagato, o aprire l'abbonamento. Prima
+                stavano in fondo, sotto un editor di prezzo che occupava
+                quasi tutto lo schermo — invertito, perché sono loro le
+                azioni comuni, la correzione del prezzo è l'eccezione. */}
+            <div className="flex flex-col gap-1.5 mb-4">
+              {(() => {
+                const markingUnpaid = paymentAction.status !== "skipped";
+                return (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      // Solo marcando come "non pagato" (non nel verso opposto) e
+                      // solo se questo è l'unico pagamento rimasto per il
+                      // servizio: è quel caso specifico a lasciare una riga
+                      // vuota e isolata nello storico.
+                      // Non conta quanti pagamenti esistono in totale, conta
+                      // se dopo questo tocco non ne resta più nessuno "pagato":
+                      // tre pagamenti segnati tutti non pagati sono uno storico
+                      // inutile quanto uno con un solo pagamento isolato.
+                      const isLast =
+                        markingUnpaid &&
+                        payments.filter((p) => p.subId === paymentAction.subId && p.status !== "skipped").length === 1;
+                      if (isLast) {
+                        setWipeHistoryPrompt({ id: paymentAction.id, subId: paymentAction.subId, name: paymentAction.name });
+                        return;
+                      }
+                      await togglePaymentStatus(paymentAction.id);
+                      closeSheet("payment", () => setPaymentAction(null));
+                    }}
+                    style={
+                      markingUnpaid
+                        ? { border: `1px solid ${ACCENT.terracotta}59`, background: `${ACCENT.terracotta}0F`, color: legibleOn(ACCENT.terracotta, colors.surface) }
+                        : { border: `1px solid ${colors.border}`, color: colors.textPrimary }
+                    }
+                    className="rounded-xl px-3.5 py-3 text-sm font-medium text-left"
+                  >
+                    {markingUnpaid ? t.historyMarkSkipped : t.historyMarkPaid}
+                  </button>
+                );
+              })()}
+
+              {subs && subs.some((x) => x.id === paymentAction.subId) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = enriched.find((x) => x.id === paymentAction.subId);
+                    closeSheet("payment", () => {
+                      setPaymentAction(null);
+                      if (target) setDetailSub(target);
+                    });
+                  }}
+                  style={{ border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                  className="rounded-xl px-3.5 py-3 text-sm font-medium text-left"
+                >
+                  {t.paymentOpenSub}
+                </button>
+              )}
+            </div>
+
+            <div style={{ borderTop: `1px solid ${colors.border}` }} className="pt-4">
               <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.paymentAmountLabel}</label>
               <div className="flex items-center gap-2 mb-3">
                 <input
@@ -8487,16 +8559,17 @@ function HubboApp() {
                   onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                   type="text"
                   inputMode="decimal"
-                  style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }}
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary, fontFamily: "'JetBrains Mono', monospace" }}
                   className="flex-1 min-w-0 rounded-xl px-3 py-2.5 text-sm outline-none"
                 />
                 <span style={{ color: colors.textSecondary }} className="text-sm flex-shrink-0">{symbolFor(paymentAction.currency)}</span>
               </div>
 
               <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.paymentApplyTo}</label>
-              {/* Stacked rather than side by side: the labels are long enough to
-                  be clipped in a row, and each one now carries its own count. */}
-              <div className="flex flex-col gap-1.5 mb-3">
+              {/* Una barra unica invece di tre righe impilate: stessa scelta,
+                  un terzo dell'altezza. Le etichette sono corte apposta —
+                  "questo e i precedenti" non ci sta in un terzo di riga. */}
+              <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="flex rounded-xl p-1 mb-3 gap-1">
                 {[
                   { value: "one", label: t.paymentScopeOne },
                   { value: "before", label: t.paymentScopeBefore },
@@ -8510,14 +8583,13 @@ function HubboApp() {
                       type="button"
                       onClick={() => setPaymentScope(opt.value)}
                       style={{
-                        background: active ? colors.textPrimary : colors.surface,
-                        color: active ? colors.bg : colors.textSecondary,
-                        border: `1px solid ${active ? colors.textPrimary : colors.border}`,
+                        background: active ? ACCENT.terracotta : "transparent",
+                        color: active ? "#FFFDF8" : colors.textSecondary,
                       }}
-                      className="rounded-xl px-3 py-2.5 text-xs font-medium flex items-center justify-between gap-2 text-left"
+                      className="flex-1 rounded-lg py-2 text-[11px] font-medium leading-tight text-center"
                     >
-                      <span className="truncate">{opt.label}</span>
-                      <span style={{ opacity: 0.65 }} className="flex-shrink-0">{count}</span>
+                      <span className="block truncate">{opt.label}</span>
+                      <span style={{ opacity: 0.75 }} className="block">{count}</span>
                     </button>
                   );
                 })}
@@ -8537,52 +8609,6 @@ function HubboApp() {
               </button>
 
               <p style={{ color: colors.textFaint }} className="text-xs mt-2.5 leading-relaxed">{t.paymentSheetHint}</p>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <button
-                type="button"
-                onClick={async () => {
-                  // Solo marcando come "non pagato" (non nel verso opposto) e
-                  // solo se questo è l'unico pagamento rimasto per il
-                  // servizio: è quel caso specifico a lasciare una riga
-                  // vuota e isolata nello storico.
-                  // Non conta quanti pagamenti esistono in totale, conta
-                  // se dopo questo tocco non ne resta più nessuno "pagato":
-                  // tre pagamenti segnati tutti non pagati sono uno storico
-                  // inutile quanto uno con un solo pagamento isolato.
-                  const isLast =
-                    paymentAction.status !== "skipped" &&
-                    payments.filter((p) => p.subId === paymentAction.subId && p.status !== "skipped").length === 1;
-                  if (isLast) {
-                    setWipeHistoryPrompt({ id: paymentAction.id, subId: paymentAction.subId, name: paymentAction.name });
-                    return;
-                  }
-                  await togglePaymentStatus(paymentAction.id);
-                  closeSheet("payment", () => setPaymentAction(null));
-                }}
-                style={{ border: `1px solid ${colors.border}` }}
-                className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-left"
-              >
-                {paymentAction.status === "skipped" ? t.historyMarkPaid : t.historyMarkSkipped}
-              </button>
-
-              {subs && subs.some((x) => x.id === paymentAction.subId) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const target = enriched.find((x) => x.id === paymentAction.subId);
-                    closeSheet("payment", () => {
-                      setPaymentAction(null);
-                      if (target) setDetailSub(target);
-                    });
-                  }}
-                  style={{ border: `1px solid ${colors.border}` }}
-                  className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-left"
-                >
-                  {t.paymentOpenSub}
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -8633,10 +8659,14 @@ function HubboApp() {
               {optionPicker.options
                 .filter((o) => !optionPicker.searchable || String(o.label).toLowerCase().includes(optionSearch.toLowerCase()))
                 .map((o) => {
-                // In multi mode the selection lives in the list's own state, so
-                // the sheet reads it directly and stays open while you tick.
+                // In multi mode the selection can live in the caller's own
+                // state (`values`/`onToggle`) instead of always the Elenco's
+                // `filterCategories`, così più filtri multi-selezione nella
+                // stessa app non condividono per sbaglio lo stesso elenco.
+                const multiValues = optionPicker.values || filterCategories;
+                const multiSetter = optionPicker.onToggle || setFilterCategories;
                 const active = optionPicker.multi
-                  ? filterCategories.includes(o.value)
+                  ? multiValues.includes(o.value)
                   : o.value === optionPicker.value;
                 return (
                   <button
@@ -8644,7 +8674,7 @@ function HubboApp() {
                     type="button"
                     onClick={() => {
                       if (optionPicker.multi) {
-                        setFilterCategories((current) =>
+                        multiSetter((current) =>
                           current.includes(o.value) ? current.filter((x) => x !== o.value) : [...current, o.value]
                         );
                         return;
@@ -8679,12 +8709,15 @@ function HubboApp() {
               })}
             </div>
 
-            {optionPicker.multi && (
+            {optionPicker.multi && (() => {
+              const multiValues = optionPicker.values || filterCategories;
+              const multiSetter = optionPicker.onToggle || setFilterCategories;
+              return (
               <div className="flex items-center gap-2 mt-4">
-                {filterCategories.length > 0 && (
+                {multiValues.length > 0 && (
                   <button
                     type="button"
-                    onClick={() => setFilterCategories([])}
+                    onClick={() => multiSetter([])}
                     style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
                     className="flex-1 rounded-xl py-2.5 text-sm font-medium"
                   >
@@ -8700,7 +8733,8 @@ function HubboApp() {
                   {t.filterDone}
                 </button>
               </div>
-            )}
+              );
+            })()}
           </div>
         </div>
       )}
@@ -9334,6 +9368,31 @@ function HubboApp() {
             <button
               type="button"
               onClick={() => closeSheet("cpurge", () => setConfirmPurge(null))}
+              style={{ color: colors.textSecondary }}
+              className="w-full rounded-xl py-2.5 text-sm"
+            >
+              {t.confirmDeleteNo}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {confirmDeleteAll && (
+        <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[60] ${closingSheet === "cdelall" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("cdelall", () => setConfirmDeleteAll(false))}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 ${closingSheet === "cdelall" ? "rb-dialog-out" : "rb-dialog"}`}>
+            <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium mb-2">{t.deleteAllData}</h2>
+            <p style={{ color: colors.textSecondary }} className="text-sm mb-5">{t.deleteAllDataConfirm}</p>
+            <button
+              type="button"
+              onClick={() => { setConfirmDeleteAll(false); handleDeleteAllData(); }}
+              style={{ background: ACCENT.danger, color: "#1A0F0B" }}
+              className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
+            >
+              {t.confirmPurgeYes}
+            </button>
+            <button
+              type="button"
+              onClick={() => closeSheet("cdelall", () => setConfirmDeleteAll(false))}
               style={{ color: colors.textSecondary }}
               className="w-full rounded-xl py-2.5 text-sm"
             >
