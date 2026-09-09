@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v122";
+const APP_VERSION = "v125";
 const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -1092,10 +1092,12 @@ const STRINGS = {
     importData: "Importa backup",
     exportHint: "Salva un file con tutti i tuoi abbonamenti. Tienilo da parte: ti servirà se cambi telefono o reinstalli l'app.",
     importConfirmTitle: "Importare questo backup?",
-    importConfirmBody: (n) => `Il file contiene ${n} abbonamenti. Verranno aggiunti a quelli che hai già (i duplicati vengono ignorati).`,
+    importConfirmBody: (n) => `Il file contiene ${n} abbonamenti.`,
+    importOverwriteWarning: "Importando, abbonamenti, pagamenti e cestino che hai adesso su questo dispositivo verranno sostituiti da quelli nel file: non si sommano, li rimpiazzano. L'operazione non si può annullare. Se vuoi conservare quello che hai, esportalo prima di continuare.",
     importConfirmYes: "Importa",
+    importSelectBody: (n, max) => `Questo backup contiene ${n} abbonamenti, ma il piano gratuito ne permette solo ${max}. Scegli quali tenere.`,
+    importSelectCounter: (sel, max) => `Selezionati ${sel} di ${max}`,
     importDone: (n) => `${n} abbonamenti importati.`,
-    importNothing: "Nessun nuovo abbonamento da importare.",
     importError: "File non valido: non sembra un backup di Hubbo.",
     importErrorReason: (reason) => ({
       format: "File non valido: non sembra un backup di Hubbo.",
@@ -1341,10 +1343,12 @@ const STRINGS = {
     importData: "Import backup",
     exportHint: "Save a file with all your subscriptions. Keep it safe: you'll need it if you switch phones or reinstall the app.",
     importConfirmTitle: "Import this backup?",
-    importConfirmBody: (n) => `The file contains ${n} subscriptions. They'll be added to what you already have (duplicates are skipped).`,
+    importConfirmBody: (n) => `The file contains ${n} subscriptions.`,
+    importOverwriteWarning: "Importing will replace the subscriptions, payments and trash you currently have on this device with what's in the file: they don't add up, they replace them. This can't be undone. If you want to keep what you have, export it first.",
     importConfirmYes: "Import",
+    importSelectBody: (n, max) => `This backup contains ${n} subscriptions, but the free plan only allows ${max}. Choose which to keep.`,
+    importSelectCounter: (sel, max) => `${sel} of ${max} selected`,
     importDone: (n) => `${n} subscriptions imported.`,
-    importNothing: "No new subscriptions to import.",
     importError: "Invalid file: this doesn't look like a Hubbo backup.",
     importErrorReason: (reason) => ({
       format: "Invalid file: this doesn't look like a Hubbo backup.",
@@ -1590,10 +1594,12 @@ const STRINGS = {
     importData: "Importar copia",
     exportHint: "Guarda un archivo con todas tus suscripciones. Consérvalo: lo necesitarás si cambias de teléfono o reinstalas la app.",
     importConfirmTitle: "¿Importar esta copia?",
-    importConfirmBody: (n) => `El archivo contiene ${n} suscripciones. Se añadirán a las que ya tienes (los duplicados se omiten).`,
+    importConfirmBody: (n) => `El archivo contiene ${n} suscripciones.`,
+    importOverwriteWarning: "Al importar, las suscripciones, los pagos y la papelera que tienes ahora en este dispositivo se sustituirán por los del archivo: no se suman, los reemplazan. Esto no se puede deshacer. Si quieres conservar lo que tienes, expórtalo antes de continuar.",
     importConfirmYes: "Importar",
+    importSelectBody: (n, max) => `Esta copia contiene ${n} suscripciones, pero el plan gratuito solo permite ${max}. Elige cuáles conservar.`,
+    importSelectCounter: (sel, max) => `${sel} de ${max} seleccionadas`,
     importDone: (n) => `${n} suscripciones importadas.`,
-    importNothing: "No hay suscripciones nuevas que importar.",
     importError: "Archivo no válido: no parece una copia de Hubbo.",
     importErrorReason: (reason) => ({
       format: "Archivo no válido: no parece una copia de Hubbo.",
@@ -1839,10 +1845,12 @@ const STRINGS = {
     importData: "Importer une sauvegarde",
     exportHint: "Enregistrez un fichier avec tous vos abonnements. Gardez-le : il vous servira si vous changez de téléphone ou réinstallez l'app.",
     importConfirmTitle: "Importer cette sauvegarde ?",
-    importConfirmBody: (n) => `Le fichier contient ${n} abonnements. Ils seront ajoutés à ceux que vous avez déjà (les doublons sont ignorés).`,
+    importConfirmBody: (n) => `Le fichier contient ${n} abonnements.`,
+    importOverwriteWarning: "En important, les abonnements, paiements et la corbeille que vous avez actuellement sur cet appareil seront remplacés par ceux du fichier : ils ne s'additionnent pas, ils les remplacent. Cette action est irréversible. Si vous voulez conserver ce que vous avez, exportez-le avant de continuer.",
     importConfirmYes: "Importer",
+    importSelectBody: (n, max) => `Cette sauvegarde contient ${n} abonnements, mais la formule gratuite n'en permet que ${max}. Choisissez lesquels garder.`,
+    importSelectCounter: (sel, max) => `${sel} sur ${max} sélectionnés`,
     importDone: (n) => `${n} abonnements importés.`,
-    importNothing: "Aucun nouvel abonnement à importer.",
     importError: "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo.",
     importErrorReason: (reason) => ({
       format: "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo.",
@@ -2088,10 +2096,12 @@ const STRINGS = {
     importData: "Backup importieren",
     exportHint: "Speichere eine Datei mit all deinen Abos. Bewahre sie auf: Du brauchst sie, wenn du das Handy wechselst oder die App neu installierst.",
     importConfirmTitle: "Dieses Backup importieren?",
-    importConfirmBody: (n) => `Die Datei enthält ${n} Abos. Sie werden zu deinen bestehenden hinzugefügt (Duplikate werden übersprungen).`,
+    importConfirmBody: (n) => `Die Datei enthält ${n} Abos.`,
+    importOverwriteWarning: "Beim Importieren werden die Abos, Zahlungen und der Papierkorb, die du jetzt auf diesem Gerät hast, durch die aus der Datei ersetzt: Sie werden nicht addiert, sondern ersetzt. Das lässt sich nicht rückgängig machen. Wenn du behalten willst, was du hast, exportiere es vorher.",
     importConfirmYes: "Importieren",
+    importSelectBody: (n, max) => `Dieses Backup enthält ${n} Abos, aber der kostenlose Plan erlaubt nur ${max}. Wähle aus, welche du behalten möchtest.`,
+    importSelectCounter: (sel, max) => `${sel} von ${max} ausgewählt`,
     importDone: (n) => `${n} Abos importiert.`,
-    importNothing: "Keine neuen Abos zum Importieren.",
     importError: "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus.",
     importErrorReason: (reason) => ({
       format: "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus.",
@@ -4241,6 +4251,10 @@ function HubboApp() {
   // lingua, colori — e sostituire non è mai innocuo quanto sommare, quindi
   // resta una scelta esplicita invece che un effetto automatico dell'import.
   const [importIncludeSettings, setImportIncludeSettings] = useState(false);
+  // null = nessuna scelta necessaria (sotto il limite, o Premium); un Set =
+  // quali id fra i nuovi abbonamenti del file l'utente ha scelto di
+  // importare, perché il file ne porta più di quanti posti liberi restano.
+  const [importSelection, setImportSelection] = useState(null);
   const [importMessage, setImportMessage] = useState("");
   const [todayISO, setTodayISO] = useState(() => toLocalISO(new Date()));
   const today = useMemo(() => parseLocalDate(todayISO), [todayISO]);
@@ -4589,6 +4603,12 @@ function HubboApp() {
     // permetteva di aggirare il limite mettendo in pausa un abbonamento per
     // liberare un posto, aggiungerne un altro, poi riprendere quello messo
     // in pausa: bastava ripetere per superare il limite senza fine.
+    // Niente interruttore Premium da controllare qui: la distinzione fra
+    // gratis e a pagamento è pensata per vivere fuori da questo file — due
+    // app diverse sul Play Store, non un valore modificabile nei dati
+    // dell'app stessa. Hubbo Plus, quando esisterà, sarà semplicemente una
+    // build con FREE_LIMIT più alto o assente, non questa stessa app con un
+    // interruttore acceso. Vedi §4 del documento di stato.
     if (subs.length >= FREE_LIMIT) {
       setShowPaywall(true);
       return;
@@ -4898,6 +4918,24 @@ function HubboApp() {
         // Il valore di partenza segue quello che il file porta davvero: senza
         // impostazioni non c'è niente da proporre di includere.
         setImportIncludeSettings(!!data.settings);
+        // Il backup sostituisce, non si somma: niente più "quanti posti
+        // liberi restano rispetto a quello che ho già", perché quello che ho
+        // già sta per essere sostituito. Il tetto è quindi il limite pieno
+        // di questa build, sempre lo stesso: non c'è più un interruttore
+        // Premium da controllare, perché la distinzione sta in quale app hai
+        // scaricato, non in un dato dentro questa. Serve una scelta solo se
+        // il file stesso, da solo, supera il limite: il caso tipico è un
+        // backup esportato da Hubbo Plus (senza limite) importato in Hubbo.
+        const tutti = data.subscriptions;
+        const posti = FREE_LIMIT;
+        if (tutti.length > posti) {
+          // Preselezionati i primi che entrano nel limite, nell'ordine in
+          // cui compaiono nel file: una scelta di partenza sensata che
+          // l'utente può comunque cambiare prima di confermare.
+          setImportSelection(new Set(tutti.slice(0, Math.max(0, posti)).map((s) => s.id)));
+        } else {
+          setImportSelection(null);
+        }
         setImportMessage("");
       } catch {
         setImportMessage(t.importError);
@@ -4909,35 +4947,42 @@ function HubboApp() {
 
   async function confirmImport() {
     if (!pendingImport) return;
-    const existingIds = new Set(subs.map((s) => s.id));
-    const existingKeys = new Set(subs.map((s) => `${s.name}|${s.cost}|${s.renewalDate}`));
-    const incoming = pendingImport.subscriptions.filter(
-      (s) => !existingIds.has(s.id) && !existingKeys.has(`${s.name}|${s.cost}|${s.renewalDate}`)
-    );
-    if (incoming.length > 0) await persist([...subs, ...incoming]);
-    // Payment records carry their own stable ids, so a re-import simply skips
-    // anything already on file instead of doubling up the history.
-    if (Array.isArray(pendingImport.payments) && pendingImport.payments.length > 0) {
-      const known = new Set(payments.map((p) => p.id));
-      const extra = pendingImport.payments.filter((p) => p && p.id && !known.has(p.id));
-      if (extra.length > 0) {
-        await persistPayments([...payments, ...extra].sort((a, b) => (a.date < b.date ? 1 : -1)));
-      }
+    // Con la selezione attiva si tiene solo ciò che l'utente ha scelto;
+    // senza, si importa tutto il file. In entrambi i casi il risultato
+    // SOSTITUISCE gli abbonamenti attuali, non si somma: `persist` riceve
+    // l'elenco intero, non `[...subs, ...nuovi]` come nel vecchio modello
+    // additivo. Chi vuole conservare quello che ha, deve esportarlo prima —
+    // l'avviso nel foglio lo dice chiaramente.
+    const toImport = importSelection ? pendingImport.subscriptions.filter((s) => importSelection.has(s.id)) : pendingImport.subscriptions;
+    await persist(toImport);
+
+    // Stessa logica per i pagamenti: sostituiscono, non si sommano. Un
+    // pagamento il cui abbonamento non è stato importato (perché escluso
+    // dalla selezione) resterebbe orfano — visibile nello Storico per un
+    // servizio che nell'Elenco non esiste — quindi si accettano solo i
+    // pagamenti degli abbonamenti che sono davvero entrati in `toImport`.
+    const acceptedSubIds = new Set(toImport.map((s) => s.id));
+    const importedPayments = Array.isArray(pendingImport.payments)
+      ? pendingImport.payments.filter((p) => p && p.id && acceptedSubIds.has(p.subId))
+      : [];
+    await persistPayments(importedPayments);
+
+    // Il cestino non partecipa al limite (non è fra gli abbonamenti attivi),
+    // quindi non ha bisogno di seguire la selezione: si sostituisce e basta,
+    // per intero, se il file lo porta. Un file senza la chiave `trash`
+    // (formato più vecchio) lascia il cestino attuale intatto invece di
+    // svuotarlo per un'assenza che potrebbe non voler dire nulla.
+    if (Array.isArray(pendingImport.trash)) {
+      await persistTrash(pendingImport.trash);
     }
-    // Il cestino segue la stessa regola degli abbonamenti: si somma, non
-    // sostituisce. Un id già presente fra gli attivi o già nel cestino non
-    // viene raddoppiato.
-    let trashAdded = 0;
-    if (Array.isArray(pendingImport.trash) && pendingImport.trash.length > 0) {
-      const known = new Set([...subs.map((s) => s.id), ...trash.map((s) => s.id)]);
-      const extra = pendingImport.trash.filter((s) => s && s.id && !known.has(s.id));
-      if (extra.length > 0) {
-        await persistTrash([...extra, ...trash]);
-        trashAdded = extra.length;
-      }
-    }
-    // Le impostazioni, se scelte, sostituiscono le attuali invece di
-    // sommarsi: valuta e lingua non hanno un significato a metà.
+
+    // Le impostazioni restano un'eccezione dichiarata: si sostituiscono solo
+    // se l'utente lo sceglie esplicitamente, perché lingua, valuta e tema
+    // sono preferenze di questo dispositivo tanto quanto dati dell'utente,
+    // e forzarle sempre sarebbe una sorpresa sgradita su un telefono nuovo.
+    // Niente più campo isPremium da escludere qui: quel diritto non vive nei
+    // dati dell'app, quindi un file importato non ha più nulla del genere da
+    // poter falsificare.
     if (importIncludeSettings && pendingImport.settings && typeof pendingImport.settings === "object") {
       const nextSettings = { ...defaultSettings, ...settings, ...pendingImport.settings };
       setSettings(nextSettings);
@@ -4945,10 +4990,9 @@ function HubboApp() {
         await window.storage.set("abbly:settings", JSON.stringify(nextSettings), false);
       } catch {}
     }
-    setImportMessage(
-      incoming.length > 0 || trashAdded > 0 ? t.importDone(incoming.length + trashAdded) : t.importNothing
-    );
+    setImportMessage(t.importDone(toImport.length));
     setPendingImport(null);
+    setImportSelection(null);
   }
 
   async function handleRestore(id) {
@@ -6240,7 +6284,7 @@ function HubboApp() {
       ["wipehist", wipeHistoryPrompt, () => setWipeHistoryPrompt(null)],
       ["cdelall", confirmDeleteAll, () => setConfirmDeleteAll(false)],
       ["cdel", confirmDelete, () => setConfirmDelete(null)],
-      ["import", pendingImport, () => setPendingImport(null)],
+      ["import", pendingImport, () => { setPendingImport(null); setImportSelection(null); }],
       ["picker", pickerOpen, () => setPickerOpen(false), true],
       ["form", showForm, () => { setShowForm(false); setEditingId(null); }],
       ["month", showMonthPicker, () => setShowMonthPicker(false)],
@@ -8827,13 +8871,88 @@ function HubboApp() {
       )}
 
       {/* Confirm import */}
-      {pendingImport && (
-        <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[60] ${closingSheet === "import" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("import", () => setPendingImport(null))}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 ${closingSheet === "import" ? "rb-dialog-out" : "rb-dialog"}`}>
+      {pendingImport && (() => {
+        // Il backup sostituisce, non si somma: il tetto è il limite pieno,
+        // non "quanto spazio resta rispetto a quello che ho già" — quello
+        // che ho già sta per sparire comunque. Nessun interruttore Premium
+        // da leggere: questa build ha sempre lo stesso FREE_LIMIT, punto.
+        const tutti = pendingImport.subscriptions;
+        const posti = FREE_LIMIT;
+        const needsSelection = importSelection !== null;
+        const selectedCount = importSelection ? importSelection.size : 0;
+        const canConfirm = !needsSelection || (selectedCount >= 1 && selectedCount <= posti);
+        const hasSomethingToLose = subs.length > 0 || payments.length > 0 || trash.length > 0;
+        const cancelImport = () => closeSheet("import", () => { setPendingImport(null); setImportSelection(null); });
+        return (
+        <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[60] ${closingSheet === "import" ? "rb-overlay-out" : "rb-overlay"}`} onClick={cancelImport}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 max-h-[80vh] overflow-y-auto ${closingSheet === "import" ? "rb-dialog-out" : "rb-dialog"}`}>
             <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium mb-2">{t.importConfirmTitle}</h2>
-            <p style={{ color: colors.textSecondary }} className="text-sm mb-2">
-              {t.importConfirmBody(pendingImport.subscriptions.length)}
-            </p>
+
+            {/* L'avviso più importante del foglio: prima ancora di dire cosa
+                contiene il file, dice cosa sparisce. Un'importazione non era
+                mai stata un'azione distruttiva finché non lo è diventata con
+                questo cambio di modello, e il colore deve dirlo a colpo
+                d'occhio, non solo il testo. */}
+            {hasSomethingToLose && (
+              <div style={{ background: `${ACCENT.danger}14`, border: `1px solid ${ACCENT.danger}55`, color: legibleOn(ACCENT.danger, colors.surface) }} className="rounded-xl px-3.5 py-3 mb-3 text-xs leading-relaxed">
+                {t.importOverwriteWarning}
+              </div>
+            )}
+
+            {needsSelection ? (
+              <>
+                <p style={{ color: colors.textSecondary }} className="text-sm mb-3">
+                  {t.importSelectBody(tutti.length, posti)}
+                </p>
+                <div style={{ color: colors.textFaint }} className="text-xs mb-2">
+                  {t.importSelectCounter(selectedCount, posti)}
+                </div>
+                <div className="flex flex-col gap-1.5 mb-4">
+                  {tutti.map((s) => {
+                    const active = importSelection.has(s.id);
+                    const atCap = !active && selectedCount >= posti;
+                    const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        disabled={atCap}
+                        onClick={() =>
+                          setImportSelection((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(s.id)) next.delete(s.id);
+                            else if (next.size < posti) next.add(s.id);
+                            return next;
+                          })
+                        }
+                        style={{ background: colors.surface2, border: `1px solid ${colors.border}`, opacity: atCap ? 0.45 : 1 }}
+                        className="rounded-xl px-3 py-2.5 flex items-center gap-2.5 text-left"
+                      >
+                        <span
+                          style={{
+                            background: active ? ACCENT.amber : "transparent",
+                            border: `1.5px solid ${active ? ACCENT.amber : colors.textFaint}`,
+                          }}
+                          className="w-4 h-4 rounded-md flex-shrink-0 flex items-center justify-center"
+                        >
+                          {active && <Check size={11} color={INK} strokeWidth={3} />}
+                        </span>
+                        <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={26} />
+                        <span className="flex-1 min-w-0 truncate text-sm">{s.name}</span>
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace", color: colors.textSecondary }} className="text-xs flex-shrink-0">
+                          {money(s.cost, s.currency)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <p style={{ color: colors.textSecondary }} className="text-sm mb-2">
+                {t.importConfirmBody(pendingImport.subscriptions.length)}
+              </p>
+            )}
+
             {pendingImport.appVersion && (
               <p style={{ color: colors.textFaint }} className="text-xs mb-3">{t.importFromVersion(pendingImport.appVersion)}</p>
             )}
@@ -8861,15 +8980,16 @@ function HubboApp() {
             )}
             <button
               type="button"
+              disabled={!canConfirm}
               onClick={confirmImport}
-              style={{ background: ACCENT.amber, color: INK }}
+              style={{ background: ACCENT.danger, color: "#1A0F0B", opacity: canConfirm ? 1 : 0.4 }}
               className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
             >
               {t.importConfirmYes}
             </button>
             <button
               type="button"
-              onClick={() => closeSheet("import", () => setPendingImport(null))}
+              onClick={cancelImport}
               style={{ color: colors.textSecondary }}
               className="w-full rounded-xl py-2.5 text-sm"
             >
@@ -8877,7 +8997,8 @@ function HubboApp() {
             </button>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Trash modal */}
       {/* Category colours */}
