@@ -185,7 +185,7 @@ const THEMES = {
 // The old danger red was a coral only a few degrees of hue from terracotta.
 // Side by side — and "elimina" often sits next to a secondary action — they
 // read as the same colour, so the alarm has been pushed properly red.
-const ACCENT = { amber: "#E3A857", terracotta: "#C4643C", danger: "#E05545" };
+const ACCENT = { amber: "#E3A857", terracotta: "#C4643C", danger: "#E05545", green: "#4CAF7D" };
 
 // The open ring is the mark of the app, and it appears in three places: the
 // wordmark, the add button and the spending ring. They have to be the same
@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v120";
+const APP_VERSION = "v121";
 const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4584,7 +4584,12 @@ function HubboApp() {
   }
 
   function openAdd() {
-    if (activeSubs.length >= FREE_LIMIT) {
+    // Il limite conta TUTTI gli abbonamenti non cestinati — attivi, in pausa
+    // o terminati — non solo quelli attivi. Contare solo `activeSubs`
+    // permetteva di aggirare il limite mettendo in pausa un abbonamento per
+    // liberare un posto, aggiungerne un altro, poi riprendere quello messo
+    // in pausa: bastava ripetere per superare il limite senza fine.
+    if (subs.length >= FREE_LIMIT) {
       setShowPaywall(true);
       return;
     }
@@ -4947,6 +4952,14 @@ function HubboApp() {
   }
 
   async function handleRestore(id) {
+    // Stesso limite dell'aggiunta, per lo stesso motivo: ripristinare
+    // dal cestino è, a tutti gli effetti, aggiungere un abbonamento in più.
+    // Senza questo controllo, cestinare e ripristinare a raffica avrebbe
+    // aggirato il limite tanto quanto la pausa.
+    if (subs.length >= FREE_LIMIT) {
+      setShowPaywall(true);
+      return;
+    }
     const sub = trash.find((s) => s.id === id);
     if (!sub) return;
     const { deletedAt, ...restored } = sub;
@@ -5473,12 +5486,14 @@ function HubboApp() {
       .sort((a, b) => b.saving - a.saving);
   }, [activeSubs, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
 
-  // Quanto un abbonamento è aumentato da quando è iniziato: nasce interamente
-  // dallo storico prezzi che l'app registra già per conto suo (lo stesso
-  // usato nel dettaglio dell'abbonamento), non da un file da mantenere. Vero
-  // al cento per cento perché è quello che l'utente ha davvero pagato, e non
+  // Quanto un abbonamento è cambiato da quando è iniziato: nasce interamente
+  // dallo storico prezzi che l'app registra già da sola (lo stesso usato nel
+  // dettaglio dell'abbonamento), non da un file da mantenere. Vero al cento
+  // per cento perché è quello che l'utente ha davvero pagato, e non
   // invecchia mai: non serve nessuna ricerca, cresce da solo con ogni nuovo
-  // abbonamento tracciato abbastanza a lungo.
+  // abbonamento tracciato abbastanza a lungo. Mostra sia gli aumenti sia i
+  // cali: un calo è raro quanto un aumento, ma è un'informazione vera tanto
+  // quanto — la sezione racconta cosa è successo, non solo mette in guardia.
   const savingsPriceIncreases = useMemo(() => {
     return activeSubs
       .map((s) => {
@@ -5494,7 +5509,7 @@ function HubboApp() {
         const last = settled[settled.length - 1];
         const firstAmount = convertAmount(first.cost, first.currency || s.currency, settings.currency, rates);
         const lastAmount = convertAmount(last.cost, last.currency || s.currency, settings.currency, rates);
-        if (!(lastAmount > firstAmount + 0.01)) return null;
+        if (!(Math.abs(lastAmount - firstAmount) > 0.01)) return null;
         const pct = firstAmount > 0 ? Math.round(((lastAmount - firstAmount) / firstAmount) * 100) : 0;
         // Traccia per lo sparkline: solo i prezzi "a regime", nello stesso
         // ordine in cui sono stati pagati davvero.
@@ -5504,6 +5519,7 @@ function HubboApp() {
           from: firstAmount,
           to: lastAmount,
           diff: lastAmount - firstAmount,
+          up: lastAmount > firstAmount,
           pct,
           since: first.date,
           points,
@@ -6434,6 +6450,17 @@ function HubboApp() {
       {/* Filters + sort */}
       {enriched.length > 0 && (
         <div className="px-5 mt-4">
+          {(filterCategories.length > 0 || hideEnded || listSearch.trim()) && (
+            <div className="flex justify-end mb-1.5">
+              <button
+                onClick={() => { setFilterCategories([]); setHideEnded(false); setListSearch(""); }}
+                style={{ color: ACCENT.amber }}
+                className="text-xs font-medium"
+              >
+                {t.historyResetFilters}
+              </button>
+            </div>
+          )}
           <button
             onClick={() =>
               setOptionPicker({
@@ -6907,7 +6934,7 @@ function HubboApp() {
                       ],
                       // Picking one service makes a category filter meaningless,
                       // and the two together would usually give an empty list.
-                      onSelect: (v) => { setHistorySub(v); if (v !== "all") setHistoryCat("all"); },
+                      onSelect: (v) => { setHistorySub(v); if (v !== "all") setHistoryCats([]); },
                     })
                   }
                   style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historySub === "all" ? colors.textSecondary : colors.textPrimary }}
@@ -6927,8 +6954,7 @@ function HubboApp() {
                     setOptionPicker({
                       title: t.historyCategoryLabel,
                       multi: true,
-                      values: historyCats,
-                      onToggle: setHistoryCats,
+                      multiKey: "historyCats",
                       options: historyCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
                     })
                   }
@@ -7093,6 +7119,7 @@ function HubboApp() {
                     {savingsPriceIncreases.map((p) => {
                       const s = p.sub;
                       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                      const trendColor = p.up ? ACCENT.amber : ACCENT.green;
                       return (
                         <button
                           key={s.id}
@@ -7105,8 +7132,8 @@ function HubboApp() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline justify-between gap-2">
                               <span className="text-sm font-medium truncate">{s.name}</span>
-                              <span style={{ fontFamily: "'JetBrains Mono', monospace", color: legibleOn(ACCENT.amber, colors.surface) }} className="text-sm font-bold flex-shrink-0">
-                                +{p.pct}%
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace", color: legibleOn(trendColor, colors.surface) }} className="text-sm font-bold flex-shrink-0">
+                                {p.up ? "+" : ""}{p.pct}%
                               </span>
                             </div>
                             {/* Prezzi e data su righe separate: insieme non ci
@@ -7123,7 +7150,7 @@ function HubboApp() {
                               </div>
                             )}
                           </div>
-                          <PriceSparkline points={p.points} color={ACCENT.amber} id={s.id} />
+                          <PriceSparkline points={p.points} color={trendColor} id={s.id} />
                         </button>
                       );
                     })}
@@ -8659,12 +8686,15 @@ function HubboApp() {
               {optionPicker.options
                 .filter((o) => !optionPicker.searchable || String(o.label).toLowerCase().includes(optionSearch.toLowerCase()))
                 .map((o) => {
-                // In multi mode the selection can live in the caller's own
-                // state (`values`/`onToggle`) instead of always the Elenco's
-                // `filterCategories`, così più filtri multi-selezione nella
-                // stessa app non condividono per sbaglio lo stesso elenco.
-                const multiValues = optionPicker.values || filterCategories;
-                const multiSetter = optionPicker.onToggle || setFilterCategories;
+                // In multi mode la selezione va letta dal vivo ad ogni resa,
+                // non da una fotografia presa quando il foglio si è aperto:
+                // `values: historyCats` catturava l'array UNA VOLTA, e
+                // restava quello anche dopo che l'utente toccava una voce —
+                // la spunta non si vedeva finché non si richiudeva e
+                // riapriva il foglio, che ricreava una fotografia aggiornata.
+                // `multiKey` dice invece QUALE stato leggere, sempre fresco.
+                const [multiValues, multiSetter] =
+                  optionPicker.multiKey === "historyCats" ? [historyCats, setHistoryCats] : [filterCategories, setFilterCategories];
                 const active = optionPicker.multi
                   ? multiValues.includes(o.value)
                   : o.value === optionPicker.value;
@@ -8710,8 +8740,8 @@ function HubboApp() {
             </div>
 
             {optionPicker.multi && (() => {
-              const multiValues = optionPicker.values || filterCategories;
-              const multiSetter = optionPicker.onToggle || setFilterCategories;
+              const [multiValues, multiSetter] =
+                optionPicker.multiKey === "historyCats" ? [historyCats, setHistoryCats] : [filterCategories, setFilterCategories];
               return (
               <div className="flex items-center gap-2 mt-4">
                 {multiValues.length > 0 && (
