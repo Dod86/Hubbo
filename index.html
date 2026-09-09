@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v115";
+const APP_VERSION = "v117";
 const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -2172,6 +2172,8 @@ const LEDGER_STRINGS = {
     savingsWith: "Con",
     savingsOpportunity: "Opportunità di risparmio",
     savingsDecideNow: "Da decidere adesso",
+    savingsPriceIncreasesTitle: "Da quando li paghi",
+    savingsPriceIncreasesSince: (date) => `da ${date}`,
     savingsPromoEnds: (date, days) => `L'offerta finisce il ${date} · fra ${days} giorni`,
     savingsPromoEndsToday: "L'offerta finisce oggi",
     savingsPromoEndsTomorrow: "L'offerta finisce domani",
@@ -2262,6 +2264,8 @@ const LEDGER_STRINGS = {
     savingsWith: "With",
     savingsOpportunity: "Saving opportunity",
     savingsDecideNow: "Decide now",
+    savingsPriceIncreasesTitle: "Since you started paying",
+    savingsPriceIncreasesSince: (date) => `since ${date}`,
     savingsPromoEnds: (date, days) => `The offer ends on ${date} · in ${days} days`,
     savingsPromoEndsToday: "The offer ends today",
     savingsPromoEndsTomorrow: "The offer ends tomorrow",
@@ -2352,6 +2356,8 @@ const LEDGER_STRINGS = {
     savingsWith: "Con",
     savingsOpportunity: "Oportunidad de ahorro",
     savingsDecideNow: "Para decidir ahora",
+    savingsPriceIncreasesTitle: "Desde que los pagas",
+    savingsPriceIncreasesSince: (date) => `desde ${date}`,
     savingsPromoEnds: (date, days) => `La oferta termina el ${date} · en ${days} días`,
     savingsPromoEndsToday: "La oferta termina hoy",
     savingsPromoEndsTomorrow: "La oferta termina mañana",
@@ -2442,6 +2448,8 @@ const LEDGER_STRINGS = {
     savingsWith: "Avec",
     savingsOpportunity: "Opportunité d’économie",
     savingsDecideNow: "À décider maintenant",
+    savingsPriceIncreasesTitle: "Depuis que vous les payez",
+    savingsPriceIncreasesSince: (date) => `depuis ${date}`,
     savingsPromoEnds: (date, days) => `L'offre se termine le ${date} · dans ${days} jours`,
     savingsPromoEndsToday: "L'offre se termine aujourd'hui",
     savingsPromoEndsTomorrow: "L'offre se termine demain",
@@ -2532,6 +2540,8 @@ const LEDGER_STRINGS = {
     savingsWith: "Mit",
     savingsOpportunity: "Sparmöglichkeit",
     savingsDecideNow: "Jetzt entscheiden",
+    savingsPriceIncreasesTitle: "Seit du dafür bezahlst",
+    savingsPriceIncreasesSince: (date) => `seit ${date}`,
     savingsPromoEnds: (date, days) => `Das Angebot endet am ${date} · in ${days} Tagen`,
     savingsPromoEndsToday: "Das Angebot endet heute",
     savingsPromoEndsTomorrow: "Das Angebot endet morgen",
@@ -3869,6 +3879,33 @@ function RingIcon({ progress, ringColor, ended, colors, size = 52 }) {
         transform="rotate(-90 24 24)"
         style={{ transition: "stroke-dashoffset 0.6s ease" }}
       />
+    </svg>
+  );
+}
+
+// La forma del prezzo nel tempo, non i numeri sugli assi: basta far vedere che
+// sale. I punti non sono spaziati per data reale — sarebbe illeggibile con
+// pochi rilevamenti lontani nel tempo — solo nell'ordine in cui sono successi.
+function PriceSparkline({ points, color, id, width = 60, height = 26 }) {
+  if (!points || points.length < 2) return null;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const span = max - min || 1;
+  const step = width / (points.length - 1);
+  const coords = points.map((v, i) => [i * step, height - ((v - min) / span) * (height - 4) - 2]);
+  const line = coords.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  const fill = `${line} L ${width} ${height} L 0 ${height} Z`;
+  const gradId = `pspark-${id}`;
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={fill} fill={`url(#${gradId})`} stroke="none" />
+      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -5429,6 +5466,46 @@ function HubboApp() {
       .sort((a, b) => b.saving - a.saving);
   }, [activeSubs, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
 
+  // Quanto un abbonamento è aumentato da quando è iniziato: nasce interamente
+  // dallo storico prezzi che l'app registra già per conto suo (lo stesso
+  // usato nel dettaglio dell'abbonamento), non da un file da mantenere. Vero
+  // al cento per cento perché è quello che l'utente ha davvero pagato, e non
+  // invecchia mai: non serve nessuna ricerca, cresce da solo con ogni nuovo
+  // abbonamento tracciato abbastanza a lungo.
+  const savingsPriceIncreases = useMemo(() => {
+    return activeSubs
+      .map((s) => {
+        const hist = buildPriceSeries(s, payments, todayISO);
+        if (hist.length === 0) return null;
+        // Il prezzo durante un'offerta non è il punto di partenza giusto:
+        // confrontare con quello farebbe sembrare un aumento normalissimo la
+        // fine di uno sconto iniziale, che è tutt'altra cosa (già coperta da
+        // "Da decidere adesso").
+        const settled = hist.filter((p) => !p.promo);
+        if (settled.length < 2) return null;
+        const first = settled[0];
+        const last = settled[settled.length - 1];
+        const firstAmount = convertAmount(first.cost, first.currency || s.currency, settings.currency, rates);
+        const lastAmount = convertAmount(last.cost, last.currency || s.currency, settings.currency, rates);
+        if (!(lastAmount > firstAmount + 0.01)) return null;
+        const pct = firstAmount > 0 ? Math.round(((lastAmount - firstAmount) / firstAmount) * 100) : 0;
+        // Traccia per lo sparkline: solo i prezzi "a regime", nello stesso
+        // ordine in cui sono stati pagati davvero.
+        const points = settled.map((p) => convertAmount(p.cost, p.currency || s.currency, settings.currency, rates));
+        return {
+          sub: s,
+          from: firstAmount,
+          to: lastAmount,
+          diff: lastAmount - firstAmount,
+          pct,
+          since: first.date,
+          points,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.diff - a.diff);
+  }, [activeSubs, payments, todayISO, settings.currency, rates]);
+
   const savingsOpportunities = useMemo(() => {
     const raw = offersFile && (offersFile.opportunita || offersFile.risparmi);
     if (!Array.isArray(raw)) return [];
@@ -5559,6 +5636,7 @@ function HubboApp() {
   }, [offersFile, enriched, todayISO]);
 
   const savingsEmpty =
+    savingsPriceIncreases.length === 0 &&
     savingsEndingPromos.length === 0 &&
     savingsOffers.length === 0 &&
     savingsDuplicates.length === 0 &&
@@ -6185,7 +6263,7 @@ function HubboApp() {
 
       {/* Header */}
       <div
-        className="px-5 pt-7 pb-3 sticky top-0 z-30"
+        className="px-5 pt-4 pb-2.5 sticky top-0 z-30"
         style={{
           // Matches the top of the page gradient: a flat fill would show as a
           // rectangle against it once the header is pinned.
@@ -6985,6 +7063,54 @@ function HubboApp() {
             </div>
           ) : (
             <>
+              {/* Quanto sono aumentati, dai tuoi stessi dati. In cima a tutto
+                  il resto: tocca chiunque abbia un abbonamento da un po',
+                  mentre l'offerta in scadenza tocca solo chi ce l'ha adesso.
+                  Ed è l'unica sezione che non dipende da un file da
+                  mantenere. */}
+              {savingsPriceIncreases.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-2.5 px-1">
+                    <span className="flex-shrink-0" style={{ color: legibleOn(ACCENT.amber, colors.bg) }}>
+                      <Icon name="trendingUp" size={15} />
+                    </span>
+                    <span style={{ fontFamily: "'Fraunces', serif", fontSize: 15 }}>{t.savingsPriceIncreasesTitle}</span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {savingsPriceIncreases.map((p) => {
+                      const s = p.sub;
+                      const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setDetailSub(s)}
+                          style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
+                          className="rounded-2xl p-4 flex items-center gap-3 w-full text-left"
+                        >
+                          <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-sm font-medium truncate">{s.name}</span>
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace", color: legibleOn(ACCENT.amber, colors.surface) }} className="text-sm font-bold flex-shrink-0">
+                                +{p.pct}%
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-1" style={{ color: colors.textSecondary }}>
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs">{money(p.from)}</span>
+                              <Icon name="arrowRight" size={11} color={colors.textFaint} />
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold">{money(p.to)}</span>
+                              {p.since && <span style={{ color: colors.textFaint }} className="text-xs">· {t.savingsPriceIncreasesSince(dateFmt(p.since))}</span>}
+                            </div>
+                          </div>
+                          <PriceSparkline points={p.points} color={ACCENT.amber} id={s.id} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* La tua offerta iniziale che sta per finire. È l'unica cosa
                   della scheda con una scadenza vera attaccata. */}
               {savingsEndingPromos.length > 0 && (
