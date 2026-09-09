@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v126";
+const APP_VERSION = "v127";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -6199,25 +6199,47 @@ function HubboApp() {
     for (let i = 0; i < startOffset; i++) days.push(null);
     for (let d = 1; d <= daysInMonth; d++) days.push(d);
 
+    const monthStartISO = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+    const monthEndISO = `${year}-${String(month + 1).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
+
     const byDay = {};
     // Built from every subscription rather than only the active ones: a service
     // cancelled in June was genuinely being billed in March, and a past month
-    // should show it. Each occurrence is then filtered on its own date.
+    // should show it.
+    //
+    // Il passato e oggi arrivano SOLO dai pagamenti già registrati, mai da un
+    // ricalcolo delle regole del ciclo: è la stessa identica fonte dello
+    // Storico, quindi i due non possono più mostrare risultati diversi — se
+    // un pagamento è nello Storico, è anche nel Calendario, punto. Solo i
+    // giorni futuri restano una proiezione dal ciclo attuale (pausa inclusa),
+    // perché per quelli non esiste ancora nulla da registrare.
     enriched.forEach((s) => {
+      const recorded = payments.filter((p) => p.subId === s.id && p.date >= monthStartISO && p.date <= monthEndISO);
+      const recordedDates = new Set();
+      recorded.forEach((payment) => {
+        recordedDates.add(payment.date);
+        const occDate = parseLocalDate(payment.date);
+        const key = occDate.getDate();
+        if (!byDay[key]) byDay[key] = [];
+        byDay[key].push({ ...s, _calendarDate: payment.date, _calendarPayment: payment });
+      });
+
       const occs = occurrencesInMonth(s, monthDate);
       occs.forEach((occDate) => {
+        // Oggi e il passato sono già stati gestiti sopra dai pagamenti veri;
+        // qui restano solo i giorni a venire.
+        if (occDate <= today) return;
+        const dateISO = toLocalISO(occDate);
+        if (recordedDates.has(dateISO)) return;
         if (s.endDate && occDate > parseLocalDate(s.endDate)) return;
         if (wasPausedOn(s, occDate)) return;
         // Subscriptions paused before pause dates were recorded have no periods
-        // to check, so they are simply hidden from today onwards.
-        if (s.paused && occDate >= today) return;
-        const dateISO = toLocalISO(occDate);
+        // to check, quindi un abbonamento attualmente in pausa resta nascosto
+        // dai mesi futuri comunque.
+        if (s.paused) return;
         const key = occDate.getDate();
         if (!byDay[key]) byDay[key] = [];
-        const payment = occDate <= today ? payments.find((p) => p.id === `${s.id}::${dateISO}`) : null;
-        // Past calendar entries use the recorded payment when available.
-        // Future entries use the current subscription rules.
-        byDay[key].push({ ...s, _calendarDate: dateISO, _calendarPayment: payment || null });
+        byDay[key].push({ ...s, _calendarDate: dateISO, _calendarPayment: null });
       });
     });
 
