@@ -1,6 +1,6 @@
 {
   "versione": 1,
-  "aggiornato": "2026-09-06",
+  "aggiornato": "2026-09-09",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio. 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto.",
@@ -34,7 +34,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.netflix.com/it/",
+      "link": "https://www.netflix.com/account",
       "verificato": "2026-09-05"
     },
     {
@@ -55,7 +55,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.disneyplus.com/it-it",
+      "link": "https://www.disneyplus.com/account",
       "verificato": "2026-09-05"
     },
     {
@@ -80,7 +80,7 @@
         "disponibile": true,
         "prezzo": 6.49
       },
-      "link": "https://www.spotify.com/it/premium/",
+      "link": "https://www.spotify.com/account/subscription/",
       "verificato": "2026-09-05"
     },
     {
@@ -97,7 +97,7 @@
       "studenti": {
         "disponibile": true
       },
-      "link": "https://www.youtube.com/premium",
+      "link": "https://www.youtube.com/paid_memberships",
       "verificato": "2026-09-05"
     },
     {
@@ -149,7 +149,7 @@
         "disponibile": true,
         "nome": "Prime Student"
       },
-      "link": "https://www.amazon.it/prime",
+      "link": "https://www.amazon.it/gp/primecentral",
       "verificato": "2026-09-05"
     },
     {
@@ -166,7 +166,7 @@
         "disponibile": true
       },
       "nota": "Dentro Apple One costa meno se usi anche iCloud+ e Apple TV+.",
-      "link": "https://www.apple.com/it/apple-music/",
+      "link": "https://apps.apple.com/account/subscriptions",
       "verificato": "2026-09-05"
     },
     {
@@ -183,7 +183,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.apple.com/it/apple-tv-plus/",
+      "link": "https://apps.apple.com/account/subscriptions",
       "verificato": "2026-09-05"
     },
     {
@@ -199,7 +199,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.apple.com/it/icloud/",
+      "link": "https://apps.apple.com/account/subscriptions",
       "verificato": "2026-09-05"
     },
     {
@@ -216,7 +216,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://one.google.com/",
+      "link": "https://myaccount.google.com/subscriptions",
       "verificato": "2026-09-05"
     },
     {
@@ -233,7 +233,7 @@
       "studenti": {
         "disponibile": true
       },
-      "link": "https://www.microsoft.com/it-it/microsoft-365",
+      "link": "https://account.microsoft.com/services",
       "verificato": "2026-09-05"
     },
     {
@@ -249,7 +249,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.dropbox.com/it/plans",
+      "link": "https://www.dropbox.com/account/plan",
       "verificato": "2026-09-05"
     },
     {
@@ -265,7 +265,7 @@
         "disponibile": true,
         "nota": "Sconto forte per studenti e insegnanti, da rinnovare ogni anno."
       },
-      "link": "https://www.adobe.com/it/creativecloud/plans.html",
+      "link": "https://account.adobe.com/plans",
       "verificato": "2026-09-05"
     },
     {
@@ -280,7 +280,7 @@
       "studenti": {
         "disponibile": true
       },
-      "link": "https://www.adobe.com/it/products/photoshop.html",
+      "link": "https://account.adobe.com/plans",
       "verificato": "2026-09-05"
     },
     {
@@ -314,7 +314,7 @@
         "disponibile": true,
         "nota": "Piano gratuito per studenti con email dell'istituto."
       },
-      "link": "https://www.notion.com/pricing",
+      "link": "https://www.notion.so/my-account",
       "verificato": "2026-09-05"
     },
     {
@@ -343,7 +343,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://claude.com/pricing",
+      "link": "https://claude.ai/settings/billing",
       "verificato": "2026-09-05"
     },
     {
@@ -359,7 +359,7 @@
         "disponibile": false
       },
       "nota": "Al rinnovo il prezzo sale quasi sempre: da controllare prima della scadenza.",
-      "link": "https://nordvpn.com/it/",
+      "link": "https://my.nordaccount.com/billing/",
       "verificato": "2026-09-05"
     },
     {
@@ -390,7 +390,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.playstation.com/it-it/ps-plus/",
+      "link": "https://library.playstation.com/recurring-billing/subscriptions/",
       "verificato": "2026-09-05"
     },
     {
@@ -406,7 +406,7 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.xbox.com/it-IT/xbox-game-pass",
+      "link": "https://account.microsoft.com/services",
       "verificato": "2026-09-05"
     },
     {
@@ -534,7 +534,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://it.norton.com/",
+      "link": "https://my.norton.com/",
       "verificato": "2026-09-06"
     },
     {
@@ -551,7 +551,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.mcafee.com/it-it/",
+      "link": "https://home.mcafee.com/",
       "verificato": "2026-09-06"
     },
     {
@@ -568,7 +568,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.bitdefender.it/",
+      "link": "https://central.bitdefender.com/",
       "verificato": "2026-09-06"
     },
     {
@@ -585,7 +585,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.kaspersky.it/",
+      "link": "https://my.kaspersky.com/",
       "verificato": "2026-09-06"
     },
     {
@@ -602,7 +602,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.avast.com/it-it/",
+      "link": "https://my.avast.com/",
       "verificato": "2026-09-06",
       "pubblicita": {
         "disponibile": true,
@@ -625,7 +625,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.avg.com/it-it/",
+      "link": "https://my.avg.com/",
       "verificato": "2026-09-06",
       "pubblicita": {
         "disponibile": true,
@@ -648,7 +648,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.eset.com/it/",
+      "link": "https://home.eset.com/",
       "verificato": "2026-09-06"
     },
     {
@@ -665,7 +665,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.malwarebytes.com/it",
+      "link": "https://my.malwarebytes.com/",
       "verificato": "2026-09-06"
     },
     {
@@ -697,7 +697,7 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://protonvpn.com/it",
+      "link": "https://account.proton.me/",
       "verificato": "2026-09-06"
     }
   ]

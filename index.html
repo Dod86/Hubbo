@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v108";
+const APP_VERSION = "v109";
 const APP_BUILD_DATE = "2026-09-08";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -902,7 +902,7 @@ const STRINGS = {
     resumeAria: "Riattiva",
     pausedCount: (n) => `${n} in pausa`,
     confirmDeleteTitle: "Eliminare questo abbonamento?",
-    confirmDeleteBody: (name) => `"${name}" verrà spostato nel cestino. Potrai ripristinarlo da lì.`,
+    confirmDeleteBody: (name) => `"${name}" sarà spostato nel cestino insieme al suo calendario e al suo storico: spariranno entrambi. Ripristinandolo da lì torna tutto com\'era.`,
     confirmDeleteYes: "Sposta nel cestino",
     confirmDeleteNo: "Annulla",
     trash: "Cestino",
@@ -1093,6 +1093,16 @@ const STRINGS = {
     importDone: (n) => `${n} abbonamenti importati.`,
     importNothing: "Nessun nuovo abbonamento da importare.",
     importError: "File non valido: non sembra un backup di Hubbo.",
+    importErrorReason: (reason) => ({
+      format: "File non valido: non sembra un backup di Hubbo.",
+      subscriptions: "Il file contiene abbonamenti scritti in un formato che l'app non riconosce.",
+      payments: "Il file contiene pagamenti scritti in un formato che l'app non riconosce.",
+      trash: "Il file contiene un cestino scritto in un formato che l'app non riconosce.",
+      settings: "Il file contiene impostazioni scritte in un formato che l'app non riconosce.",
+    }[reason] || "File non valido: non sembra un backup di Hubbo."),
+    importFromVersion: (v) => `Backup creato con Hubbo ${v}.`,
+    importIncludeSettings: "Includi anche le impostazioni",
+    importIncludeSettingsHint: "Valuta, lingua, colori delle categorie: sostituiscono quelle attuali invece di sommarsi.",
     currencyOfSub: "Valuta",
     ratesNote: "I totali convertono le altre valute con tassi indicativi fissi. Per importi precisi usa la stessa valuta ovunque.",
     ratesLive: (d) => `Cambi aggiornati${d ? " al " + d : ""}. I totali convertono automaticamente le altre valute.`,
@@ -1137,7 +1147,7 @@ const STRINGS = {
     resumeAria: "Resume",
     pausedCount: (n) => `${n} paused`,
     confirmDeleteTitle: "Delete this subscription?",
-    confirmDeleteBody: (name) => `"${name}" will be moved to the trash. You can restore it from there.`,
+    confirmDeleteBody: (name) => `"${name}" will be moved to the trash along with its calendar and history: both will disappear. Restoring it from there brings everything back.`,
     confirmDeleteYes: "Move to trash",
     confirmDeleteNo: "Cancel",
     trash: "Trash",
@@ -1328,6 +1338,16 @@ const STRINGS = {
     importDone: (n) => `${n} subscriptions imported.`,
     importNothing: "No new subscriptions to import.",
     importError: "Invalid file: this doesn't look like a Hubbo backup.",
+    importErrorReason: (reason) => ({
+      format: "Invalid file: this doesn't look like a Hubbo backup.",
+      subscriptions: "The file contains subscriptions in a format the app doesn't recognise.",
+      payments: "The file contains payments in a format the app doesn't recognise.",
+      trash: "The file contains a trash list in a format the app doesn't recognise.",
+      settings: "The file contains settings in a format the app doesn't recognise.",
+    }[reason] || "Invalid file: this doesn't look like a Hubbo backup."),
+    importFromVersion: (v) => `Backup created with Hubbo ${v}.`,
+    importIncludeSettings: "Also include settings",
+    importIncludeSettingsHint: "Currency, language, category colours: they replace your current ones instead of adding to them.",
     currencyOfSub: "Currency",
     ratesNote: "Totals convert other currencies using fixed indicative rates. For exact amounts, use the same currency throughout.",
     ratesLive: (d) => `Rates updated${d ? " on " + d : ""}. Totals convert other currencies automatically.`,
@@ -1372,7 +1392,7 @@ const STRINGS = {
     resumeAria: "Reanudar",
     pausedCount: (n) => `${n} en pausa`,
     confirmDeleteTitle: "¿Eliminar esta suscripción?",
-    confirmDeleteBody: (name) => `"${name}" se moverá a la papelera. Podrás restaurarla desde allí.`,
+    confirmDeleteBody: (name) => `"${name}" se moverá a la papelera junto con su calendario y su historial: ambos desaparecerán. Restaurarla desde allí lo devuelve todo.`,
     confirmDeleteYes: "Mover a la papelera",
     confirmDeleteNo: "Cancelar",
     trash: "Papelera",
@@ -1563,6 +1583,16 @@ const STRINGS = {
     importDone: (n) => `${n} suscripciones importadas.`,
     importNothing: "No hay suscripciones nuevas que importar.",
     importError: "Archivo no válido: no parece una copia de Hubbo.",
+    importErrorReason: (reason) => ({
+      format: "Archivo no válido: no parece una copia de Hubbo.",
+      subscriptions: "El archivo contiene suscripciones en un formato que la app no reconoce.",
+      payments: "El archivo contiene pagos en un formato que la app no reconoce.",
+      trash: "El archivo contiene una papelera en un formato que la app no reconoce.",
+      settings: "El archivo contiene ajustes en un formato que la app no reconoce.",
+    }[reason] || "Archivo no válido: no parece una copia de Hubbo."),
+    importFromVersion: (v) => `Copia creada con Hubbo ${v}.`,
+    importIncludeSettings: "Incluir también los ajustes",
+    importIncludeSettingsHint: "Moneda, idioma, colores de categorías: sustituyen a los actuales en vez de sumarse.",
     currencyOfSub: "Moneda",
     ratesNote: "Los totales convierten otras monedas con tasas fijas orientativas. Para importes exactos, usa la misma moneda en todo.",
     ratesLive: (d) => `Tipos actualizados${d ? " el " + d : ""}. Los totales convierten automáticamente otras monedas.`,
@@ -1607,7 +1637,7 @@ const STRINGS = {
     resumeAria: "Reprendre",
     pausedCount: (n) => `${n} en pause`,
     confirmDeleteTitle: "Supprimer cet abonnement ?",
-    confirmDeleteBody: (name) => `« ${name} » sera déplacé dans la corbeille. Vous pourrez le restaurer depuis là.`,
+    confirmDeleteBody: (name) => `« ${name} » sera déplacé dans la corbeille avec son calendrier et son historique : les deux disparaîtront. Le restaurer depuis là ramène tout.`,
     confirmDeleteYes: "Mettre à la corbeille",
     confirmDeleteNo: "Annuler",
     trash: "Corbeille",
@@ -1798,6 +1828,16 @@ const STRINGS = {
     importDone: (n) => `${n} abonnements importés.`,
     importNothing: "Aucun nouvel abonnement à importer.",
     importError: "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo.",
+    importErrorReason: (reason) => ({
+      format: "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo.",
+      subscriptions: "Le fichier contient des abonnements dans un format que l'app ne reconnaît pas.",
+      payments: "Le fichier contient des paiements dans un format que l'app ne reconnaît pas.",
+      trash: "Le fichier contient une corbeille dans un format que l'app ne reconnaît pas.",
+      settings: "Le fichier contient des réglages dans un format que l'app ne reconnaît pas.",
+    }[reason] || "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo."),
+    importFromVersion: (v) => `Sauvegarde créée avec Hubbo ${v}.`,
+    importIncludeSettings: "Inclure aussi les réglages",
+    importIncludeSettingsHint: "Devise, langue, couleurs des catégories : ils remplacent les actuels au lieu de s'y ajouter.",
     currencyOfSub: "Devise",
     ratesNote: "Les totaux convertissent les autres devises avec des taux fixes indicatifs. Pour des montants exacts, utilisez la même devise partout.",
     ratesLive: (d) => `Taux mis à jour${d ? " le " + d : ""}. Les totaux convertissent automatiquement les autres devises.`,
@@ -1842,7 +1882,7 @@ const STRINGS = {
     resumeAria: "Fortsetzen",
     pausedCount: (n) => `${n} pausiert`,
     confirmDeleteTitle: "Dieses Abo löschen?",
-    confirmDeleteBody: (name) => `„${name}“ wird in den Papierkorb verschoben. Von dort kannst du es wiederherstellen.`,
+    confirmDeleteBody: (name) => `„${name}“ wandert mitsamt Kalender und Verlauf in den Papierkorb: beides verschwindet. Beim Wiederherstellen kommt alles zurück.`,
     confirmDeleteYes: "In den Papierkorb",
     confirmDeleteNo: "Abbrechen",
     trash: "Papierkorb",
@@ -2033,6 +2073,16 @@ const STRINGS = {
     importDone: (n) => `${n} Abos importiert.`,
     importNothing: "Keine neuen Abos zum Importieren.",
     importError: "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus.",
+    importErrorReason: (reason) => ({
+      format: "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus.",
+      subscriptions: "Die Datei enthält Abos in einem Format, das die App nicht kennt.",
+      payments: "Die Datei enthält Zahlungen in einem Format, das die App nicht kennt.",
+      trash: "Die Datei enthält einen Papierkorb in einem Format, das die App nicht kennt.",
+      settings: "Die Datei enthält Einstellungen in einem Format, das die App nicht kennt.",
+    }[reason] || "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus."),
+    importFromVersion: (v) => `Backup erstellt mit Hubbo ${v}.`,
+    importIncludeSettings: "Einstellungen auch übernehmen",
+    importIncludeSettingsHint: "Währung, Sprache, Kategoriefarben: sie ersetzen die aktuellen, statt sich zu addieren.",
     currencyOfSub: "Währung",
     ratesNote: "Summen rechnen andere Währungen mit festen Richtkursen um. Für exakte Beträge überall dieselbe Währung verwenden.",
     ratesLive: (d) => `Kurse aktualisiert${d ? " am " + d : ""}. Summen rechnen andere Währungen automatisch um.`,
@@ -2111,11 +2161,13 @@ const LEDGER_STRINGS = {
     savingsDuplicatesHint: "Servizi che si sostituiscono a vicenda. Averli tutti non è uno spreco, ma uno per volta è una scelta possibile.",
     savingsActiveCount: (n) => `${n} attivi`,
     savingsRotate: (amount) => `Uno per volta, a rotazione, spenderesti ${amount} in meno al mese`,
+    savingsRotateHint: "Uno per volta, a rotazione.",
     savingsGroupVideo: "Streaming video",
     savingsGroupMusic: "Musica",
     savingsGroupAntivirus: "Antivirus",
     savingsGroupVpn: "VPN",
     savingsOnlyOne: (amount) => `Ne serve uno solo: tenendo il resto spendi ${amount} al mese in più.`,
+    savingsOnlyOneHint: "Ne serve uno solo.",
     savingsAntivirusNote: "Due antivirus attivi insieme possono anche darsi fastidio a vicenda.",
     savingsPlans: "Piani alternativi",
     savingsPlansHint: "L'app non sa quale piano hai, e uno che costa meno di solito dà anche meno. Sotto c'è cosa comprende: il confronto con il tuo lo puoi fare solo tu, sul sito.",
@@ -2198,11 +2250,13 @@ const LEDGER_STRINGS = {
     savingsDuplicatesHint: "Services that stand in for each other. Having them all is not waste, but one at a time is an option.",
     savingsActiveCount: (n) => `${n} active`,
     savingsRotate: (amount) => `One at a time, in rotation, you would spend ${amount} less a month`,
+    savingsRotateHint: "One at a time, in rotation.",
     savingsGroupVideo: "Video streaming",
     savingsGroupMusic: "Music",
     savingsGroupAntivirus: "Antivirus",
     savingsGroupVpn: "VPN",
     savingsOnlyOne: (amount) => `You only need one: keeping the rest costs you ${amount} a month.`,
+    savingsOnlyOneHint: "You only need one.",
     savingsAntivirusNote: "Two antivirus programs running together can also get in each other's way.",
     savingsPlans: "Other plans",
     savingsPlansHint: "The app does not know which plan you are on, and a cheaper one usually gives less. Below is what it includes: only you can compare it with yours, on the site.",
@@ -2285,11 +2339,13 @@ const LEDGER_STRINGS = {
     savingsDuplicatesHint: "Servicios que se sustituyen entre sí. Tenerlos todos no es un derroche, pero de uno en uno es una opción.",
     savingsActiveCount: (n) => `${n} activas`,
     savingsRotate: (amount) => `De uno en uno, por turnos, gastarías ${amount} menos al mes`,
+    savingsRotateHint: "De uno en uno, por turnos.",
     savingsGroupVideo: "Streaming de vídeo",
     savingsGroupMusic: "Música",
     savingsGroupAntivirus: "Antivirus",
     savingsGroupVpn: "VPN",
     savingsOnlyOne: (amount) => `Basta con uno: mantener el resto te cuesta ${amount} al mes.`,
+    savingsOnlyOneHint: "Basta con uno.",
     savingsAntivirusNote: "Dos antivirus activos a la vez también pueden estorbarse entre sí.",
     savingsPlans: "Otros planes",
     savingsPlansHint: "La app no sabe qué plan tienes, y uno más barato suele dar menos. Abajo está lo que incluye: la comparación con el tuyo solo puedes hacerla tú, en el sitio.",
@@ -2372,11 +2428,13 @@ const LEDGER_STRINGS = {
     savingsDuplicatesHint: "Des services qui se remplacent l'un l'autre. Les avoir tous n'est pas du gaspillage, mais un à la fois reste possible.",
     savingsActiveCount: (n) => `${n} actifs`,
     savingsRotate: (amount) => `Un à la fois, en alternance, vous dépenseriez ${amount} de moins par mois`,
+    savingsRotateHint: "Un à la fois, en alternance.",
     savingsGroupVideo: "Streaming vidéo",
     savingsGroupMusic: "Musique",
     savingsGroupAntivirus: "Antivirus",
     savingsGroupVpn: "VPN",
     savingsOnlyOne: (amount) => `Un seul suffit : garder les autres vous coûte ${amount} par mois.`,
+    savingsOnlyOneHint: "Un seul suffit.",
     savingsAntivirusNote: "Deux antivirus actifs en même temps peuvent aussi se gêner l'un l'autre.",
     savingsPlans: "Autres formules",
     savingsPlansHint: "L'application ne sait pas quelle formule vous avez, et une moins chère donne souvent moins. Ci-dessous ce qu'elle comprend : la comparaison avec la vôtre, vous seul pouvez la faire, sur le site.",
@@ -2459,11 +2517,13 @@ const LEDGER_STRINGS = {
     savingsDuplicatesHint: "Dienste, die einander ersetzen. Alle zu haben ist keine Verschwendung, eines nach dem anderen ist aber möglich.",
     savingsActiveCount: (n) => `${n} aktiv`,
     savingsRotate: (amount) => `Eines nach dem anderen, im Wechsel: ${amount} weniger im Monat`,
+    savingsRotateHint: "Eines nach dem anderen, im Wechsel.",
     savingsGroupVideo: "Video-Streaming",
     savingsGroupMusic: "Musik",
     savingsGroupAntivirus: "Antivirus",
     savingsGroupVpn: "VPN",
     savingsOnlyOne: (amount) => `Einer reicht: die übrigen kosten dich ${amount} im Monat.`,
+    savingsOnlyOneHint: "Einer reicht.",
     savingsAntivirusNote: "Zwei gleichzeitig laufende Virenscanner können sich auch gegenseitig behindern.",
     savingsPlans: "Andere Tarife",
     savingsPlansHint: "Die App weiß nicht, welchen Tarif du hast, und ein günstigerer gibt meist weniger. Unten steht, was er enthält: der Vergleich mit deinem geht nur auf der Website.",
@@ -4076,6 +4136,12 @@ function HubboApp() {
     if (!optionPicker) setOptionSearch("");
   }, [optionPicker]);
   const [pendingImport, setPendingImport] = useState(null);
+  // Abbonamenti, pagamenti e cestino si sommano a quello che c'è già: non
+  // fanno mai male, nel peggiore dei casi creano un duplicato che si vede e si
+  // cancella. Le impostazioni invece sostituiscono le attuali — valuta,
+  // lingua, colori — e sostituire non è mai innocuo quanto sommare, quindi
+  // resta una scelta esplicita invece che un effetto automatico dell'import.
+  const [importIncludeSettings, setImportIncludeSettings] = useState(false);
   const [importMessage, setImportMessage] = useState("");
   const [todayISO, setTodayISO] = useState(() => toLocalISO(new Date()));
   const today = useMemo(() => parseLocalDate(todayISO), [todayISO]);
@@ -4622,6 +4688,11 @@ function HubboApp() {
     const payload = {
       app: "hubbo",
       version: 1,
+      // La versione del formato del file (sopra) e quella dell'app che l'ha
+      // scritto sono due cose diverse: la prima descrive la forma dei dati,
+      // la seconda serve solo a capire, guardando un vecchio backup, con
+      // quale versione di Hubbo è stato creato.
+      appVersion: APP_VERSION,
       exportedAt: new Date().toISOString(),
       settings,
       subscriptions: subs,
@@ -4660,6 +4731,54 @@ function HubboApp() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  // Un file di backup che sembra a posto in superficie ("app": "hubbo", un
+  // array chiamato giusto) può comunque contenere righe senza le informazioni
+  // che l'app dà per scontate altrove: un `frequency` che FREQUENCIES non
+  // conosce manderebbe in NaN ogni calcolo di rinnovo per quella riga. Si
+  // controlla qui, una volta sola, invece che lasciare che l'errore emerga più
+  // tardi come un abbonamento che non torna.
+  function validateBackupFile(data) {
+    if (!data || typeof data !== "object" || data.app !== "hubbo") return { ok: false, reason: "format" };
+    if (!Array.isArray(data.subscriptions)) return { ok: false, reason: "format" };
+
+    const knownFrequencies = new Set(FREQUENCIES.map((f) => f.id));
+    const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+    const subsOk = data.subscriptions.every(
+      (s) =>
+        s &&
+        typeof s === "object" &&
+        s.id != null &&
+        typeof s.name === "string" &&
+        s.name.trim() !== "" &&
+        Number.isFinite(Number(s.cost)) &&
+        Number(s.cost) >= 0 &&
+        knownFrequencies.has(s.frequency) &&
+        typeof s.renewalDate === "string" &&
+        isoDate.test(s.renewalDate)
+    );
+    if (!subsOk) return { ok: false, reason: "subscriptions" };
+
+    if (data.payments != null) {
+      if (!Array.isArray(data.payments)) return { ok: false, reason: "payments" };
+      const paymentsOk = data.payments.every(
+        (p) => p && typeof p === "object" && p.id != null && p.subId != null && Number.isFinite(Number(p.amount)) && typeof p.date === "string" && isoDate.test(p.date)
+      );
+      if (!paymentsOk) return { ok: false, reason: "payments" };
+    }
+
+    if (data.trash != null) {
+      if (!Array.isArray(data.trash)) return { ok: false, reason: "trash" };
+      const trashOk = data.trash.every((s) => s && typeof s === "object" && s.id != null && typeof s.name === "string");
+      if (!trashOk) return { ok: false, reason: "trash" };
+    }
+
+    if (data.settings != null && (typeof data.settings !== "object" || Array.isArray(data.settings))) {
+      return { ok: false, reason: "settings" };
+    }
+
+    return { ok: true };
+  }
+
   function handleImportFile(e) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -4667,11 +4786,15 @@ function HubboApp() {
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
-        if (!data || data.app !== "hubbo" || !Array.isArray(data.subscriptions)) {
-          setImportMessage(t.importError);
+        const check = validateBackupFile(data);
+        if (!check.ok) {
+          setImportMessage(t.importErrorReason(check.reason));
           return;
         }
         setPendingImport(data);
+        // Il valore di partenza segue quello che il file porta davvero: senza
+        // impostazioni non c'è niente da proporre di includere.
+        setImportIncludeSettings(!!data.settings);
         setImportMessage("");
       } catch {
         setImportMessage(t.importError);
@@ -4698,7 +4821,30 @@ function HubboApp() {
         await persistPayments([...payments, ...extra].sort((a, b) => (a.date < b.date ? 1 : -1)));
       }
     }
-    setImportMessage(incoming.length > 0 ? t.importDone(incoming.length) : t.importNothing);
+    // Il cestino segue la stessa regola degli abbonamenti: si somma, non
+    // sostituisce. Un id già presente fra gli attivi o già nel cestino non
+    // viene raddoppiato.
+    let trashAdded = 0;
+    if (Array.isArray(pendingImport.trash) && pendingImport.trash.length > 0) {
+      const known = new Set([...subs.map((s) => s.id), ...trash.map((s) => s.id)]);
+      const extra = pendingImport.trash.filter((s) => s && s.id && !known.has(s.id));
+      if (extra.length > 0) {
+        await persistTrash([...extra, ...trash]);
+        trashAdded = extra.length;
+      }
+    }
+    // Le impostazioni, se scelte, sostituiscono le attuali invece di
+    // sommarsi: valuta e lingua non hanno un significato a metà.
+    if (importIncludeSettings && pendingImport.settings && typeof pendingImport.settings === "object") {
+      const nextSettings = { ...defaultSettings, ...settings, ...pendingImport.settings };
+      setSettings(nextSettings);
+      try {
+        await window.storage.set("abbly:settings", JSON.stringify(nextSettings), false);
+      } catch {}
+    }
+    setImportMessage(
+      incoming.length > 0 || trashAdded > 0 ? t.importDone(incoming.length + trashAdded) : t.importNothing
+    );
     setPendingImport(null);
   }
 
@@ -4711,11 +4857,18 @@ function HubboApp() {
   }
 
   async function handlePurge(id) {
+    // "Per sempre" vale anche per i pagamenti: lasciarli in giro, orfani di
+    // un abbonamento che non esiste più nemmeno nel cestino, li renderebbe
+    // invisibili ovunque nell'app ma non davvero cancellati — l'opposto di
+    // quello che promette il pulsante.
+    await persistPayments(payments.filter((p) => p.subId !== id));
     await persistTrash(trash.filter((s) => s.id !== id));
     setConfirmPurge(null);
   }
 
   async function handlePurgeAll() {
+    const ids = new Set(trash.map((s) => s.id));
+    await persistPayments(payments.filter((p) => !ids.has(p.subId)));
     await persistTrash([]);
     setConfirmPurge(null);
   }
@@ -5204,8 +5357,12 @@ function HubboApp() {
           }))
           .sort((a, b) => b.monthly - a.monthly);
         const monthly = items.reduce((sum, x) => sum + x.monthly, 0);
-        const cheapest = items[items.length - 1].monthly;
-        const saving = Math.max(0, monthly - cheapest);
+        // Il risparmio si misura tenendo il servizio più caro del gruppo, non
+        // il più economico: è la stima che si può davvero mantenere, perché
+        // presume di rinunciare a quelli che oggi contano meno, non al
+        // migliore. La versione con "il più economico" dava un numero più
+        // grande ma un consiglio che nessuno seguirebbe.
+        const saving = Math.max(0, monthly - items[0].monthly);
         return { id: group, label, items, monthly, saving, keepOne: SAVINGS_KEEP_ONE.has(group), potential: true };
       })
       .sort((a, b) => b.saving - a.saving);
@@ -5286,11 +5443,13 @@ function HubboApp() {
           note: plan.famiglia.nota || "",
         });
       }
+      let planSaving = 0;
       if (plan.pubblicita && plan.pubblicita.disponibile && plan.pubblicita.prezzo != null) {
         const adPrice = convertAmount(plan.pubblicita.prezzo, savingsFileCurrency, settings.currency, rates);
         // Solo se costa davvero meno di quello che paghi: su un piano già
         // economico il suggerimento sarebbe un invito a spendere di più.
         if (adPrice < monthly - 0.01) {
+          planSaving = monthly - adPrice;
           hints.push({
             id: "ads",
             icon: "tag",
@@ -5306,6 +5465,10 @@ function HubboApp() {
       out.push({
         sub: s,
         monthly,
+        // L'annuale, la famiglia, la tariffa studenti non hanno un prezzo nel
+        // listino — solo la conferma che esistono — quindi non entrano nel
+        // numero. Resta a zero invece di ricevere una stima inventata.
+        saving: planSaving,
         hints: hints.slice(0, 3),
         link: plan.link || "",
         checked: plan.verificato || "",
@@ -5398,33 +5561,47 @@ function HubboApp() {
       ? p.baseAmount
       : convertAmount(p.amount, p.currency, settings.currency, rates);
 
+  // Un abbonamento nel cestino deve sparire da tutta l'app, non solo dal
+  // Calendario. Il Calendario lo perde già da solo perché legge `subs`, che
+  // non lo contiene più; lo Storico invece legge `payments`, un elenco a sé
+  // che il cestino non toccava. Senza questo filtro le due schede potevano
+  // disaccordarsi proprio quando l'utente elimina qualcosa — il momento in cui
+  // si fida di più che l'app abbia fatto quello che ha chiesto. I pagamenti
+  // stessi non vengono cancellati qui, solo nascosti: al ripristino
+  // ricompaiono da soli, perché nel frattempo non sono mai stati toccati.
+  const visiblePayments = useMemo(() => {
+    if (!trash || trash.length === 0) return payments;
+    const hidden = new Set(trash.map((s) => s.id));
+    return payments.filter((p) => !hidden.has(p.subId));
+  }, [payments, trash]);
+
   // The filter options are built from the payments themselves, so the pickers
   // only ever offer years, services and categories that actually occur.
   const historyYears = useMemo(() => {
-    const years = new Set(payments.map((p) => p.date.slice(0, 4)));
+    const years = new Set(visiblePayments.map((p) => p.date.slice(0, 4)));
     years.delete(String(today.getFullYear()));
     return Array.from(years).sort().reverse();
-  }, [payments, todayISO]);
+  }, [visiblePayments, todayISO]);
 
   const historyServices = useMemo(() => {
     const map = new Map();
-    payments.forEach((p) => {
+    visiblePayments.forEach((p) => {
       if (!map.has(p.subId)) map.set(p.subId, { label: p.name, category: p.category });
     });
     return Array.from(map.entries())
       .map(([value, v]) => ({ value, label: v.label, category: v.category }))
       .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
-  }, [payments]);
+  }, [visiblePayments]);
 
   const historyCategories = useMemo(() => {
-    const present = new Set(payments.map((p) => p.category));
+    const present = new Set(visiblePayments.map((p) => p.category));
     return CATEGORIES.filter((c) => present.has(c.id));
-  }, [payments, settings.language, settings.categoryColors]);
+  }, [visiblePayments, settings.language, settings.categoryColors]);
 
   const filteredPayments = useMemo(() => {
     const currentYear = String(today.getFullYear());
     const from12 = new Date(today.getFullYear(), today.getMonth() - 11, 1);
-    return payments.filter((p) => {
+    return visiblePayments.filter((p) => {
       if (historySub !== "all" && p.subId !== historySub) return false;
       if (historyCat !== "all" && p.category !== historyCat) return false;
       if (historyPeriod === "custom") {
@@ -5437,7 +5614,7 @@ function HubboApp() {
       if (/^\d{4}$/.test(historyPeriod)) return p.date.startsWith(historyPeriod);
       return true;
     });
-  }, [payments, historyPeriod, historySub, historyCat, historyFrom, historyTo, todayISO]);
+  }, [visiblePayments, historyPeriod, historySub, historyCat, historyFrom, historyTo, todayISO]);
 
   const historyFiltered = historyPeriod !== "all" || historySub !== "all" || historyCat !== "all";
 
@@ -6486,7 +6663,7 @@ function HubboApp() {
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{historyTotals.count} · {t.historyPaymentsCount}</div>
           </div>
 
-          {payments.length > 0 && (
+          {visiblePayments.length > 0 && (
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1">
                 <label style={{ color: colors.textFaint }} className="text-xs">{t.historyPeriodLabelTitle}</label>
@@ -6781,9 +6958,16 @@ function HubboApp() {
                             {t.savingsExtraPerYear(money(p.extraPerYear))}
                           </div>
                           <div className="flex gap-2 mt-3">
-                            {site && (
+                            {(() => {
+                              // Il listino può avere un link più preciso della
+                              // sola home del dominio (una pagina di gestione
+                              // abbonamento invece della vetrina): quando c'è,
+                              // ha la precedenza.
+                              const plan = savingsPlansByService.get(normaliseServiceName(s.name));
+                              const manageLink = (plan && plan.link) || (site ? `https://${site}` : null);
+                              return manageLink ? (
                               <a
-                                href={`https://${site}`}
+                                href={manageLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ background: ACCENT.amber, color: INK }}
@@ -6792,7 +6976,8 @@ function HubboApp() {
                                 <Icon name="externalLink" size={13} />
                                 {t.savingsOpenSite}
                               </a>
-                            )}
+                              ) : null;
+                            })()}
                             <button
                               type="button"
                               onClick={() => setDetailSub(s)}
@@ -6871,8 +7056,11 @@ function HubboApp() {
                             <span className="text-sm font-medium truncate">{group.label}</span>
                             <span style={{ color: colors.textFaint }} className="text-xs flex-shrink-0">{t.savingsActiveCount(group.items.length)}</span>
                           </div>
-                          <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-sm font-semibold flex-shrink-0">
-                            {money(group.monthly)}
+                          <span
+                            style={{ fontFamily: "'JetBrains Mono', monospace", color: legibleOn(ACCENT.green, colors.surface) }}
+                            className="text-base font-bold flex-shrink-0"
+                          >
+                            −{money(group.saving)}
                           </span>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -6899,7 +7087,7 @@ function HubboApp() {
                           })}
                         </div>
                         <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-3 pt-2.5 leading-relaxed">
-                          {group.keepOne ? t.savingsOnlyOne(money(group.saving)) : t.savingsIfOne(money(group.saving))}
+                          {group.keepOne ? t.savingsOnlyOneHint : t.savingsRotateHint}
                           {group.id === "antivirus" && <span> {t.savingsAntivirusNote}</span>}
                         </div>
                       </div>
@@ -6961,9 +7149,18 @@ function HubboApp() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline justify-between gap-2">
                               <span className="text-sm font-medium truncate">{s.name}</span>
-                              <span style={{ fontFamily: "'JetBrains Mono', monospace", color: colors.textSecondary }} className="text-xs flex-shrink-0">
-                                {money(row.monthly)}
-                              </span>
+                              {row.saving > 0 ? (
+                                <span
+                                  style={{ fontFamily: "'JetBrains Mono', monospace", color: legibleOn(ACCENT.green, colors.surface) }}
+                                  className="text-sm font-bold flex-shrink-0"
+                                >
+                                  −{money(row.saving)}
+                                </span>
+                              ) : (
+                                <span style={{ fontFamily: "'JetBrains Mono', monospace", color: colors.textFaint }} className="text-xs flex-shrink-0">
+                                  {money(row.monthly)}
+                                </span>
+                              )}
                             </div>
                             {row.hints.map((hint) => (
                               <div key={hint.id} className="mt-1.5">
@@ -8329,9 +8526,34 @@ function HubboApp() {
         <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[60] ${closingSheet === "import" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("import", () => setPendingImport(null))}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 ${closingSheet === "import" ? "rb-dialog-out" : "rb-dialog"}`}>
             <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium mb-2">{t.importConfirmTitle}</h2>
-            <p style={{ color: colors.textSecondary }} className="text-sm mb-5">
+            <p style={{ color: colors.textSecondary }} className="text-sm mb-2">
               {t.importConfirmBody(pendingImport.subscriptions.length)}
             </p>
+            {pendingImport.appVersion && (
+              <p style={{ color: colors.textFaint }} className="text-xs mb-3">{t.importFromVersion(pendingImport.appVersion)}</p>
+            )}
+            {pendingImport.settings && (
+              <button
+                type="button"
+                onClick={() => setImportIncludeSettings((v) => !v)}
+                style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
+                className="w-full rounded-xl px-3.5 py-3 mb-4 flex items-center gap-3 text-left"
+              >
+                <span
+                  style={{
+                    background: importIncludeSettings ? ACCENT.amber : "transparent",
+                    border: `1.5px solid ${importIncludeSettings ? ACCENT.amber : colors.textFaint}`,
+                  }}
+                  className="w-4 h-4 rounded-md flex-shrink-0 flex items-center justify-center"
+                >
+                  {importIncludeSettings && <Check size={11} color={INK} strokeWidth={3} />}
+                </span>
+                <span className="min-w-0">
+                  <span className="text-sm font-medium block">{t.importIncludeSettings}</span>
+                  <span style={{ color: colors.textFaint }} className="text-xs block mt-0.5">{t.importIncludeSettingsHint}</span>
+                </span>
+              </button>
+            )}
             <button
               type="button"
               onClick={confirmImport}
