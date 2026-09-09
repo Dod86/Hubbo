@@ -1,6 +1,6 @@
 {
   "versione": 1,
-  "aggiornato": "2026-09-09",
+  "aggiornato": "2026-09-10",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio. 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto.",
@@ -115,8 +115,8 @@
         "disponibile": false
       },
       "nota": "Il listino si e' mosso piu' volte nel 2026 e il prezzo cambia anche a seconda di come paghi. Da controllare sempre.",
-      "link": "https://www.dazn.com/it-IT",
-      "verificato": "2026-09-05"
+      "link": "https://www.dazn.com/it-IT/account/signin",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Now",
@@ -130,8 +130,8 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.nowtv.it/",
-      "verificato": "2026-09-05"
+      "link": "https://www.nowtv.it/myaccount",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Amazon Prime",
@@ -374,8 +374,8 @@
       "studenti": {
         "disponibile": true
       },
-      "link": "https://surfshark.com/it",
-      "verificato": "2026-09-05"
+      "link": "https://my.surfshark.com/",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "PlayStation Plus",
@@ -423,8 +423,8 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.nintendo.com/it-it/Nintendo-Switch-Online/",
-      "verificato": "2026-09-05"
+      "link": "https://accounts.nintendo.com/",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Duolingo Plus",
@@ -439,8 +439,8 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://it.duolingo.com/",
-      "verificato": "2026-09-05"
+      "link": "https://www.duolingo.com/settings/account",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Strava",
@@ -455,8 +455,8 @@
       "studenti": {
         "disponibile": true
       },
-      "link": "https://www.strava.com/subscribe",
-      "verificato": "2026-09-05"
+      "link": "https://www.strava.com/settings",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Audible",
@@ -470,8 +470,8 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.audible.it/",
-      "verificato": "2026-09-05"
+      "link": "https://www.audible.it/account",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Kindle Unlimited",
@@ -485,8 +485,8 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.amazon.it/kindle-unlimited",
-      "verificato": "2026-09-05"
+      "link": "https://www.amazon.it/kucentral",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Paramount+",
@@ -500,8 +500,8 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.paramountplus.com/it/",
-      "verificato": "2026-09-05"
+      "link": "https://www.paramountplus.com/account",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Crunchyroll",
@@ -517,8 +517,8 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.crunchyroll.com/it/premium",
-      "verificato": "2026-09-05"
+      "link": "https://www.crunchyroll.com/account/membership",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Norton",
@@ -681,8 +681,8 @@
         "disponibile": false
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://www.expressvpn.com/it",
-      "verificato": "2026-09-06"
+      "link": "https://portal.expressvpn.com/my-subscription",
+      "verificato": "2026-09-10"
     },
     {
       "servizio": "Proton VPN",

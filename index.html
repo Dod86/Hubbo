@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v127";
+const APP_VERSION = "v128";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -985,7 +985,7 @@ const STRINGS = {
     errNoEndDate: "Inserisci la data di fine abbonamento, oppure disattiva l'opzione.",
     errUnexpected: "Errore imprevisto: ",
     paywallTitle: "Hai raggiunto il limite del piano gratuito",
-    paywallBody: (n) => `Il piano gratuito include fino a ${n} abbonamenti attivi, salvati sul tuo dispositivo. Sblocca Premium con un pagamento unico: abbonamenti illimitati e sincronizzazione su tutti i tuoi dispositivi, per sempre — niente altri canoni ricorrenti.`,
+    paywallBody: (n) => `Il piano gratuito include fino a ${n} abbonamenti in totale — anche quelli in pausa o terminati contano — salvati sul tuo dispositivo. Sblocca Premium con un pagamento unico: abbonamenti illimitati e sincronizzazione su tutti i tuoi dispositivi, per sempre — niente altri canoni ricorrenti.`,
     upgrade: "Sblocca Premium · pagamento unico (presto disponibile)",
     maybeLater: "Forse più tardi",
     filterAll: "Tutti",
@@ -1240,7 +1240,7 @@ const STRINGS = {
     errNoEndDate: "Enter the end date, or turn off the option.",
     errUnexpected: "Unexpected error: ",
     paywallTitle: "You've reached the free plan limit",
-    paywallBody: (n) => `The free plan includes up to ${n} active subscriptions, stored on your device. Unlock Premium with a one-time payment: unlimited subscriptions and sync across all your devices, forever — no recurring fees.`,
+    paywallBody: (n) => `The free plan includes up to ${n} subscriptions in total — paused or ended ones count too — stored on your device. Unlock Premium with a one-time payment: unlimited subscriptions and sync across all your devices, forever — no recurring fees.`,
     upgrade: "Unlock Premium · one-time payment (coming soon)",
     maybeLater: "Maybe later",
     filterAll: "All",
@@ -1495,7 +1495,7 @@ const STRINGS = {
     errNoEndDate: "Introduce la fecha de fin o desactiva la opción.",
     errUnexpected: "Error inesperado: ",
     paywallTitle: "Has alcanzado el límite del plan gratuito",
-    paywallBody: (n) => `El plan gratuito incluye hasta ${n} suscripciones activas, guardadas en tu dispositivo. Desbloquea Premium con un pago único: suscripciones ilimitadas y sincronización en todos tus dispositivos, para siempre, sin cuotas recurrentes.`,
+    paywallBody: (n) => `El plan gratuito incluye hasta ${n} suscripciones en total — las pausadas o finalizadas también cuentan — guardadas en tu dispositivo. Desbloquea Premium con un pago único: suscripciones ilimitadas y sincronización en todos tus dispositivos, para siempre, sin cuotas recurrentes.`,
     upgrade: "Desbloquear Premium · pago único (muy pronto)",
     maybeLater: "Quizá más tarde",
     filterAll: "Todas",
@@ -1750,7 +1750,7 @@ const STRINGS = {
     errNoEndDate: "Saisissez la date de fin ou désactivez l'option.",
     errUnexpected: "Erreur inattendue : ",
     paywallTitle: "Vous avez atteint la limite de l'offre gratuite",
-    paywallBody: (n) => `L'offre gratuite comprend jusqu'à ${n} abonnements actifs, stockés sur votre appareil. Débloquez Premium avec un paiement unique : abonnements illimités et synchronisation sur tous vos appareils, pour toujours, sans frais récurrents.`,
+    paywallBody: (n) => `L'offre gratuite comprend jusqu'à ${n} abonnements au total — ceux en pause ou terminés comptent aussi — stockés sur votre appareil. Débloquez Premium avec un paiement unique : abonnements illimités et synchronisation sur tous vos appareils, pour toujours, sans frais récurrents.`,
     upgrade: "Débloquer Premium · paiement unique (bientôt)",
     maybeLater: "Plus tard",
     filterAll: "Tous",
@@ -2005,7 +2005,7 @@ const STRINGS = {
     errNoEndDate: "Gib das Enddatum ein oder deaktiviere die Option.",
     errUnexpected: "Unerwarteter Fehler: ",
     paywallTitle: "Du hast das Limit des Gratis-Tarifs erreicht",
-    paywallBody: (n) => `Der Gratis-Tarif umfasst bis zu ${n} aktive Abos, gespeichert auf deinem Gerät. Schalte Premium mit einer einmaligen Zahlung frei: unbegrenzte Abos und Synchronisierung auf all deinen Geräten, für immer – ohne laufende Gebühren.`,
+    paywallBody: (n) => `Der Gratis-Tarif umfasst bis zu ${n} Abos insgesamt — auch pausierte oder beendete zählen mit — gespeichert auf deinem Gerät. Schalte Premium mit einer einmaligen Zahlung frei: unbegrenzte Abos und Synchronisierung auf all deinen Geräten, für immer – ohne laufende Gebühren.`,
     upgrade: "Premium freischalten · Einmalzahlung (bald)",
     maybeLater: "Vielleicht später",
     filterAll: "Alle",
@@ -6702,7 +6702,11 @@ function HubboApp() {
             </span>
           </div>
           <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-4 pt-3">
-            {t.freeBadge(activeSubs.length, FREE_LIMIT)}
+            {/* Lo stesso conteggio usato dal limite (openAdd, §4 del doc di
+                stato): attivi + in pausa + terminati, mai solo activeSubs —
+                altrimenti il badge direbbe "posto libero" proprio nel
+                momento in cui il limite lo nega. */}
+            {t.freeBadge(subs.length, FREE_LIMIT)}
             {pausedCount > 0 && ` · ${t.pausedCount(pausedCount)}`}
           </div>
         </div>
