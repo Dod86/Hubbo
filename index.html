@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v113";
+const APP_VERSION = "v115";
 const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -2166,6 +2166,7 @@ const LEDGER_STRINGS = {
     savingsPotentialHeadline: (amount) => `Puoi risparmiare fino a ${amount} all'anno`,
     savingsPotentialLabel: "Risparmio potenziale",
     savingsPotentialHint: "È una stima: dipende dalle alternative che scegli e da ciò che vuoi mantenere.",
+    savingsPotentialMonthly: (amount) => `${amount} al mese`,
     savingsIfOne: (amount) => `Se ne mantieni uno solo, potresti ridurre la spesa di ${amount} al mese`,
     savingsReplaces: "Sostituisce",
     savingsWith: "Con",
@@ -2255,6 +2256,7 @@ const LEDGER_STRINGS = {
     savingsPotentialHeadline: (amount) => `You could save up to ${amount} a year`,
     savingsPotentialLabel: "Potential saving",
     savingsPotentialHint: "An estimate: it depends on the alternatives you choose and what you want to keep.",
+    savingsPotentialMonthly: (amount) => `${amount} a month`,
     savingsIfOne: (amount) => `If you keep only one, you could reduce spending by ${amount} a month`,
     savingsReplaces: "Replaces",
     savingsWith: "With",
@@ -2344,6 +2346,7 @@ const LEDGER_STRINGS = {
     savingsPotentialHeadline: (amount) => `Podrías ahorrar hasta ${amount} al año`,
     savingsPotentialLabel: "Ahorro potencial",
     savingsPotentialHint: "Es una estimación: depende de las alternativas que elijas y de lo que quieras mantener.",
+    savingsPotentialMonthly: (amount) => `${amount} al mes`,
     savingsIfOne: (amount) => `Si mantienes solo uno, podrías reducir el gasto en ${amount} al mes`,
     savingsReplaces: "Sustituye",
     savingsWith: "Con",
@@ -2433,6 +2436,7 @@ const LEDGER_STRINGS = {
     savingsPotentialHeadline: (amount) => `Vous pourriez économiser jusqu’à ${amount} par an`,
     savingsPotentialLabel: "Économie potentielle",
     savingsPotentialHint: "Estimation : elle dépend des alternatives choisies et de ce que vous souhaitez conserver.",
+    savingsPotentialMonthly: (amount) => `${amount} par mois`,
     savingsIfOne: (amount) => `En n’en gardant qu’un, vous pourriez réduire la dépense de ${amount} par mois`,
     savingsReplaces: "Remplace",
     savingsWith: "Avec",
@@ -2522,6 +2526,7 @@ const LEDGER_STRINGS = {
     savingsPotentialHeadline: (amount) => `Du könntest bis zu ${amount} im Jahr sparen`,
     savingsPotentialLabel: "Potenzielle Ersparnis",
     savingsPotentialHint: "Eine Schätzung: Sie hängt von den gewählten Alternativen und deinen behaltenen Diensten ab.",
+    savingsPotentialMonthly: (amount) => `${amount} im Monat`,
     savingsIfOne: (amount) => `Wenn du nur einen behältst, könntest du ${amount} im Monat sparen`,
     savingsReplaces: "Ersetzt",
     savingsWith: "Mit",
@@ -5406,13 +5411,20 @@ function HubboApp() {
           }))
           .sort((a, b) => b.monthly - a.monthly);
         const monthly = items.reduce((sum, x) => sum + x.monthly, 0);
-        // Il risparmio si misura tenendo il servizio più caro del gruppo, non
-        // il più economico: è la stima che si può davvero mantenere, perché
-        // presume di rinunciare a quelli che oggi contano meno, non al
-        // migliore. La versione con "il più economico" dava un numero più
-        // grande ma un consiglio che nessuno seguirebbe.
-        const saving = Math.max(0, monthly - items[0].monthly);
-        return { id: group, label, items, monthly, saving, keepOne: SAVINGS_KEEP_ONE.has(group), potential: true };
+        const keepOne = SAVINGS_KEEP_ONE.has(group);
+        // Il numero deve raccontare la stessa storia della frase che gli sta
+        // sotto, non una in disaccordo con l'altra. Per antivirus e VPN
+        // ("ne serve uno solo") ha senso tenere il più caro e lasciare gli
+        // altri: sono la stessa cosa, uno vale l'altro, si tiene il migliore.
+        // Per streaming, musica, gaming e AI la frase dice "a rotazione" — un
+        // servizio alla volta, a turno — e "tenere solo il più caro per
+        // sempre" non è quello: è smettere di ruotare. La stima coerente con
+        // la rotazione è il costo medio di un servizio alla volta, non quello
+        // del più caro fra tutti.
+        const saving = keepOne
+          ? Math.max(0, monthly - items[0].monthly)
+          : Math.max(0, monthly - monthly / items.length);
+        return { id: group, label, items, monthly, saving, keepOne, potential: true };
       })
       .sort((a, b) => b.saving - a.saving);
   }, [activeSubs, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
@@ -6958,6 +6970,7 @@ function HubboApp() {
                 <CategoryLegend segments={annualCategoryTotals} total={annualAmount} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
               </div>
               <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight mt-1">{t.savingsPotentialHeadline(money(annualAmount))}</div>
+              <div style={{ color: colors.textFaint, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs mt-1">{t.savingsPotentialMonthly(money(savingsHeadline.amount))}</div>
               <div style={{ color: colors.textFaint }} className="text-xs mt-1 leading-relaxed">{t.savingsPotentialHint}</div>
             </div>
             );
