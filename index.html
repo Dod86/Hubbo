@@ -289,8 +289,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v109";
-const APP_BUILD_DATE = "2026-09-08";
+const APP_VERSION = "v111";
+const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -905,6 +905,10 @@ const STRINGS = {
     confirmDeleteBody: (name) => `"${name}" sarà spostato nel cestino insieme al suo calendario e al suo storico: spariranno entrambi. Ripristinandolo da lì torna tutto com\'era.`,
     confirmDeleteYes: "Sposta nel cestino",
     confirmDeleteNo: "Annulla",
+    wipeHistoryTitle: "Ultimo rinnovo rimasto",
+    wipeHistoryBody: (name) => `Segnandolo come non pagato, "${name}" resterebbe nello storico senza nemmeno un pagamento registrato. Vuoi eliminare completamente lo storico di questo servizio invece?`,
+    wipeHistoryMarkOnly: "Segna solo come non pagato",
+    wipeHistoryDeleteAll: "Elimina lo storico",
     trash: "Cestino",
     categoryColors: "Colori categorie",
     colorSwapTitle: "Colore già in uso",
@@ -1150,6 +1154,10 @@ const STRINGS = {
     confirmDeleteBody: (name) => `"${name}" will be moved to the trash along with its calendar and history: both will disappear. Restoring it from there brings everything back.`,
     confirmDeleteYes: "Move to trash",
     confirmDeleteNo: "Cancel",
+    wipeHistoryTitle: "Last renewal remaining",
+    wipeHistoryBody: (name) => `Marking it as not paid would leave "${name}" in history with not a single paid entry left. Do you want to delete this service's history completely instead?`,
+    wipeHistoryMarkOnly: "Just mark as not paid",
+    wipeHistoryDeleteAll: "Delete history",
     trash: "Trash",
     categoryColors: "Category colours",
     colorSwapTitle: "Colour already in use",
@@ -1395,6 +1403,10 @@ const STRINGS = {
     confirmDeleteBody: (name) => `"${name}" se moverá a la papelera junto con su calendario y su historial: ambos desaparecerán. Restaurarla desde allí lo devuelve todo.`,
     confirmDeleteYes: "Mover a la papelera",
     confirmDeleteNo: "Cancelar",
+    wipeHistoryTitle: "Último cobro restante",
+    wipeHistoryBody: (name) => `Marcarlo como no pagado dejaría a "${name}" en el historial sin ni un solo pago registrado. ¿Prefieres eliminar por completo el historial de este servicio?`,
+    wipeHistoryMarkOnly: "Marcar solo como no pagado",
+    wipeHistoryDeleteAll: "Eliminar historial",
     trash: "Papelera",
     categoryColors: "Colores de categorías",
     colorSwapTitle: "Color ya en uso",
@@ -1640,6 +1652,10 @@ const STRINGS = {
     confirmDeleteBody: (name) => `« ${name} » sera déplacé dans la corbeille avec son calendrier et son historique : les deux disparaîtront. Le restaurer depuis là ramène tout.`,
     confirmDeleteYes: "Mettre à la corbeille",
     confirmDeleteNo: "Annuler",
+    wipeHistoryTitle: "Dernier renouvellement restant",
+    wipeHistoryBody: (name) => `Le marquer comme non payé ne laisserait plus aucun paiement enregistré pour « ${name} » dans l'historique. Voulez-vous plutôt supprimer complètement l'historique de ce service ?`,
+    wipeHistoryMarkOnly: "Marquer seulement comme non payé",
+    wipeHistoryDeleteAll: "Supprimer l'historique",
     trash: "Corbeille",
     categoryColors: "Couleurs des catégories",
     colorSwapTitle: "Couleur déjà utilisée",
@@ -1885,6 +1901,10 @@ const STRINGS = {
     confirmDeleteBody: (name) => `„${name}“ wandert mitsamt Kalender und Verlauf in den Papierkorb: beides verschwindet. Beim Wiederherstellen kommt alles zurück.`,
     confirmDeleteYes: "In den Papierkorb",
     confirmDeleteNo: "Abbrechen",
+    wipeHistoryTitle: "Letzte verbleibende Verlängerung",
+    wipeHistoryBody: (name) => `Als nicht bezahlt markiert bliebe im Verlauf von „${name}“ kein einziger bezahlter Eintrag mehr übrig. Möchtest du stattdessen den Verlauf dieses Diensts komplett löschen?`,
+    wipeHistoryMarkOnly: "Nur als nicht bezahlt markieren",
+    wipeHistoryDeleteAll: "Verlauf löschen",
     trash: "Papierkorb",
     categoryColors: "Kategoriefarben",
     colorSwapTitle: "Farbe bereits vergeben",
@@ -4076,6 +4096,9 @@ function HubboApp() {
   const [trash, setTrash] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [confirmPurge, setConfirmPurge] = useState(null);
+  // L'unico pagamento rimasto per un servizio: segnarlo "non pagato" senza
+  // avvisare lo lascerebbe come una riga vuota, isolata, nello storico.
+  const [wipeHistoryPrompt, setWipeHistoryPrompt] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
@@ -5124,7 +5147,7 @@ function HubboApp() {
 
   const anyModalOpen =
     showForm || showSettings || showPaywall || showTrash || showColors || showMonthPicker ||
-    !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction || !!colorSwap;
+    !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction || !!colorSwap || !!wipeHistoryPrompt;
 
   useEffect(() => {
     if (!anyModalOpen) return;
@@ -5749,6 +5772,14 @@ function HubboApp() {
     );
   }
 
+  // Toglie del tutto la riga, invece di lasciarla come "non pagato" senza
+  // importo. Rimuove solo quel record: se il servizio ha altri pagamenti,
+  // per costruzione qui non ce ne sono — è per questo che si è arrivati a
+  // proporlo.
+  async function wipeServiceHistory(subId) {
+    await persistPayments(payments.filter((p) => p.subId !== subId));
+  }
+
   const calendarMonthDate = useMemo(() => new Date(today.getFullYear(), today.getMonth() + calendarOffset, 1), [calendarOffset]);
 
   const weekdayLabels = useMemo(() => {
@@ -6054,6 +6085,7 @@ function HubboApp() {
       ["option", optionPicker, () => setOptionPicker(null)],
       ["payment", paymentAction, () => setPaymentAction(null)],
       ["cpurge", confirmPurge, () => setConfirmPurge(null)],
+      ["wipehist", wipeHistoryPrompt, () => setWipeHistoryPrompt(null)],
       ["cdel", confirmDelete, () => setConfirmDelete(null)],
       ["import", pendingImport, () => setPendingImport(null)],
       ["picker", pickerOpen, () => setPickerOpen(false), true],
@@ -8330,6 +8362,21 @@ function HubboApp() {
               <button
                 type="button"
                 onClick={async () => {
+                  // Solo marcando come "non pagato" (non nel verso opposto) e
+                  // solo se questo è l'unico pagamento rimasto per il
+                  // servizio: è quel caso specifico a lasciare una riga
+                  // vuota e isolata nello storico.
+                  // Non conta quanti pagamenti esistono in totale, conta
+                  // se dopo questo tocco non ne resta più nessuno "pagato":
+                  // tre pagamenti segnati tutti non pagati sono uno storico
+                  // inutile quanto uno con un solo pagamento isolato.
+                  const isLast =
+                    paymentAction.status !== "skipped" &&
+                    payments.filter((p) => p.subId === paymentAction.subId && p.status !== "skipped").length === 1;
+                  if (isLast) {
+                    setWipeHistoryPrompt({ id: paymentAction.id, subId: paymentAction.subId, name: paymentAction.name });
+                    return;
+                  }
                   await togglePaymentStatus(paymentAction.id);
                   closeSheet("payment", () => setPaymentAction(null));
                 }}
@@ -9041,6 +9088,49 @@ function HubboApp() {
               {t.colorSwapNo}
             </button>
             <p style={{ color: colors.textFaint }} className="text-xs text-center leading-relaxed">{t.colorSwapNote}</p>
+          </div>
+        </div>
+      )}
+
+      {wipeHistoryPrompt && (
+        <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-[70] ${closingSheet === "wipehist" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("wipehist", () => setWipeHistoryPrompt(null))}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className={`w-full rounded-t-3xl p-5 pb-8 ${closingSheet === "wipehist" ? "rb-dialog-out" : "rb-dialog"}`}>
+            <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium mb-2">{t.wipeHistoryTitle}</h2>
+            <p style={{ color: colors.textSecondary }} className="text-sm mb-5">
+              {t.wipeHistoryBody(wipeHistoryPrompt.name)}
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                await togglePaymentStatus(wipeHistoryPrompt.id);
+                setWipeHistoryPrompt(null);
+                closeSheet("payment", () => setPaymentAction(null));
+              }}
+              style={{ background: ACCENT.amber, color: INK }}
+              className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
+            >
+              {t.wipeHistoryMarkOnly}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await wipeServiceHistory(wipeHistoryPrompt.subId);
+                setWipeHistoryPrompt(null);
+                closeSheet("payment", () => setPaymentAction(null));
+              }}
+              style={{ background: ACCENT.danger, color: "#1A0F0B" }}
+              className="w-full rounded-xl py-3 text-sm font-semibold mb-2.5"
+            >
+              {t.wipeHistoryDeleteAll}
+            </button>
+            <button
+              type="button"
+              onClick={() => closeSheet("wipehist", () => setWipeHistoryPrompt(null))}
+              style={{ color: colors.textSecondary }}
+              className="w-full rounded-xl py-2.5 text-sm"
+            >
+              {t.confirmDeleteNo}
+            </button>
           </div>
         </div>
       )}
