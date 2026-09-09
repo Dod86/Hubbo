@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v117";
+const APP_VERSION = "v118";
 const APP_BUILD_DATE = "2026-09-09";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -7096,12 +7096,19 @@ function HubboApp() {
                                 +{p.pct}%
                               </span>
                             </div>
-                            <div className="flex items-center gap-1.5 mt-1" style={{ color: colors.textSecondary }}>
+                            {/* Prezzi e data su righe separate: insieme non ci
+                                stavano nello spazio fra il logo e lo sparkline,
+                                e "€" andava a capo staccato dal numero. */}
+                            <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap" style={{ color: colors.textSecondary }}>
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs">{money(p.from)}</span>
-                              <Icon name="arrowRight" size={11} color={colors.textFaint} />
+                              <Icon name="arrowRight" size={11} color={colors.textFaint} className="flex-shrink-0" />
                               <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold">{money(p.to)}</span>
-                              {p.since && <span style={{ color: colors.textFaint }} className="text-xs">· {t.savingsPriceIncreasesSince(dateFmt(p.since))}</span>}
                             </div>
+                            {p.since && (
+                              <div style={{ color: colors.textFaint }} className="text-xs mt-0.5">
+                                {t.savingsPriceIncreasesSince(dateFmt(p.since))}
+                              </div>
+                            )}
                           </div>
                           <PriceSparkline points={p.points} color={ACCENT.amber} id={s.id} />
                         </button>
