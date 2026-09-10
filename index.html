@@ -142,7 +142,20 @@ const LUCIDE_ICONS = {
   pizza: `<path d="m12 14-1 1" /> <path d="m13.75 18.25-1.25 1.42" /> <path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12" /> <path d="M18.8 9.3a1 1 0 0 0 2.1 7.7" /> <path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z" />`,
   utensils: `<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /> <path d="M7 2v20" /> <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />`,
   pool: `<path d="M3 9c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2" /> <path d="M3 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2" /> <path d="M7 19v2" /> <path d="M17 19v2" />`,
-  padel: `<path d="M15.5 3.5c2.8 2.8 2.8 7.3 0 10.1l-4.4 4.4a3.5 3.5 0 0 1-5-5l4.4-4.4c2.8-2.8 7.3-2.8 10.1 0" /> <circle cx="14.5" cy="7.5" r="1" /> <circle cx="17" cy="10" r="1" /> <path d="m8.5 15.5-5 5" />`,
+  padel: `<ellipse cx="10" cy="8" rx="6" ry="6.5" /> <path d="M10 14.5v6" /> <path d="M7.5 20.5h5" /> <circle cx="8" cy="6.5" r=".55" fill="currentColor" /> <circle cx="10" cy="9" r=".55" fill="currentColor" /> <circle cx="12" cy="6.5" r=".55" fill="currentColor" />`,
+  // Nessuna di queste esiste in lucide con questo nome: disegnate a mano
+  // nello stesso stile a linee (viewBox 24x24, tratto arrotondato) delle
+  // altre. Tennis: cerchio (le corde) + manico + pallina piena, apposta
+  // diverso dal padel (racchetta piena con i fori) — la confusione fra le
+  // due era proprio quello che rendeva "una siringa" l'icona sbagliata.
+  tennis: `<circle cx="9" cy="9" r="6" /> <path d="M13.2 13.2 17 17" /> <circle cx="19.3" cy="19.3" r="1.7" fill="currentColor" />`,
+  yoga: `<circle cx="12" cy="4.5" r="2" /> <path d="M12 6.5v3.5" /> <path d="M8 10.5c-2.2.6-3.5 2.4-3.5 4.5M16 10.5c2.2.6 3.5 2.4 3.5 4.5" /> <path d="M12 10c-3 0-6 1.8-6 4.8 0 2 2.7 3.2 6 3.2s6-1.2 6-3.2C18 11.8 15 10 12 10Z" />`,
+  // Vista dall'alto: l'anello dei gradoni attorno al rettangolo del campo,
+  // più due segni sui lati corti a suggerire i fari — leggibile anche
+  // piccola, senza dettagli troppo fini da perdersi a 22-26px.
+  stadium: `<rect x="2" y="6" width="20" height="12" rx="6" /> <rect x="6" y="9" width="12" height="6" rx="3" /> <path d="M12 3v3M12 18v3" />`,
+  train: `<path d="M8 3.1V7a4 4 0 0 0 8 0V3.1" /> <path d="m9 15-1-1" /> <path d="m15 15 1-1" /> <path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z" /> <path d="m8 19-2 3" /> <path d="m16 19 2 3" />`,
+  metro: `<rect width="16" height="16" x="4" y="3" rx="2" /> <path d="M4 11h16" /> <path d="M12 3v8" /> <path d="m8 19-2 3" /> <path d="m18 22-2-3" /> <path d="M8 15h.01" /> <path d="M16 15h.01" />`,
   check: `<path d="M20 6 9 17l-5-5" />`,
 };
 
@@ -289,7 +302,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v130";
+const APP_VERSION = "v131";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4125,9 +4138,23 @@ const NO_REMOTE_LOGO_DOMAINS = new Set([
   "norton.com", "ea.com", "stock.adobe.com", "fantagazzetta.com", "wired.it", "framer.com",
   "dazn.com", "enjoy.eni.com", "ft.com", "juventus.com", "kenamobile.it", "postemobile.it",
   "substack.com", "atac.roma.it", "anm.it",
+  // C'è già un vettore disegnato apposta per Ubisoft (BRAND_ICONS.ubisoft):
+  // la favicon vera scaricata da ubisoft.com era piccola e usciva sgranata
+  // ingrandita, segnalato da Erny il 10 settembre.
+  "ubisoft.com",
 ]);
 
-const LOCAL_SERVICE_ICONS = { Palestra: "dumbbell", Piscina: "pool", Padel: "padel" };
+const LOCAL_SERVICE_ICONS = {
+  Palestra: "dumbbell",
+  Piscina: "pool",
+  Padel: "padel",
+  Tennis: "tennis",
+  Yoga: "yoga",
+  "Abbonamento stadio": "stadium",
+  "Abbonamento autobus": "bus",
+  "Abbonamento treno": "train",
+  "Abbonamento metro": "metro",
+};
 
 function ServiceLogo({ icon, category, domain, letter, serviceName, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
@@ -4183,10 +4210,13 @@ function ServiceLogo({ icon, category, domain, letter, serviceName, color, size 
           loading="lazy"
           onError={advanceSource}
           onLoad={(e) => {
-            // A 16px answer from a source asked for 128px is the generic
-            // placeholder, not a real logo — and even a genuine 16px icon
-            // would look mushy at this size, so the initial reads better.
-            if (e.currentTarget.naturalWidth && e.currentTarget.naturalWidth <= 16) advanceSource();
+            // Rifiutata anche una favicon "vera" ma piccola, non solo il
+            // segnaposto generico: l'app disegna queste icone fino a 40px, e
+            // sotto i 32 si vede la sgranatura — il caso di Ubisoft, prima
+            // che avesse un dominio da saltare del tutto (vedi
+            // NO_REMOTE_LOGO_DOMAINS), capita anche a chi non ha un vettore
+            // di riserva disegnato a mano.
+            if (e.currentTarget.naturalWidth && e.currentTarget.naturalWidth < 32) advanceSource();
           }}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
