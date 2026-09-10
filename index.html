@@ -289,7 +289,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v128";
+const APP_VERSION = "v129";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -3751,8 +3751,14 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner
       {total > 0 &&
         segments.map((seg, i) => {
           const slice = slices[i];
-          const a0 = cursor + gapAngle / 2;
-          const a1 = cursor + slice - gapAngle / 2;
+          // Il distacco si divide a metà fra due fette vicine — ma alle due
+          // estremità dell'intero anello non c'è una fetta vicina con cui
+          // dividerlo: lì la fetta deve toccare esattamente il bordo della
+          // base, altrimenti la base resta scoperta proprio alle estremità.
+          const gapStart = i === 0 ? 0 : gapAngle / 2;
+          const gapEnd = i === segments.length - 1 ? 0 : gapAngle / 2;
+          const a0 = cursor + gapStart;
+          const a1 = cursor + slice - gapEnd;
           cursor += slice;
           if (a1 <= a0) return null;
           return <path key={seg.id} d={annularSectorPath(cx, cy, ri, ro, a0, a1, corner)} fill={seg.color} />;
