@@ -303,7 +303,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v139";
+const APP_VERSION = "v140";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -954,6 +954,8 @@ const STRINGS = {
     chooseService: "Scegli un servizio...",
     searchService: "Cerca un servizio...",
     customService: "Altro (scrivi tu)",
+    plan: "Piano",
+    choosePlan: "Scegli un piano...",
     customServiceName: "Nome dell'abbonamento",
     cost: "Costo",
     frequency: "Frequenza",
@@ -1220,6 +1222,8 @@ const STRINGS = {
     chooseService: "Choose a service...",
     searchService: "Search a service...",
     customService: "Other (type your own)",
+    plan: "Plan",
+    choosePlan: "Choose a plan...",
     customServiceName: "Subscription name",
     cost: "Cost",
     frequency: "Frequency",
@@ -1486,6 +1490,8 @@ const STRINGS = {
     chooseService: "Elige un servicio...",
     searchService: "Buscar un servicio...",
     customService: "Otro (escríbelo tú)",
+    plan: "Plan",
+    choosePlan: "Elige un plan...",
     customServiceName: "Nombre de la suscripción",
     cost: "Coste",
     frequency: "Frecuencia",
@@ -1752,6 +1758,8 @@ const STRINGS = {
     chooseService: "Choisissez un service...",
     searchService: "Rechercher un service...",
     customService: "Autre (à saisir)",
+    plan: "Formule",
+    choosePlan: "Choisissez une formule...",
     customServiceName: "Nom de l'abonnement",
     cost: "Coût",
     frequency: "Fréquence",
@@ -2018,6 +2026,8 @@ const STRINGS = {
     chooseService: "Dienst auswählen...",
     searchService: "Dienst suchen...",
     customService: "Anderer (selbst eingeben)",
+    plan: "Tarif",
+    choosePlan: "Tarif auswählen...",
     customServiceName: "Name des Abos",
     cost: "Kosten",
     frequency: "Häufigkeit",
@@ -4334,7 +4344,7 @@ function ServiceLogo({ icon, category, domain, letter, serviceName, color, size 
 
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
-const emptyForm = { name: "", customName: "", cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoFull: "", promoUntil: "" };
+const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoFull: "", promoUntil: "" };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
@@ -4713,6 +4723,20 @@ function HubboApp() {
       cancelled = true;
     };
   }, []);
+
+  // I piani noti per il servizio scelto nel modulo di inserimento, se ce ne
+  // sono più di uno — altrimenti non c'è scelta da offrire. Stessa fonte
+  // delle offerte (`offerte.json`, aggiornabile senza rilascio), stesso modo
+  // di far corrispondere il nome anche se scritto a mano invece che scelto
+  // dall'elenco (`normaliseServiceName`, la stessa usata per le offerte).
+  const servicePlans = useMemo(() => {
+    if (!offersFile || !Array.isArray(offersFile.piani)) return null;
+    const typedName = form.name === "__custom__" ? form.customName : form.name;
+    if (!typedName) return null;
+    const key = normaliseServiceName(typedName);
+    const entry = offersFile.piani.find((p) => p.servizio && normaliseServiceName(p.servizio) === key);
+    return entry && Array.isArray(entry.opzioni) && entry.opzioni.length > 1 ? entry.opzioni : null;
+  }, [offersFile, form.name, form.customName]);
 
   const settingsRef = useRef(settings);
   useEffect(() => {
@@ -8204,7 +8228,7 @@ function HubboApp() {
                       <button
                         key={s.name}
                         type="button"
-                        onClick={() => { setForm({ ...form, name: s.name, category: s.category }); setPickerOpen(false); }}
+                        onClick={() => { setForm({ ...form, name: s.name, category: s.category, plan: null }); setPickerOpen(false); }}
                         className="flex items-center gap-3.5 rounded-xl px-2 py-2.5"
                       >
                         <ServiceLogo icon={s.icon} domain={s.domain} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={40} />
@@ -8214,7 +8238,7 @@ function HubboApp() {
                   })}
                   <button
                     type="button"
-                    onClick={() => { setForm({ ...form, name: "__custom__" }); setPickerOpen(false); }}
+                    onClick={() => { setForm({ ...form, name: "__custom__", plan: null }); setPickerOpen(false); }}
                     className="flex items-center gap-3.5 rounded-xl px-2 py-2.5"
                   >
                     <div style={{ width: 40, height: 40, borderRadius: 999, background: colors.surface2 }} className="flex items-center justify-center flex-shrink-0">
@@ -8263,6 +8287,37 @@ function HubboApp() {
                 className="w-full rounded-xl px-3.5 py-2.5 text-sm mb-3.5 outline-none"
                 autoFocus
               />
+            )}
+
+            {servicePlans && (
+              <>
+                <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.plan}</label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOptionPicker({
+                      title: t.plan,
+                      value: form.plan,
+                      options: servicePlans.map((o) => ({ value: o.nome, label: `${o.nome} · ${money(o.prezzo, offersFile.valuta || "EUR")}` })),
+                      onSelect: (v) => {
+                        const chosen = servicePlans.find((o) => o.nome === v);
+                        if (!chosen) return;
+                        setForm((f) => ({
+                          ...f,
+                          plan: chosen.nome,
+                          cost: String(chosen.prezzo).replace(".", ","),
+                          currency: offersFile.valuta || f.currency,
+                        }));
+                      },
+                    })
+                  }
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: form.plan ? colors.textPrimary : colors.textFaint }}
+                  className="w-full rounded-xl px-3.5 py-2.5 text-sm mb-3.5 text-left flex items-center justify-between"
+                >
+                  {form.plan || t.choosePlan}
+                  <span style={{ color: colors.textFaint, fontSize: 10 }}>▾</span>
+                </button>
+              </>
             )}
 
             <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.category}</label>

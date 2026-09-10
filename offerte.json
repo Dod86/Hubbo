@@ -35,7 +35,22 @@
         "disponibile": false
       },
       "link": "https://www.netflix.com/account",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Standard con pubblicità",
+          "prezzo": 6.99
+        },
+        {
+          "nome": "Standard",
+          "prezzo": 13.99
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 19.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-10"
     },
     {
       "servizio": "Disney+",
@@ -56,7 +71,22 @@
         "disponibile": false
       },
       "link": "https://www.disneyplus.com/account",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Standard con pubblicità",
+          "prezzo": 6.99
+        },
+        {
+          "nome": "Standard",
+          "prezzo": 10.99
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 15.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-10"
     },
     {
       "servizio": "Spotify",
@@ -81,7 +111,26 @@
         "prezzo": 6.49
       },
       "link": "https://www.spotify.com/account/subscription/",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Individual",
+          "prezzo": 11.99
+        },
+        {
+          "nome": "Duo",
+          "prezzo": 16.99
+        },
+        {
+          "nome": "Family",
+          "prezzo": 20.99
+        },
+        {
+          "nome": "Student",
+          "prezzo": 6.49
+        }
+      ],
+      "opzioniVerificato": "2026-09-10"
     },
     {
       "servizio": "YouTube Premium",
@@ -98,7 +147,26 @@
         "disponibile": true
       },
       "link": "https://www.youtube.com/paid_memberships",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Premium Lite",
+          "prezzo": 8.99
+        },
+        {
+          "nome": "Individuale",
+          "prezzo": 15.99
+        },
+        {
+          "nome": "Studenti",
+          "prezzo": 10.49
+        },
+        {
+          "nome": "Famiglia",
+          "prezzo": 29.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-10"
     },
     {
       "servizio": "DAZN",
@@ -150,7 +218,22 @@
         "nome": "Prime Student"
       },
       "link": "https://www.amazon.it/gp/primecentral",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Mensile",
+          "prezzo": 4.99
+        },
+        {
+          "nome": "Annuale (equivalente/mese)",
+          "prezzo": 4.16
+        },
+        {
+          "nome": "Student",
+          "prezzo": 2.49
+        }
+      ],
+      "opzioniVerificato": "2026-09-10"
     },
     {
       "servizio": "Apple Music",
