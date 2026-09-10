@@ -303,7 +303,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v138";
+const APP_VERSION = "v139";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -8169,21 +8169,6 @@ function HubboApp() {
                 aria-hidden="true"
                 style={{ position: "absolute", left: 0, right: 0, bottom: "100%", height: 200, background: colors.surface }}
               />
-              {/* Stesso trucco del bottone salva in fondo: un riquadro pieno da
-                  solo taglierebbe di netto quel che scorre sotto proprio al
-                  bordo. Questa sfumatura lo dissolve invece di tranciarlo. */}
-              <div
-                aria-hidden="true"
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  top: "100%",
-                  height: 24,
-                  background: `linear-gradient(to bottom, ${colors.surface}, transparent)`,
-                  pointerEvents: "none",
-                }}
-              />
             </div>
 
             {pickerOpen ? (
@@ -8208,18 +8193,6 @@ function HubboApp() {
                   <div
                     aria-hidden="true"
                     style={{ position: "absolute", left: 0, right: 0, bottom: "100%", height: 200, background: colors.surface }}
-                  />
-                  <div
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      right: 0,
-                      top: "100%",
-                      height: 24,
-                      background: `linear-gradient(to bottom, ${colors.surface}, transparent)`,
-                      pointerEvents: "none",
-                    }}
                   />
                 </div>
                 <div className="flex flex-col gap-1 mb-2">
@@ -9243,18 +9216,6 @@ function HubboApp() {
                 <div
                   aria-hidden="true"
                   style={{ position: "absolute", left: 0, right: 0, bottom: "100%", height: 200, background: colors.surface }}
-                />
-                <div
-                  aria-hidden="true"
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    right: 0,
-                    top: "100%",
-                    height: 24,
-                    background: `linear-gradient(to bottom, ${colors.surface}, transparent)`,
-                    pointerEvents: "none",
-                  }}
                 />
               </div>
             )}
