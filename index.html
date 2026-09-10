@@ -303,7 +303,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v140";
+const APP_VERSION = "v141";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -1010,6 +1010,7 @@ const STRINGS = {
     filterDone: "Fatto",
     filterClear: "Azzera",
     hideEnded: "Nascondi terminati",
+    showEnded: (n) => `Visualizza terminati (${n})`,
     sortLabel: "Ordina",
     sortRenewal: "Rinnovo",
     sortName: "Nome A-Z",
@@ -1278,6 +1279,7 @@ const STRINGS = {
     filterDone: "Done",
     filterClear: "Clear",
     hideEnded: "Hide ended",
+    showEnded: (n) => `Show ended (${n})`,
     sortLabel: "Sort",
     sortRenewal: "Renewal",
     sortName: "Name A-Z",
@@ -1546,6 +1548,7 @@ const STRINGS = {
     filterDone: "Hecho",
     filterClear: "Borrar",
     hideEnded: "Ocultar finalizadas",
+    showEnded: (n) => `Ver finalizadas (${n})`,
     sortLabel: "Ordenar",
     sortRenewal: "Renovación",
     sortName: "Nombre A-Z",
@@ -1814,6 +1817,7 @@ const STRINGS = {
     filterDone: "Terminé",
     filterClear: "Effacer",
     hideEnded: "Masquer terminés",
+    showEnded: (n) => `Afficher terminés (${n})`,
     sortLabel: "Trier",
     sortRenewal: "Renouvellement",
     sortName: "Nom A-Z",
@@ -2082,6 +2086,7 @@ const STRINGS = {
     filterDone: "Fertig",
     filterClear: "Zurücksetzen",
     hideEnded: "Beendete ausblenden",
+    showEnded: (n) => `Beendete anzeigen (${n})`,
     sortLabel: "Sortieren",
     sortRenewal: "Verlängerung",
     sortName: "Name A-Z",
@@ -4407,7 +4412,10 @@ function HubboApp() {
   const [formError, setFormError] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [filterCategories, setFilterCategories] = useState([]);
-  const [hideEnded, setHideEnded] = useState(false);
+  // Nascosti di default, non il contrario: "visualizza terminati" è
+  // un'azione esplicita in fondo all'elenco, non un filtro da disattivare —
+  // richiesto da Erny il 10 settembre.
+  const [hideEnded, setHideEnded] = useState(true);
   const [sortBy, setSortBy] = useState("renewal");
   const [view, setView] = useState("list");
   const [calendarOffset, setCalendarOffset] = useState(0);
@@ -5811,6 +5819,19 @@ function HubboApp() {
     });
   }, [enriched, filterCategories, hideEnded, sortBy, listSearch, rates, settings.currency]);
 
+  // Quanti terminati ci sarebbero da mostrare, agli stessi filtri di
+  // categoria e ricerca attivi — indipendente da hideEnded stesso, così il
+  // numero sul bottone resta giusto sia nascosti sia già mostrati.
+  const endedCount = useMemo(() => {
+    let list = enriched.filter((s) => s.isEnded);
+    if (filterCategories.length > 0) list = list.filter((s) => filterCategories.includes(s.category));
+    if (listSearch.trim()) {
+      const q = listSearch.trim().toLowerCase();
+      list = list.filter((s) => s.name.toLowerCase().includes(q));
+    }
+    return list.length;
+  }, [enriched, filterCategories, listSearch]);
+
   // Totals reflect the currently selected category filter (always excluding ended subs)
   const totalsBase = useMemo(
     () => (filterCategories.length === 0 ? activeSubs : activeSubs.filter((s) => filterCategories.includes(s.category))),
@@ -6871,52 +6892,52 @@ function HubboApp() {
               />
             </div>
           </div>
-          {/* The figure the monthly total is meant to make tangible: the
-              same money seen one day at a time. Averaged over a year rather
-              than over the current month, so it does not jump between a
-              28-day and a 31-day month for an unchanged set of subscriptions. */}
+          {/* Costo al giorno, equivalenza e totale dell'altro periodo, uniti
+              in un'unica zona compatta invece di tre blocchi separati: sono
+              entrambi dati di contorno, non la ragione per cui si apre
+              questa scheda — richiesto da Erny il 10 settembre, "troppo
+              ingombrante". */}
           {monthlyTotal > 0 && (
-            <div className="mt-3">
-              <div className="flex items-baseline gap-1.5">
-                <span
-                  style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: colors.textPrimary }}
-                  className="text-base leading-none"
-                >
-                  ≈ {money(dailyTotal)}
-                </span>
-                <span style={{ color: colors.textSecondary }} className="text-xs">{t.perDay}</span>
-              </div>
-              {/* One drawing per unit, so the count is read before the words are:
-                  two cups is a quantity you feel, "2" is one you parse. Capped
-                  at EQUIVALENT_MAX, which is also where a row of them
-                  stops being countable at a glance. */}
+            <div
+              className="flex items-center gap-x-2 gap-y-1 flex-wrap mt-3 pt-3"
+              style={{ borderTop: `1px solid ${colors.border}` }}
+            >
+              <span
+                style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: colors.textPrimary }}
+                className="text-sm leading-none"
+              >
+                ≈ {money(dailyTotal)}
+              </span>
+              <span style={{ color: colors.textSecondary }} className="text-xs">{t.perDay}</span>
+              {/* One drawing per unit, so the count is read before the words
+                  are: two cups is a quantity you feel, "2" is one you parse.
+                  Capped at EQUIVALENT_MAX. Rimpicciolite e messe in riga
+                  invece che sotto, per restare un dettaglio e non un blocco. */}
               {dailyEquivalence && (
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="flex items-center gap-1 flex-shrink-0" style={{ color: ACCENT.amber }}>
+                <>
+                  <span className="flex items-center gap-0.5 flex-shrink-0" style={{ color: ACCENT.amber }}>
                     {Array.from({ length: dailyEquivalence.kind === "perDay" ? dailyEquivalence.n : 1 }).map((_, i) => (
-                      <Icon key={i} name={EQUIVALENT_ICONS[dailyEquivalence.id]} size={19} />
+                      <Icon key={i} name={EQUIVALENT_ICONS[dailyEquivalence.id]} size={14} />
                     ))}
                   </span>
-                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 14, color: colors.textPrimary }}>
+                  <span style={{ color: colors.textSecondary }} className="text-xs">
                     {dailyEquivalence.kind === "everyDays"
                       ? t.equivEveryDays(dailyEquivalence.label, dailyEquivalence.days)
                       : t.equivPerDay(dailyEquivalence.n, dailyEquivalence.label)}
                   </span>
-                </div>
+                </>
               )}
+              <span style={{ color: colors.textFaint }} className="text-xs">·</span>
+              {/* Always the span you are not looking at, so both numbers stay
+                  reachable without touching anything. */}
+              <span key={totalPeriod} style={{ color: colors.textSecondary }} className={`text-xs ${periodAnim}`}>
+                {showYear
+                  ? t.perMonthTotal(money(monthlyTotal), totalsBase.length)
+                  : t.perYear(money(annualTotal), totalsBase.length)}
+              </span>
             </div>
           )}
-          <div className="flex items-center gap-1.5 mt-3" style={{ color: colors.textSecondary }}>
-            <Icon name="trendingUp" size={14} />
-            {/* Always the span you are not looking at, so both numbers stay
-                reachable without touching anything. */}
-            <span key={totalPeriod} className={`text-xs ${periodAnim}`}>
-              {showYear
-                ? t.perMonthTotal(money(monthlyTotal), totalsBase.length)
-                : t.perYear(money(annualTotal), totalsBase.length)}
-            </span>
-          </div>
-          <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-4 pt-3">
+          <div style={{ color: colors.textFaint, borderTop: `1px solid ${colors.border}` }} className="text-xs mt-3 pt-3">
             {/* Lo stesso conteggio usato dal limite (openAdd, §4 del doc di
                 stato): attivi + in pausa + terminati, mai solo activeSubs —
                 altrimenti il badge direbbe "posto libero" proprio nel
@@ -6926,34 +6947,21 @@ function HubboApp() {
           </div>
         </div>
       </div>
-      {/* Quick search (only when the list gets long enough to need it) */}
-      {enriched.length > 0 && (
-        <div className="px-5 mt-4">
-          <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3 py-2 flex items-center gap-2">
-            <Icon name="search" size={14} color={colors.textFaint} />
-            <input
-              value={listSearch}
-              onChange={(e) => setListSearch(e.target.value)}
-              placeholder={t.searchSubs}
-              style={{ background: "transparent", color: colors.textPrimary, border: "none", outline: "none", width: "100%" }}
-              className="text-sm"
-            />
-            {listSearch && (
-              <button onClick={() => setListSearch("")} style={{ color: colors.textFaint }} className="flex-shrink-0">
-                <Icon name="x" size={14} />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
 
-      {/* Filters + sort */}
+      {/* Ricerca, categoria e ordinamento in un'unica riga compatta, invece
+          di quattro righe intere sempre visibili — richiesto da Erny il 10
+          settembre. La ricerca resta sempre a vista; categoria e
+          ordinamento restano gli stessi selettori di sempre (stesso
+          onClick, stessa logica invariata), solo diventati bottoni
+          compatti invece di righe piene. "Nascondi terminati" non è più
+          qui: è un bottone a sé in fondo all'elenco (vedi sotto), perché
+          mostrare i terminati è un'azione esplicita, non un filtro. */}
       {enriched.length > 0 && (
         <div className="px-5 mt-4">
-          {(filterCategories.length > 0 || hideEnded || listSearch.trim()) && (
+          {(filterCategories.length > 0 || listSearch.trim()) && (
             <div className="flex justify-end mb-1.5">
               <button
-                onClick={() => { setFilterCategories([]); setHideEnded(false); setListSearch(""); }}
+                onClick={() => { setFilterCategories([]); setListSearch(""); }}
                 style={{ color: ACCENT.amber }}
                 className="text-xs font-medium"
               >
@@ -6961,92 +6969,63 @@ function HubboApp() {
               </button>
             </div>
           )}
-          <button
-            onClick={() =>
-              setOptionPicker({
-                title: t.filterAllCategories,
-                multi: true,
-                options: usedCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
-              })
-            }
-            style={{
-              background: colors.surface2,
-              border: `1px solid ${colors.border}`,
-              color: filterCategories.length > 0 ? colors.textPrimary : colors.textSecondary,
-            }}
-            className="w-full rounded-xl px-3 py-2.5 text-xs font-medium flex items-center justify-between gap-2 mb-2.5"
-          >
-            <span className="truncate">
-              {filterCategories.length === 0
-                ? t.filterAllCategories
-                : filterCategories.length === 1
-                ? (usedCategories.find((c) => c.id === filterCategories[0]) || {}).label
-                : t.filterNCategories(filterCategories.length)}
-            </span>
-            <span className="flex items-center gap-2 flex-shrink-0">
-              {filterCategories.length > 0 && (
-                <span className="flex items-center gap-1">
-                  {filterCategories.slice(0, 4).map((id) => {
-                    const c = usedCategories.find((x) => x.id === id);
-                    return c ? <span key={id} style={{ background: c.color, width: 8, height: 8, borderRadius: 999 }} /> : null;
-                  })}
-                </span>
-              )}
-              <span style={{ fontSize: 9 }}>▾</span>
-            </span>
-          </button>
-
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <button
-              onClick={() => setHideEnded(!hideEnded)}
-              aria-pressed={hideEnded}
-              style={{
-                background: hideEnded ? ACCENT.terracotta : colors.surface2,
-                color: hideEnded ? INK : colors.textSecondary,
-                border: `1px solid ${hideEnded ? ACCENT.terracotta : colors.border}`,
-              }}
-              className="rounded-full px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 flex-shrink-0"
+          <div className="flex items-center gap-2">
+            <div
+              style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
+              className="flex-1 min-w-0 rounded-full px-3.5 py-2 flex items-center gap-2"
             >
-              <span
-                style={{
-                  width: 13,
-                  height: 13,
-                  borderRadius: 4,
-                  border: `1.5px solid ${hideEnded ? INK : colors.textFaint}`,
-                  background: hideEnded ? INK : "transparent",
-                  color: hideEnded ? ACCENT.terracotta : "transparent",
-                  fontSize: 9,
-                  lineHeight: "10px",
-                }}
-                className="flex items-center justify-center flex-shrink-0"
-              >
-                ✓
-              </span>
-              {t.hideEnded}
-            </button>
-            <div className="flex items-center gap-1.5">
-              <Icon name="slidersHorizontal" size={12} color={colors.textFaint} />
-              <button
-                onClick={() =>
-                  setOptionPicker({
-                    title: t.sortLabel,
-                    value: sortBy,
-                    options: [
-                      { value: "renewal", label: t.sortRenewal },
-                      { value: "name", label: t.sortName },
-                      { value: "costDesc", label: t.sortCostDesc },
-                      { value: "costAsc", label: t.sortCostAsc },
-                    ],
-                    onSelect: (v) => setSortBy(v),
-                  })
-                }
-                style={{ color: colors.textSecondary }}
-                className="text-xs font-medium flex items-center gap-1"
-              >
-                {sortBy === "name" ? t.sortName : sortBy === "costDesc" ? t.sortCostDesc : sortBy === "costAsc" ? t.sortCostAsc : t.sortRenewal}
-                <span style={{ fontSize: 9 }}>▾</span>
-              </button>
+              <Icon name="search" size={14} color={colors.textFaint} />
+              <input
+                value={listSearch}
+                onChange={(e) => setListSearch(e.target.value)}
+                placeholder={t.searchSubs}
+                style={{ background: "transparent", color: colors.textPrimary, border: "none", outline: "none", width: "100%" }}
+                className="text-sm min-w-0"
+              />
+              {listSearch && (
+                <button onClick={() => setListSearch("")} style={{ color: colors.textFaint }} className="flex-shrink-0">
+                  <Icon name="x" size={14} />
+                </button>
+              )}
             </div>
+            <button
+              onClick={() =>
+                setOptionPicker({
+                  title: t.filterAllCategories,
+                  multi: true,
+                  options: usedCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
+                })
+              }
+              aria-label={t.filterAllCategories}
+              style={{
+                background: filterCategories.length > 0 ? ACCENT.terracotta : colors.surface2,
+                border: `1px solid ${filterCategories.length > 0 ? ACCENT.terracotta : colors.border}`,
+                color: filterCategories.length > 0 ? INK : colors.textSecondary,
+              }}
+              className="rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0"
+            >
+              <Icon name="slidersHorizontal" size={15} />
+            </button>
+            <button
+              onClick={() =>
+                setOptionPicker({
+                  title: t.sortLabel,
+                  value: sortBy,
+                  options: [
+                    { value: "renewal", label: t.sortRenewal },
+                    { value: "name", label: t.sortName },
+                    { value: "costDesc", label: t.sortCostDesc },
+                    { value: "costAsc", label: t.sortCostAsc },
+                  ],
+                  onSelect: (v) => setSortBy(v),
+                })
+              }
+              style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+              className="rounded-full pl-3 pr-2.5 h-10 flex items-center gap-1 flex-shrink-0 text-xs font-medium"
+            >
+              {sortBy === "name" ? t.sortName : sortBy === "costDesc" ? t.sortCostDesc : sortBy === "costAsc" ? t.sortCostAsc : t.sortRenewal}
+              <span style={{ fontSize: 9 }}>▾</span>
+            </button>
           </div>
         </div>
       )}
@@ -7130,6 +7109,20 @@ function HubboApp() {
               );
             })}
           </div>
+        )}
+        {/* Mostrare i terminati è un'azione esplicita, non un filtro da
+            disattivare — spostato qui dai filtri su richiesta di Erny il 10
+            settembre. Stesso stato (hideEnded) di sempre, solo un posto e
+            un verso diversi: nascosti di default, un tocco per vederli. */}
+        {endedCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setHideEnded(!hideEnded)}
+            style={{ color: colors.textSecondary, border: `1px solid ${colors.border}` }}
+            className="w-full rounded-xl py-2.5 text-xs font-medium mt-3"
+          >
+            {hideEnded ? t.showEnded(endedCount) : t.hideEnded}
+          </button>
         )}
       </div>
       </div>
