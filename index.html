@@ -182,6 +182,11 @@ const THEMES = {
     textSecondary: "#948C7F",
     textFaint: "#635B4F",
     overlay: "rgba(9,7,5,0.75)",
+    // Leggera, ma un'ombra scura ha bisogno di più opacità per staccarsi da
+    // uno sfondo già scuro — richiesta da Erny il 10 settembre, per le
+    // card di contenuto (non le schede a comparsa, che si staccano già
+    // dalla sovrapposizione con lo sfondo attenuato).
+    cardShadow: "0 1px 2px rgba(0,0,0,0.20), 0 6px 16px rgba(0,0,0,0.24)",
   },
   light: {
     bg: "#F5F2EA",
@@ -193,6 +198,7 @@ const THEMES = {
     textSecondary: "#6B6459",
     textFaint: "#A39B8C",
     overlay: "rgba(30,26,20,0.45)",
+    cardShadow: "0 1px 2px rgba(30,26,20,0.06), 0 6px 16px rgba(30,26,20,0.08)",
   },
 };
 
@@ -303,7 +309,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v141";
+const APP_VERSION = "v142";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -6831,7 +6837,7 @@ function HubboApp() {
         <div
           data-tour="totalCard"
           {...totalSwipe.handlers}
-          style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
+          style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }}
           // Clipped, because the figure sits ten pixels outside its own column
           // and the entry animation starts it twenty-four further out again:
           // without this it pokes past the edge of the card on the way in.
@@ -7057,7 +7063,7 @@ function HubboApp() {
                 <button
                   key={s.id}
                   onClick={() => setDetailSub(s)}
-                  style={{ background: colors.surface, border: `1px solid ${colors.border}`, opacity: s.isEnded || s.paused ? 0.55 : 1 }}
+                  style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow, opacity: s.isEnded || s.paused ? 0.55 : 1 }}
                   className="rounded-2xl p-3.5 flex items-center gap-3.5 w-full text-left transition-transform active:scale-[0.98]"
                 >
                   <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
@@ -7132,7 +7138,7 @@ function HubboApp() {
       {view === "calendar" && (
       <div key="view-calendar" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4">
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-4 overflow-hidden">
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl p-5 mb-4 overflow-hidden">
             <div key={`label-${calendarOffset}`} style={{ color: colors.textSecondary }} className={`text-xs mb-1 capitalize ${monthAnim}`}>
               {t.monthTotalLabel} · {monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })}
             </div>
@@ -7155,7 +7161,7 @@ function HubboApp() {
           {/* The month navigation, weekday header and day grid belong together:
               without a card of their own they floated on the page while every
               other block sat in one. */}
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-4">
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <span style={{ width: 54 }} className="flex-shrink-0" />
               <button
@@ -7287,7 +7293,7 @@ function HubboApp() {
                             <button
                               key={`${d}-${s.id}`}
                               onClick={() => setDetailSub(s)}
-                              style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
+                              style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }}
                               className="rounded-xl p-3 flex items-center gap-3 w-full text-left transition-transform active:scale-[0.98]"
                             >
                               <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
@@ -7315,7 +7321,7 @@ function HubboApp() {
       {view === "history" && (
       <div key="view-history" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-4 pb-28">
-          <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-3 overflow-hidden">
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl p-4 mb-3 overflow-hidden">
             <div style={{ color: colors.textSecondary }} className="text-xs mb-2 truncate">{historyPeriodLabel}</div>
             <div className="flex items-center gap-3">
               <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
@@ -7334,23 +7340,17 @@ function HubboApp() {
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{historyTotals.count} · {t.historyPaymentsCount}</div>
           </div>
 
-          {filteredPayments.length > 0 && (
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textSecondary }}
-              className="w-full rounded-xl px-3.5 py-2.5 text-xs font-medium flex items-center justify-center gap-1.5 mb-3"
-            >
-              <Icon name="download" size={14} />
-              {t.historyExportCsv}
-            </button>
-          )}
-
+          {/* Esportazione, periodo, servizio e categoria in un'unica riga
+              compatta, invece di un bottone pieno più tre campi con
+              etichetta ciascuno — stessa richiesta e stesso principio già
+              applicati all'Elenco il 10 settembre. Stessa identica logica
+              dietro ogni bottone (stesso onClick, stesso setOptionPicker),
+              cambiata solo la resa: pillole con il valore scelto invece di
+              righe intere con l'etichetta sopra. */}
           {visiblePayments.length > 0 && (
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-1">
-                <label style={{ color: colors.textFaint }} className="text-xs">{t.historyPeriodLabelTitle}</label>
-                {historyFiltered && (
+              {historyFiltered && (
+                <div className="flex justify-end mb-1.5">
                   <button
                     onClick={() => { setHistoryPeriod("all"); setHistorySub("all"); setHistoryCats([]); setHistoryFrom(""); setHistoryTo(""); }}
                     style={{ color: ACCENT.amber }}
@@ -7358,34 +7358,94 @@ function HubboApp() {
                   >
                     {t.historyResetFilters}
                   </button>
+                </div>
+              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() =>
+                    setOptionPicker({
+                      title: t.historyPeriodLabelTitle,
+                      value: historyPeriod,
+                      options: [
+                        { value: "all", label: t.historyPeriodAll },
+                        { value: "year", label: t.historyPeriodYear },
+                        { value: "12m", label: t.historyPeriod12m },
+                        ...historyYears.map((y) => ({ value: y, label: y })),
+                        { value: "custom", label: t.historyPeriodCustom },
+                      ],
+                      onSelect: (v) => setHistoryPeriod(v),
+                    })
+                  }
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyPeriod === "all" ? colors.textSecondary : colors.textPrimary }}
+                  className="rounded-full pl-3 pr-2.5 h-9 max-w-[38%] flex items-center gap-1 flex-shrink-0 text-xs font-medium"
+                >
+                  <span className="truncate">{historyPeriod === "all" ? t.historyPeriodAll : historyPeriodLabel}</span>
+                  <span style={{ fontSize: 9 }} className="flex-shrink-0">▾</span>
+                </button>
+                <button
+                  onClick={() =>
+                    setOptionPicker({
+                      title: t.historyServiceLabel,
+                      value: historySub,
+                      searchable: true,
+                      searchPlaceholder: t.searchService,
+                      options: [
+                        { value: "all", label: t.historyAllServices },
+                        ...historyServices.map((sv) => ({
+                          value: sv.value,
+                          label: sv.label,
+                          logo: sv.label,
+                          logoCategory: sv.category,
+                          color: (CATEGORIES.find((c) => c.id === sv.category) || CATEGORIES[CATEGORIES.length - 1]).color,
+                        })),
+                      ],
+                      // Picking one service makes a category filter meaningless,
+                      // and the two together would usually give an empty list.
+                      onSelect: (v) => { setHistorySub(v); if (v !== "all") setHistoryCats([]); },
+                    })
+                  }
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historySub === "all" ? colors.textSecondary : colors.textPrimary }}
+                  className="rounded-full pl-3 pr-2.5 h-9 max-w-[38%] flex items-center gap-1 flex-shrink-0 text-xs font-medium"
+                >
+                  <span className="truncate">
+                    {historySub === "all" ? t.historyAllServices : (historyServices.find((s) => s.value === historySub) || {}).label || t.historyAllServices}
+                  </span>
+                  <span style={{ fontSize: 9 }} className="flex-shrink-0">▾</span>
+                </button>
+                <button
+                  onClick={() =>
+                    setOptionPicker({
+                      title: t.historyCategoryLabel,
+                      multi: true,
+                      multiKey: "historyCats",
+                      options: historyCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
+                    })
+                  }
+                  aria-label={t.historyCategoryLabel}
+                  style={{
+                    background: historyCats.length > 0 ? ACCENT.terracotta : colors.surface2,
+                    border: `1px solid ${historyCats.length > 0 ? ACCENT.terracotta : colors.border}`,
+                    color: historyCats.length > 0 ? INK : colors.textSecondary,
+                  }}
+                  className="rounded-full w-9 h-9 flex items-center justify-center flex-shrink-0"
+                >
+                  <Icon name="slidersHorizontal" size={15} />
+                </button>
+                {filteredPayments.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleExportCSV}
+                    aria-label={t.historyExportCsv}
+                    style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                    className="rounded-full w-9 h-9 flex items-center justify-center flex-shrink-0"
+                  >
+                    <Icon name="download" size={15} />
+                  </button>
                 )}
               </div>
-              <button
-                onClick={() =>
-                  setOptionPicker({
-                    title: t.historyPeriodLabelTitle,
-                    value: historyPeriod,
-                    options: [
-                      { value: "all", label: t.historyPeriodAll },
-                      { value: "year", label: t.historyPeriodYear },
-                      { value: "12m", label: t.historyPeriod12m },
-                      ...historyYears.map((y) => ({ value: y, label: y })),
-                      { value: "custom", label: t.historyPeriodCustom },
-                    ],
-                    onSelect: (v) => setHistoryPeriod(v),
-                  })
-                }
-                style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyPeriod === "all" ? colors.textSecondary : colors.textPrimary }}
-                className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1 mb-2.5"
-              >
-                <span className="truncate">
-                  {historyPeriod === "all" ? t.historyPeriodAll : historyPeriodLabel}
-                </span>
-                <span style={{ fontSize: 9 }}>▾</span>
-              </button>
 
               {historyPeriod === "custom" && (
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mt-2">
                   <div className="flex-1 min-w-0">
                     <label style={{ color: colors.textFaint }} className="text-xs block mb-1">{t.historyFrom}</label>
                     <input
@@ -7411,67 +7471,6 @@ function HubboApp() {
                   </div>
                 </div>
               )}
-
-              <div className="flex items-start gap-2">
-                <div className="flex-1 min-w-0">
-                <label style={{ color: colors.textFaint }} className="text-xs block mb-1">{t.historyServiceLabel}</label>
-                <button
-                  onClick={() =>
-                    setOptionPicker({
-                      title: t.historyServiceLabel,
-                      value: historySub,
-                      searchable: true,
-                      searchPlaceholder: t.searchService,
-                      options: [
-                        { value: "all", label: t.historyAllServices },
-                        ...historyServices.map((sv) => ({
-                          value: sv.value,
-                          label: sv.label,
-                          logo: sv.label,
-                          logoCategory: sv.category,
-                          color: (CATEGORIES.find((c) => c.id === sv.category) || CATEGORIES[CATEGORIES.length - 1]).color,
-                        })),
-                      ],
-                      // Picking one service makes a category filter meaningless,
-                      // and the two together would usually give an empty list.
-                      onSelect: (v) => { setHistorySub(v); if (v !== "all") setHistoryCats([]); },
-                    })
-                  }
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historySub === "all" ? colors.textSecondary : colors.textPrimary }}
-                  className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
-                >
-                  <span className="truncate">
-                    {historySub === "all" ? t.historyAllServices : (historyServices.find((s) => s.value === historySub) || {}).label || t.historyAllServices}
-                  </span>
-                  <span style={{ fontSize: 9 }}>▾</span>
-                </button>
-                </div>
-
-                <div className="flex-1 min-w-0">
-                <label style={{ color: colors.textFaint }} className="text-xs block mb-1">{t.historyCategoryLabel}</label>
-                <button
-                  onClick={() =>
-                    setOptionPicker({
-                      title: t.historyCategoryLabel,
-                      multi: true,
-                      multiKey: "historyCats",
-                      options: historyCategories.map((c) => ({ value: c.id, label: c.label, color: c.color })),
-                    })
-                  }
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: historyCats.length === 0 ? colors.textSecondary : colors.textPrimary }}
-                  className="w-full rounded-xl px-3 py-2 text-xs font-medium flex items-center justify-between gap-1"
-                >
-                  <span className="truncate">
-                    {historyCats.length === 0
-                      ? t.historyAllCategories
-                      : historyCats.length === 1
-                      ? (historyCategories.find((c) => c.id === historyCats[0]) || {}).label || t.historyAllCategories
-                      : t.filterNCategories(historyCats.length)}
-                  </span>
-                  <span style={{ fontSize: 9 }}>▾</span>
-                </button>
-                </div>
-              </div>
             </div>
           )}
 
@@ -7505,7 +7504,7 @@ function HubboApp() {
                       {money(total, settings.currency)}
                     </span>
                   </div>
-                  <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-xl overflow-hidden">
+                  <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-xl overflow-hidden">
                     {items.map((p, idx) => {
                       const cat = CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
                       const skipped = p.status === "skipped";
@@ -7570,7 +7569,7 @@ function HubboApp() {
             const annualAmount = savingsHeadline.amount * 12;
             const annualCategoryTotals = savingsCategoryTotals.map((c) => ({ ...c, total: c.total * 12 }));
             return (
-            <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-5 mb-6 overflow-hidden">
+            <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl p-5 mb-6 overflow-hidden">
               <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.savingsPotentialLabel}</div>
               <div className="flex items-center gap-3">
                 <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
@@ -7625,7 +7624,7 @@ function HubboApp() {
                           key={s.id}
                           type="button"
                           onClick={() => setDetailSub(s)}
-                          style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
+                          style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }}
                           className="rounded-2xl p-4 flex items-center gap-3 w-full text-left"
                         >
                           <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
@@ -7764,7 +7763,7 @@ function HubboApp() {
                       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
                       const icon = serviceIcon(s.name);
                       return (
-                        <div key={`${x.offer.servizio}-${x.offer.scade}`} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
+                        <div key={`${x.offer.servizio}-${x.offer.scade}`} style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
                           <div className="flex-shrink-0 mt-0.5">
                             <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
                           </div>
@@ -7803,7 +7802,7 @@ function HubboApp() {
                   <p style={{ color: colors.textFaint }} className="text-xs leading-relaxed mb-2.5 px-1">{t.savingsDuplicatesHint}</p>
                   <div className="flex flex-col gap-2">
                     {savingsDuplicates.map((group) => (
-                      <div key={group.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4">
+                      <div key={group.id} style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl p-4">
                         <div className="flex items-baseline justify-between gap-2 mb-3">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-sm font-medium truncate">{group.label}</span>
@@ -7857,7 +7856,7 @@ function HubboApp() {
                   </div>
                   <div className="flex flex-col gap-2">
                     {savingsOpportunities.map((o) => (
-                      <div key={o.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4">
+                      <div key={o.id} style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl p-4">
                         <div className="text-sm font-medium">{o.titolo || o.title || o.alternativa || o.alternative || t.savingsOpportunity}</div>
                         <div style={{ color: colors.textSecondary }} className="text-xs mt-2">{t.savingsReplaces}: {o.subs.map((s) => s.name).join(', ')}</div>
                         <div className="flex items-center gap-2 mt-2 text-xs">
@@ -7895,7 +7894,7 @@ function HubboApp() {
                       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
                       const good = legibleOn("#4CAF7D", colors.surface);
                       return (
-                        <div key={s.id} style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
+                        <div key={s.id} style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl px-4 py-3.5 flex items-start gap-3">
                           <div className="flex-shrink-0 mt-0.5">
                             <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
                           </div>
@@ -8724,7 +8723,7 @@ function HubboApp() {
                 <div style={{ color: colors.textFaint }} className="text-xs uppercase tracking-wide mb-2 px-1">
                   {t.groupGeneral}
                 </div>
-                <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl overflow-hidden">
+                <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() =>
@@ -8811,7 +8810,7 @@ function HubboApp() {
                 <div style={{ color: colors.textFaint }} className="text-xs uppercase tracking-wide mb-2 px-1">
                   {t.notifTitle}
                 </div>
-                <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl overflow-hidden">
+                <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => persistSettings({ ...settings, notifEnabled: !settings.notifEnabled })}
@@ -8906,7 +8905,7 @@ function HubboApp() {
                 <div style={{ color: colors.textFaint }} className="text-xs uppercase tracking-wide mb-2 px-1">
                   {t.dataSection}
                 </div>
-                <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl overflow-hidden">
+                <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl overflow-hidden">
                   <button
                     type="button"
                     onClick={handleExport}
@@ -8935,7 +8934,7 @@ function HubboApp() {
               {/* Neither of these is a backup, and sitting inside the data card
                   they read as if they were. Their own card, one level up. */}
               <div>
-                <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl overflow-hidden">
+                <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => closeSheet("settings", () => { setShowSettings(false); setShowTrash(true); })}
@@ -8964,7 +8963,7 @@ function HubboApp() {
 
               {/* Premium + privacy */}
               <div>
-                <div style={{ background: colors.surface, border: `1px solid ${colors.border}` }} className="rounded-2xl p-4 mb-3">
+                <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl p-4 mb-3">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Icon name="lock" size={12} color={colors.textSecondary} />
                     <span style={{ color: colors.textPrimary }} className="text-xs font-medium">{t.dataTrustTitle}</span>
