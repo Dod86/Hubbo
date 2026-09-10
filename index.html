@@ -303,7 +303,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v135";
+const APP_VERSION = "v136";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -8150,7 +8150,7 @@ function HubboApp() {
           >
             {!pickerOpen && <SheetHandle colors={colors} />}
             <div
-              className={`flex items-center justify-between mb-4 sticky top-0 z-10 pt-1 pb-2 ${pickerOpen ? "hidden" : ""}`}
+              className={`flex items-center justify-between sticky top-0 z-10 pt-1 pb-4 ${pickerOpen ? "hidden" : ""}`}
               style={{ background: colors.surface }}
             >
               <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">
@@ -8164,7 +8164,7 @@ function HubboApp() {
             {pickerOpen ? (
               <div>
                 <div
-                  className="flex items-center gap-2 mb-4 sticky top-0 z-10 pt-1 pb-2"
+                  className="flex items-center gap-2 sticky top-0 z-10 pt-1 pb-4"
                   style={{ background: colors.surface }}
                 >
                   <button type="button" onClick={() => setPickerOpen(false)} style={{ color: colors.textSecondary }} className="p-1 flex-shrink-0">
@@ -9186,7 +9186,7 @@ function HubboApp() {
             </div>
             {optionPicker.searchable && (
               <div
-                className="mb-3 sticky top-0 z-10 pt-1 pb-2"
+                className="sticky top-0 z-10 pt-1 pb-4"
                 style={{ background: colors.surface }}
               >
                 <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3 py-2 flex items-center gap-2">
