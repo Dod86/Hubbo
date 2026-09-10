@@ -132,6 +132,7 @@ const LUCIDE_ICONS = {
   clock: `<circle cx="12" cy="12" r="10" /> <polyline points="12 6 12 12 16 14" />`,
   newspaper: `<path d="M15 18h-5" /> <path d="M18 14h-8" /> <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" /> <rect width="8" height="4" x="10" y="6" rx="1" />`,
   bus: `<path d="M8 6v6" /> <path d="M15 6v6" /> <path d="M2 12h19.6" /> <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" /> <circle cx="7" cy="18" r="2" /> <path d="M9 18h5" /> <circle cx="16" cy="18" r="2" />`,
+  download: `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <polyline points="7 10 12 15 17 10" /> <line x1="12" x2="12" y1="15" y2="3" />`,
   piggyBank: `<path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z" /> <path d="M16 10h.01" />`,
   coffee: `<path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" />`,
   layers: `<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />`,
@@ -302,7 +303,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v131";
+const APP_VERSION = "v132";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -1030,6 +1031,17 @@ const STRINGS = {
     detailNote: "Nota",
     detailEndDate: "Fine abbonamento",
     detailYearly: "Costo annuo",
+    detailAllTime: "Speso finora",
+    detailAllTimeSince: (amount, since) => `${amount} da ${since}`,
+    historyExportCsv: "Esporta CSV",
+    csvColDate: "Data",
+    csvColService: "Servizio",
+    csvColCategory: "Categoria",
+    csvColAmount: "Importo",
+    csvColCurrency: "Valuta",
+    csvColStatus: "Stato",
+    csvStatusPaid: "Pagato",
+    csvStatusSkipped: "Non pagato",
     detailMonthly: "Costo mensile",
     edit: "Modifica",
     pauseAction: "Metti in pausa",
@@ -1285,6 +1297,17 @@ const STRINGS = {
     detailNote: "Note",
     detailEndDate: "End date",
     detailYearly: "Yearly cost",
+    detailAllTime: "Spent so far",
+    detailAllTimeSince: (amount, since) => `${amount} since ${since}`,
+    historyExportCsv: "Export CSV",
+    csvColDate: "Date",
+    csvColService: "Service",
+    csvColCategory: "Category",
+    csvColAmount: "Amount",
+    csvColCurrency: "Currency",
+    csvColStatus: "Status",
+    csvStatusPaid: "Paid",
+    csvStatusSkipped: "Unpaid",
     detailMonthly: "Monthly cost",
     edit: "Edit",
     pauseAction: "Pause",
@@ -1540,6 +1563,17 @@ const STRINGS = {
     detailNote: "Nota",
     detailEndDate: "Fecha de fin",
     detailYearly: "Coste anual",
+    detailAllTime: "Gastado hasta ahora",
+    detailAllTimeSince: (amount, since) => `${amount} desde ${since}`,
+    historyExportCsv: "Exportar CSV",
+    csvColDate: "Fecha",
+    csvColService: "Servicio",
+    csvColCategory: "Categoría",
+    csvColAmount: "Importe",
+    csvColCurrency: "Moneda",
+    csvColStatus: "Estado",
+    csvStatusPaid: "Pagado",
+    csvStatusSkipped: "No pagado",
     detailMonthly: "Coste mensual",
     edit: "Editar",
     pauseAction: "Pausar",
@@ -1795,6 +1829,17 @@ const STRINGS = {
     detailNote: "Note",
     detailEndDate: "Date de fin",
     detailYearly: "Coût annuel",
+    detailAllTime: "Dépensé jusqu'ici",
+    detailAllTimeSince: (amount, since) => `${amount} depuis ${since}`,
+    historyExportCsv: "Exporter en CSV",
+    csvColDate: "Date",
+    csvColService: "Service",
+    csvColCategory: "Catégorie",
+    csvColAmount: "Montant",
+    csvColCurrency: "Devise",
+    csvColStatus: "Statut",
+    csvStatusPaid: "Payé",
+    csvStatusSkipped: "Non payé",
     detailMonthly: "Coût mensuel",
     edit: "Modifier",
     pauseAction: "Mettre en pause",
@@ -2050,6 +2095,17 @@ const STRINGS = {
     detailNote: "Notiz",
     detailEndDate: "Enddatum",
     detailYearly: "Jahreskosten",
+    detailAllTime: "Bisher ausgegeben",
+    detailAllTimeSince: (amount, since) => `${amount} seit ${since}`,
+    historyExportCsv: "CSV exportieren",
+    csvColDate: "Datum",
+    csvColService: "Dienst",
+    csvColCategory: "Kategorie",
+    csvColAmount: "Betrag",
+    csvColCurrency: "Währung",
+    csvColStatus: "Status",
+    csvStatusPaid: "Bezahlt",
+    csvStatusSkipped: "Nicht bezahlt",
     detailMonthly: "Monatskosten",
     edit: "Bearbeiten",
     pauseAction: "Pausieren",
@@ -2736,6 +2792,29 @@ function buildPriceSeries(sub, payments, todayISO) {
     out.push(pt);
   });
   return out;
+}
+
+// Quanto è cambiato il prezzo da quando l'abbonamento è iniziato, in
+// percentuale — un'unica funzione condivisa fra la riga della lista e la
+// scheda di dettaglio, perché prima calcolavano due cose diverse: la lista
+// leggeva solo l'ultimo aumento registrato (`sub.lastIncrease`), il
+// dettaglio il cambiamento totale dal primo prezzo mai visto
+// (`buildPriceSeries`). Con più di un aumento nella vita dell'abbonamento i
+// due numeri potevano non coincidere — segnalato da Erny il 10 settembre.
+// Il totale da sempre è la versione più completa (usa anche i pagamenti
+// realmente registrati, non solo le modifiche fatte a mano), quindi è
+// quella che vince ovunque.
+function totalPriceChangePct(sub, payments, todayISO) {
+  const hist = buildPriceSeries(sub, payments, todayISO);
+  // Il prezzo di partenza è il primo che non fa parte di un'offerta:
+  // confrontare con l'offerta farebbe sembrare un aumento di centinaia per
+  // cento la semplice fine di uno sconto.
+  const settled = hist.filter((p) => !p.promo);
+  const first = settled[0] || hist[0];
+  const last = hist[hist.length - 1];
+  const unchanged = settled.length < 2;
+  const pct = !unchanged && first && first.cost > 0 ? Math.round(((last.cost - first.cost) / first.cost) * 100) : 0;
+  return { hist, first, last, unchanged, pct };
 }
 
 function toLocalISO(d) {
@@ -5074,6 +5153,68 @@ function HubboApp() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  // Esporta esattamente quello che lo Storico sta mostrando in quel momento
+  // (`filteredPayments` rispetta già periodo/servizio/categoria), non tutti i
+  // pagamenti mai registrati: se l'utente ha filtrato per un anno o un
+  // servizio, si aspetta di scaricare quello, non tutto lo storico.
+  async function handleExportCSV() {
+    // Virgola come separatore, punto come decimale: è il CSV più universale,
+    // Excel/Numbers/Sheets lo leggono bene a prescindere dalla lingua
+    // dell'app. Le virgolette proteggono nomi di servizio con virgole o
+    // virgolette al loro interno.
+    const escape = (v) => {
+      const str = String(v ?? "");
+      return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    };
+    const header = [t.csvColDate, t.csvColService, t.csvColCategory, t.csvColAmount, t.csvColCurrency, t.csvColStatus];
+    const rows = filteredPayments
+      .slice()
+      .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+      .map((p) => {
+        const cat = CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
+        return [
+          p.date,
+          p.name,
+          cat.label,
+          p.amount,
+          p.currency,
+          p.status === "skipped" ? t.csvStatusSkipped : t.csvStatusPaid,
+        ]
+          .map(escape)
+          .join(",");
+      });
+    // BOM iniziale: senza, Excel apre l'UTF-8 come Latin-1 e mostra le
+    // lettere accentate rotte — lo stesso problema pagato una volta con le
+    // favicon, qui sulla codifica invece che sulle dimensioni.
+    const csv = "\uFEFF" + [header.map(escape).join(","), ...rows].join("\r\n");
+    const filename = `hubbo-storico-${todayISO}.csv`;
+
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: "CSV", accept: { "text/csv": [".csv"] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(csv);
+        await writable.close();
+        return;
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+      }
+    }
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   // Un file di backup che sembra a posto in superficie ("app": "hubbo", un
   // array chiamato giusto) può comunque contenere righe senza le informazioni
   // che l'app dà per scontate altrove: un `frequency` che FREQUENCIES non
@@ -6909,6 +7050,12 @@ function HubboApp() {
               const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
               const icon = serviceIcon(s.name);
               const brandColor = (icon && BRAND_COLORS[icon]) || SERVICE_COLORS[s.name] || cat.color;
+              // Stessa funzione usata nella scheda di dettaglio (Storico
+              // prezzi): il totale da sempre, non solo l'ultimo aumento
+              // registrato. Prima erano due calcoli diversi e potevano
+              // mostrare due percentuali diverse per lo stesso abbonamento
+              // — segnalato da Erny il 10 settembre.
+              const priceChange = s.isEnded ? null : totalPriceChangePct(s, payments, todayISO);
               return (
                 <button
                   key={s.id}
@@ -6938,9 +7085,9 @@ function HubboApp() {
                           {s.daysLeft === 0 ? t.renewToday : s.daysLeft === 1 ? t.renewTomorrow : t.renewIn(s.daysLeft)}
                         </span>
                       )}
-                      {s.lastIncrease && s.lastIncrease.to === costOn(s, todayISO) && !s.isEnded && (
+                      {priceChange && !priceChange.unchanged && priceChange.pct > 0 && !s.isEnded && (
                         <span style={{ color: ACCENT.amber }} className="text-xs font-medium">
-                          · ⬆ +{Math.round(((s.lastIncrease.to - s.lastIncrease.from) / s.lastIncrease.from) * 100)}%
+                          · ⬆ +{priceChange.pct}%
                         </span>
                       )}
                       {s.sharedTotalCost != null && (
@@ -7180,6 +7327,18 @@ function HubboApp() {
             </div>
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{historyTotals.count} · {t.historyPaymentsCount}</div>
           </div>
+
+          {filteredPayments.length > 0 && (
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              style={{ background: colors.surface, border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+              className="w-full rounded-xl px-3.5 py-2.5 text-xs font-medium flex items-center justify-center gap-1.5 mb-3"
+            >
+              <Icon name="download" size={14} />
+              {t.historyExportCsv}
+            </button>
+          )}
 
           {visiblePayments.length > 0 && (
             <div className="mb-4">
@@ -9516,6 +9675,16 @@ function HubboApp() {
         const priceNow = costOn(s, todayISO);
         const monthly = monthlyEquivalent(priceNow, s.frequency);
         const yearly = monthly * 12;
+        // Quanto è costato davvero da sempre: la somma dei pagamenti
+        // realmente registrati per questo servizio, non una proiezione dal
+        // prezzo attuale — un abbonamento con più prezzi nel tempo non
+        // sarebbe raccontato bene moltiplicando quello di oggi per la durata.
+        // "Non pagato" non conta, come nei totali dello Storico.
+        const everPaid = payments.filter((p) => p.subId === s.id && p.status !== "skipped");
+        const allTimeTotal = everPaid.reduce((sum, p) => sum + paymentInBase(p), 0);
+        const allTimeSince = everPaid.length > 0
+          ? everPaid.reduce((min, p) => (p.date < min ? p.date : min), everPaid[0].date)
+          : s.startDate;
         return (
           <div style={{ background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} className={`fixed inset-0 flex items-end z-50 ${closingSheet === "detail" ? "rb-overlay-out" : "rb-overlay"}`} onClick={() => closeSheet("detail", () => setDetailSub(null))}>
             <div
@@ -9553,16 +9722,8 @@ function HubboApp() {
                 </div>
               )}
               {(() => {
-                const hist = buildPriceSeries(s, payments, todayISO);
+                const { hist, first, last, unchanged, pct: totalPct } = totalPriceChangePct(s, payments, todayISO);
                 if (hist.length === 0) return null;
-                // The starting price is the first one that was not part of an
-                // offer. Comparing against the offer would report the end of a
-                // discount as a rise of several hundred per cent.
-                const settled = hist.filter((p) => !p.promo);
-                const first = settled[0] || hist[0];
-                const last = hist[hist.length - 1];
-                const unchanged = settled.length < 2;
-                const totalPct = first.cost > 0 ? Math.round(((last.cost - first.cost) / first.cost) * 100) : 0;
                 const up = totalPct > 0;
                 return (
                   <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3.5 py-3 mb-3">
@@ -9647,6 +9808,17 @@ function HubboApp() {
                   <span style={{ color: colors.textSecondary }} className="text-xs">{t.detailYearly}</span>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-medium">{money(yearly, s.currency)}</span>
                 </div>
+                {everPaid.length > 0 && (
+                  <div className="flex items-center justify-between px-3.5 py-2.5" style={{ borderTop: `1px solid ${colors.border}` }}>
+                    <span style={{ color: colors.textSecondary }} className="text-xs">{t.detailAllTime}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-medium">
+                      {t.detailAllTimeSince(
+                        money(allTimeTotal, settings.currency),
+                        allTimeSince ? parseLocalDate(allTimeSince).toLocaleDateString(locale, { month: "long", year: "numeric" }) : ""
+                      )}
+                    </span>
+                  </div>
+                )}
                 {s.sharedTotalCost != null && (
                   <div className="flex items-center justify-between px-3.5 py-2.5" style={{ borderTop: `1px solid ${colors.border}` }}>
                     <span style={{ color: colors.textSecondary }} className="text-xs">{t.detailShared}</span>
