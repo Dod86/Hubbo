@@ -303,7 +303,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v137";
+const APP_VERSION = "v138";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -8159,6 +8159,16 @@ function HubboApp() {
               <button type="button" onClick={() => closeSheet("form", () => { setShowForm(false); setEditingId(null); })} style={{ color: colors.textSecondary }}>
                 <Icon name="x" size={20} />
               </button>
+              {/* Tirare lo scroll oltre il bordo superiore (il "rimbalzo
+                  elastico" di iOS) sposta il contenuto più in basso del
+                  solito: senza uno sfondo che si estenda ben oltre il
+                  proprio riquadro, quell'istante rivela quello che sta
+                  sopra nel modulo. 200px è più del rimbalzo massimo
+                  possibile su qualunque dispositivo. */}
+              <div
+                aria-hidden="true"
+                style={{ position: "absolute", left: 0, right: 0, bottom: "100%", height: 200, background: colors.surface }}
+              />
               {/* Stesso trucco del bottone salva in fondo: un riquadro pieno da
                   solo taglierebbe di netto quel che scorre sotto proprio al
                   bordo. Questa sfumatura lo dissolve invece di tranciarlo. */}
@@ -8195,6 +8205,10 @@ function HubboApp() {
                       className="text-base"
                     />
                   </div>
+                  <div
+                    aria-hidden="true"
+                    style={{ position: "absolute", left: 0, right: 0, bottom: "100%", height: 200, background: colors.surface }}
+                  />
                   <div
                     aria-hidden="true"
                     style={{
@@ -9226,6 +9240,10 @@ function HubboApp() {
                     className="text-base"
                   />
                 </div>
+                <div
+                  aria-hidden="true"
+                  style={{ position: "absolute", left: 0, right: 0, bottom: "100%", height: 200, background: colors.surface }}
+                />
                 <div
                   aria-hidden="true"
                   style={{
