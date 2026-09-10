@@ -303,7 +303,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v134";
+const APP_VERSION = "v135";
 const APP_BUILD_DATE = "2026-09-10";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -7050,12 +7050,6 @@ function HubboApp() {
               const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
               const icon = serviceIcon(s.name);
               const brandColor = (icon && BRAND_COLORS[icon]) || SERVICE_COLORS[s.name] || cat.color;
-              // Stessa funzione usata nella scheda di dettaglio (Storico
-              // prezzi): il totale da sempre, non solo l'ultimo aumento
-              // registrato. Prima erano due calcoli diversi e potevano
-              // mostrare due percentuali diverse per lo stesso abbonamento
-              // — segnalato da Erny il 10 settembre.
-              const priceChange = s.isEnded ? null : totalPriceChangePct(s, payments, todayISO);
               return (
                 <button
                   key={s.id}
@@ -7083,11 +7077,6 @@ function HubboApp() {
                       ) : (
                         <span style={{ color: urgent ? ACCENT.amber : colors.textSecondary }} className="text-xs">
                           {s.daysLeft === 0 ? t.renewToday : s.daysLeft === 1 ? t.renewTomorrow : t.renewIn(s.daysLeft)}
-                        </span>
-                      )}
-                      {priceChange && !priceChange.unchanged && priceChange.pct > 0 && !s.isEnded && (
-                        <span style={{ color: ACCENT.amber }} className="text-xs font-medium">
-                          · ⬆ +{priceChange.pct}%
                         </span>
                       )}
                       {s.sharedTotalCost != null && (
@@ -8160,7 +8149,10 @@ function HubboApp() {
             }
           >
             {!pickerOpen && <SheetHandle colors={colors} />}
-            <div className={`flex items-center justify-between mb-4 ${pickerOpen ? "hidden" : ""}`}>
+            <div
+              className={`flex items-center justify-between mb-4 sticky top-0 z-10 pt-1 pb-2 ${pickerOpen ? "hidden" : ""}`}
+              style={{ background: colors.surface }}
+            >
               <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">
                 {editingId ? t.editSub : t.newSub}
               </h2>
