@@ -309,7 +309,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v144";
+const APP_VERSION = "v145";
 const APP_BUILD_DATE = "2026-09-11";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -2331,8 +2331,7 @@ const LEDGER_STRINGS = {
     paymentScopeAfter: "Successivi",
     paymentOpenSub: "Apri abbonamento",
     paymentSheetHint: "Correggere l'importo cambia solo questo pagamento, non il prezzo dell'abbonamento.",
-    pastSubToggle: "Abbonamento già terminato",
-    pastSubHint: "Indica quando è iniziato e quando è finito: il giorno di rinnovo serve solo a ricostruire il ciclo di addebito.",
+    endDatePastWarning: "Data nel passato: questo abbonamento verrà registrato come già concluso, per ricostruire lo storico dei pagamenti. Controlla che la data sia quella giusta.",
     renewalDayLabel: "Giorno di rinnovo",
     missingStart: (n) => (n === 1 ? "1 abbonamento senza data di inizio" : `${n} abbonamenti senza data di inizio`),
     missingStartHint: "Apri l'abbonamento e compila «Abbonato dal» per ricostruirne lo storico.",
@@ -2423,8 +2422,7 @@ const LEDGER_STRINGS = {
     paymentScopeAfter: "Later",
     paymentOpenSub: "Open subscription",
     paymentSheetHint: "Correcting the amount only changes this payment, not the subscription price.",
-    pastSubToggle: "Already ended",
-    pastSubHint: "Set when it started and ended: the renewal day is only used to rebuild the billing cycle.",
+    endDatePastWarning: "Date in the past: this subscription will be recorded as already ended, to rebuild the payment history. Check that the date is the right one.",
     renewalDayLabel: "Renewal day",
     missingStart: (n) => (n === 1 ? "1 subscription with no start date" : `${n} subscriptions with no start date`),
     missingStartHint: "Open the subscription and fill in \u201CSubscribed since\u201D to rebuild its history.",
@@ -2515,8 +2513,7 @@ const LEDGER_STRINGS = {
     paymentScopeAfter: "Siguientes",
     paymentOpenSub: "Abrir suscripción",
     paymentSheetHint: "Corregir el importe solo cambia este pago, no el precio de la suscripción.",
-    pastSubToggle: "Ya finalizada",
-    pastSubHint: "Indica cuándo empezó y terminó: el día de renovación solo sirve para reconstruir el ciclo de cobro.",
+    endDatePastWarning: "Fecha en el pasado: este abono se registrará como ya finalizado, para reconstruir el historial de pagos. Comprueba que sea la fecha correcta.",
     renewalDayLabel: "Día de renovación",
     missingStart: (n) => (n === 1 ? "1 suscripción sin fecha de inicio" : `${n} suscripciones sin fecha de inicio`),
     missingStartHint: "Abre la suscripción y rellena «Suscrito desde» para reconstruir su historial.",
@@ -2607,8 +2604,7 @@ const LEDGER_STRINGS = {
     paymentScopeAfter: "Suivants",
     paymentOpenSub: "Ouvrir l'abonnement",
     paymentSheetHint: "Corriger le montant ne change que ce paiement, pas le prix de l'abonnement.",
-    pastSubToggle: "Déjà terminé",
-    pastSubHint: "Indiquez le début et la fin : le jour de renouvellement sert uniquement à reconstituer le cycle de facturation.",
+    endDatePastWarning: "Date dans le passé : cet abonnement sera enregistré comme déjà terminé, pour reconstituer l'historique des paiements. Vérifiez que la date est la bonne.",
     renewalDayLabel: "Jour de renouvellement",
     missingStart: (n) => (n === 1 ? "1 abonnement sans date de début" : `${n} abonnements sans date de début`),
     missingStartHint: "Ouvrez l'abonnement et renseignez « Abonné depuis » pour reconstituer son historique.",
@@ -2699,8 +2695,7 @@ const LEDGER_STRINGS = {
     paymentScopeAfter: "Spätere",
     paymentOpenSub: "Abo öffnen",
     paymentSheetHint: "Eine Betragskorrektur ändert nur diese Zahlung, nicht den Abo-Preis.",
-    pastSubToggle: "Bereits beendet",
-    pastSubHint: "Gib Beginn und Ende an: der Verlängerungstag dient nur dazu, den Abrechnungszyklus zu rekonstruieren.",
+    endDatePastWarning: "Datum in der Vergangenheit: Dieses Abo wird als bereits beendet erfasst, um den Zahlungsverlauf zu rekonstruieren. Prüfe, ob das Datum stimmt.",
     renewalDayLabel: "Verlängerungstag",
     missingStart: (n) => (n === 1 ? "1 Abo ohne Startdatum" : `${n} Abos ohne Startdatum`),
     missingStartHint: "Öffne das Abo und trage „Abonniert seit“ ein, um den Verlauf zu rekonstruieren.",
@@ -4347,7 +4342,7 @@ function ServiceLogo({ icon, category, domain, letter, serviceName, color, size 
 
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
-const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", isPast: false, hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoFull: "", promoUntil: "" };
+const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoFull: "", promoUntil: "" };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
@@ -4744,6 +4739,12 @@ function HubboApp() {
     return entry && Array.isArray(entry.opzioni) && entry.opzioni.length > 1 ? entry.opzioni : null;
   }, [offersFile, form.name, form.customName]);
 
+  // "Abbonamento già terminato" non è più un interruttore da toccare a
+  // parte: si deduce da sé se la data di fine scritta è già passata. Un
+  // dato che si può dedurre non merita un secondo posto dove ripeterlo —
+  // richiesto da Erny il 10 settembre.
+  const isPastDerived = form.hasEndDate && !!form.endDate && form.endDate < todayISO;
+
   const settingsRef = useRef(settings);
   useEffect(() => {
     settingsRef.current = settings;
@@ -4896,7 +4897,6 @@ function HubboApp() {
       frequency: sub.frequency,
       category: sub.category,
       renewalDate: sub.renewalDate,
-      isPast: !!sub.endDate && sub.endDate < todayISO,
       hasStartDate: !!sub.startDate,
       startDate: sub.startDate || "",
       hasEndDate: !!sub.endDate,
@@ -5065,9 +5065,14 @@ function HubboApp() {
       // A next renewal in the past only makes sense for a closed subscription.
       // On edit the check applies only if the date was actually touched, so an
       // old subscription whose stored anchor has long passed stays editable.
+      // "Chiuso" non è più scelto con un interruttore a parte: si deduce da
+      // qui, dalla stessa data di fine che l'utente ha già scritto — non
+      // c'era bisogno di un secondo posto dove dirlo, richiesto da Erny il
+      // 10 settembre.
+      const isPastDerived = form.hasEndDate && form.endDate && form.endDate < todayISO;
       const previous = editingId ? subs.find((x) => x.id === editingId) : null;
       const renewalTouched = !previous || previous.renewalDate !== form.renewalDate;
-      if (!form.isPast && renewalTouched && form.renewalDate < todayISO) {
+      if (!isPastDerived && renewalTouched && form.renewalDate < todayISO) {
         setFormError(t.errRenewalPast);
         return;
       }
@@ -8248,33 +8253,68 @@ function HubboApp() {
               </div>
             ) : (
             <>
-            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.service}</label>
-            <button
-              type="button"
-              data-tour="formService"
-              onClick={() => { setServiceSearch(""); setPickerOpen(true); }}
-              style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
-              className="w-full rounded-xl px-3 py-2.5 mb-3.5 flex items-center gap-2.5 text-left"
-            >
-              {form.name ? (
-                <>
-                  <ServiceLogo
-                    icon={form.name === "__custom__" ? null : serviceIcon(form.name)}
-                    domain={form.name === "__custom__" ? null : serviceDomain(form.name)}
-                    category={form.category}
-                    letter={(form.name === "__custom__" ? form.customName || "?" : form.name).charAt(0).toUpperCase()}
-                    serviceName={form.name === "__custom__" ? form.customName : form.name}
-                    color={(CATEGORIES.find((c) => c.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).color}
-                    size={26}
+            <div className="grid grid-cols-2 gap-2 mb-3.5">
+              <div className="min-w-0">
+                <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.service}</label>
+                <button
+                  type="button"
+                  data-tour="formService"
+                  onClick={() => { setServiceSearch(""); setPickerOpen(true); }}
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
+                  className="w-full rounded-xl px-3 py-2.5 flex items-center gap-2 text-left"
+                >
+                  {form.name ? (
+                    <>
+                      <ServiceLogo
+                        icon={form.name === "__custom__" ? null : serviceIcon(form.name)}
+                        domain={form.name === "__custom__" ? null : serviceDomain(form.name)}
+                        category={form.category}
+                        letter={(form.name === "__custom__" ? form.customName || "?" : form.name).charAt(0).toUpperCase()}
+                        serviceName={form.name === "__custom__" ? form.customName : form.name}
+                        color={(CATEGORIES.find((c) => c.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).color}
+                        size={22}
+                      />
+                      <span style={{ color: colors.textPrimary }} className="text-sm truncate min-w-0">
+                        {form.name === "__custom__" ? form.customName || t.customService : form.name}
+                      </span>
+                    </>
+                  ) : (
+                    <span style={{ color: colors.textFaint }} className="text-sm truncate">{t.chooseService}</span>
+                  )}
+                </button>
+              </div>
+
+              <div className="min-w-0">
+                <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.category}</label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOptionPicker({
+                      title: t.category,
+                      value: form.category,
+                      options: CATEGORIES.map((cc) => ({ value: cc.id, label: cc.label, color: cc.color })),
+                      onSelect: (v) => setForm((f) => ({ ...f, category: v })),
+                    })
+                  }
+                  style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
+                  className="w-full rounded-xl px-3 py-2.5 flex items-center gap-2 text-left"
+                >
+                  <span
+                    style={{
+                      background: (CATEGORIES.find((c) => c.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).color,
+                      width: 10,
+                      height: 10,
+                      borderRadius: 999,
+                    }}
+                    className="flex-shrink-0"
                   />
-                  <span style={{ color: colors.textPrimary }} className="text-sm">
-                    {form.name === "__custom__" ? form.customName || t.customService : form.name}
+                  <span style={{ color: colors.textPrimary }} className="text-sm truncate min-w-0 flex-1">
+                    {(CATEGORIES.find((cc) => cc.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).label}
                   </span>
-                </>
-              ) : (
-                <span style={{ color: colors.textFaint }} className="text-sm">{t.chooseService}</span>
-              )}
-            </button>
+                  <span style={{ color: colors.textFaint, fontSize: 10 }} className="flex-shrink-0">▾</span>
+                </button>
+              </div>
+            </div>
 
             {form.name === "__custom__" && (
               <input
@@ -8317,35 +8357,6 @@ function HubboApp() {
                 </button>
               </>
             )}
-
-            <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.category}</label>
-            <div className="flex items-center gap-2 mb-3.5">
-              <div
-                style={{
-                  background: (CATEGORIES.find((c) => c.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).color,
-                  width: 10,
-                  height: 10,
-                  borderRadius: 999,
-                }}
-                className="flex-shrink-0"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setOptionPicker({
-                    title: t.category,
-                    value: form.category,
-                    options: CATEGORIES.map((cc) => ({ value: cc.id, label: cc.label, color: cc.color })),
-                    onSelect: (v) => setForm((f) => ({ ...f, category: v })),
-                  })
-                }
-                style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-                className="flex-1 rounded-xl px-3.5 py-2.5 text-sm text-left flex items-center justify-between"
-              >
-                {(CATEGORIES.find((cc) => cc.id === form.category) || CATEGORIES[CATEGORIES.length - 1]).label}
-                <span style={{ color: colors.textFaint, fontSize: 10 }}>▾</span>
-              </button>
-            </div>
 
             {/* La valuta non è più un terzo campo a sé — quasi nessuno la
                 cambia dal proprio predefinito, ma occupava comunque un
@@ -8407,20 +8418,27 @@ function HubboApp() {
               </div>
             </div>
 
-            <div data-tour="formWhen" className="flex items-start gap-2">
-              <div className="flex-1 min-w-0">
-                <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
-                  {form.isPast ? t.renewalDayLabel : t.nextRenewal}
-                </ScrollingLabel>
-                <input
-                  value={form.renewalDate}
-                  onChange={(e) => setForm({ ...form, renewalDate: e.target.value })}
-                  type="date"
-                  min={form.isPast ? undefined : todayISO}
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-                  className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                />
-              </div>
+            <div data-tour="formWhen">
+              <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
+                {isPastDerived ? t.renewalDayLabel : t.nextRenewal}
+              </ScrollingLabel>
+              <input
+                value={form.renewalDate}
+                onChange={(e) => setForm({ ...form, renewalDate: e.target.value })}
+                type="date"
+                min={isPastDerived ? undefined : todayISO}
+                style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none mb-3.5"
+              />
+            </div>
+
+            {/* Abbonato dal e Data di fine affiancati, non più il primo
+                abbinato al rinnovo: sono i due campi facoltativi che
+                insieme ricostruiscono uno storico, ha senso stiano vicini
+                fra loro — richiesto da Erny il 10 settembre. Data di fine
+                parte come una pillola, non un campo vuoto: quasi nessuno la
+                usa, non merita spazio finché non serve davvero. */}
+            <div className="flex items-start gap-2">
               <div className="flex-1 min-w-0">
                 <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
                   {t.startDateLabel}
@@ -8434,8 +8452,58 @@ function HubboApp() {
                   className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                 />
               </div>
+              <div className="flex-1 min-w-0">
+                {form.hasEndDate ? (
+                  <>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs">
+                        {t.endDateLabel}
+                      </ScrollingLabel>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, hasEndDate: false, endDate: "" })}
+                        style={{ color: colors.textFaint }}
+                        className="text-xs flex-shrink-0"
+                      >
+                        {t.removeNote}
+                      </button>
+                    </div>
+                    <input
+                      value={form.endDate}
+                      onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                      type="date"
+                      style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                      className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                      autoFocus
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ScrollingLabel style={{ color: "transparent" }} className="text-xs mb-1.5">·</ScrollingLabel>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, hasEndDate: true })}
+                      style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+                      className="w-full h-[42px] rounded-xl px-3 text-sm text-left"
+                    >
+                      {t.addEndDate}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
             <p style={{ color: colors.textFaint }} className="text-xs mt-1.5 mb-3.5">{t.startDateHint}</p>
+
+            {/* Non più un interruttore "abbonamento già terminato": si
+                deduce da sé, se la data di fine scritta è nel passato — non
+                c'era bisogno di dirlo due volte. L'avviso è qui apposta per
+                chi ha scritto la data sbagliata per errore: non blocca
+                nulla, avvisa soltanto. */}
+            {isPastDerived && (
+              <div style={{ background: "rgba(227,168,87,0.10)", border: `1px solid rgba(227,168,87,0.30)` }} className="rounded-xl px-3.5 py-3 mb-3.5">
+                <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed">{t.endDatePastWarning}</p>
+              </div>
+            )}
 
             {(() => {
               const align = cycleAlignment(form.startDate, form.renewalDate, form.frequency);
@@ -8457,60 +8525,73 @@ function HubboApp() {
               );
             })()}
 
-            <div className="flex flex-wrap gap-2 mb-3.5">
-              {!form.isShared && (
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, isShared: true })}
-                  style={{ background: colors.surface2, color: colors.textSecondary, border: `1px solid ${colors.border}` }}
-                  className="rounded-full px-3 py-1.5 text-xs font-medium"
-                >
-                  {t.sharedOption}
-                </button>
-              )}
-
-              {!form.hasPromo && (
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, hasPromo: true })}
-                  style={{ background: colors.surface2, color: colors.textSecondary, border: `1px solid ${colors.border}` }}
-                  className="rounded-full px-3 py-1.5 text-xs font-medium"
-                >
-                  {t.promoTitle}
-                </button>
-              )}
-
+            {/* Condiviso e Offerta iniziale come interruttori veri, non più
+                pillole a comparsa: stesso linguaggio visivo già usato nelle
+                Impostazioni, raggruppati in un'unica card — riordino
+                richiesto da Erny il 10 settembre. "Abbonamento già
+                terminato" non c'è più come pillola: si deduce dalla data di
+                fine (vedi isPastDerived, sopra). "+ Data di fine" non è più
+                qui: è già gestita nella riga con "Abbonato dal", più sopra. */}
+            <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl overflow-hidden mb-3.5">
               <button
                 type="button"
-                onClick={() =>
-                  setForm(
-                    form.isPast
-                      ? { ...form, isPast: false }
-                      : { ...form, isPast: true, hasEndDate: true }
-                  )
-                }
-                style={{
-                  background: form.isPast ? ACCENT.terracotta : colors.surface2,
-                  color: form.isPast ? INK : colors.textSecondary,
-                  border: `1px solid ${form.isPast ? ACCENT.terracotta : colors.border}`,
-                }}
-                className="rounded-full px-3 py-1.5 text-xs font-medium"
+                onClick={() => setForm({ ...form, isShared: !form.isShared })}
+                className="w-full px-3.5 py-3 flex items-center justify-between text-sm"
               >
-                {t.pastSubToggle}
-              </button>
-
-              {!form.isPast && !form.hasEndDate && (
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, hasEndDate: true })}
-                  style={{ background: colors.surface2, color: colors.textSecondary, border: `1px solid ${colors.border}` }}
-                  className="rounded-full px-3 py-1.5 text-xs font-medium"
+                <span style={{ color: colors.textPrimary }}>{t.sharedOption}</span>
+                <span
+                  style={{
+                    background: form.isShared ? ACCENT.terracotta : colors.surface,
+                    border: `1px solid ${form.isShared ? ACCENT.terracotta : colors.border}`,
+                    width: 40,
+                    height: 24,
+                  }}
+                  className="rounded-full flex items-center px-0.5 transition-all flex-shrink-0"
                 >
-                  {t.addEndDate}
-                </button>
-              )}
+                  <span
+                    style={{
+                      background: "#fff",
+                      width: 18,
+                      height: 18,
+                      transform: form.isShared ? "translateX(16px)" : "translateX(0)",
+                      transition: "transform 0.2s ease",
+                    }}
+                    className="rounded-full block"
+                  />
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, hasPromo: !form.hasPromo })}
+                style={{ borderTop: `1px solid ${colors.border}` }}
+                className="w-full px-3.5 py-3 flex items-center justify-between text-sm"
+              >
+                <span style={{ color: colors.textPrimary }}>{t.promoTitle}</span>
+                <span
+                  style={{
+                    background: form.hasPromo ? ACCENT.terracotta : colors.surface,
+                    border: `1px solid ${form.hasPromo ? ACCENT.terracotta : colors.border}`,
+                    width: 40,
+                    height: 24,
+                  }}
+                  className="rounded-full flex items-center px-0.5 transition-all flex-shrink-0"
+                >
+                  <span
+                    style={{
+                      background: "#fff",
+                      width: 18,
+                      height: 18,
+                      transform: form.hasPromo ? "translateX(16px)" : "translateX(0)",
+                      transition: "transform 0.2s ease",
+                    }}
+                    className="rounded-full block"
+                  />
+                </span>
+              </button>
+            </div>
 
-              {!form.noteOpen && (
+            {!form.noteOpen && (
+              <div className="flex flex-wrap gap-2 mb-3.5">
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, noteOpen: true })}
@@ -8519,8 +8600,8 @@ function HubboApp() {
                 >
                   {t.addNote}
                 </button>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Condiviso e Offerta iniziale, stesso trattamento a comparsa già
                 usato per nota e data di fine, non più due riquadri Sì/No
@@ -8603,35 +8684,6 @@ function HubboApp() {
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-
-
-            {form.isPast && (
-              <p style={{ color: colors.textFaint }} className="text-xs mb-3.5 leading-relaxed">{t.pastSubHint}</p>
-            )}
-
-            {form.hasEndDate && (
-              <div className="mb-3.5">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label style={{ color: colors.textSecondary }} className="text-xs">{t.endDateLabel}</label>
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, hasEndDate: false, endDate: "" })}
-                    style={{ color: colors.textFaint }}
-                    className="text-xs"
-                  >
-                    {t.removeNote}
-                  </button>
-                </div>
-                <input
-                  value={form.endDate}
-                  onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                  type="date"
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-                  className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-                  autoFocus
-                />
               </div>
             )}
 
