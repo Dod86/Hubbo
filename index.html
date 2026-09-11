@@ -309,7 +309,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v146";
+const APP_VERSION = "v147";
 const APP_BUILD_DATE = "2026-09-11";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -990,10 +990,10 @@ const STRINGS = {
     errNoPromoUntil: "Indica da quando pagherai il prezzo pieno.",
     promoTitle: "Offerta iniziale",
     promoFullLabel: "Poi pagherò",
-    promoHintPast: "L'offerta risulta già finita: quello che paghi adesso è il costo qui sopra. Serve solo la data per non contare il periodo scontato come prezzo di partenza.",
+    promoHintPast: "L'offerta risulta già finita: quello che paghi adesso è il costo che hai scritto. Serve solo la data per non contare il periodo scontato come prezzo di partenza.",
     errNoPromoFull: "Indica quanto pagherai a offerta finita.",
     errPromoNotHigher: "Il prezzo a offerta finita deve essere più alto di quello che paghi ora.",
-    promoHint: "Il costo qui sopra è quello che paghi adesso grazie all'offerta. Qui indichi fino a quando dura e quanto pagherai dopo.",
+    promoHint: "Il costo che hai scritto è quello che paghi adesso grazie all'offerta. Qui indichi fino a quando dura e quanto pagherai dopo.",
     promoUntilLabel: "Prezzo pieno dal",
     promoTag: "offerta",
     errRenewalPast: "Il prossimo rinnovo non può essere una data passata. Se l'abbonamento è finito, attiva «Abbonamento già terminato».",
@@ -1253,10 +1253,10 @@ const STRINGS = {
     errNoPromoUntil: "Say when the full price starts.",
     promoTitle: "Introductory offer",
     promoFullLabel: "Then I'll pay",
-    promoHintPast: "This offer has already ended, so what you pay now is the cost above. Only the date is needed, to keep the discounted stretch from counting as the starting price.",
+    promoHintPast: "This offer has already ended, so what you pay now is the cost you entered. Only the date is needed, to keep the discounted stretch from counting as the starting price.",
     errNoPromoFull: "Say what you'll pay once the offer ends.",
     errPromoNotHigher: "The price after the offer has to be higher than what you pay now.",
-    promoHint: "The cost above is what you pay now thanks to the offer. Here you say how long it lasts and what comes after.",
+    promoHint: "The cost you entered is what you pay now thanks to the offer. Here you say how long it lasts and what comes after.",
     promoUntilLabel: "Full price from",
     promoTag: "offer",
     errRenewalPast: "The next renewal cannot be in the past. If the subscription has ended, turn on \"Already ended\".",
@@ -1516,10 +1516,10 @@ const STRINGS = {
     errNoPromoUntil: "Indica desde cuándo pagarás el precio completo.",
     promoTitle: "Oferta inicial",
     promoFullLabel: "Después pagaré",
-    promoHintPast: "La oferta ya ha terminado: lo que pagas ahora es el coste de arriba. Solo hace falta la fecha, para que el periodo con descuento no cuente como precio inicial.",
+    promoHintPast: "La oferta ya ha terminado: lo que pagas ahora es el coste que has indicado. Solo hace falta la fecha, para que el periodo con descuento no cuente como precio inicial.",
     errNoPromoFull: "Indica cuánto pagarás cuando acabe la oferta.",
     errPromoNotHigher: "El precio tras la oferta debe ser mayor que el que pagas ahora.",
-    promoHint: "El coste de arriba es lo que pagas ahora gracias a la oferta. Aquí indicas hasta cuándo dura y cuánto pagarás después.",
+    promoHint: "El coste que has indicado es lo que pagas ahora gracias a la oferta. Aquí indicas hasta cuándo dura y cuánto pagarás después.",
     promoUntilLabel: "Precio completo desde",
     promoTag: "oferta",
     errRenewalPast: "La próxima renovación no puede ser una fecha pasada. Si la suscripción ha terminado, activa «Ya finalizada».",
@@ -1779,10 +1779,10 @@ const STRINGS = {
     errNoPromoUntil: "Indiquez à partir de quand le plein tarif s'applique.",
     promoTitle: "Offre de lancement",
     promoFullLabel: "Ensuite je paierai",
-    promoHintPast: "Cette offre est déjà terminée : ce que vous payez maintenant est le coût ci-dessus. Seule la date est nécessaire, pour que la période remisée ne compte pas comme prix de départ.",
+    promoHintPast: "Cette offre est déjà terminée : ce que vous payez maintenant est le coût que vous avez indiqué. Seule la date est nécessaire, pour que la période remisée ne compte pas comme prix de départ.",
     errNoPromoFull: "Indiquez ce que vous paierez à la fin de l'offre.",
     errPromoNotHigher: "Le tarif après l'offre doit être supérieur à ce que vous payez actuellement.",
-    promoHint: "Le coût ci-dessus est ce que vous payez maintenant grâce à l'offre. Ici vous indiquez jusqu'à quand elle dure et ce qui suit.",
+    promoHint: "Le coût que vous avez indiqué est ce que vous payez maintenant grâce à l'offre. Ici vous indiquez jusqu'à quand elle dure et ce qui suit.",
     promoUntilLabel: "Plein tarif à partir du",
     promoTag: "offre",
     errRenewalPast: "Le prochain renouvellement ne peut pas être une date passée. Si l'abonnement est terminé, activez « Déjà terminé ».",
@@ -2042,10 +2042,10 @@ const STRINGS = {
     errNoPromoUntil: "Gib an, ab wann der volle Preis gilt.",
     promoTitle: "Einführungsangebot",
     promoFullLabel: "Danach zahle ich",
-    promoHintPast: "Dieses Angebot ist schon vorbei: Was du jetzt zahlst, sind die Kosten oben. Nötig ist nur das Datum, damit der vergünstigte Zeitraum nicht als Startpreis zählt.",
+    promoHintPast: "Dieses Angebot ist schon vorbei: Was du jetzt zahlst, sind die eingegebenen Kosten. Nötig ist nur das Datum, damit der vergünstigte Zeitraum nicht als Startpreis zählt.",
     errNoPromoFull: "Gib an, was du nach dem Angebot zahlst.",
     errPromoNotHigher: "Der Preis nach dem Angebot muss höher sein als der jetzige.",
-    promoHint: "Die Kosten oben sind das, was du jetzt dank des Angebots zahlst. Hier trägst du ein, wie lange es läuft und was danach kommt.",
+    promoHint: "Die eingegebenen Kosten sind das, was du jetzt dank des Angebots zahlst. Hier trägst du ein, wie lange es läuft und was danach kommt.",
     promoUntilLabel: "Voller Preis ab",
     promoTag: "Angebot",
     errRenewalPast: "Die nächste Verlängerung kann nicht in der Vergangenheit liegen. Ist das Abo beendet, aktiviere „Bereits beendet“.",
@@ -3689,6 +3689,19 @@ function useSheetDrag(onClose) {
   const onTouchMove = (e) => {
     const start = startRef.current;
     if (!start) return;
+    // Se lo scroll è partito davvero nel frattempo, non è più un trascina-
+    // per-chiudere: va interrotto subito. Senza questo controllo, un dy
+    // positivo capitato per caso durante lo scroll (un piccolo tremolio
+    // della mano, non insolito a metà di un gesto) applicava comunque un
+    // translateY minimo a tutta la scheda — è quello che faceva sembrare
+    // il titolo fisso in alto spostarsi durante lo scroll, pur essendo
+    // sticky: non si muoveva lui, si muoveva il genitore a cui è ancorato.
+    // Segnalato da Erny l'11 settembre.
+    if (e.currentTarget.scrollTop > 0) {
+      startRef.current = null;
+      if (dragY) setDragY(0);
+      return;
+    }
     const dx = e.touches[0].clientX - start.x;
     const dy = e.touches[0].clientY - start.y;
     // Same lock the side panel uses, the other way round: a sideways swipe
