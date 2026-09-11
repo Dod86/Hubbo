@@ -309,7 +309,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v145";
+const APP_VERSION = "v146";
 const APP_BUILD_DATE = "2026-09-11";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -1026,7 +1026,6 @@ const STRINGS = {
     yourShare: (amount) => `La tua quota: ${amount}/persona`,
     sharedInfo: (total, people) => `quota di ${total} tra ${people} persone`,
     errNoPeople: "Indica in quante persone dividete l'abbonamento (almeno 2).",
-    addNote: "+ Aggiungi nota",
     addEndDate: "+ Aggiungi data di fine",
     detailRenewal: "Prossimo rinnovo",
     detailFrequency: "Frequenza",
@@ -1290,7 +1289,6 @@ const STRINGS = {
     yourShare: (amount) => `Your share: ${amount}/person`,
     sharedInfo: (total, people) => `share of ${total} split ${people} ways`,
     errNoPeople: "Enter how many people share this subscription (at least 2).",
-    addNote: "+ Add note",
     addEndDate: "+ Add end date",
     detailRenewal: "Next renewal",
     detailFrequency: "Frequency",
@@ -1554,7 +1552,6 @@ const STRINGS = {
     yourShare: (amount) => `Tu parte: ${amount}/persona`,
     sharedInfo: (total, people) => `parte de ${total} entre ${people} personas`,
     errNoPeople: "Indica entre cuántas personas se comparte (al menos 2).",
-    addNote: "+ Añadir nota",
     addEndDate: "+ Añadir fecha de fin",
     detailRenewal: "Próxima renovación",
     detailFrequency: "Frecuencia",
@@ -1818,7 +1815,6 @@ const STRINGS = {
     yourShare: (amount) => `Votre part : ${amount}/personne`,
     sharedInfo: (total, people) => `part de ${total} divisée entre ${people} personnes`,
     errNoPeople: "Indiquez entre combien de personnes l'abonnement est partagé (au moins 2).",
-    addNote: "+ Ajouter une note",
     addEndDate: "+ Ajouter une date de fin",
     detailRenewal: "Prochain renouvellement",
     detailFrequency: "Fréquence",
@@ -2082,7 +2078,6 @@ const STRINGS = {
     yourShare: (amount) => `Dein Anteil: ${amount}/Person`,
     sharedInfo: (total, people) => `Anteil von ${total} geteilt durch ${people}`,
     errNoPeople: "Gib an, durch wie viele Personen das Abo geteilt wird (mindestens 2).",
-    addNote: "+ Notiz hinzufügen",
     addEndDate: "+ Enddatum hinzufügen",
     detailRenewal: "Nächste Verlängerung",
     detailFrequency: "Häufigkeit",
@@ -2338,7 +2333,7 @@ const LEDGER_STRINGS = {
     noStartBadge: "manca inizio",
     startDateLabel: "Abbonato dal",
     addStartDate: "+ Aggiungi data di inizio",
-    startDateHint: "Serve a ricostruire lo storico dei pagamenti.",
+    startDateHint: "Precompilata con il rinnovo: modificala se l'abbonamento è iniziato prima.",
     startMismatch: (first) => `Questa data non cade nel ciclo di rinnovo: il primo pagamento registrato sarà il ${first}.`,
     startMismatchFix: (d) => `Usa ${d}`,
   },
@@ -2429,7 +2424,7 @@ const LEDGER_STRINGS = {
     noStartBadge: "no start date",
     startDateLabel: "Subscribed since",
     addStartDate: "+ Add start date",
-    startDateHint: "Used to rebuild your payment history.",
+    startDateHint: "Pre-filled with the renewal date: change it if the subscription started earlier.",
     startMismatch: (first) => `This date is not on the renewal cycle: the first recorded payment will be ${first}.`,
     startMismatchFix: (d) => `Use ${d}`,
   },
@@ -2520,7 +2515,7 @@ const LEDGER_STRINGS = {
     noStartBadge: "sin fecha inicio",
     startDateLabel: "Suscrito desde",
     addStartDate: "+ Añadir fecha de inicio",
-    startDateHint: "Sirve para reconstruir el historial de pagos.",
+    startDateHint: "Rellenada con la fecha de renovación: cámbiala si el abono empezó antes.",
     startMismatch: (first) => `Esta fecha no cae en el ciclo de renovación: el primer pago registrado será el ${first}.`,
     startMismatchFix: (d) => `Usar ${d}`,
   },
@@ -2611,7 +2606,7 @@ const LEDGER_STRINGS = {
     noStartBadge: "début manquant",
     startDateLabel: "Abonné depuis",
     addStartDate: "+ Ajouter une date de début",
-    startDateHint: "Sert à reconstituer l'historique des paiements.",
+    startDateHint: "Préremplie avec le renouvellement : modifiez-la si l'abonnement a commencé avant.",
     startMismatch: (first) => `Cette date ne tombe pas sur le cycle de renouvellement : le premier paiement enregistré sera le ${first}.`,
     startMismatchFix: (d) => `Utiliser le ${d}`,
   },
@@ -2702,7 +2697,7 @@ const LEDGER_STRINGS = {
     noStartBadge: "Start fehlt",
     startDateLabel: "Abonniert seit",
     addStartDate: "+ Startdatum hinzufügen",
-    startDateHint: "Dient dazu, den Zahlungsverlauf zu rekonstruieren.",
+    startDateHint: "Mit dem Verlängerungsdatum vorausgefüllt: ändere es, falls das Abo früher begonnen hat.",
     startMismatch: (first) => `Dieses Datum liegt nicht im Verlängerungszyklus: die erste erfasste Zahlung ist der ${first}.`,
     startMismatchFix: (d) => `${d} verwenden`,
   },
@@ -4342,7 +4337,7 @@ function ServiceLogo({ icon, category, domain, letter, serviceName, color, size 
 
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
-const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", noteOpen: false, hasPromo: false, promoFull: "", promoUntil: "" };
+const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", hasPromo: false, promoFull: "", promoUntil: "" };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
@@ -4866,7 +4861,10 @@ function HubboApp() {
       return;
     }
     setEditingId(null);
-    setForm({ ...emptyForm, currency: settings.currency, renewalDate: todayISO });
+    // startDate parte uguale a renewalDate, non vuota: un abbonamento non
+    // può esistere senza data di inizio — richiesto da Erny l'11
+    // settembre. Resta comunque modificabile a mano.
+    setForm({ ...emptyForm, currency: settings.currency, renewalDate: todayISO, startDate: todayISO });
     setFormError("");
     setPickerOpen(false);
     setServiceSearch("");
@@ -4904,7 +4902,6 @@ function HubboApp() {
       isShared: sub.sharedTotalCost != null,
       peopleCount: sub.sharedPeople ? String(sub.sharedPeople) : "2",
       note: sub.note || "",
-      noteOpen: !!sub.note,
     });
     setFormError("");
     setPickerOpen(false);
@@ -8424,7 +8421,20 @@ function HubboApp() {
               </ScrollingLabel>
               <input
                 value={form.renewalDate}
-                onChange={(e) => setForm({ ...form, renewalDate: e.target.value })}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setForm((f) => ({
+                    ...f,
+                    renewalDate: v,
+                    // Segue il rinnovo finché "Abbonato dal" non viene
+                    // toccata a mano (f.startDate === f.renewalDate vuol
+                    // dire che è ancora agganciata), e solo aggiungendo un
+                    // nuovo abbonamento — in modifica la data di inizio
+                    // storica resta quella vera, cambiare il rinnovo non
+                    // deve riscriverla. Richiesto da Erny l'11 settembre.
+                    startDate: !editingId && f.startDate === f.renewalDate ? v : f.startDate,
+                  }));
+                }}
                 type="date"
                 min={isPastDerived ? undefined : todayISO}
                 style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
@@ -8433,11 +8443,13 @@ function HubboApp() {
             </div>
 
             {/* Abbonato dal e Data di fine affiancati, non più il primo
-                abbinato al rinnovo: sono i due campi facoltativi che
-                insieme ricostruiscono uno storico, ha senso stiano vicini
-                fra loro — richiesto da Erny il 10 settembre. Data di fine
-                parte come una pillola, non un campo vuoto: quasi nessuno la
-                usa, non merita spazio finché non serve davvero. */}
+                abbinato al rinnovo — richiesto da Erny il 10 settembre.
+                Data di fine parte come una pillola, non un campo vuoto:
+                quasi nessuno la usa, non merita spazio finché non serve
+                davvero. Abbonato dal invece non è più facoltativa: dall'11
+                settembre segue il rinnovo in automatico (vedi il suo
+                onChange, sopra) finché non viene toccata a mano — un
+                abbonamento non può esistere senza data di inizio. */}
             <div className="flex items-start gap-2">
               <div className="flex-1 min-w-0">
                 <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
@@ -8541,7 +8553,7 @@ function HubboApp() {
                 <span style={{ color: colors.textPrimary }}>{t.sharedOption}</span>
                 <span
                   style={{
-                    background: form.isShared ? ACCENT.terracotta : colors.surface,
+                    background: form.isShared ? ACCENT.terracotta : colors.border,
                     border: `1px solid ${form.isShared ? ACCENT.terracotta : colors.border}`,
                     width: 40,
                     height: 24,
@@ -8569,7 +8581,7 @@ function HubboApp() {
                 <span style={{ color: colors.textPrimary }}>{t.promoTitle}</span>
                 <span
                   style={{
-                    background: form.hasPromo ? ACCENT.terracotta : colors.surface,
+                    background: form.hasPromo ? ACCENT.terracotta : colors.border,
                     border: `1px solid ${form.hasPromo ? ACCENT.terracotta : colors.border}`,
                     width: 40,
                     height: 24,
@@ -8589,19 +8601,6 @@ function HubboApp() {
                 </span>
               </button>
             </div>
-
-            {!form.noteOpen && (
-              <div className="flex flex-wrap gap-2 mb-3.5">
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, noteOpen: true })}
-                  style={{ background: colors.surface2, color: colors.textSecondary, border: `1px solid ${colors.border}` }}
-                  className="rounded-full px-3 py-1.5 text-xs font-medium"
-                >
-                  {t.addNote}
-                </button>
-              </div>
-            )}
 
             {/* Condiviso e Offerta iniziale, stesso trattamento a comparsa già
                 usato per nota e data di fine, non più due riquadri Sì/No
@@ -8687,29 +8686,23 @@ function HubboApp() {
               </div>
             )}
 
-            {form.noteOpen && (
-              <div className="mb-5">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label style={{ color: colors.textSecondary }} className="text-xs">{t.noteLabel}</label>
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, noteOpen: false, note: "" })}
-                    style={{ color: colors.textFaint }}
-                    className="text-xs"
-                  >
-                    {t.removeNote}
-                  </button>
-                </div>
-                <textarea
-                  value={form.note}
-                  onChange={(e) => setForm({ ...form, note: e.target.value })}
-                  placeholder={t.notePlaceholder}
-                  rows={2}
-                  style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
-                  className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none resize-none"
-                />
-              </div>
-            )}
+            {/* Non più una pillola "+ Aggiungi nota" da toccare per veder
+                comparire il campo: sempre visibile, in fondo alla scheda —
+                richiesto esplicitamente da Erny l'11 settembre ("come
+                riquadro di scrittura", non come tasto). Niente più
+                "Rimuovi": non c'è più niente da richiudere, basta lasciarlo
+                vuoto. */}
+            <div className="mb-5">
+              <label style={{ color: colors.textSecondary }} className="text-xs block mb-1.5">{t.noteLabel}</label>
+              <textarea
+                value={form.note}
+                onChange={(e) => setForm({ ...form, note: e.target.value })}
+                placeholder={t.notePlaceholder}
+                rows={2}
+                style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
+                className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none resize-none"
+              />
+            </div>
 
             {formError && (
               <div style={{ color: ACCENT.danger, background: "rgba(224,85,69,0.1)", border: `1px solid rgba(224,85,69,0.3)` }} className="rounded-xl px-3.5 py-2.5 text-xs mb-3.5">
