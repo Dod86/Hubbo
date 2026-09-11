@@ -309,7 +309,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v147";
+const APP_VERSION = "v148";
 const APP_BUILD_DATE = "2026-09-11";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -8188,7 +8188,15 @@ function HubboApp() {
             {!pickerOpen && <SheetHandle colors={colors} />}
             <div
               className={`flex items-center justify-between sticky top-0 z-10 -mx-5 px-5 pt-1 pb-4 ${pickerOpen ? "hidden" : ""}`}
-              style={{ background: colors.surface }}
+              // Bug noto di Safari/iOS: un elemento sticky può "bloccarsi"
+              // qualche pixel più in alto del dovuto dopo uno scroll a
+              // inerzia, finché qualcosa non forza un ridisegno. Metterlo
+              // sul proprio livello grafico (invece di lasciarlo dipingere
+              // insieme al resto) evita che serva quel ridisegno in più —
+              // segnalato da Erny l'11 settembre, non risolto dalla
+              // correzione precedente (quella riguardava lo scroll stesso,
+              // questa il punto in cui si ferma dopo).
+              style={{ background: colors.surface, transform: "translateZ(0)", WebkitTransform: "translateZ(0)" }}
             >
               <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-lg font-medium">
                 {editingId ? t.editSub : t.newSub}
@@ -8212,7 +8220,7 @@ function HubboApp() {
               <div>
                 <div
                   className="flex items-center gap-2 sticky top-0 z-10 -mx-5 px-5 pt-1 pb-4"
-                  style={{ background: colors.surface }}
+                  style={{ background: colors.surface, transform: "translateZ(0)", WebkitTransform: "translateZ(0)" }}
                 >
                   <button type="button" onClick={() => setPickerOpen(false)} style={{ color: colors.textSecondary }} className="p-1 flex-shrink-0">
                     <Icon name="x" size={18} />
@@ -9312,7 +9320,7 @@ function HubboApp() {
             {optionPicker.searchable && (
               <div
                 className="sticky top-0 z-10 -mx-5 px-5 pt-1 pb-4"
-                style={{ background: colors.surface }}
+                style={{ background: colors.surface, transform: "translateZ(0)", WebkitTransform: "translateZ(0)" }}
               >
                 <div style={{ background: colors.surface2, border: `1px solid ${colors.border}` }} className="rounded-xl px-3 py-2 flex items-center gap-2">
                   <Icon name="search" size={14} color={colors.textFaint} />
