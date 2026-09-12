@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v167";
+const APP_VERSION = "v169";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -412,7 +412,7 @@ function savingsOverlapGroup(sub) {
   return SAVINGS_OVERLAP_CATEGORIES.has(sub.category) ? sub.category : null;
 }
 
-const FREE_LIMIT = 10;
+const FREE_LIMIT = 7;
 
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');`;
 
@@ -4813,6 +4813,66 @@ function useSystemPrefersDark() {
     };
   }, []);
   return prefersDark;
+}
+
+// Un "paracadute" per errori imprevisti durante il render: senza,
+// qualunque eccezione non gestita fa sparire l'intera app, schermo nero
+// totale, senza un messaggio visibile — è già successo due volte con
+// l'importazione di un backup (v162), prima di essere trovato e
+// corretto. Un errore in un punto che non abbiamo ancora trovato
+// farebbe esattamente la stessa cosa. Questo non impedisce l'errore —
+// non può, non sa in anticipo dove potrebbe nascondersi — ma dà a chi
+// lo vede qualcosa da leggere e da mandarmi, invece del nulla. Colori
+// scritti a mano, non presi dal tema dell'app: se l'errore ha già
+// coinvolto lo stato dei colori (poco probabile ma non impossibile),
+// il paracadute deve restare leggibile comunque. Richiesto da Erny il
+// 12 settembre, come primo passo verso un collaudo più ampio.
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      const message = this.state.error && this.state.error.message ? this.state.error.message : String(this.state.error);
+      return (
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+            background: "#12100D",
+            color: "#F2EEE7",
+            fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Qualcosa è andato storto</h1>
+          <p style={{ fontSize: 14, color: "#948C7F", marginBottom: 20, maxWidth: 320, lineHeight: 1.5 }}>
+            I tuoi abbonamenti sono al sicuro — sono salvati sul telefono, non in questa schermata. Prova a ricaricare; se il problema continua, manda uno screenshot di questa pagina.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ background: "#E3A857", color: "#12100D", border: "none", borderRadius: 12, padding: "12px 24px", fontSize: 14, fontWeight: 600, marginBottom: 16, cursor: "pointer" }}
+          >
+            Ricarica l'app
+          </button>
+          <details style={{ fontSize: 11, color: "#635B4F", maxWidth: 320, wordBreak: "break-word" }}>
+            <summary style={{ cursor: "pointer" }}>Dettagli tecnici</summary>
+            <pre style={{ whiteSpace: "pre-wrap", textAlign: "left", marginTop: 8 }}>{message}</pre>
+          </details>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 function HubboApp() {
@@ -10878,7 +10938,7 @@ function HubboApp() {
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<HubboApp />);
+root.render(<ErrorBoundary><HubboApp /></ErrorBoundary>);
 </script>
 <script>
 if ("serviceWorker" in navigator) {
