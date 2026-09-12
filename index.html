@@ -135,6 +135,9 @@ const LUCIDE_ICONS = {
   download: `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <polyline points="7 10 12 15 17 10" /> <line x1="12" x2="12" y1="15" y2="3" />`,
   piggyBank: `<path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z" /> <path d="M16 10h.01" />`,
   coffee: `<path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" />`,
+  beer: `<path d="M17 11h1a3 3 0 0 1 0 6h-1" /> <path d="M9 12v6" /> <path d="M13 12v6" /> <path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z" /> <path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />`,
+  pizza: `<path d="m12 14-1 1" /> <path d="m13.75 18.25-1.25 1.42" /> <path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12" /> <path d="M18.8 9.3a1 1 0 0 0 2.1 7.7" /> <path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z" />`,
+  utensils: `<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /> <path d="M7 2v20" /> <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />`,
   calendar: `<path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" />`,
   crown: `<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7Z" />`,
   layers: `<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />`,
@@ -308,7 +311,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v152";
+const APP_VERSION = "v153";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -3369,6 +3372,13 @@ const EQUIVALENT_LABELS = {
 // the one everybody has priced in their head — covering the budgets people
 // actually have, and brings the dearer items in only when the sum demands it.
 const EQUIVALENT_MAX = 3;
+
+// Which drawing stands for which reference. Kept apart from EQUIVALENTS so the
+// prices stay readable as a table. Rimessa dopo essere stata tolta per
+// errore in v151: la colonna del costo al giorno mostrava sempre e solo il
+// caffè, anche quando il testo sotto diceva "birra" o "pizza" — segnalato
+// da Erny il 12 settembre.
+const EQUIVALENT_ICONS = { coffee: "coffee", beer: "beer", pizza: "pizza", dinner: "utensils" };
 
 function dailyEquivalent(daily, currency, language) {
   if (!Number.isFinite(daily) || daily <= 0) return null;
@@ -7162,7 +7172,7 @@ function HubboApp() {
               style={{ borderTop: `1px solid ${colors.border}` }}
             >
               <div className="flex-1 min-w-0">
-                <Icon name="coffee" size={18} color={ACCENT.amber} className="mb-1.5" />
+                <Icon name={dailyEquivalence ? EQUIVALENT_ICONS[dailyEquivalence.id] : "coffee"} size={18} color={ACCENT.amber} className="mb-1.5" />
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: colors.textPrimary }} className="text-[15px] leading-tight truncate">
                   {money(dailyTotal)}
                 </div>
