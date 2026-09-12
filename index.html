@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v161";
+const APP_VERSION = "v162";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4898,7 +4898,20 @@ function HubboApp() {
     };
   }, []);
 
-  const t = { ...STRINGS[settings.language], ...LEDGER_STRINGS[settings.language], ...TOUR_STRINGS[settings.language] };
+  // Se la lingua salvata non è una delle cinque riconosciute — un file
+  // importato da un'altra origine, un'impostazione scritta a mano, una
+  // corruzione qualsiasi — STRINGS[lingua] eccetera restituiscono
+  // undefined, e {...undefined} non dà errore: produce silenziosamente un
+  // oggetto vuoto. Da lì ogni singolo testo o funzione dell'app letti da
+  // quest'oggetto crashano l'intera pagina al primo utilizzo — schermo
+  // nero totale, senza un messaggio visibile, perché l'app non ha un
+  // error boundary. Trovato riproducendo davvero l'importazione di un
+  // backup con lingua "it-IT" invece di "it" (un errore facile da fare
+  // esportando da un dispositivo con locale diverso), segnalato da Erny
+  // il 12 settembre. Il ripiego sull'italiano rende l'app sempre
+  // utilizzabile, qualunque cosa contenga la lingua salvata.
+  const langKey = STRINGS[settings.language] ? settings.language : "it";
+  const t = { ...STRINGS[langKey], ...LEDGER_STRINGS[langKey], ...TOUR_STRINGS[langKey] };
   const systemPrefersDark = useSystemPrefersDark();
   const effectiveTheme = settings.theme === "system" ? (systemPrefersDark ? "dark" : "light") : settings.theme;
   const colors = THEMES[effectiveTheme];
@@ -10048,7 +10061,7 @@ function HubboApp() {
                           }}
                           className="w-4 h-4 rounded-md flex-shrink-0 flex items-center justify-center"
                         >
-                          {active && <Check size={11} color={INK} strokeWidth={3} />}
+                          {active && <Icon name="check" size={11} color={INK} strokeWidth={3} />}
                         </span>
                         <ServiceLogo icon={serviceIcon(s.name)} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={26} />
                         <span className="flex-1 min-w-0 truncate text-sm">{s.name}</span>
@@ -10083,7 +10096,7 @@ function HubboApp() {
                   }}
                   className="w-4 h-4 rounded-md flex-shrink-0 flex items-center justify-center"
                 >
-                  {importIncludeSettings && <Check size={11} color={INK} strokeWidth={3} />}
+                  {importIncludeSettings && <Icon name="check" size={11} color={INK} strokeWidth={3} />}
                 </span>
                 <span className="min-w-0">
                   <span className="text-sm font-medium block">{t.importIncludeSettings}</span>
