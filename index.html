@@ -308,8 +308,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v151";
-const APP_BUILD_DATE = "2026-09-11";
+const APP_VERSION = "v152";
+const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -904,6 +904,10 @@ const STRINGS = {
     activeCountCaption: "attivi",
     freeBadgeShort: "Piano gratuito",
     perDay: "al giorno",
+    ringAriaLabel: (amount) => `Totale ${amount}, suddiviso per categoria`,
+    ringSegmentAriaLabel: (label, amount) => `${label}, ${amount}`,
+    ringClearSelection: "Torna al totale",
+    ringPctOfSpend: (n) => `${n}% della spesa`,
     equivPerDay: (n, item) => `come ${n} ${item}`,
     equivEveryDays: (item, d) => `come un ${item} ogni ${d} giorni`,
     freeBadge: (n, limit) => {
@@ -1173,6 +1177,10 @@ const STRINGS = {
     activeCountCaption: "active",
     freeBadgeShort: "Free plan",
     perDay: "a day",
+    ringAriaLabel: (amount) => `Total ${amount}, split by category`,
+    ringSegmentAriaLabel: (label, amount) => `${label}, ${amount}`,
+    ringClearSelection: "Back to total",
+    ringPctOfSpend: (n) => `${n}% of spending`,
     equivPerDay: (n, item) => `like ${n} ${item}`,
     equivEveryDays: (item, d) => `like a ${item} every ${d} days`,
     freeBadge: (n, limit) => {
@@ -1442,6 +1450,10 @@ const STRINGS = {
     activeCountCaption: "activos",
     freeBadgeShort: "Plan gratuito",
     perDay: "al día",
+    ringAriaLabel: (amount) => `Total ${amount}, dividido por categoría`,
+    ringSegmentAriaLabel: (label, amount) => `${label}, ${amount}`,
+    ringClearSelection: "Volver al total",
+    ringPctOfSpend: (n) => `${n}% del gasto`,
     equivPerDay: (n, item) => `como ${n} ${item}`,
     equivEveryDays: (item, d) => `como un ${item} cada ${d} días`,
     freeBadge: (n, limit) => {
@@ -1711,6 +1723,10 @@ const STRINGS = {
     activeCountCaption: "actifs",
     freeBadgeShort: "Offre gratuite",
     perDay: "par jour",
+    ringAriaLabel: (amount) => `Total ${amount}, réparti par catégorie`,
+    ringSegmentAriaLabel: (label, amount) => `${label}, ${amount}`,
+    ringClearSelection: "Revenir au total",
+    ringPctOfSpend: (n) => `${n}% des dépenses`,
     equivPerDay: (n, item) => `comme ${n} ${item}`,
     equivEveryDays: (item, d) => `comme un ${item} tous les ${d} jours`,
     freeBadge: (n, limit) => {
@@ -1980,6 +1996,10 @@ const STRINGS = {
     activeCountCaption: "aktiv",
     freeBadgeShort: "Gratis-Tarif",
     perDay: "pro Tag",
+    ringAriaLabel: (amount) => `Gesamt ${amount}, nach Kategorie aufgeteilt`,
+    ringSegmentAriaLabel: (label, amount) => `${label}, ${amount}`,
+    ringClearSelection: "Zurück zur Gesamtsumme",
+    ringPctOfSpend: (n) => `${n}% der Ausgaben`,
     equivPerDay: (n, item) => `wie ${n} ${item}`,
     equivEveryDays: (item, d) => `wie ein ${item} alle ${d} Tage`,
     freeBadge: (n, limit) => {
@@ -3843,7 +3863,7 @@ function annularSectorPath(cx, cy, ri, ro, a0, a1, k) {
   ].join(" ");
 }
 
-function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner = 3 }) {
+function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner = 3, selected = null, onSelect = null, animate = false, money, t }) {
   const r = (size - stroke) / 2;
   const ri = r - stroke / 2;
   const ro = r + stroke / 2;
@@ -3877,25 +3897,112 @@ function CategoryRing({ segments, total, colors, size = 128, stroke = 13, corner
     if (freeSum <= boostSum) break;
     slices = slices.map((a, i) => (boosted[i] ? minSlice : a - boostSum * (a / freeSum)));
   }
+  // Gli angoli finali di ogni fetta, calcolati una volta sola qui — sia il
+  // disegno a riposo sia quello durante l'animazione partono da questi
+  // stessi numeri, l'animazione si limita a scalarli.
   let cursor = 0;
+  const finalArcs = segments.map((seg, i) => {
+    const slice = slices[i];
+    const gapStart = i === 0 ? 0 : gapAngle / 2;
+    const gapEnd = i === segments.length - 1 ? 0 : gapAngle / 2;
+    const a0 = cursor + gapStart;
+    const a1 = cursor + slice - gapEnd;
+    cursor += slice;
+    return { seg, a0, a1 };
+  });
+
+  // Animazione di apertura: una progressione da 0 a 1 con una curva
+  // ease-out, sentita una volta sola quando `animate` è vero — non un
+  // caricamento continuo, una piccola composizione all'avvio. A riposo
+  // (animate falso, o dopo che l'animazione è già finita) vale sempre 1:
+  // l'anello deve restare perfettamente utilizzabile anche se
+  // l'animazione, per qualunque motivo, non dovesse partire mai — punto
+  // 15 del documento di Erny sull'anello, 11 settembre.
+  const [progress, setProgress] = useState(animate ? 0 : 1);
+  useEffect(() => {
+    if (!animate) { setProgress(1); return; }
+    let raf;
+    const duration = 700;
+    const start = performance.now();
+    const tick = (now) => {
+      const elapsed = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - elapsed, 3);
+      setProgress(eased);
+      if (elapsed < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => { if (raf) cancelAnimationFrame(raf); };
+  }, [animate]);
+
+  const interactive = !!onSelect;
+  const toggle = (id) => { if (onSelect) onSelect(selected === id ? null : id); };
+
   return (
-    <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
+    <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} role="img" aria-label={t ? t.ringAriaLabel(money ? money(total) : total) : undefined}>
       <path d={annularSectorPath(cx, cy, ri, ro, 0, sweepAngle, corner)} fill={colors.surface2} />
       {total > 0 &&
-        segments.map((seg, i) => {
-          const slice = slices[i];
-          // Il distacco si divide a metà fra due fette vicine — ma alle due
-          // estremità dell'intero anello non c'è una fetta vicina con cui
-          // dividerlo: lì la fetta deve toccare esattamente il bordo della
-          // base, altrimenti la base resta scoperta proprio alle estremità.
-          const gapStart = i === 0 ? 0 : gapAngle / 2;
-          const gapEnd = i === segments.length - 1 ? 0 : gapAngle / 2;
-          const a0 = cursor + gapStart;
-          const a1 = cursor + slice - gapEnd;
-          cursor += slice;
+        finalArcs.map(({ seg, a0: a0f, a1: a1f }) => {
+          const a0 = a0f * progress;
+          const a1 = a1f * progress;
           if (a1 <= a0) return null;
-          return <path key={seg.id} d={annularSectorPath(cx, cy, ri, ro, a0, a1, corner)} fill={seg.color} />;
+          const isSelected = selected === seg.id;
+          const dimmed = selected != null && !isSelected;
+          // La fetta scelta si allarga appena verso l'esterno, le altre si
+          // affievoliscono un poco — nessuna delle due esagerata, punto 4
+          // del documento: "non esagerare".
+          const segRo = isSelected ? ro + 2 : ro;
+          return (
+            <g
+              key={seg.id}
+              role={interactive ? "button" : undefined}
+              tabIndex={interactive ? 0 : undefined}
+              aria-label={interactive ? (t ? t.ringSegmentAriaLabel(seg.label, money ? money(seg.total) : seg.total) : seg.label) : undefined}
+              aria-pressed={interactive ? isSelected : undefined}
+              onClick={interactive ? () => toggle(seg.id) : undefined}
+              onKeyDown={
+                interactive
+                  ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(seg.id); } }
+                  : undefined
+              }
+              style={interactive ? { cursor: "pointer", outline: "none" } : undefined}
+            >
+              <path
+                d={annularSectorPath(cx, cy, ri, segRo, a0, a1, corner)}
+                fill={seg.color}
+                opacity={dimmed ? 0.4 : 1}
+                style={{ transition: "opacity 0.2s ease, d 0.15s ease" }}
+              />
+              {/* Fascia invisibile più larga sopra il segmento vero, solo per
+                  ingrandire l'area toccabile — un anello sottile da 13px non
+                  è un bersaglio comodo su un telefono. Punto 10 del
+                  documento: "non obbligare l'utente a toccare perfettamente
+                  il pixel del segmento". */}
+              {interactive && (
+                <path
+                  d={annularSectorPath(cx, cy, Math.max(0, ri - 10), ro + 10, a0, a1, corner)}
+                  fill="transparent"
+                />
+              )}
+            </g>
+          );
         })}
+      {/* Tacca centrale per tornare alla vista generale, punto 7 del
+          documento — un cerchio invisibile sul "buco" dell'anello, tappabile
+          solo quando c'è davvero qualcosa da deselezionare. */}
+      {interactive && selected != null && (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={ri}
+          fill="transparent"
+          role="button"
+          tabIndex={0}
+          aria-label={t ? t.ringClearSelection : undefined}
+          onClick={() => onSelect(null)}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(null); } }}
+          style={{ cursor: "pointer", outline: "none" }}
+        />
+      )}
     </svg>
   );
 }
@@ -3984,24 +4091,77 @@ function TotalFigure({ value, lead, colors, moneyParts, animKey, animClass }) {
   );
 }
 
-function CategoryLegend({ segments, total, colors, money, light }) {
+// Quello che compare al centro dell'anello quando una fetta è scelta, al
+// posto del totale — stessa "casella" di TotalFigure (stesso box 150×140,
+// stesso centro dell'anello a 90,80), ma tre righe invece di una: importo,
+// nome della categoria, quota sul totale. La quota si calcola qui, non
+// altrove: mai un numero scritto a mano, punto 5 del documento di Erny
+// sull'anello (11 settembre) — "non inserire valori hardcoded".
+function SelectedCategoryFigure({ seg, total, colors, moneyParts, light, t }) {
+  const parts = moneyParts(seg.total);
+  const measure = parts.symbol.length + 1 + parts.number.length;
+  // Stessa logica di TotalFigure, ma la finestra utile è più bassa: qui
+  // sotto all'importo ci stanno ancora nome e percentuale, non c'è tutta
+  // l'apertura per una riga sola.
+  const size = [24, 22, 20, 18, 16, 14].find((candidate) => {
+    const width = parts.symbol.length * Math.round(candidate * 0.72) * 0.6 + 2 + parts.number.length * candidate * 0.6;
+    return -10 + width <= 47 - 4;
+  }) || 14;
+  const mark = <span style={{ color: colors.textPrimary, fontSize: Math.round(size * 0.72) }}>{parts.symbol}</span>;
+  const pct = total > 0 ? Math.round((seg.total / total) * 100) : 0;
+  const dotColor = light ? shadeForLight(seg.color, 0.32) : seg.color;
+
+  return (
+    <div
+      style={{ position: "absolute", left: -10, top: 62, width: 104, pointerEvents: "none" }}
+      className="flex flex-col"
+    >
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: size, color: colors.textPrimary }} className="leading-none flex items-baseline">
+        {parts.symbolFirst && mark}
+        <span>{parts.number}</span>
+        {!parts.symbolFirst && mark}
+      </div>
+      <div style={{ color: dotColor, fontSize: 12, fontWeight: 600 }} className="truncate mt-1 leading-tight">
+        {seg.label}
+      </div>
+      <div style={{ color: colors.textFaint, fontSize: 10 }} className="leading-tight mt-0.5">
+        {t.ringPctOfSpend(pct)}
+      </div>
+    </div>
+  );
+}
+
+function CategoryLegend({ segments, total, colors, money, light, selected = null, onSelect = null }) {
   if (!segments || segments.length === 0 || total <= 0) return null;
+  const interactive = !!onSelect;
   return (
     <div className="flex-1 min-w-0 flex flex-col gap-1">
-      {segments.map((seg) => (
-        <div key={seg.id} className="flex items-center gap-2 min-w-0">
-          <span style={{ background: seg.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
-          <span style={{ color: colors.textSecondary }} className="text-xs truncate flex-1">{seg.label}</span>
-          {/* The amount rather than the share: a percentage has to be turned
-              back into money before it means anything. */}
-          {/* The amount takes the category's colour: the dot and the figure
-              then say the same thing twice, which is what lets the eye jump
-              from a slice of the ring straight to its number. */}
-          <span style={{ color: light ? shadeForLight(seg.color, 0.32) : seg.color, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold flex-shrink-0">
-            {money(seg.total)}
-          </span>
-        </div>
-      ))}
+      {segments.map((seg) => {
+        const isSelected = selected === seg.id;
+        const dimmed = selected != null && !isSelected;
+        const Row = interactive ? "button" : "div";
+        return (
+          <Row
+            key={seg.id}
+            type={interactive ? "button" : undefined}
+            onClick={interactive ? () => onSelect(isSelected ? null : seg.id) : undefined}
+            aria-pressed={interactive ? isSelected : undefined}
+            style={{ opacity: dimmed ? 0.5 : 1, transition: "opacity 0.2s ease", background: "transparent", textAlign: "left" }}
+            className="flex items-center gap-2 min-w-0 -mx-1 px-1 py-0.5 rounded-lg"
+          >
+            <span style={{ background: seg.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
+            <span style={{ color: colors.textSecondary }} className="text-xs truncate flex-1">{seg.label}</span>
+            {/* The amount rather than the share: a percentage has to be turned
+                back into money before it means anything. */}
+            {/* The amount takes the category's colour: the dot and the figure
+                then say the same thing twice, which is what lets the eye jump
+                from a slice of the ring straight to its number. */}
+            <span style={{ color: light ? shadeForLight(seg.color, 0.32) : seg.color, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold flex-shrink-0">
+              {money(seg.total)}
+            </span>
+          </Row>
+        );
+      })}
     </div>
   );
 }
@@ -4491,6 +4651,20 @@ function HubboApp() {
   // Which way the new figures should come in from. Null on the first draw, so
   // the card does not animate itself into existence.
   const [periodDirection, setPeriodDirection] = useState(null);
+  // Quale fetta è scelta nell'anello toccabile, una per scheda — non una
+  // sola condivisa: passare da una scheda all'altra non deve far "sopravvivere"
+  // una scelta fatta altrove, e ciascuna scheda ha dati diversi comunque.
+  // Richiesto da Erny l'11 settembre, esteso a tutte e quattro le schede
+  // dove l'anello compare (non solo l'Elenco).
+  const [ringSelectedList, setRingSelectedList] = useState(null);
+  const [ringSelectedCalendar, setRingSelectedCalendar] = useState(null);
+  const [ringSelectedHistory, setRingSelectedHistory] = useState(null);
+  const [ringSelectedSavings, setRingSelectedSavings] = useState(null);
+  // L'animazione di apertura dell'anello deve suonare una volta sola per
+  // sessione, solo nella scheda Elenco — non ogni volta che ci si torna
+  // navigando fra le schede. Un ref e non uno state: cambiarlo non deve
+  // provocare un nuovo render, serve solo a ricordare "è già successo".
+  const ringAnimatedRef = useRef(false);
   // The search box is per-opening, so it clears once the sheet is dismissed.
   useEffect(() => {
     if (!optionPicker) setOptionSearch("");
@@ -5893,6 +6067,17 @@ function HubboApp() {
     [totalsBase, rates, settings.currency]
   );
   const annualTotal = monthlyTotal * 12;
+  // L'animazione di apertura dell'anello va sentita una volta sola per
+  // sessione, solo quando si vede l'Elenco — non ogni volta che ci si torna
+  // navigando. Il segnalino si consuma qui: la prima volta che questo
+  // effetto scatta con view === "list", ricorda che è già successo, senza
+  // toccare di nuovo il render corrente (CategoryRing ha già ricevuto
+  // animate=true su questo stesso giro e la sua animazione prosegue da
+  // sola fino alla fine, indipendentemente da cosa succede dopo qui).
+  useEffect(() => {
+    if (view === "list") ringAnimatedRef.current = true;
+  }, [view]);
+  const shouldAnimateRing = view === "list" && !ringAnimatedRef.current;
   const dailyTotal = annualTotal / 365;
   const showYear = totalPeriod === "year";
 
@@ -6921,16 +7106,35 @@ function HubboApp() {
           </div>
           <div className="flex items-center gap-3">
             <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
-              <TotalFigure
-                value={headlineTotal}
-                lead={(categoryTotals[0] || {}).color || colors.textPrimary}
-                colors={colors}
-                moneyParts={moneyParts}
-                animKey={totalPeriod}
-                animClass={periodAnim}
-              />
+              {(() => {
+                const legendSegments = showYear ? categoryTotals.map((s) => ({ ...s, total: s.total * 12 })) : categoryTotals;
+                const selectedSeg = ringSelectedList ? legendSegments.find((s) => s.id === ringSelectedList) : null;
+                return selectedSeg ? (
+                  <SelectedCategoryFigure seg={selectedSeg} total={headlineTotal} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
+                ) : (
+                  <TotalFigure
+                    value={headlineTotal}
+                    lead={(categoryTotals[0] || {}).color || colors.textPrimary}
+                    colors={colors}
+                    moneyParts={moneyParts}
+                    animKey={totalPeriod}
+                    animClass={periodAnim}
+                  />
+                );
+              })()}
               <div style={{ position: "absolute", left: 30, top: 20 }}>
-                <CategoryRing segments={categoryTotals} total={monthlyTotal} colors={colors} size={120} stroke={13} />
+                <CategoryRing
+                  segments={categoryTotals}
+                  total={monthlyTotal}
+                  colors={colors}
+                  size={120}
+                  stroke={13}
+                  selected={ringSelectedList}
+                  onSelect={setRingSelectedList}
+                  animate={shouldAnimateRing}
+                  money={moneyRound}
+                  t={t}
+                />
               </div>
             </div>
             <div key={totalPeriod} className={`flex-1 min-w-0 ${periodAnim}`}>
@@ -6940,6 +7144,8 @@ function HubboApp() {
                 colors={colors}
                 money={moneyRound}
                 light={effectiveTheme === "light"}
+                selected={ringSelectedList}
+                onSelect={setRingSelectedList}
               />
             </div>
           </div>
@@ -7203,17 +7409,43 @@ function HubboApp() {
             </div>
             <div key={`stats-${calendarOffset}`} className={`flex items-center gap-3 ${monthAnim}`}>
               <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
-                <TotalFigure
-                  value={calendarMonthStats.total}
-                  lead={((calendarMonthStats.byCategory || [])[0] || {}).color || colors.textPrimary}
-                  colors={colors}
-                  moneyParts={moneyParts}
-                />
+                {(() => {
+                  const segs = calendarMonthStats.byCategory || [];
+                  const selectedSeg = ringSelectedCalendar ? segs.find((s) => s.id === ringSelectedCalendar) : null;
+                  return selectedSeg ? (
+                    <SelectedCategoryFigure seg={selectedSeg} total={calendarMonthStats.total} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
+                  ) : (
+                    <TotalFigure
+                      value={calendarMonthStats.total}
+                      lead={(segs[0] || {}).color || colors.textPrimary}
+                      colors={colors}
+                      moneyParts={moneyParts}
+                    />
+                  );
+                })()}
                 <div style={{ position: "absolute", left: 30, top: 20 }}>
-                  <CategoryRing segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} size={120} stroke={13} />
+                  <CategoryRing
+                    segments={calendarMonthStats.byCategory || []}
+                    total={calendarMonthStats.total}
+                    colors={colors}
+                    size={120}
+                    stroke={13}
+                    selected={ringSelectedCalendar}
+                    onSelect={setRingSelectedCalendar}
+                    money={moneyRound}
+                    t={t}
+                  />
                 </div>
               </div>
-              <CategoryLegend segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
+              <CategoryLegend
+                segments={calendarMonthStats.byCategory || []}
+                total={calendarMonthStats.total}
+                colors={colors}
+                money={moneyRound}
+                light={effectiveTheme === "light"}
+                selected={ringSelectedCalendar}
+                onSelect={setRingSelectedCalendar}
+              />
             </div>
             <div key={`count-${calendarOffset}`} style={{ color: colors.textSecondary }} className={`text-xs mt-3 ${monthAnim}`}>{t.monthPayments(calendarMonthStats.count)}</div>
           </div>
@@ -7384,17 +7616,42 @@ function HubboApp() {
             <div style={{ color: colors.textSecondary }} className="text-xs mb-2 truncate">{historyPeriodLabel}</div>
             <div className="flex items-center gap-3">
               <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
-                <TotalFigure
-                  value={historyTotals.total}
-                  lead={(historyCategoryTotals[0] || {}).color || colors.textPrimary}
-                  colors={colors}
-                  moneyParts={moneyParts}
-                />
+                {(() => {
+                  const selectedSeg = ringSelectedHistory ? historyCategoryTotals.find((s) => s.id === ringSelectedHistory) : null;
+                  return selectedSeg ? (
+                    <SelectedCategoryFigure seg={selectedSeg} total={historyTotals.total} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
+                  ) : (
+                    <TotalFigure
+                      value={historyTotals.total}
+                      lead={(historyCategoryTotals[0] || {}).color || colors.textPrimary}
+                      colors={colors}
+                      moneyParts={moneyParts}
+                    />
+                  );
+                })()}
                 <div style={{ position: "absolute", left: 30, top: 20 }}>
-                  <CategoryRing segments={historyCategoryTotals} total={historyTotals.total} colors={colors} size={120} stroke={13} />
+                  <CategoryRing
+                    segments={historyCategoryTotals}
+                    total={historyTotals.total}
+                    colors={colors}
+                    size={120}
+                    stroke={13}
+                    selected={ringSelectedHistory}
+                    onSelect={setRingSelectedHistory}
+                    money={moneyRound}
+                    t={t}
+                  />
                 </div>
               </div>
-              <CategoryLegend segments={historyCategoryTotals} total={historyTotals.total} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
+              <CategoryLegend
+                segments={historyCategoryTotals}
+                total={historyTotals.total}
+                colors={colors}
+                money={moneyRound}
+                light={effectiveTheme === "light"}
+                selected={ringSelectedHistory}
+                onSelect={setRingSelectedHistory}
+              />
             </div>
             <div style={{ color: colors.textSecondary }} className="text-xs mt-3">{historyTotals.count} · {t.historyPaymentsCount}</div>
           </div>
@@ -7632,17 +7889,42 @@ function HubboApp() {
               <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.savingsPotentialLabel}</div>
               <div className="flex items-center gap-3">
                 <div style={{ position: "relative", width: 150, height: 140 }} className="flex-shrink-0">
-                  <TotalFigure
-                    value={annualAmount}
-                    lead={(annualCategoryTotals[0] || {}).color || ACCENT.green}
-                    colors={colors}
-                    moneyParts={moneyParts}
-                  />
+                  {(() => {
+                    const selectedSeg = ringSelectedSavings ? annualCategoryTotals.find((s) => s.id === ringSelectedSavings) : null;
+                    return selectedSeg ? (
+                      <SelectedCategoryFigure seg={selectedSeg} total={annualAmount} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
+                    ) : (
+                      <TotalFigure
+                        value={annualAmount}
+                        lead={(annualCategoryTotals[0] || {}).color || ACCENT.green}
+                        colors={colors}
+                        moneyParts={moneyParts}
+                      />
+                    );
+                  })()}
                   <div style={{ position: "absolute", left: 30, top: 20 }}>
-                    <CategoryRing segments={annualCategoryTotals} total={annualAmount} colors={colors} size={120} stroke={13} />
+                    <CategoryRing
+                      segments={annualCategoryTotals}
+                      total={annualAmount}
+                      colors={colors}
+                      size={120}
+                      stroke={13}
+                      selected={ringSelectedSavings}
+                      onSelect={setRingSelectedSavings}
+                      money={moneyRound}
+                      t={t}
+                    />
                   </div>
                 </div>
-                <CategoryLegend segments={annualCategoryTotals} total={annualAmount} colors={colors} money={moneyRound} light={effectiveTheme === "light"} />
+                <CategoryLegend
+                  segments={annualCategoryTotals}
+                  total={annualAmount}
+                  colors={colors}
+                  money={moneyRound}
+                  light={effectiveTheme === "light"}
+                  selected={ringSelectedSavings}
+                  onSelect={setRingSelectedSavings}
+                />
               </div>
               <div style={{ fontFamily: "'Fraunces', serif" }} className="text-lg leading-tight mt-1">{t.savingsPotentialHeadline(money(annualAmount))}</div>
               <div style={{ color: colors.textFaint, fontFamily: "'JetBrains Mono', monospace" }} className="text-xs mt-1">{t.savingsPotentialMonthly(money(savingsHeadline.amount))}</div>
