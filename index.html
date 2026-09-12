@@ -143,6 +143,7 @@ const LUCIDE_ICONS = {
   layers: `<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />`,
   tag: `<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /> <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />`,
   users: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" />`,
+  listChecks: `<path d="m3 17 2 2 4-4" /> <path d="m3 7 2 2 4-4" /> <path d="M13 6h8" /> <path d="M13 12h8" /> <path d="M13 18h8" />`,
   arrowRight: `<path d="M5 12h14" /> <path d="m12 5 7 7-7 7" />`,
   pool: `<path d="M3 9c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2" /> <path d="M3 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2" /> <path d="M7 19v2" /> <path d="M17 19v2" />`,
   padel: `<ellipse cx="10" cy="8" rx="6" ry="6.5" /> <path d="M10 14.5v6" /> <path d="M7.5 20.5h5" /> <circle cx="8" cy="6.5" r=".55" fill="currentColor" /> <circle cx="10" cy="9" r=".55" fill="currentColor" /> <circle cx="12" cy="6.5" r=".55" fill="currentColor" />`,
@@ -311,7 +312,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v153";
+const APP_VERSION = "v154";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4670,11 +4671,6 @@ function HubboApp() {
   const [ringSelectedCalendar, setRingSelectedCalendar] = useState(null);
   const [ringSelectedHistory, setRingSelectedHistory] = useState(null);
   const [ringSelectedSavings, setRingSelectedSavings] = useState(null);
-  // L'animazione di apertura dell'anello deve suonare una volta sola per
-  // sessione, solo nella scheda Elenco — non ogni volta che ci si torna
-  // navigando fra le schede. Un ref e non uno state: cambiarlo non deve
-  // provocare un nuovo render, serve solo a ricordare "è già successo".
-  const ringAnimatedRef = useRef(false);
   // The search box is per-opening, so it clears once the sheet is dismissed.
   useEffect(() => {
     if (!optionPicker) setOptionSearch("");
@@ -6079,15 +6075,22 @@ function HubboApp() {
   const annualTotal = monthlyTotal * 12;
   // L'animazione di apertura dell'anello va sentita una volta sola per
   // sessione, solo quando si vede l'Elenco — non ogni volta che ci si torna
-  // navigando. Il segnalino si consuma qui: la prima volta che questo
-  // effetto scatta con view === "list", ricorda che è già successo, senza
-  // toccare di nuovo il render corrente (CategoryRing ha già ricevuto
-  // animate=true su questo stesso giro e la sua animazione prosegue da
-  // sola fino alla fine, indipendentemente da cosa succede dopo qui).
-  useEffect(() => {
-    if (view === "list") ringAnimatedRef.current = true;
-  }, [view]);
-  const shouldAnimateRing = view === "list" && !ringAnimatedRef.current;
+  // navigando. La prima versione ricalcolava questo valore a ogni render
+  // leggendo un ref esterno: funzionava sul primo render, ma un secondo
+  // render arrivato presto (es. subs che finisce di caricarsi da
+  // localStorage, un attimo dopo il montaggio) trovava il ref già
+  // "consumato" e ricalcolava shouldAnimateRing a false — l'anello riceveva
+  // animate=true e poi, subito, animate=false, che interrompeva
+  // l'animazione e la faceva scattare dritta al valore finale invece di
+  // giocarla. Bug segnalato da Erny il 12 settembre. Corretto con
+  // un'inizializzazione pigra di useState: la funzione passata gira una
+  // volta sola, sul primo render, e il risultato resta fisso per tutta la
+  // vita del componente — nessun render successivo può più cambiarlo,
+  // qualunque cosa succeda altrove. Non serve più nemmeno un ref esterno:
+  // HubboApp stesso monta una volta sola per l'intera sessione, quindi
+  // "una volta sola sul primo render di HubboApp" è già esattamente "una
+  // volta sola per sessione".
+  const [shouldAnimateRing] = useState(() => view === "list");
   const dailyTotal = annualTotal / 365;
   const showYear = totalPeriod === "year";
 
@@ -7198,7 +7201,7 @@ function HubboApp() {
                 </div>
               </div>
               <div className="flex-1 min-w-0" style={{ borderLeft: `1px solid ${colors.border}`, paddingLeft: 14, marginLeft: 14 }}>
-                <Icon name="users" size={18} color={ACCENT.amber} className="mb-1.5" />
+                <Icon name="listChecks" size={18} color={ACCENT.amber} className="mb-1.5" />
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: colors.textPrimary }} className="text-[15px] leading-tight truncate">
                   {totalsBase.length}
                 </div>
