@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v162";
+const APP_VERSION = "v163";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -1044,12 +1044,12 @@ const STRINGS = {
     deleteAllDataConfirm: "Questa azione elimina definitivamente gli abbonamenti, i pagamenti, il cestino e le impostazioni salvati su questo dispositivo.",
     errNoService: 'Scegli un servizio dal menu (o scrivi il nome in "Altro").',
     errNoCost: "Inserisci un costo valido.",
-    errNoPromoUntil: "Indica da quando pagherai il prezzo pieno.",
+    errNoPromoUntil: "Indica da quando vale (o valeva) il prezzo pieno.",
     promoTitle: "Offerta iniziale",
-    promoFullLabel: "Poi pagherò",
-    errNoPromoFull: "Indica quanto pagherai a offerta finita.",
-    errPromoNotHigher: "Il prezzo a offerta finita deve essere più alto di quello che paghi ora.",
-    promoHint: "Il costo che hai scritto è quello che paghi adesso grazie all'offerta. Qui indichi fino a quando dura e quanto pagherai dopo.",
+    promoDiscountLabel: "Prezzo con l'offerta",
+    errNoPromoDiscount: "Indica il prezzo che paghi (o pagavi) con l'offerta.",
+    errPromoNotLower: "Il prezzo dell'offerta deve essere più basso del prezzo pieno.",
+    promoHint: "Il costo che hai scritto sopra è il prezzo pieno. Qui indichi il prezzo scontato dell'offerta e da quando vale (o valeva) il prezzo pieno.",
     promoUntilLabel: "Prezzo pieno dal",
     promoTag: "offerta",
     errRenewalPast: "Il prossimo rinnovo non può essere una data passata. Se l'abbonamento è finito, attiva «Abbonamento già terminato».",
@@ -1317,12 +1317,12 @@ const STRINGS = {
     deleteAllDataConfirm: "This permanently deletes subscriptions, payments, trash and settings stored on this device.",
     errNoService: 'Choose a service from the list (or type a name under "Other").',
     errNoCost: "Enter a valid cost.",
-    errNoPromoUntil: "Say when the full price starts.",
+    errNoPromoUntil: "Say when the full price applies (or applied) from.",
     promoTitle: "Introductory offer",
-    promoFullLabel: "Then I'll pay",
-    errNoPromoFull: "Say what you'll pay once the offer ends.",
-    errPromoNotHigher: "The price after the offer has to be higher than what you pay now.",
-    promoHint: "The cost you entered is what you pay now thanks to the offer. Here you say how long it lasts and what comes after.",
+    promoDiscountLabel: "Price with the offer",
+    errNoPromoDiscount: "Say what you pay (or paid) with the offer.",
+    errPromoNotLower: "The offer price has to be lower than the full price.",
+    promoHint: "The cost you entered above is the full price. Here you say the offer's discounted price and when the full price applies (or applied) from.",
     promoUntilLabel: "Full price from",
     promoTag: "offer",
     errRenewalPast: "The next renewal cannot be in the past. If the subscription has ended, turn on \"Already ended\".",
@@ -1590,12 +1590,12 @@ const STRINGS = {
     deleteAllDataConfirm: "Esta acción elimina definitivamente las suscripciones, pagos, papelera y ajustes guardados en este dispositivo.",
     errNoService: 'Elige un servicio de la lista (o escribe un nombre en "Otro").',
     errNoCost: "Introduce un coste válido.",
-    errNoPromoUntil: "Indica desde cuándo pagarás el precio completo.",
+    errNoPromoUntil: "Indica desde cuándo vale (o valía) el precio completo.",
     promoTitle: "Oferta inicial",
-    promoFullLabel: "Después pagaré",
-    errNoPromoFull: "Indica cuánto pagarás cuando acabe la oferta.",
-    errPromoNotHigher: "El precio tras la oferta debe ser mayor que el que pagas ahora.",
-    promoHint: "El coste que has indicado es lo que pagas ahora gracias a la oferta. Aquí indicas hasta cuándo dura y cuánto pagarás después.",
+    promoDiscountLabel: "Precio con la oferta",
+    errNoPromoDiscount: "Indica el precio que pagas (o pagabas) con la oferta.",
+    errPromoNotLower: "El precio de la oferta debe ser menor que el precio completo.",
+    promoHint: "El coste que has indicado arriba es el precio completo. Aquí indicas el precio con descuento de la oferta y desde cuándo vale (o valía) el precio completo.",
     promoUntilLabel: "Precio completo desde",
     promoTag: "oferta",
     errRenewalPast: "La próxima renovación no puede ser una fecha pasada. Si la suscripción ha terminado, activa «Ya finalizada».",
@@ -1863,12 +1863,12 @@ const STRINGS = {
     deleteAllDataConfirm: "Cette action supprime définitivement les abonnements, paiements, corbeille et réglages enregistrés sur cet appareil.",
     errNoService: 'Choisissez un service dans la liste (ou saisissez un nom sous « Autre »).',
     errNoCost: "Saisissez un coût valide.",
-    errNoPromoUntil: "Indiquez à partir de quand le plein tarif s'applique.",
+    errNoPromoUntil: "Indiquez à partir de quand s'applique (ou s'appliquait) le plein tarif.",
     promoTitle: "Offre de lancement",
-    promoFullLabel: "Ensuite je paierai",
-    errNoPromoFull: "Indiquez ce que vous paierez à la fin de l'offre.",
-    errPromoNotHigher: "Le tarif après l'offre doit être supérieur à ce que vous payez actuellement.",
-    promoHint: "Le coût que vous avez indiqué est ce que vous payez maintenant grâce à l'offre. Ici vous indiquez jusqu'à quand elle dure et ce qui suit.",
+    promoDiscountLabel: "Prix avec l'offre",
+    errNoPromoDiscount: "Indiquez le prix que vous payez (ou payiez) avec l'offre.",
+    errPromoNotLower: "Le prix de l'offre doit être inférieur au plein tarif.",
+    promoHint: "Le coût indiqué ci-dessus est le plein tarif. Ici vous indiquez le prix réduit de l'offre et à partir de quand s'applique (ou s'appliquait) le plein tarif.",
     promoUntilLabel: "Plein tarif à partir du",
     promoTag: "offre",
     errRenewalPast: "Le prochain renouvellement ne peut pas être une date passée. Si l'abonnement est terminé, activez « Déjà terminé ».",
@@ -2136,12 +2136,12 @@ const STRINGS = {
     deleteAllDataConfirm: "Dadurch werden Abonnements, Zahlungen, Papierkorb und Einstellungen auf diesem Gerät dauerhaft gelöscht.",
     errNoService: 'Wähle einen Dienst aus der Liste (oder gib unter „Anderer“ einen Namen ein).',
     errNoCost: "Gib gültige Kosten ein.",
-    errNoPromoUntil: "Gib an, ab wann der volle Preis gilt.",
+    errNoPromoUntil: "Gib an, ab wann der volle Preis gilt (oder galt).",
     promoTitle: "Einführungsangebot",
-    promoFullLabel: "Danach zahle ich",
-    errNoPromoFull: "Gib an, was du nach dem Angebot zahlst.",
-    errPromoNotHigher: "Der Preis nach dem Angebot muss höher sein als der jetzige.",
-    promoHint: "Die eingegebenen Kosten sind das, was du jetzt dank des Angebots zahlst. Hier trägst du ein, wie lange es läuft und was danach kommt.",
+    promoDiscountLabel: "Preis mit Angebot",
+    errNoPromoDiscount: "Gib an, was du mit dem Angebot zahlst (oder gezahlt hast).",
+    errPromoNotLower: "Der Angebotspreis muss niedriger sein als der volle Preis.",
+    promoHint: "Die oben eingegebenen Kosten sind der volle Preis. Hier trägst du den rabattierten Angebotspreis ein und ab wann der volle Preis gilt (oder galt).",
     promoUntilLabel: "Voller Preis ab",
     promoTag: "Angebot",
     errRenewalPast: "Die nächste Verlängerung kann nicht in der Vergangenheit liegen. Ist das Abo beendet, aktiviere „Bereits beendet“.",
@@ -4697,7 +4697,7 @@ function ServiceLogo({ icon, category, domain, letter, serviceName, color, size 
 
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
-const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", hasPromo: false, promoFull: "", promoUntil: "" };
+const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", hasPromo: false, promoDiscount: "", promoUntil: "" };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
@@ -5298,19 +5298,18 @@ function HubboApp() {
     setForm({
       name: isCommon ? sub.name : "__custom__",
       customName: isCommon ? "" : sub.name,
-      cost: String(
-        sub.promoUntil && sub.promoCost != null
-          ? sub.sharedTotalCost != null
-            ? (sub.promoCost * (sub.sharedPeople || 1))
-            : sub.promoCost
-          : sub.sharedTotalCost != null
-          ? sub.sharedTotalCost
-          : sub.cost
-      ),
+      // "Costo" è sempre il prezzo pieno — sub.cost, o sub.sharedTotalCost
+      // se condiviso — non più diverso a seconda che l'offerta sia ancora
+      // attiva o già finita. Corretto il 12 settembre insieme al resto
+      // del modulo dell'offerta: vedi commitSubscription più sotto per la
+      // spiegazione completa del problema che questo risolve.
+      cost: String(sub.sharedTotalCost != null ? sub.sharedTotalCost : sub.cost),
       hasPromo: !!sub.promoUntil,
-      // The main field always shows what is being paid now, so during an offer
-      // it shows the offer price and the panel holds the ordinary one.
-      promoFull: sub.promoUntil ? String(sub.sharedTotalCost != null ? sub.sharedTotalCost : sub.cost) : "",
+      // Sempre lo sconto (sub.promoCost), scalato per persona se
+      // condiviso — mai più "il prezzo pieno futuro": quel significato
+      // non esiste più, "Costo" sopra è sempre il prezzo pieno, qui c'è
+      // sempre e solo lo sconto.
+      promoDiscount: sub.promoUntil ? String(sub.sharedTotalCost != null ? sub.promoCost * (sub.sharedPeople || 1) : sub.promoCost) : "",
       promoUntil: sub.promoUntil || "",
       currency: sub.currency || settings.currency,
       frequency: sub.frequency,
@@ -5338,27 +5337,37 @@ function HubboApp() {
   // percorsi.
   async function commitSubscription(finalName) {
     const people = form.isShared ? parseInt(form.peopleCount, 10) : null;
-    const promoStillRunning = form.hasPromo && form.promoUntil > todayISO;
     const rawCost = parseAmount(form.cost);
     const effectiveCost = form.isShared ? Math.round((rawCost / people) * 100) / 100 : rawCost;
     const prevSub = editingId ? subs.find((s) => s.id === editingId) : null;
+
+    // "Costo" è sempre il prezzo pieno, qui e ovunque nel modulo — non più
+    // "quello che pago adesso" quando l'offerta è ancora attiva e "quello
+    // che pagherò dopo" quando è già finita, come prima del 12 settembre.
+    // Quel doppio significato, mai segnalato a schermo, era la causa vera
+    // del problema di Erny: aggiungendo un abbonamento con un'offerta già
+    // terminata, scrivere il prezzo pagato con l'offerta nel campo
+    // "Costo" (la cosa naturale da fare, essendo il primo campo del
+    // modulo) veniva letto come "questo è il prezzo pieno attuale" — sia
+    // i rinnovi passati sia quelli futuri finivano salvati al prezzo
+    // dell'offerta, mai a quello pieno. Ora "Costo" non cambia mai
+    // significato: promoDiscount (sotto, dentro il pannello dell'offerta)
+    // è sempre e solo lo sconto, calcolato per persona se condiviso.
+    // costOn() già sapeva risolvere correttamente quale dei due prezzi
+    // vale per una data qualunque, passata o futura — bastava smettere di
+    // scambiarli qui.
+    const rawPromoDiscount = form.hasPromo ? parseAmount(form.promoDiscount) : null;
+    const effectivePromoDiscount = form.hasPromo
+      ? form.isShared
+        ? Math.round((rawPromoDiscount / people) * 100) / 100
+        : rawPromoDiscount
+      : null;
 
     // What it costs today, before and after the edit. Comparing the stored
     // prices instead would call it a rise every time someone declares an
     // introductory offer on a subscription they had entered at the discounted
     // price — which is the ordinary way of arriving at this screen.
-    // The field holds what is paid now, so during an offer it is the offer
-    // price and the ordinary price comes from the panel.
-    // A finished offer leaves the cost alone: what is being paid now is what
-    // the field says, and the discount belongs to the past.
-    const fullEffective = promoStillRunning
-      ? form.isShared
-        ? Math.round((parseAmount(form.promoFull) / people) * 100) / 100
-        : parseAmount(form.promoFull)
-      : effectiveCost;
-    const promoNow = promoStillRunning
-      ? { cost: fullEffective, promoCost: effectiveCost, promoUntil: form.promoUntil }
-      : { cost: effectiveCost, promoUntil: form.hasPromo ? form.promoUntil : null };
+    const promoNow = { cost: effectiveCost, promoCost: effectivePromoDiscount, promoUntil: form.hasPromo ? form.promoUntil : null };
     const paidBefore = prevSub ? costOn(prevSub, todayISO) : null;
     const paidAfter = costOn(promoNow, todayISO);
 
@@ -5404,12 +5413,10 @@ function HubboApp() {
         })();
     const subData = {
       name: finalName,
-      cost: fullEffective,
+      cost: effectiveCost,
       currency: form.currency || settings.currency,
-      sharedTotalCost: form.isShared ? (promoStillRunning ? parseAmount(form.promoFull) : rawCost) : null,
-      // Null once the offer is over: there is no price left for it to impose,
-      // and the end date on its own is enough to mark the history.
-      promoCost: promoStillRunning ? effectiveCost : null,
+      sharedTotalCost: form.isShared ? rawCost : null,
+      promoCost: form.hasPromo ? effectivePromoDiscount : null,
       promoUntil: form.hasPromo ? form.promoUntil : null,
       sharedPeople: form.isShared ? people : null,
       frequency: form.frequency,
@@ -5460,16 +5467,22 @@ function HubboApp() {
         setFormError(t.errNoPromoUntil);
         return;
       }
-      // Only an offer that is still running needs to say what follows it.
-      const promoStillRunning = form.hasPromo && form.promoUntil > todayISO;
-      if (promoStillRunning && (!form.promoFull || !(parseAmount(form.promoFull) > 0))) {
-        setFormError(t.errNoPromoFull);
+      // Il prezzo dell'offerta serve sempre quando c'è un'offerta — non più
+      // solo se ancora attiva: "Costo" è sempre il prezzo pieno, quindi lo
+      // sconto va sempre chiesto qui, sia che l'offerta sia già finita sia
+      // che sia ancora in corso. Corretto il 12 settembre.
+      if (form.hasPromo && (!form.promoDiscount || !(parseAmount(form.promoDiscount) > 0))) {
+        setFormError(t.errNoPromoDiscount);
         return;
       }
-      // An offer that costs more than the ordinary price is a filled-in form,
-      // not an offer, and it would quietly report a fall when it ends.
-      if (promoStillRunning && parseAmount(form.promoFull) <= parseAmount(form.cost)) {
-        setFormError(t.errPromoNotHigher);
+      // Un'offerta che costa quanto o più del prezzo pieno non è uno sconto:
+      // il controllo era invertito prima del 12 settembre (chiedeva che il
+      // prezzo pieno futuro fosse più alto del prezzo pagato ora) perché
+      // "Costo" cambiava significato a seconda di quando finiva l'offerta —
+      // ora "Costo" è sempre il prezzo pieno, quindi lo sconto deve sempre
+      // essere più basso di lui, non il contrario.
+      if (form.hasPromo && parseAmount(form.promoDiscount) >= parseAmount(form.cost)) {
+        setFormError(t.errPromoNotLower);
         return;
       }
       if (!form.renewalDate) {
@@ -9187,19 +9200,24 @@ function HubboApp() {
                   <label style={{ color: colors.textSecondary }} className="text-xs">{t.promoTitle}</label>
                   <button
                     type="button"
-                    onClick={() => setForm({ ...form, hasPromo: false, promoFull: "", promoUntil: "" })}
+                    onClick={() => setForm({ ...form, hasPromo: false, promoDiscount: "", promoUntil: "" })}
                     style={{ color: colors.textFaint }}
                     className="text-xs"
                   >
                     {t.removeNote}
                   </button>
                 </div>
-                {/* "Poi pagherò" ora è sempre visibile con l'offerta
-                    attiva, non solo quando la data è già compilata ed è nel
-                    futuro: prima, appena si accendeva l'interruttore e
-                    prima ancora di scrivere la data, il campo spariva del
-                    tutto — confuso, sembrava mancante. Richiesto da Erny
-                    l'11 settembre. */}
+                {/* "Costo" sopra è sempre il prezzo pieno, qui sotto è
+                    sempre lo sconto — un solo significato, valido sia per
+                    un'offerta ancora attiva sia per una già finita. Prima
+                    del 12 settembre "Costo" cambiava significato a
+                    seconda di quando finiva l'offerta, senza dirlo mai a
+                    schermo: chi aggiungeva un abbonamento con un'offerta
+                    già terminata scriveva il prezzo scontato dove
+                    l'app si aspettava il prezzo pieno, e ogni rinnovo
+                    (passato e futuro) finiva salvato al prezzo
+                    dell'offerta invece che a quello pieno. Segnalato da
+                    Erny il 12 settembre. */}
                 <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-2">
                   {t.promoHint}
                 </p>
@@ -9219,11 +9237,11 @@ function HubboApp() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <ScrollingLabel style={{ color: colors.textSecondary }} className="text-xs mb-1.5">
-                      {t.promoFullLabel}
+                      {t.promoDiscountLabel}
                     </ScrollingLabel>
                     <input
-                      value={form.promoFull}
-                      onChange={(e) => setForm({ ...form, promoFull: e.target.value })}
+                      value={form.promoDiscount}
+                      onChange={(e) => setForm({ ...form, promoDiscount: e.target.value })}
                       inputMode="decimal"
                       placeholder="0,00"
                       style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textPrimary }}
