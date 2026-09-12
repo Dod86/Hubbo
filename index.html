@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v164";
+const APP_VERSION = "v165";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4614,7 +4614,18 @@ const LOCAL_SERVICE_ICONS = {
 
 function ServiceLogo({ icon, category, domain, letter, serviceName, color, size = 22, plain = false }) {
   const path = icon && BRAND_ICONS[icon];
-  const brandColor = (icon && BRAND_COLORS[icon]) || color;
+  // Stessi tre livelli usati ovunque nell'app per il colore "di marchio":
+  // l'icona propria se c'è, altrimenti il colore noto del servizio anche
+  // senza un'icona dedicata (SERVICE_COLORS — Disney+, Amazon Prime,
+  // Microsoft 365 e gli altri), altrimenti il colore passato da chi
+  // chiama (di norma quello della categoria). Prima mancava il livello
+  // di mezzo qui dentro: un servizio come Disney+ mostrava l'anello
+  // attorno al logo nel proprio blu (calcolato altrove con tutti e tre i
+  // livelli) ma la lettera dentro il logo nel colore generico della
+  // categoria — due colori diversi sullo stesso elemento. Segnalato da
+  // Erny il 12 settembre, partendo dai pallini del calendario che
+  // avevano lo stesso problema (vedi più sotto, nella scheda Calendario).
+  const brandColor = (icon && BRAND_COLORS[icon]) || SERVICE_COLORS[serviceName] || color;
   const fallbackIconName = CATEGORY_FALLBACK_ICON[category] || "package";
 
   const [stage, setStage] = useState(() =>
@@ -7108,7 +7119,7 @@ function HubboApp() {
                 {dayRenewals.slice(0, 3).map((s2) => {
                   const icon2 = serviceIcon(s2.name);
                   const cat2 = CATEGORIES.find((c2) => c2.id === s2.category) || CATEGORIES[CATEGORIES.length - 1];
-                  const dotColor = (icon2 && BRAND_COLORS[icon2]) || cat2.color;
+                  const dotColor = (icon2 && BRAND_COLORS[icon2]) || SERVICE_COLORS[s2.name] || cat2.color;
                   return <span key={s2.id} style={{ width: 5, height: 5, borderRadius: 999, background: dotColor }} />;
                 })}
               </span>
