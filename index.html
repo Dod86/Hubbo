@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v165";
+const APP_VERSION = "v166";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -2432,6 +2432,8 @@ const LEDGER_STRINGS = {
     startDateHint: "Precompilata con il rinnovo: modificala se l'abbonamento è iniziato prima.",
     startMismatch: (first) => `Questa data non cade nel ciclo di rinnovo: il primo pagamento registrato sarà il ${first}.`,
     startMismatchFix: (d) => `Usa ${d}`,
+    renewalSkipsCycle: (first) => `In base all'inizio e alla frequenza, il prossimo rinnovo dovrebbe essere il ${first}, non quello scritto. Hai saltato un ciclo per errore?`,
+    renewalSkipsCycleFix: (d) => `Usa ${d}`,
   },
   en: {
     historyView: "History",
@@ -2523,6 +2525,8 @@ const LEDGER_STRINGS = {
     startDateHint: "Pre-filled with the renewal date: change it if the subscription started earlier.",
     startMismatch: (first) => `This date is not on the renewal cycle: the first recorded payment will be ${first}.`,
     startMismatchFix: (d) => `Use ${d}`,
+    renewalSkipsCycle: (first) => `Based on the start date and frequency, the next renewal should be ${first}, not the one entered. Did you skip a cycle by mistake?`,
+    renewalSkipsCycleFix: (d) => `Use ${d}`,
   },
   es: {
     historyView: "Historial",
@@ -2614,6 +2618,8 @@ const LEDGER_STRINGS = {
     startDateHint: "Rellenada con la fecha de renovación: cámbiala si el abono empezó antes.",
     startMismatch: (first) => `Esta fecha no cae en el ciclo de renovación: el primer pago registrado será el ${first}.`,
     startMismatchFix: (d) => `Usar ${d}`,
+    renewalSkipsCycle: (first) => `Según el inicio y la frecuencia, la próxima renovación debería ser el ${first}, no la indicada. ¿Te saltaste un ciclo por error?`,
+    renewalSkipsCycleFix: (d) => `Usar ${d}`,
   },
   fr: {
     historyView: "Historique",
@@ -2705,6 +2711,8 @@ const LEDGER_STRINGS = {
     startDateHint: "Préremplie avec le renouvellement : modifiez-la si l'abonnement a commencé avant.",
     startMismatch: (first) => `Cette date ne tombe pas sur le cycle de renouvellement : le premier paiement enregistré sera le ${first}.`,
     startMismatchFix: (d) => `Utiliser le ${d}`,
+    renewalSkipsCycle: (first) => `D'après la date de début et la fréquence, le prochain renouvellement devrait être le ${first}, pas celui indiqué. Avez-vous sauté un cycle par erreur ?`,
+    renewalSkipsCycleFix: (d) => `Utiliser le ${d}`,
   },
   de: {
     historyView: "Verlauf",
@@ -2796,6 +2804,8 @@ const LEDGER_STRINGS = {
     startDateHint: "Mit dem Verlängerungsdatum vorausgefüllt: ändere es, falls das Abo früher begonnen hat.",
     startMismatch: (first) => `Dieses Datum liegt nicht im Verlängerungszyklus: die erste erfasste Zahlung ist der ${first}.`,
     startMismatchFix: (d) => `${d} verwenden`,
+    renewalSkipsCycle: (first) => `Nach Startdatum und Häufigkeit müsste die nächste Verlängerung der ${first} sein, nicht der eingetragene. Hast du versehentlich einen Zyklus übersprungen?`,
+    renewalSkipsCycleFix: (d) => `${d} verwenden`,
   },
 };
 
@@ -3652,6 +3662,41 @@ function cycleAlignment(startDateStr, renewalDateStr, frequency) {
   const suggested =
     !before ? after : !after ? before : start - before <= after - start ? before : after;
   return { first: after, suggested };
+}
+
+// Un controllo diverso da cycleAlignment, sopra: quello si accorge se la
+// data di inizio non cade sul giorno giusto del ciclo (es. inizio il 17,
+// rinnovo il 15). Questo si accorge di un problema che cycleAlignment non
+// vede affatto — inizio e rinnovo che cadono perfettamente sullo stesso
+// giorno del ciclo, ma con un'occorrenza intera saltata nel mezzo: inizio
+// il 15 agosto, rinnovo scritto 15 ottobre, mensile — 15 agosto e 15
+// ottobre sono entrambi validi per un ciclo mensile, ma manca il 15
+// settembre, che casca comunque prima di oggi essendo nel futuro più
+// vicino. Segnalato da Erny il 12 settembre: creando un abbonamento così,
+// l'Elenco diceva "tra 33 giorni" (fino al 15 ottobre) invece di "tra 3
+// giorni" (fino al 15 settembre, la prima occorrenza vera del ciclo che
+// deve ancora succedere) — un'incoerenza con quello che il Calendario
+// mostra già correttamente (vedi cycleSegments/pastOccurrences: quelle
+// funzioni camminano dall'ancora del rinnovo, quindi "sanno" del 15
+// settembre anche se il campo rinnovo dice ottobre). Non blocca il
+// salvataggio, come cycleAlignment: ci sono ragioni legittime per un vero
+// salto (un mese omaggio, un cambio di piano), quindi avvisa soltanto.
+function expectedNextOccurrence(startDateStr, renewalDateStr, frequency, todayISO) {
+  if (!startDateStr || !renewalDateStr) return null;
+  const start = parseLocalDate(startDateStr);
+  const renewal = parseLocalDate(renewalDateStr);
+  const today = parseLocalDate(todayISO);
+  if (isNaN(start) || isNaN(renewal)) return null;
+  const k = periodsBetween(start, today, frequency);
+  let candidate = null;
+  for (let i = k - 2; i <= k + 2; i++) {
+    const d = addPeriods(start, frequency, i);
+    if (d >= today && (!candidate || d < candidate)) candidate = d;
+  }
+  if (!candidate) return null;
+  if (candidate.getTime() === renewal.getTime()) return null;
+  if (candidate > renewal) return null;
+  return candidate;
 }
 
 function formatDate(dateStr, locale) {
@@ -9117,6 +9162,40 @@ function HubboApp() {
                     className="text-xs font-semibold"
                   >
                     {t.startMismatchFix(dateFmt(toLocalISO(align.suggested)))}
+                  </button>
+                </div>
+              );
+            })()}
+
+            {/* Diverso da cycleAlignment, sopra: quello si accorge se
+                l'inizio non cade sul giorno giusto del ciclo. Questo si
+                accorge di un ciclo intero saltato quando inizio e rinnovo
+                cadono invece perfettamente sullo stesso giorno — inizio 15
+                agosto, rinnovo scritto 15 ottobre, mensile: manca il 15
+                settembre, e l'Elenco diceva "tra 33 giorni" invece di "tra
+                3 giorni", incoerente con quello che il Calendario mostra
+                già correttamente. Segnalato da Erny il 12 settembre. Non
+                blocca il salvataggio: ci sono ragioni legittime per un
+                vero salto (un mese omaggio, un cambio di piano). Mostrato
+                solo se cycleAlignment non ha già trovato un problema
+                diverso, per non sovrapporre due avvisi sulla stessa area. */}
+            {(() => {
+              if (cycleAlignment(form.startDate, form.renewalDate, form.frequency)) return null;
+              const expected = expectedNextOccurrence(form.startDate, form.renewalDate, form.frequency, todayISO);
+              if (!expected) return null;
+              const expectedISO = toLocalISO(expected);
+              return (
+                <div style={{ background: "rgba(227,168,87,0.10)", border: `1px solid rgba(227,168,87,0.30)` }} className="rounded-xl px-3 py-2.5 mb-3.5">
+                  <p style={{ color: colors.textSecondary }} className="text-xs leading-relaxed mb-2">
+                    {t.renewalSkipsCycle(dateFmt(expectedISO))}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, renewalDate: expectedISO })}
+                    style={{ color: ACCENT.amber }}
+                    className="text-xs font-semibold"
+                  >
+                    {t.renewalSkipsCycleFix(dateFmt(expectedISO))}
                   </button>
                 </div>
               );
