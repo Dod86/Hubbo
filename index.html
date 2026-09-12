@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v163";
+const APP_VERSION = "v164";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -2835,6 +2835,20 @@ function inPromo(sub, iso) {
   return !!(sub && sub.promoUntil && iso && iso < sub.promoUntil);
 }
 
+// Il nome scelto dal catalogo può arrivare fino a qui con un numero in più:
+// "DAZN 2", assegnato in automatico da nextAvailableName quando si aveva già
+// un abbonamento chiamato "DAZN" (vedi la scelta fra tenere il nome
+// originale o quello suggerito, nell'avviso di doppione). Un confronto
+// esatto contro il catalogo perdeva il collegamento — niente logo, niente
+// link alla disdetta, solo l'iniziale come ripiego — segnalato da Erny il
+// 12 settembre esattamente su un "DAZN 2". Il confronto qui ignora un
+// eventuale numero finale e le maiuscole/minuscole, per ritrovare comunque
+// il servizio giusto.
+function matchesCatalogName(catalogName, subName) {
+  const norm = (s) => String(s || "").trim().toLowerCase().replace(/\s+\d+$/, "");
+  return norm(catalogName) === norm(subName);
+}
+
 function buildPriceSeries(sub, payments, todayISO) {
   const points = [];
   if (Array.isArray(sub.priceHistory)) {
@@ -4941,11 +4955,11 @@ function HubboApp() {
   const inMainCurrency = (sub) => convertAmount(costOn(sub, todayISO), sub.currency || settings.currency, settings.currency, rates);
   const dateFmt = (d) => formatDate(d, locale);
   const serviceIcon = (name) => {
-    const svc = COMMON_SERVICES.find((s) => s.name === name);
+    const svc = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, name));
     return svc ? svc.icon : null;
   };
   const serviceDomain = (name) => {
-    const svc = COMMON_SERVICES.find((s) => s.name === name);
+    const svc = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, name));
     return svc ? svc.domain : null;
   };
 
