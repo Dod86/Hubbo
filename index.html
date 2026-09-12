@@ -223,26 +223,28 @@ const RING_SWEEP = 2 / 3;
 // Margine del contenitore asimmetrico, non più uguale sui quattro lati:
 // il raggio esterno dell'anello a riposo (ro) coincide per costruzione
 // esattamente con metà della dimensione del proprio SVG — nessun margine
-// di natura — quindi la fetta scelta, che si allarga di 2px quando la
-// tocchi, arrivava a un solo pixel dal bordo del contenitore con un
-// margine uniforme di soli 3px. Da lì la fetta rossa in alto a destra
-// nello screenshot di Erny del 12 settembre invadeva lo sfondo della
-// legenda. Corretto allargando il margine su sopra/destra/sotto, tenendo
-// invece stretto quello a sinistra — sposta l'anello verso sinistra, come
-// chiesto, e lascia il margine vero dove serve, sul lato dove la fetta
-// scelta può davvero arrivare (il vuoto dell'anello sta in alto a
-// sinistra, quindi la sinistra non ha mai una fetta scelta così vicina al
-// bordo). RING_CENTER_X e RING_CENTER_Y sono il centro del "buco" in
-// coordinate relative al contenitore, ora diversi fra loro proprio per
-// via del margine asimmetrico — la scritta al centro si posiziona
-// rispetto a questi, non più con un offset negativo a mano: prima
-// sconfinava a sinistra dell'anello (11 settembre).
+// di natura. Un primo tentativo (v157) allargava solo il margine e
+// lasciava la fetta scelta crescere di 2px verso l'esterno: non bastava,
+// segnalato di nuovo da Erny il 12 settembre con un secondo screenshot.
+// Corretto alla radice in CategoryRing: la fetta scelta ora si ispessisce
+// verso il centro dell'anello, mai più verso il bordo — `ro` non cambia
+// mai, per nessuna fetta, quindi non può più esistere un margine troppo
+// stretto da qualche parte. Il margine qui sotto resta comunque generoso,
+// apposta, come ulteriore rete di sicurezza (copre anche la fascia di
+// tocco invisibile, che si allarga di qualche pixel per un bersaglio più
+// comodo). Stretto solo a sinistra — sposta l'anello in quella direzione,
+// come richiesto, dove l'anello ha comunque la sua apertura e non c'è mai
+// una fetta così vicina al bordo. RING_CENTER_X e RING_CENTER_Y sono il
+// centro del "buco" in coordinate relative al contenitore, diversi fra
+// loro proprio per via del margine asimmetrico — la scritta al centro si
+// posiziona rispetto a questi, non più con un offset negativo a mano:
+// prima sconfinava a sinistra dell'anello (11 settembre).
 const RING_DIAMETER = 160;
 const RING_STROKE = 15;
 const RING_INSET_LEFT = 2;
-const RING_INSET_RIGHT = 9;
-const RING_INSET_TOP = 7;
-const RING_INSET_BOTTOM = 7;
+const RING_INSET_RIGHT = 12;
+const RING_INSET_TOP = 9;
+const RING_INSET_BOTTOM = 9;
 const RING_BOX_WIDTH = RING_INSET_LEFT + RING_DIAMETER + RING_INSET_RIGHT;
 const RING_BOX_HEIGHT = RING_INSET_TOP + RING_DIAMETER + RING_INSET_BOTTOM;
 const RING_HOLE_R = (RING_DIAMETER - RING_STROKE) / 2 - RING_STROKE / 2;
@@ -344,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v157";
+const APP_VERSION = "v158";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4014,10 +4016,18 @@ function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner
           if (a1 <= a0) return null;
           const isSelected = selected === seg.id;
           const dimmed = selected != null && !isSelected;
-          // La fetta scelta si allarga appena verso l'esterno, le altre si
-          // affievoliscono un poco — nessuna delle due esagerata, punto 4
-          // del documento: "non esagerare".
-          const segRo = isSelected ? ro + 2 : ro;
+          // La fetta scelta si ispessisce leggermente verso il centro
+          // dell'anello, non più verso l'esterno: `ro` resta sempre lo
+          // stesso, identico al disegno a riposo, per qualunque fetta —
+          // la crescita verso l'esterno (+2px) continuava a invadere lo
+          // sfondo della legenda anche dopo aver allargato il margine in
+          // v157, segnalato di nuovo da Erny il 12 settembre. Crescendo
+          // verso il buco invece che verso il bordo, non può più esistere
+          // un margine troppo stretto da qualche parte: il bordo esterno
+          // dell'anello non si muove mai. Le altre fette si affievoliscono
+          // un poco — nessuna delle due esagerata, punto 4 del documento:
+          // "non esagerare".
+          const segRi = isSelected ? Math.max(0, ri - 2) : ri;
           return (
             <g
               key={seg.id}
@@ -4034,7 +4044,7 @@ function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner
               style={interactive ? { cursor: "pointer", outline: "none" } : undefined}
             >
               <path
-                d={annularSectorPath(cx, cy, ri, segRo, a0, a1, corner)}
+                d={annularSectorPath(cx, cy, segRi, ro, a0, a1, corner)}
                 fill={seg.color}
                 opacity={dimmed ? 0.4 : 1}
                 style={{ transition: "opacity 0.2s ease" }}
@@ -4043,10 +4053,13 @@ function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner
                   ingrandire l'area toccabile — un anello sottile da 13px non
                   è un bersaglio comodo su un telefono. Punto 10 del
                   documento: "non obbligare l'utente a toccare perfettamente
-                  il pixel del segmento". */}
+                  il pixel del segmento". Ridotta da +10 a +6 verso l'esterno:
+                  anche da invisibile arrivava oltre il margine del
+                  contenitore, rischiando di rubare tocchi destinati alla
+                  legenda. */}
               {interactive && (
                 <path
-                  d={annularSectorPath(cx, cy, Math.max(0, ri - 10), ro + 10, a0, a1, corner)}
+                  d={annularSectorPath(cx, cy, Math.max(0, ri - 10), ro + 6, a0, a1, corner)}
                   fill="transparent"
                 />
               )}
@@ -4095,17 +4108,70 @@ function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner
 // falso alla primissima volta, vero da lì in poi — esattamente lo stesso
 // valore che CategoryRing sta per decidere per sé, letto nello stesso
 // istante, mai in conflitto.
+// Il riquadro che contiene la cifra al centro dell'anello — usato in
+// tutte e quattro le schede, non solo l'Elenco. Prima TotalFigure e
+// SelectedCategoryFigure si posizionavano da soli con `position:
+// absolute` calcolato contro RING_CENTER_X/Y; qui in ListRingArea questo
+// creava un problema preciso: l'involucro che nasconde il testo prima
+// che l'anello finisca di animarsi (`opacity`, poi la classe dello zoom
+// a molla) non aveva lui stesso una dimensione propria — dentro c'era
+// solo un figlio posizionato in modo assoluto, che i normali calcoli di
+// impaginazione non "vedono" per stabilire quanto è grande un contenitore.
+// Un div senza dimensione propria si riduce a un punto, in cima al
+// contenitore — e lo zoom CSS parte dal centro della PROPRIA cornice, non
+// da dove il testo appare visivamente. Risultato: lo zoom partiva
+// dall'angolo in alto a sinistra dell'anello, non dal centro — segnalato
+// da Erny il 12 settembre. Corretto dando a QUESTO riquadro, non ai suoi
+// figli, la posizione e la dimensione vere del buco dell'anello: ora è
+// lui stesso, correttamente centrato, a fare da origine per qualunque
+// trasformazione CSS applicata sopra.
+function RingCenterBox({ children, className = "", style = {} }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: RING_CENTER_X - RING_HOLE_R,
+        top: RING_CENTER_Y - RING_HOLE_R,
+        width: RING_HOLE_R * 2,
+        height: RING_HOLE_R * 2,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        ...style,
+      }}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Solo per l'Elenco: mette in scena la comparsa della cifra al centro
+// dell'anello con un piccolo effetto molla, subito dopo che l'apertura
+// dell'anello è finita — non prima, e non ogni volta che si torna
+// sull'Elenco, solo alla primissima animazione della sessione. Richiesto
+// da Erny il 12 settembre. `animateOnceRef` resta di proprietà di
+// CategoryRing (decide se animare e alza il segnalino, come già faceva);
+// questo componente si limita a "sbirciare" lo stesso ref una volta sola,
+// al proprio montaggio, senza mai alzarlo lui — dato che CategoryRing
+// (figlio) alza il segnalino durante il PROPRIO montaggio, che avviene
+// sempre dopo che il genitore ha già finito il proprio, questo componente
+// vede sempre lo stato del segnalino "prima" che CategoryRing lo tocchi:
+// falso alla primissima volta, vero da lì in poi — esattamente lo stesso
+// valore che CategoryRing sta per decidere per sé, letto nello stesso
+// istante, mai in conflitto.
 function ListRingArea({ children, animateOnceRef, ringProps }) {
   const [shouldAnimateHere] = useState(() => !animateOnceRef.current);
   const [textReady, setTextReady] = useState(() => !shouldAnimateHere);
   return (
     <>
-      <div
+      <RingCenterBox
         style={{ opacity: textReady ? 1 : 0 }}
         className={shouldAnimateHere && textReady ? "rb-ring-figure-in" : ""}
       >
         {children}
-      </div>
+      </RingCenterBox>
       <div style={{ position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP }}>
         <CategoryRing {...ringProps} animateOnceRef={animateOnceRef} onOpened={() => setTextReady(true)} />
       </div>
@@ -4152,17 +4218,11 @@ function TotalFigure({ value, lead, colors, moneyParts, animKey, animClass }) {
     <div
       key={animKey}
       style={{
-        position: "absolute",
-        left: RING_CENTER_X - RING_HOLE_R,
-        top: RING_CENTER_Y - size / 2,
-        width: RING_HOLE_R * 2,
         whiteSpace: "nowrap",
-        pointerEvents: "none",
         fontFamily: "'JetBrains Mono', monospace",
         fontWeight: 700,
         fontSize: size,
         gap: 2,
-        justifyContent: "center",
       }}
       className={`leading-none flex items-baseline ${animClass || ""}`}
     >
@@ -4220,16 +4280,7 @@ function SelectedCategoryFigure({ seg, total, colors, moneyParts, light, t }) {
   const mark = <span style={{ color: dotColor, fontSize: Math.round(size * 0.72) }}>{parts.symbol}</span>;
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: RING_CENTER_X - RING_HOLE_R,
-        top: RING_CENTER_Y - (size + 3 + captionSize * 1.3) / 2,
-        width: RING_HOLE_R * 2,
-        pointerEvents: "none",
-      }}
-      className="flex flex-col items-center"
-    >
+    <div className="flex flex-col items-center">
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: size, color: dotColor }} className="leading-none flex items-baseline">
         {parts.symbolFirst && mark}
         <span>{parts.number}</span>
@@ -4771,6 +4822,18 @@ function HubboApp() {
   const [ringSelectedCalendar, setRingSelectedCalendar] = useState(null);
   const [ringSelectedHistory, setRingSelectedHistory] = useState(null);
   const [ringSelectedSavings, setRingSelectedSavings] = useState(null);
+  // La selezione di una fetta deve valere solo finché si sta su quella
+  // scheda, non per sempre: cambiando scheda si azzera, così tornandoci
+  // si riparte sempre dal totale, non dall'ultima categoria toccata
+  // magari minuti prima. Richiesto da Erny il 12 settembre. In un dato
+  // momento ne esiste comunque solo una diversa da null — si può azzerarle
+  // tutte e quattro senza doversi chiedere quale fosse quella attiva.
+  useEffect(() => {
+    setRingSelectedList(null);
+    setRingSelectedCalendar(null);
+    setRingSelectedHistory(null);
+    setRingSelectedSavings(null);
+  }, [view]);
   // L'animazione di apertura dell'anello deve suonare una volta sola per
   // sessione, solo nella scheda Elenco — non ogni volta che ci si torna
   // navigando. Il ref vive qui perché HubboApp monta una volta sola per
@@ -7521,20 +7584,22 @@ function HubboApp() {
             </div>
             <div key={`stats-${calendarOffset}`} className={`flex items-center gap-3 ${monthAnim}`}>
               <div style={{ position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }} className="flex-shrink-0">
-                {(() => {
-                  const segs = calendarMonthStats.byCategory || [];
-                  const selectedSeg = ringSelectedCalendar ? segs.find((s) => s.id === ringSelectedCalendar) : null;
-                  return selectedSeg ? (
-                    <SelectedCategoryFigure seg={selectedSeg} total={calendarMonthStats.total} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
-                  ) : (
-                    <TotalFigure
-                      value={calendarMonthStats.total}
-                      lead={(segs[0] || {}).color || colors.textPrimary}
-                      colors={colors}
-                      moneyParts={moneyParts}
-                    />
-                  );
-                })()}
+                <RingCenterBox>
+                  {(() => {
+                    const segs = calendarMonthStats.byCategory || [];
+                    const selectedSeg = ringSelectedCalendar ? segs.find((s) => s.id === ringSelectedCalendar) : null;
+                    return selectedSeg ? (
+                      <SelectedCategoryFigure seg={selectedSeg} total={calendarMonthStats.total} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
+                    ) : (
+                      <TotalFigure
+                        value={calendarMonthStats.total}
+                        lead={(segs[0] || {}).color || colors.textPrimary}
+                        colors={colors}
+                        moneyParts={moneyParts}
+                      />
+                    );
+                  })()}
+                </RingCenterBox>
                 <div style={{ position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP }}>
                   <CategoryRing
                     segments={calendarMonthStats.byCategory || []}
@@ -7728,19 +7793,21 @@ function HubboApp() {
             <div style={{ color: colors.textSecondary }} className="text-xs mb-2 truncate">{historyPeriodLabel}</div>
             <div className="flex items-center gap-3">
               <div style={{ position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }} className="flex-shrink-0">
-                {(() => {
-                  const selectedSeg = ringSelectedHistory ? historyCategoryTotals.find((s) => s.id === ringSelectedHistory) : null;
-                  return selectedSeg ? (
-                    <SelectedCategoryFigure seg={selectedSeg} total={historyTotals.total} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
-                  ) : (
-                    <TotalFigure
-                      value={historyTotals.total}
-                      lead={(historyCategoryTotals[0] || {}).color || colors.textPrimary}
-                      colors={colors}
-                      moneyParts={moneyParts}
-                    />
-                  );
-                })()}
+                <RingCenterBox>
+                  {(() => {
+                    const selectedSeg = ringSelectedHistory ? historyCategoryTotals.find((s) => s.id === ringSelectedHistory) : null;
+                    return selectedSeg ? (
+                      <SelectedCategoryFigure seg={selectedSeg} total={historyTotals.total} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
+                    ) : (
+                      <TotalFigure
+                        value={historyTotals.total}
+                        lead={(historyCategoryTotals[0] || {}).color || colors.textPrimary}
+                        colors={colors}
+                        moneyParts={moneyParts}
+                      />
+                    );
+                  })()}
+                </RingCenterBox>
                 <div style={{ position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP }}>
                   <CategoryRing
                     segments={historyCategoryTotals}
@@ -8001,19 +8068,21 @@ function HubboApp() {
               <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.savingsPotentialLabel}</div>
               <div className="flex items-center gap-3">
                 <div style={{ position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }} className="flex-shrink-0">
-                  {(() => {
-                    const selectedSeg = ringSelectedSavings ? annualCategoryTotals.find((s) => s.id === ringSelectedSavings) : null;
-                    return selectedSeg ? (
-                      <SelectedCategoryFigure seg={selectedSeg} total={annualAmount} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
-                    ) : (
-                      <TotalFigure
-                        value={annualAmount}
-                        lead={(annualCategoryTotals[0] || {}).color || ACCENT.green}
-                        colors={colors}
-                        moneyParts={moneyParts}
-                      />
-                    );
-                  })()}
+                  <RingCenterBox>
+                    {(() => {
+                      const selectedSeg = ringSelectedSavings ? annualCategoryTotals.find((s) => s.id === ringSelectedSavings) : null;
+                      return selectedSeg ? (
+                        <SelectedCategoryFigure seg={selectedSeg} total={annualAmount} colors={colors} moneyParts={moneyParts} light={effectiveTheme === "light"} t={t} />
+                      ) : (
+                        <TotalFigure
+                          value={annualAmount}
+                          lead={(annualCategoryTotals[0] || {}).color || ACCENT.green}
+                          colors={colors}
+                          moneyParts={moneyParts}
+                        />
+                      );
+                    })()}
+                  </RingCenterBox>
                   <div style={{ position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP }}>
                     <CategoryRing
                       segments={annualCategoryTotals}
