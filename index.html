@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v158";
+const APP_VERSION = "v159";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4724,6 +4724,13 @@ function HubboApp() {
   const [showForm, setShowForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  // Popolato solo quando si aggiunge (non si modifica) un abbonamento il cui
+  // nome coincide con uno già attivo: { name, suggested }. `name` è quanto
+  // scritto in form, `suggested` la prima variante libera ("Netflix 2",
+  // "Netflix 3", ...). null quando non c'è nulla da chiedere. Dichiarato qui
+  // e non più vicino a dove si usa (insieme agli altri avvisi a comparsa)
+  // perché tourVisible, più sotto, lo legge — deve esistere prima.
+  const [duplicateConfirm, setDuplicateConfirm] = useState(null);
   const [showTrash, setShowTrash] = useState(false);
   const [showColors, setShowColors] = useState(false);
   const [colorEditing, setColorEditing] = useState(null);
@@ -5160,8 +5167,14 @@ function HubboApp() {
   // guida viene rifatta da chi ha già toccato il tetto: senza questo, la
   // maschera della guida resta sopra all'avviso e lo nasconde, mentre la
   // guida aspetta per sempre un modulo che non si aprirà mai — un vicolo
-  // cieco vero, non solo un fastidio estetico.
-  const tourVisible = tourActive && !pickerOpen && !optionPicker && !showPaywall;
+  // cieco vero, non solo un fastidio estetico. Stessa cosa per l'avviso di
+  // doppione (`duplicateConfirm`): se durante la guida si prova a salvare
+  // un abbonamento con lo stesso nome di uno già presente, il salvataggio
+  // si ferma e compare l'avviso — ma restava sotto alla maschera della
+  // guida, invisibile e non toccabile, mentre la guida aspettava per sempre
+  // un salvataggio che non sarebbe mai arrivato. Segnalato da Erny il 12
+  // settembre.
+  const tourVisible = tourActive && !pickerOpen && !optionPicker && !showPaywall && !duplicateConfirm;
 
   // A step is allowed to hold the tour until something is actually filled in.
   // Without it the cost step could be walked past empty and the saving step
@@ -5920,11 +5933,6 @@ function HubboApp() {
   const [lastNotification, setLastNotification] = useState(null);
   const [cancelPrompt, setCancelPrompt] = useState(null);
   const [resumePrompt, setResumePrompt] = useState(null);
-  // Popolato solo quando si aggiunge (non si modifica) un abbonamento il cui
-  // nome coincide con uno già attivo: { name, suggested }. `name` è quanto
-  // scritto in form, `suggested` la prima variante libera ("Netflix 2",
-  // "Netflix 3", ...). null quando non c'è nulla da chiedere.
-  const [duplicateConfirm, setDuplicateConfirm] = useState(null);
   // The notification log is for chasing faults, not for the people using the
   // app. It stays behind a long press on the version line, where whoever needs
   // it can find it and nobody else trips over it.
