@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v159";
+const APP_VERSION = "v160";
 const APP_BUILD_DATE = "2026-09-12";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -8954,7 +8954,19 @@ function HubboApp() {
                     // nuovo abbonamento — in modifica la data di inizio
                     // storica resta quella vera, cambiare il rinnovo non
                     // deve riscriverla. Richiesto da Erny l'11 settembre.
-                    startDate: !editingId && f.startDate === f.renewalDate ? v : f.startDate,
+                    // "Abbonato dal" non può però essere nel futuro (non si
+                    // può iniziare a pagare qualcosa domani): quando il
+                    // rinnovo scelto è futuro — il caso normale,
+                    // aggiungendo un abbonamento — la sincronizzazione
+                    // copiava comunque quella data futura anche qui,
+                    // rendendo il modulo silenziosamente non salvabile
+                    // finché non si accorgeva di correggerla a mano. Un
+                    // vicolo cieco vero nella guida, segnalata da Erny il 12
+                    // settembre: il salvataggio non andava mai a buon fine
+                    // e la guida restava ad aspettarlo per sempre. Quando il
+                    // rinnovo è futuro, la data di inizio si ferma a oggi
+                    // invece di seguirlo oltre.
+                    startDate: !editingId && f.startDate === f.renewalDate ? (v > todayISO ? todayISO : v) : f.startDate,
                   }));
                 }}
                 type="date"
