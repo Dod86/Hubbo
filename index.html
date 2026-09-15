@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v179";
+const APP_VERSION = "v180";
 const APP_BUILD_DATE = "2026-09-15";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -7818,7 +7818,7 @@ function HubboApp() {
               type="button"
               onClick={() => setShowPaywall(true)}
               style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}
-              className="w-full mt-3 rounded-xl px-4 py-3 flex items-center gap-2.5 text-left"
+              className="w-full mt-3 rounded-xl px-4 py-2 flex items-center gap-2.5 text-left"
             >
               <Icon name="crown" size={18} color={ACCENT.amber} className="flex-shrink-0" />
               <span style={{ color: colors.textSecondary }} className="flex-1 min-w-0 text-xs leading-snug">
@@ -7945,7 +7945,7 @@ function HubboApp() {
                   <div className="relative flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center">
                     <RingIcon progress={s.progress} ringColor={brandColor} ended={s.isEnded || s.paused} colors={colors} />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={30} />
+                      <ServiceLogo icon={icon} domain={serviceDomain(s.name)} category={s.category} letter={s.name.charAt(0).toUpperCase()} serviceName={s.name} color={cat.color} size={34} />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
