@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v178";
+const APP_VERSION = "v179";
 const APP_BUILD_DATE = "2026-09-15";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -417,6 +417,16 @@ const FREE_LIMIT = 7;
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');`;
 
 const ANIMATIONS = `
+  @keyframes rb-header-scroll {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(0, calc(-1 * var(--hubbo-header-travel, 28px)), 0); }
+  }
+  [data-hubbo-native="true"] .rb-header-slide {
+    animation: rb-header-scroll 1s linear both;
+    animation-timeline: scroll(root block);
+    animation-range: var(--hubbo-header-start, 0px) var(--hubbo-header-end, 28px);
+  }
+
 @keyframes rb-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rb-fade-out { from { opacity: 1; } to { opacity: 0; } }
 @keyframes rb-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -4905,8 +4915,8 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Shared by all four views: only a user's vertical gesture changes the header.
-// DOM updates avoid rerendering the subscription list on every animation frame.
+// The document owns all content movement. The header follows that same scroll
+// distance; never translate the views or resize their spacer during scrolling.
 function useCollapsingHeader(ready, blocked) {
   const headerRef = useRef(null);
   const contentRef = useRef(null);
@@ -4914,7 +4924,6 @@ function useCollapsingHeader(ready, blocked) {
   const blockedRef = useRef(blocked);
   blockedRef.current = blocked;
   const controllerRef = useRef(null);
-  const viewsRef = useRef(null);
 
   useEffect(() => {
     if (!ready) return;
@@ -4922,197 +4931,139 @@ function useCollapsingHeader(ready, blocked) {
     const content = contentRef.current;
     const brand = brandRef.current;
     if (!header || !content || !brand) return;
-    let offset = 0;
-    let committedOffset = 0;
-    let renderedOffset = -1;
-    let paintFrame = 0;
-    let brandHidden = null;
-    let travel = 0;
-    let direction = 0;
-    let speed = 0.4;
-    let lastTime = 0;
-    let lastScroll = Math.max(0, window.scrollY);
-    let touch = null;
-    let inertiaUntil = 0;
-    let paused = false;
-    let frame = 0;
-    let idleTimer = 0;
-    let resumeFrame = 0;
-    let disposed = false;
+    const nativeTimeline = typeof CSS !== "undefined" &&
+      CSS.supports("animation-timeline", "scroll(root block)") &&
+      CSS.supports("animation-range", "0px 28px");
     const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    const renderOffset = () => {
-      paintFrame = 0;
-      if (offset === renderedOffset) return;
-      renderedOffset = offset;
-      // Keep document geometry fixed throughout the gesture. Commit its final
-      // height only at an endpoint; the compensating transform preserves the
-      // exact visual position before and after that single layout change.
-      if ((offset === 0 || offset === travel) && committedOffset !== offset) {
-        committedOffset = offset;
-        header.style.setProperty("--hubbo-header-committed", `${committedOffset}px`);
-      }
+    let travel = 0, offset = 0, anchor = 0, direction = 0;
+    let lastScroll = 0, paused = false, touching = false, disposed = false;
+    let idleTimer = 0, resumeFrame = 0, brandHidden = null;
+    const clamp = (value) => Math.max(0, Math.min(travel, value));
+    // Ignore rubber-band overscroll at either end of the document.
+    const scrollPosition = () => Math.max(0, Math.min(window.scrollY,
+      Math.max(0, document.documentElement.scrollHeight - window.innerHeight)));
+    const accessible = () => {
+      const hidden = travel > 0 && offset >= travel - 0.5;
+      if (hidden === brandHidden) return;
+      brandHidden = hidden;
+      brand.inert = hidden;
+      brand.setAttribute("aria-hidden", String(hidden));
+    };
+    const fallbackPosition = () => {
       header.style.setProperty("--hubbo-header-offset", `${offset}px`);
-      if (viewsRef.current) {
-        const shift = committedOffset - offset;
-        viewsRef.current.style.transform = shift ? `translate3d(0, ${shift}px, 0)` : "none";
-        viewsRef.current.style.willChange = shift ? "transform" : "auto";
-      }
-      const hidden = travel > 0 && offset >= travel;
-      if (hidden !== brandHidden) {
-        brandHidden = hidden;
-        brand.inert = hidden;
-        brand.setAttribute("aria-hidden", String(hidden));
-      }
+      accessible();
     };
-    const paint = (value) => {
-      offset = Math.max(0, Math.min(travel, value));
-      cancelAnimationFrame(paintFrame);
-      renderOffset();
+    const setAnchor = (value) => {
+      anchor = value;
+      header.style.setProperty("--hubbo-header-start", `${anchor}px`);
+      header.style.setProperty("--hubbo-header-end", `${anchor + travel}px`);
     };
-    const cancelMotion = () => {
-      cancelAnimationFrame(frame);
+    const enableTimeline = (enabled) => {
+      header.setAttribute("data-hubbo-native", String(nativeTimeline && enabled));
+    };
+    const settle = () => {
       clearTimeout(idleTimer);
-      frame = 0;
-    };
-    const settle = (immediate = false) => {
-      cancelMotion();
-      inertiaUntil = 0;
-      const target = direction > 0 ? travel : direction < 0 ? 0 : (offset >= travel / 2 ? travel : 0);
-      const from = offset;
-      if (immediate || (reducedMotion && reducedMotion.matches) || from === target) {
-        paint(target);
-        return;
+      if (paused || blockedRef.current || touching || offset <= 0.5 || offset >= travel - 0.5) return;
+      const target = direction >= 0 ? travel : 0;
+      // Finish with native page scrolling, so the header AND the content finish
+      // together. There is no independent timer-driven header animation.
+      const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      let destination = Math.max(0, Math.min(maxY, anchor + target));
+      if (destination !== anchor + target) {
+        // At a document boundary choose the reachable endpoint.
+        const reachable = target === travel ? 0 : travel;
+        destination = Math.max(0, Math.min(maxY, anchor + reachable));
       }
-      const duration = Math.max(60, Math.min(180, Math.abs(target - from) / speed));
-      const start = performance.now();
-      const tick = (now) => {
-        const progress = Math.min(1, (now - start) / duration);
-        paint(from + (target - from) * progress);
-        if (progress < 1) frame = requestAnimationFrame(tick);
-      };
-      frame = requestAnimationFrame(tick);
+      window.scrollTo({ top: destination, behavior: reducedMotion && reducedMotion.matches ? "instant" : "smooth" });
     };
     const scheduleSettle = () => {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => { if (!touch) settle(); }, 120);
+      idleTimer = setTimeout(settle, 180);
     };
-    const move = (delta) => {
-      if (!delta || blockedRef.current || paused) return;
-      cancelMotion();
-      const now = performance.now();
-      if (lastTime) speed = Math.max(0.15, Math.min(2.5, Math.abs(delta) / Math.max(1, now - lastTime)));
-      lastTime = now;
-      direction = Math.sign(delta);
-      offset = Math.max(0, Math.min(travel, offset + delta));
-      // Coalesce multiple input samples into one write per display frame.
-      // No easing/lag is added to the finger-driven 1:1 movement.
-      if (!paintFrame) paintFrame = requestAnimationFrame(renderOffset);
+    const onScroll = () => {
+      if (paused || blockedRef.current) return;
+      const y = scrollPosition();
+      const delta = y - lastScroll;
+      if (!delta) return;
+      const nextDirection = Math.sign(delta);
+      // Re-anchor only on reversal. Within a gesture, the browser samples the
+      // scroll timeline directly, including native inertia, at display speed.
+      if (direction && nextDirection !== direction) setAnchor(lastScroll - offset);
+      direction = nextDirection;
+      offset = clamp(y - anchor);
+      lastScroll = y;
+      if (!nativeTimeline) fallbackPosition();
+      else accessible();
+      scheduleSettle();
     };
     const measure = () => {
-      const wasHidden = travel > 0 && offset >= travel;
+      const wasHidden = travel > 0 && offset >= travel - 0.5;
       travel = brand.offsetHeight + (parseFloat(getComputedStyle(brand).marginBottom) || 0);
       header.style.setProperty("--hubbo-header-height", `${content.offsetHeight}px`);
-      renderedOffset = -1;
-      paint(wasHidden ? travel : offset);
+      header.style.setProperty("--hubbo-header-travel", `${travel}px`);
+      // Even an empty tab has enough native scroll room to hide the brand.
+      header.parentElement.style.setProperty("--hubbo-header-travel", `${travel}px`);
+      offset = wasHidden ? travel : clamp(offset);
+      lastScroll = scrollPosition();
+      setAnchor(lastScroll - offset);
+      fallbackPosition();
     };
     const pause = () => {
-      paused = true;
-      touch = null;
-      settle(true);
+      clearTimeout(idleTimer);
       cancelAnimationFrame(resumeFrame);
+      paused = true;
+      touching = false;
+      // Freeze before a tab restoration or the modal's fixed-body scroll lock.
+      offset = direction > 0 ? travel : direction < 0 ? 0 : (offset >= travel / 2 ? travel : 0);
+      fallbackPosition();
+      enableTimeline(false);
+    };
+    const restore = (requestedY) => {
+      const target = Math.max(offset, requestedY);
+      window.scrollTo({ top: target, behavior: "instant" });
+      lastScroll = scrollPosition();
+      setAnchor(lastScroll - offset);
     };
     const resume = () => {
       cancelAnimationFrame(resumeFrame);
-      // Tab restoration/body unlock may emit scroll on the following frame.
       resumeFrame = requestAnimationFrame(() => {
-        resumeFrame = requestAnimationFrame(() => {
-          lastScroll = Math.max(0, window.scrollY);
-          paused = false;
-        });
+        if (blockedRef.current || disposed) return;
+        // Keep hidden headers hidden on a fresh tab, without a blank spacer.
+        restore(scrollPosition());
+        direction = 0;
+        paused = false;
+        enableTimeline(true);
       });
     };
-    controllerRef.current = { pause, resume };
-    const onTouchStart = (e) => {
-      if (paused || blockedRef.current || e.touches.length !== 1) return;
-      cancelMotion();
-      inertiaUntil = 0;
-      const point = e.touches[0];
-      touch = { x: point.clientX, y: point.clientY, lastY: point.clientY, axis: null };
-      lastTime = performance.now();
-    };
-    const onTouchMove = (e) => {
-      if (!touch) return;
-      if (e.touches.length !== 1) { touch = null; settle(); return; }
-      const point = e.touches[0];
-      const dx = point.clientX - touch.x;
-      const dy = point.clientY - touch.y;
-      if (!touch.axis) {
-        if (Math.max(Math.abs(dx), Math.abs(dy)) < 6) return;
-        touch.axis = Math.abs(dy) > Math.abs(dx) ? "y" : "x";
-      }
-      if (touch.axis === "y") move(touch.lastY - point.clientY);
-      touch.lastY = point.clientY;
-    };
-    const onTouchEnd = () => {
-      if (!touch) return;
-      const vertical = touch.axis === "y";
-      touch = null;
-      lastScroll = Math.max(0, window.scrollY);
-      if (vertical) inertiaUntil = performance.now() + 1800;
-      scheduleSettle();
-    };
-    const onWheel = (e) => {
-      if (e.ctrlKey || Math.abs(e.deltaX) >= Math.abs(e.deltaY) || paused || blockedRef.current) return;
-      inertiaUntil = 0;
-      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
-      move(e.deltaY * unit);
-      scheduleSettle();
-    };
-    const onKeyDown = (e) => {
-      if (paused || blockedRef.current || e.target.closest("input, textarea, select, button, a, [contenteditable]")) return;
-      const down = ["ArrowDown", "PageDown", "End", " "].includes(e.key);
-      const up = ["ArrowUp", "PageUp", "Home"].includes(e.key);
-      if (!down && !up) return;
-      move((up || (e.key === " " && e.shiftKey) ? -1 : 1) * travel);
-      scheduleSettle();
-    };
-    const onScroll = () => {
-      const y = Math.max(0, window.scrollY);
-      const delta = y - lastScroll;
-      lastScroll = y;
-      // Finger motion was already consumed in touchmove. Only continue with
-      // native inertia in its original direction; layout clamps are ignored.
-      if (touch || paused || blockedRef.current || performance.now() >= inertiaUntil) return;
-      if (Math.sign(delta) === direction) { move(delta); scheduleSettle(); }
+    controllerRef.current = { pause, resume, restore };
+    const onTouchStart = () => { touching = true; clearTimeout(idleTimer); };
+    const onTouchEnd = (event) => {
+      touching = !!(event.touches && event.touches.length);
+      if (!touching) scheduleSettle();
     };
     measure();
+    enableTimeline(true);
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
     if (observer) { observer.observe(content); observer.observe(brand); }
     if (document.fonts) document.fonts.ready.then(() => { if (!disposed) measure(); });
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scrollend", settle, { passive: true });
     document.addEventListener("touchstart", onTouchStart, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: true });
     document.addEventListener("touchend", onTouchEnd, { passive: true });
     document.addEventListener("touchcancel", onTouchEnd, { passive: true });
-    document.addEventListener("wheel", onWheel, { passive: true });
-    document.addEventListener("keydown", onKeyDown);
     return () => {
       disposed = true;
-      cancelMotion();
-      cancelAnimationFrame(paintFrame);
+      clearTimeout(idleTimer);
       cancelAnimationFrame(resumeFrame);
       if (observer) observer.disconnect();
       controllerRef.current = null;
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scrollend", settle);
       document.removeEventListener("touchstart", onTouchStart);
-      document.removeEventListener("touchmove", onTouchMove);
       document.removeEventListener("touchend", onTouchEnd);
       document.removeEventListener("touchcancel", onTouchEnd);
-      document.removeEventListener("wheel", onWheel);
-      document.removeEventListener("keydown", onKeyDown);
     };
   }, [ready]);
 
@@ -5123,7 +5074,7 @@ function useCollapsingHeader(ready, blocked) {
     else controller.resume();
   }, [blocked, ready]);
 
-  return { headerRef, contentRef, brandRef, controllerRef, viewsRef };
+  return { headerRef, contentRef, brandRef, controllerRef };
 }
 
 function HubboApp() {
@@ -7609,8 +7560,9 @@ function HubboApp() {
     setView(next);
     const target = viewScrollRef.current[next] || 0;
     requestAnimationFrame(() => {
-      window.scrollTo(0, target);
-      if (headerMotion.controllerRef.current) headerMotion.controllerRef.current.resume();
+      const controller = headerMotion.controllerRef.current;
+      if (controller) { controller.restore(target); controller.resume(); }
+      else window.scrollTo(0, target);
     });
   }
 
@@ -7676,7 +7628,7 @@ function HubboApp() {
       style={{
         background: `linear-gradient(180deg, ${colors.bgGradTop} 0%, ${colors.bg} 320px)`,
         overflowAnchor: "none",
-        minHeight: "100vh",
+        minHeight: "calc(100vh + var(--hubbo-header-travel, 28px))",
         fontFamily: "'Inter', sans-serif",
         color: colors.textPrimary,
       }}
@@ -7684,17 +7636,17 @@ function HubboApp() {
     >
       <style>{FONT_IMPORT + ANIMATIONS}</style>
 
-      {/* Stable spacer; only composited layers move during the gesture. */}
+      {/* Native document flow: the views and header share one scroll distance. */}
       <div
         ref={headerMotion.headerRef}
         data-hubbo-header=""
         className="sticky top-0 z-30"
-        style={{ height: "calc(var(--hubbo-header-height, 60px) + 21px - var(--hubbo-header-committed, 0px))", pointerEvents: "none", overflowAnchor: "none" }}
+        style={{ height: "calc(var(--hubbo-header-height, 60px) + 21px)", overflow: "hidden", pointerEvents: "none", overflowAnchor: "none" }}
       >
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "calc(var(--hubbo-header-height, 60px) + 21px)", clipPath: "inset(0 0 var(--hubbo-header-offset, 0px) 0)", willChange: "clip-path" }}>
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: colors.bgGradTop, borderBottom: `1px solid ${colors.border}`, transform: "translate3d(0, calc(-1 * var(--hubbo-header-offset, 0px)), 0)", willChange: "transform" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "calc(var(--hubbo-header-height, 60px) + 21px)" }}>
+          <div className="rb-header-slide" aria-hidden="true" style={{ position: "absolute", inset: 0, background: colors.bgGradTop, borderBottom: `1px solid ${colors.border}`, transform: "translate3d(0, calc(-1 * var(--hubbo-header-offset, 0px)), 0)", willChange: "transform" }} />
           <div style={{ position: "absolute", top: 12, left: 20, right: 20, height: "var(--hubbo-header-height, 60px)", overflow: "hidden" }}>
-            <div ref={headerMotion.contentRef} style={{ transform: "translate3d(0, calc(-1 * var(--hubbo-header-offset, 0px)), 0)", willChange: "transform", pointerEvents: "auto" }}>
+            <div ref={headerMotion.contentRef} className="rb-header-slide" style={{ transform: "translate3d(0, calc(-1 * var(--hubbo-header-offset, 0px)), 0)", willChange: "transform", pointerEvents: "auto" }}>
               <div ref={headerMotion.brandRef} className="flex items-center justify-between mb-0.5">
                 <Wordmark colors={colors} size={25} />
                 <button data-tour="settings" onClick={() => setShowSettings(true)} style={{ color: colors.textSecondary }} aria-label={t.settings} className="p-1">
@@ -7709,7 +7661,7 @@ function HubboApp() {
         </div>
       </div>
 
-      <div ref={headerMotion.viewsRef} style={{ overflowAnchor: "none" }}>
+      <div style={{ overflowAnchor: "none" }}>
       {/* View switch (list / calendar) */}
       {view === "list" && (
       <div key="view-list" className={viewDirection === null ? "" : viewDirection === "right" ? "rb-view-right" : "rb-view-left"}>
