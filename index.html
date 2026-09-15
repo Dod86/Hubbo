@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v183";
+const APP_VERSION = "v184";
 const APP_BUILD_DATE = "2026-09-15";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -3345,8 +3345,88 @@ function useSpotlightRect(target) {
   return rect;
 }
 
+// Lock user-driven background motion, while the guide can still scroll its
+// next target into view and the highlighted controls remain interactive.
+function useTourInteractionGuard(target, controlsRef) {
+  useEffect(() => {
+    const root = document.documentElement;
+    const previous = { overflow: root.style.overflow, overscrollBehavior: root.style.overscrollBehavior };
+    root.style.overflow = "hidden";
+    root.style.overscrollBehavior = "none";
+    const litElement = () => target ? document.querySelector(`[data-tour="${target}"]`) : null;
+    const allowedRegion = (node) => {
+      const controls = controlsRef.current;
+      if (controls && controls.contains(node)) return controls;
+      const lit = litElement();
+      return lit && lit.contains(node) ? lit : null;
+    };
+    const prevent = (event, stop = true) => {
+      if (event.cancelable) event.preventDefault();
+      if (stop) event.stopPropagation();
+    };
+    // Native scrolling may stay inside the lit element, but must never chain
+    // into its dimmed form/page when the inner scroller reaches a boundary.
+    const canScrollInside = (node, region, dx, dy) => {
+      for (let el = node && node.nodeType === 1 ? node : node && node.parentElement; el; el = el.parentElement) {
+        const style = getComputedStyle(el);
+        if (Math.abs(dy) >= Math.abs(dx)) {
+          if (/auto|scroll/.test(style.overflowY) &&
+              ((dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1) || (dy < 0 && el.scrollTop > 0))) return true;
+        } else if (/auto|scroll/.test(style.overflowX) &&
+            ((dx > 0 && el.scrollLeft + el.clientWidth < el.scrollWidth - 1) || (dx < 0 && el.scrollLeft > 0))) return true;
+        if (el === region) break;
+      }
+      return false;
+    };
+    let touch = null;
+    const onStart = (event) => { if (!allowedRegion(event.target)) prevent(event); };
+    const onTouchStart = (event) => {
+      const p = event.touches[0];
+      touch = p ? { x: p.clientX, y: p.clientY, allowed: !!allowedRegion(event.target) } : null;
+      onStart(event);
+    };
+    const onTouchMove = (event) => {
+      const p = event.touches[0];
+      const region = allowedRegion(event.target);
+      if (!touch || !p || !touch.allowed || !region) { prevent(event); return; }
+      const dx = touch.x - p.clientX, dy = touch.y - p.clientY;
+      touch.x = p.clientX; touch.y = p.clientY;
+      if (!canScrollInside(event.target, region, dx, dy)) prevent(event, false);
+    };
+    const onTouchEnd = (event) => { if (!event.touches.length) touch = null; };
+    const onWheel = (event) => {
+      const region = allowedRegion(event.target);
+      if (!region) prevent(event);
+      else if (!canScrollInside(event.target, region, event.deltaX, event.deltaY)) prevent(event, false);
+    };
+    const onKeyDown = (event) => {
+      if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) return;
+      const region = allowedRegion(event.target);
+      const editable = event.target.closest && event.target.closest('input, textarea, select, [contenteditable="true"]');
+      const button = event.target.closest && event.target.closest('button, [role="button"]');
+      if (region && (editable || (button && event.key === " "))) return;
+      prevent(event);
+    };
+    const options = { capture: true, passive: false };
+    const listeners = [
+      ["pointerdown", onStart], ["mousedown", onStart], ["click", onStart],
+      ["touchstart", onTouchStart], ["touchmove", onTouchMove],
+      ["touchend", onTouchEnd], ["touchcancel", onTouchEnd],
+      ["wheel", onWheel], ["keydown", onKeyDown],
+    ];
+    listeners.forEach(([name, handler]) => document.addEventListener(name, handler, options));
+    return () => {
+      listeners.forEach(([name, handler]) => document.removeEventListener(name, handler, true));
+      root.style.overflow = previous.overflow;
+      root.style.overscrollBehavior = previous.overscrollBehavior;
+    };
+  }, [target, controlsRef]);
+}
+
 function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
   const step = TOUR_STEPS[index];
+  const controlsRef = useRef(null);
+  useTourInteractionGuard(step.target, controlsRef);
   const hole = useSpotlightRect(step.target);
   // Read off the same measurement as the hole, so the card is never placed
   // against a viewport height the hole no longer agrees with.
@@ -3366,7 +3446,7 @@ function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
   const copy = t.tourSteps[step.id];
   const last = index === TOUR_STEPS.length - 1;
   const waiting = !!step.waitFor;
-  const blocker = { position: "absolute", pointerEvents: "auto" };
+  const blocker = { position: "absolute", pointerEvents: "auto", touchAction: "none", overscrollBehavior: "none" };
 
   return (
     <div className="fixed inset-0 z-[95]" style={{ pointerEvents: "none" }}>
@@ -3397,6 +3477,7 @@ function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
       )}
 
       <div
+        ref={controlsRef}
         style={{
           position: "absolute",
           left: 14,
@@ -7817,7 +7898,7 @@ function HubboApp() {
                   <Icon name="settings" size={18} />
                 </button>
               </div>
-              <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }} className="text-2xl">
+              <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, color: ACCENT.terracotta }} className="text-2xl">
                 {view === "calendar" ? t.subtitleCalendar : view === "history" ? t.subtitleHistory : view === "savings" ? t.subtitleSavings : t.subtitle}
               </h1>
             </div>
