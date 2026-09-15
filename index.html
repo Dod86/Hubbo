@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v175";
+const APP_VERSION = "v176";
 const APP_BUILD_DATE = "2026-09-15";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -4388,7 +4388,14 @@ function SelectedCategoryFigure({ seg, total, colors, moneyParts, light, t }) {
   );
 }
 
-function CategoryLegend({ segments, total, colors, money, light, selected = null, onSelect = null, animateOnLaunch = false }) {
+function CategoryLegend({ segments, total, colors, money, light, selected = null, onSelect = null, animateOnLaunch = false, animateOnceRef = null }) {
+  // Cattura la decisione al montaggio, prima che l'anello possa alzare il suo
+  // ref. Un ref separato rende la legenda davvero one-shot anche quando Elenco
+  // viene smontato e rimontato passando tra le schede.
+  const [shouldAnimateLegend] = useState(() => animateOnceRef ? !animateOnceRef.current : animateOnLaunch);
+  useEffect(() => {
+    if (animateOnceRef && shouldAnimateLegend) animateOnceRef.current = true;
+  }, []);
   if (!segments || segments.length === 0 || total <= 0) return null;
   const interactive = !!onSelect;
   const legendCount = segments.length;
@@ -4405,15 +4412,15 @@ function CategoryLegend({ segments, total, colors, money, light, selected = null
             onClick={interactive ? () => onSelect(isSelected ? null : seg.id) : undefined}
             aria-pressed={interactive ? isSelected : undefined}
             style={{
-              opacity: animateOnLaunch ? undefined : (dimmed ? 0.5 : 1),
-              transition: animateOnLaunch ? undefined : "opacity 0.2s ease",
+              opacity: shouldAnimateLegend ? undefined : (dimmed ? 0.5 : 1),
+              transition: shouldAnimateLegend ? undefined : "opacity 0.2s ease",
               background: "transparent",
               textAlign: "left",
-              ...(animateOnLaunch ? {
+              ...(shouldAnimateLegend ? {
                 animationName: "rb-legend-zoom-bounce",
                 animationDuration: "450ms",
                 animationTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                animationFillMode: "forwards",
+                animationFillMode: "both",
                 // L'ultima riga termina esattamente a 700 ms, insieme all'anello.
                 animationDelay: `${legendCount > 1 ? (index * 250) / (legendCount - 1) : 250}ms`,
               } : {}),
@@ -5057,6 +5064,7 @@ function HubboApp() {
   // animate=true a ogni suo rimontaggio, quindi l'animazione ripartiva ogni
   // volta che si tornava sull'Elenco — segnalato da Erny il 12 settembre.
   const ringHasAnimatedRef = useRef(false);
+  const listLegendHasAnimatedRef = useRef(false);
   // The search box is per-opening, so it clears once the sheet is dismissed.
   useEffect(() => {
     if (!optionPicker) setOptionSearch("");
@@ -7557,7 +7565,7 @@ function HubboApp() {
                 light={effectiveTheme === "light"}
                 selected={ringSelectedList}
                 onSelect={setRingSelectedList}
-                animateOnLaunch={!ringHasAnimatedRef.current}
+                animateOnceRef={listLegendHasAnimatedRef}
               />
             </div>
           </div>
