@@ -346,7 +346,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v174";
+const APP_VERSION = "v173";
 const APP_BUILD_DATE = "2026-09-15";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -458,19 +458,6 @@ const ANIMATIONS = `
 }
 .rb-ring-figure-in { animation: rb-ring-figure-in 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
 
-@keyframes rb-legend-pop {
-  0% { opacity: 0; transform: scale(0.3); }
-  68% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.rb-legend-pop {
-  transform-origin: center;
-  opacity: 0;
-  animation: rb-legend-pop 0.52s cubic-bezier(0.18, 1.35, 0.34, 1) forwards;
-  animation-delay: var(--rb-legend-delay, 0ms);
-}
-.rb-compact-ringbar { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-
 .rb-overlay { animation: rb-fade-in 0.2s ease-out; }
 .rb-overlay-out { animation: rb-fade-out var(--rb-out, 0.22s) ease-in forwards; }
 .rb-sheet { animation: rb-slide-up 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -485,7 +472,7 @@ const ANIMATIONS = `
 @media (prefers-reduced-motion: reduce) {
   .rb-overlay, .rb-overlay-out, .rb-sheet, .rb-sheet-out, .rb-panel-right,
   .rb-panel-right-out, .rb-dialog, .rb-dialog-out, .rb-view-left, .rb-view-right,
-  .rb-ring-figure-in, .rb-legend-pop { animation: none; opacity: 1; transform: none; }
+  .rb-ring-figure-in { animation: none; }
 }
 `;
 
@@ -4397,7 +4384,7 @@ function CategoryLegend({ segments, total, colors, money, light, selected = null
   const interactive = !!onSelect;
   return (
     <div className="flex-1 min-w-0 flex flex-col gap-1">
-      {segments.map((seg, idx) => {
+      {segments.map((seg) => {
         const isSelected = selected === seg.id;
         const dimmed = selected != null && !isSelected;
         const Row = interactive ? "button" : "div";
@@ -4407,8 +4394,8 @@ function CategoryLegend({ segments, total, colors, money, light, selected = null
             type={interactive ? "button" : undefined}
             onClick={interactive ? () => onSelect(isSelected ? null : seg.id) : undefined}
             aria-pressed={interactive ? isSelected : undefined}
-            style={{ opacity: dimmed ? 0.5 : 1, transition: "opacity 0.2s ease", background: "transparent", textAlign: "left", "--rb-legend-delay": `${180 + idx * 95}ms` }}
-            className="rb-legend-pop flex items-center gap-2 min-w-0 -mx-1 px-1 py-0.5 rounded-lg"
+            style={{ opacity: dimmed ? 0.5 : 1, transition: "opacity 0.2s ease", background: "transparent", textAlign: "left" }}
+            className="flex items-center gap-2 min-w-0 -mx-1 px-1 py-0.5 rounded-lg"
           >
             <span style={{ background: seg.color, width: 9, height: 9, borderRadius: 999 }} className="flex-shrink-0" />
             <span style={{ color: colors.textSecondary }} className="text-xs truncate flex-1">{seg.label}</span>
@@ -4423,36 +4410,6 @@ function CategoryLegend({ segments, total, colors, money, light, selected = null
           </Row>
         );
       })}
-    </div>
-  );
-}
-
-function CompactRingSummary({ segments, total, colors, money, caption, progress, light }) {
-  if (!segments || total <= 0 || progress <= 0.01) return null;
-  const opacity = Math.max(0, Math.min(1, (progress - 0.12) / 0.88));
-  const translateY = (1 - opacity) * 8;
-  return (
-    <div
-      className="rb-compact-ringbar rounded-xl px-3 py-2 mb-2"
-      style={{
-        position: "sticky", top: 55, zIndex: 24,
-        background: light ? "rgba(250,248,242,0.94)" : "rgba(28,25,21,0.94)",
-        border: light ? "1.5px solid rgba(201,169,110,0.70)" : "1.5px solid rgba(201,169,110,0.65)",
-        boxShadow: light ? "0 7px 22px rgba(201,169,110,0.17)" : "0 7px 24px rgba(201,169,110,0.20)",
-        opacity, transform: `translateY(${translateY}px)`, pointerEvents: opacity > 0.85 ? "auto" : "none"
-      }}
-    >
-      <div className="flex items-center gap-3">
-        <div style={{ width: 46, height: 46, position: "relative" }} className="flex-shrink-0">
-          <div style={{ position: "absolute", left: 1, top: 1 }}>
-            <CategoryRing segments={segments} total={total} colors={colors} size={44} stroke={5} money={money} />
-          </div>
-        </div>
-        <div className="min-w-0 flex items-baseline gap-2">
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 19, color: colors.textPrimary }} className="whitespace-nowrap">{money(total)}</span>
-          <span style={{ color: colors.textSecondary }} className="text-xs truncate">{caption}</span>
-        </div>
-      </div>
     </div>
   );
 }
@@ -5264,24 +5221,6 @@ function HubboApp() {
   const agendaRef = useRef(null);
   const closingRef = useRef(null);
   const viewScrollRef = useRef({ list: 0, calendar: 0, history: 0, savings: 0 });
-  const [collapseProgress, setCollapseProgress] = useState(0);
-  useEffect(() => {
-    let raf = 0;
-    let lastY = window.scrollY || window.pageYOffset || 0;
-    const updateCollapse = () => {
-      raf = 0;
-      const y = window.scrollY || window.pageYOffset || 0;
-      const dy = y - lastY;
-      lastY = y;
-      // Accumulating the real scroll delta makes the collapse track the finger:
-      // content moving up compresses it, reversing direction expands it again
-      // even when the user is far down the page.
-      setCollapseProgress((prev) => Math.max(0, Math.min(1, prev + dy / 118)));
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(updateCollapse); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, []);
   // Live exchange rates, refreshed once a day and cached so the app keeps
   // converting correctly offline. Falls back to the built-in reference rates.
   useEffect(() => {
@@ -7488,17 +7427,15 @@ function HubboApp() {
 
       {/* Header */}
       <div
-        className="px-5 sticky top-0 z-30"
+        className="px-5 pt-3 pb-2 sticky top-0 z-30"
         style={{
           // Matches the top of the page gradient: a flat fill would show as a
           // rectangle against it once the header is pinned.
           background: colors.bgGradTop,
           borderBottom: `1px solid ${colors.border}`,
-          paddingTop: `${12 - collapseProgress * 8}px`,
-          paddingBottom: `${8 - collapseProgress * 3}px`,
         }}
       >
-        <div className="flex items-center justify-between" style={{ height: `${34 * (1-collapseProgress)}px`, opacity: 1-collapseProgress, transform: `translateY(${-30 * collapseProgress}px)`, overflow: "hidden", pointerEvents: collapseProgress > 0.85 ? "none" : "auto" }}>
+        <div className="flex items-center justify-between mb-0.5">
           <Wordmark colors={colors} size={25} />
           <button data-tour="settings" onClick={() => setShowSettings(true)} style={{ color: colors.textSecondary }} aria-label={t.settings} className="p-1">
             <Icon name="settings" size={18} />
@@ -7513,12 +7450,11 @@ function HubboApp() {
       {view === "list" && (
       <div key="view-list" className={viewDirection === null ? "" : viewDirection === "right" ? "rb-view-right" : "rb-view-left"}>
       <div className="px-5 pt-3">
-        <CompactRingSummary segments={showYear ? categoryTotals.map((x) => ({ ...x, total: x.total * 12 })) : categoryTotals} total={headlineTotal} colors={colors} money={moneyRound} caption={showYear ? t.estimatedPerYearShort : t.estimatedPerMonthShort} progress={collapseProgress} light={effectiveTheme === "light"} />
         {/* Total card */}
         <div
           data-tour="totalCard"
           {...totalSwipe.handlers}
-          style={{ background: colors.surface, border: effectiveTheme === "light" ? "1.5px solid rgba(201, 169, 110, 0.70)" : "1.5px solid rgba(201, 169, 110, 0.65)", boxShadow: effectiveTheme === "light" ? "0 7px 22px rgba(201, 169, 110, 0.17)" : "0 7px 24px rgba(201, 169, 110, 0.20)", transform: `scale(${1 - collapseProgress * 0.025})`, transformOrigin: "top center", opacity: 1 - collapseProgress * 0.10 }}
+          style={{ background: colors.surface, border: effectiveTheme === "light" ? "1.5px solid rgba(201, 169, 110, 0.70)" : "1.5px solid rgba(201, 169, 110, 0.65)", boxShadow: effectiveTheme === "light" ? "0 7px 22px rgba(201, 169, 110, 0.17)" : "0 7px 24px rgba(201, 169, 110, 0.20)" }}
           // Clipped, because the figure sits ten pixels outside its own column
           // and the entry animation starts it twenty-four further out again:
           // without this it pokes past the edge of the card on the way in.
@@ -7857,13 +7793,11 @@ function HubboApp() {
       {view === "calendar" && (
       <div key="view-calendar" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-3">
-          <CompactRingSummary segments={calendarMonthStats.byCategory || []} total={calendarMonthStats.total} colors={colors} money={moneyRound} caption={t.monthPayments(calendarMonthStats.count)} progress={collapseProgress} light={effectiveTheme === "light"} />
           <div
             style={{
               background: colors.surface,
               border: effectiveTheme === "light" ? "1.5px solid rgba(201, 169, 110, 0.70)" : "1.5px solid rgba(201, 169, 110, 0.65)",
               boxShadow: effectiveTheme === "light" ? "0 7px 22px rgba(201, 169, 110, 0.17)" : "0 7px 24px rgba(201, 169, 110, 0.20)",
-              transform: `scale(${1 - collapseProgress * 0.025})`, transformOrigin: "top center", opacity: 1 - collapseProgress * 0.10,
             }}
             className="rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden"
           >
@@ -8077,8 +8011,7 @@ function HubboApp() {
       {view === "history" && (
       <div key="view-history" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-3 pb-28">
-          <CompactRingSummary segments={historyCategoryTotals} total={historyTotals.total} colors={colors} money={moneyRound} caption={t.historyPaymentsCount} progress={collapseProgress} light={effectiveTheme === "light"} />
-          <div style={{ background: colors.surface, border: effectiveTheme === "light" ? "1.5px solid rgba(201, 169, 110, 0.70)" : "1.5px solid rgba(201, 169, 110, 0.65)", boxShadow: effectiveTheme === "light" ? "0 7px 22px rgba(201, 169, 110, 0.17)" : "0 7px 24px rgba(201, 169, 110, 0.20)", transform: `scale(${1 - collapseProgress * 0.025})`, transformOrigin: "top center", opacity: 1 - collapseProgress * 0.10 }} className="rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden">
+          <div style={{ background: colors.surface, border: effectiveTheme === "light" ? "1.5px solid rgba(201, 169, 110, 0.70)" : "1.5px solid rgba(201, 169, 110, 0.65)", boxShadow: effectiveTheme === "light" ? "0 7px 22px rgba(201, 169, 110, 0.17)" : "0 7px 24px rgba(201, 169, 110, 0.20)" }} className="rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden">
             <div style={{ color: colors.textSecondary }} className="text-xs mb-0.5 truncate">{historyPeriodLabel}</div>
             <div className="flex items-center gap-3">
               <div style={{ position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }} className="flex-shrink-0">
@@ -8344,7 +8277,6 @@ function HubboApp() {
       {view === "savings" && (
       <div key="view-savings" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-3 pb-28">
-          {savingsHeadline.amount > 0.01 && <CompactRingSummary segments={savingsCategoryTotals.map((x) => ({ ...x, total: x.total * 12 }))} total={savingsHeadline.amount * 12} colors={colors} money={moneyRound} caption={t.savingsPotentialMonthly(money(savingsHeadline.amount))} progress={collapseProgress} light={effectiveTheme === "light"} />}
           {savingsHeadline.amount > 0.01 && (() => {
             // In cima si mostra l'annuale: lo stesso risparmio ha più peso
             // detto una volta sola invece che spalmato su dodici rate, ed è
@@ -8354,7 +8286,7 @@ function HubboApp() {
             const annualAmount = savingsHeadline.amount * 12;
             const annualCategoryTotals = savingsCategoryTotals.map((c) => ({ ...c, total: c.total * 12 }));
             return (
-            <div style={{ background: colors.surface, border: effectiveTheme === "light" ? "1.5px solid rgba(201, 169, 110, 0.70)" : "1.5px solid rgba(201, 169, 110, 0.65)", boxShadow: effectiveTheme === "light" ? "0 7px 22px rgba(201, 169, 110, 0.17)" : "0 7px 24px rgba(201, 169, 110, 0.20)", transform: `scale(${1 - collapseProgress * 0.025})`, transformOrigin: "top center", opacity: 1 - collapseProgress * 0.10 }} className="rounded-2xl px-4 py-3.5 mb-4 overflow-hidden">
+            <div style={{ background: colors.surface, border: effectiveTheme === "light" ? "1.5px solid rgba(201, 169, 110, 0.70)" : "1.5px solid rgba(201, 169, 110, 0.65)", boxShadow: effectiveTheme === "light" ? "0 7px 22px rgba(201, 169, 110, 0.17)" : "0 7px 24px rgba(201, 169, 110, 0.20)" }} className="rounded-2xl px-4 py-3.5 mb-4 overflow-hidden">
               <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.savingsPotentialLabel}</div>
               <div className="flex items-center gap-3">
                 <div style={{ position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }} className="flex-shrink-0">
