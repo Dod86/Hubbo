@@ -205,6 +205,28 @@ const THEMES = {
   },
 };
 
+// v187 — proposta B: colori dell'anello desaturati agli angoli.
+// Usa le categorie effettivamente visibili; nessun colore inventato a dati vuoti.
+function ringCardStyle(segments, colors, light) {
+  const parseHex = (value) => {
+    const hex = String(value || "").replace(/^#/, "");
+    const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
+    return /^[0-9a-f]{6}$/i.test(full) ? full.match(/../g).map((c) => parseInt(c, 16)) : null;
+  };
+  // Il bordo trasparente conserva gli ingombri della v186 senza un contorno visibile.
+  const style = { background: colors.surface, border: "2px solid transparent", boxShadow: colors.cardShadow };
+  const base = parseHex(colors.surface);
+  const palette = (segments || []).filter((s) => s.total > 0).map((s) => parseHex(s.color)).filter(Boolean).slice(0, 3);
+  if (!base || !palette.length) return style;
+  const tones = palette.map((rgb) => {
+    const grey = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+    return rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.32 - base[i]) * (light ? 0.35 : 0.27)));
+  });
+  const tint = (index, alpha = 1) => `rgba(${tones[index % tones.length].join(",")},${alpha})`;
+  style.background = `radial-gradient(ellipse at 0% 0%, ${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, ${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, ${tint(2, 0.5)} 0%, transparent 58%), ${colors.surface}`;
+  return style;
+}
+
 // The old danger red was a coral only a few degrees of hue from terracotta.
 // Side by side — and "elimina" often sits next to a secondary action — they
 // read as the same colour, so the alarm has been pushed properly red.
@@ -346,7 +368,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v186";
+const APP_VERSION = "v187";
 const APP_BUILD_DATE = "2026-09-16";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
@@ -8102,7 +8124,7 @@ function HubboApp() {
         <div
           data-tour="totalCard"
           {...totalSwipe.handlers}
-          style={{ background: colors.surface, border: effectiveTheme === "light" ? "2px solid rgba(201, 169, 110, 0.70)" : "2px solid rgba(201, 169, 110, 0.65)", boxShadow: colors.cardShadow }}
+          style={ringCardStyle(categoryTotals, colors, effectiveTheme === "light")}
           // Clipped, because the figure sits ten pixels outside its own column
           // and the entry animation starts it twenty-four further out again:
           // without this it pokes past the edge of the card on the way in.
@@ -8443,11 +8465,7 @@ function HubboApp() {
       <div key="view-calendar" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-3">
           <div
-            style={{
-              background: colors.surface,
-              border: effectiveTheme === "light" ? "2px solid rgba(201, 169, 110, 0.70)" : "2px solid rgba(201, 169, 110, 0.65)",
-              boxShadow: colors.cardShadow,
-            }}
+            style={ringCardStyle(calendarMonthStats.byCategory, colors, effectiveTheme === "light")}
             className="rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden"
           >
             <div key={`label-${calendarOffset}`} style={{ color: colors.textSecondary }} className={`text-xs mb-0.5 capitalize ${monthAnim}`}>
@@ -8595,7 +8613,7 @@ function HubboApp() {
       {view === "history" && (
       <div key="view-history" className={viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right"}>
         <div className="px-5 pt-3 pb-28">
-          <div style={{ background: colors.surface, border: effectiveTheme === "light" ? "2px solid rgba(201, 169, 110, 0.70)" : "2px solid rgba(201, 169, 110, 0.65)", boxShadow: colors.cardShadow }} className="rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden">
+          <div style={ringCardStyle(historyCategoryTotals, colors, effectiveTheme === "light")} className="rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden">
             <div style={{ color: colors.textSecondary }} className="text-xs mb-0.5 truncate">{historyPeriodLabel}</div>
             <div className="flex items-center gap-2">
               <div style={{ position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }} className="flex-shrink-0">
@@ -8870,7 +8888,7 @@ function HubboApp() {
             const annualAmount = savingsHeadline.amount * 12;
             const annualCategoryTotals = savingsCategoryTotals.map((c) => ({ ...c, total: c.total * 12 }));
             return (
-            <div style={{ background: colors.surface, border: effectiveTheme === "light" ? "2px solid rgba(201, 169, 110, 0.70)" : "2px solid rgba(201, 169, 110, 0.65)", boxShadow: colors.cardShadow }} className="rounded-2xl px-4 py-3.5 mb-4 overflow-hidden">
+            <div style={ringCardStyle(annualCategoryTotals, colors, effectiveTheme === "light")} className="rounded-2xl px-4 py-3.5 mb-4 overflow-hidden">
               <div style={{ color: colors.textSecondary }} className="text-xs mb-1">{t.savingsPotentialLabel}</div>
               <div className="flex items-center gap-3">
                 <div style={{ position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }} className="flex-shrink-0">
