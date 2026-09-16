@@ -346,8 +346,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v184";
-const APP_BUILD_DATE = "2026-09-15";
+const APP_VERSION = "v185";
+const APP_BUILD_DATE = "2026-09-16";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -417,6 +417,9 @@ const FREE_LIMIT = 7;
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');`;
 
 const ANIMATIONS = `
+.rb-notif-thumb { transition: transform 180ms ease; }
+@media (prefers-reduced-motion: reduce) { .rb-notif-thumb { transition: none; } }
+
 @keyframes rb-calendar-day-in {
   from { opacity: 0; transform: translate(var(--day-dx), var(--day-dy)) scale(var(--day-sx), var(--day-sy)); }
   to { opacity: 1; transform: translate(0, 0) scale(1, 1); }
@@ -1145,6 +1148,14 @@ const STRINGS = {
     listView: "Elenco",
     calendarView: "Calendario",
     notifTitle: "Notifiche",
+    notifModeDefault: "Default App",
+    notifModeOff: "Disattiva",
+    notifModeCustom: "Ad Hoc",
+    notifModeDefaultHint: "Segue attivazione, anticipo e orario delle impostazioni dell’app.",
+    notifModeOffHint: "Nessun promemoria per questo abbonamento.",
+    notifModeCustomHint: "Usa anticipo e orario propri, anche se le notifiche dell’app sono disattivate.",
+    notifAllowDevice: "Consenti notifiche sul dispositivo",
+    notifGlobalHint: "Queste impostazioni valgono per gli abbonamenti su «Default App».",
     notifOff: "Disattivate",
     notifOn: "Attive",
     notifDaysLabel: "Preavviso",
@@ -1420,6 +1431,14 @@ const STRINGS = {
     listView: "List",
     calendarView: "Calendar",
     notifTitle: "Notifications",
+    notifModeDefault: "App Default",
+    notifModeOff: "Disable",
+    notifModeCustom: "Ad Hoc",
+    notifModeDefaultHint: "Follows the app’s notification switch, advance notice and reminder time.",
+    notifModeOffHint: "No reminders for this subscription.",
+    notifModeCustomHint: "Uses its own advance notice and time, even if app notifications are off.",
+    notifAllowDevice: "Allow notifications on this device",
+    notifGlobalHint: "These settings apply to subscriptions using App Default.",
     notifOff: "Off",
     notifOn: "On",
     notifDaysLabel: "Advance notice",
@@ -1695,6 +1714,14 @@ const STRINGS = {
     listView: "Lista",
     calendarView: "Calendario",
     notifTitle: "Notificaciones",
+    notifModeDefault: "Por defecto",
+    notifModeOff: "Desactivar",
+    notifModeCustom: "A medida",
+    notifModeDefaultHint: "Sigue la activación, la antelación y la hora de los ajustes de la app.",
+    notifModeOffHint: "Sin recordatorios para esta suscripción.",
+    notifModeCustomHint: "Usa su propia antelación y hora, aunque las notificaciones de la app estén desactivadas.",
+    notifAllowDevice: "Permitir notificaciones en el dispositivo",
+    notifGlobalHint: "Estos ajustes se aplican a las suscripciones en «Por defecto».",
     notifOff: "Desactivadas",
     notifOn: "Activadas",
     notifDaysLabel: "Antelación",
@@ -1970,6 +1997,14 @@ const STRINGS = {
     listView: "Liste",
     calendarView: "Calendrier",
     notifTitle: "Notifications",
+    notifModeDefault: "Par défaut",
+    notifModeOff: "Désactiver",
+    notifModeCustom: "Sur mesure",
+    notifModeDefaultHint: "Suit l’activation, le délai et l’heure des notifications de l’app.",
+    notifModeOffHint: "Aucun rappel pour cet abonnement.",
+    notifModeCustomHint: "Utilise son propre délai et sa propre heure, même si les notifications de l’app sont désactivées.",
+    notifAllowDevice: "Autoriser les notifications sur cet appareil",
+    notifGlobalHint: "Ces réglages concernent les abonnements en mode «Par défaut».",
     notifOff: "Désactivées",
     notifOn: "Activées",
     notifDaysLabel: "Préavis",
@@ -2245,6 +2280,14 @@ const STRINGS = {
     listView: "Liste",
     calendarView: "Kalender",
     notifTitle: "Benachrichtigungen",
+    notifModeDefault: "App-Standard",
+    notifModeOff: "Aus",
+    notifModeCustom: "Individuell",
+    notifModeDefaultHint: "Übernimmt Aktivierung, Vorlaufzeit und Uhrzeit aus den App-Einstellungen.",
+    notifModeOffHint: "Keine Erinnerungen für dieses Abo.",
+    notifModeCustomHint: "Nutzt eigene Vorlaufzeit und Uhrzeit, auch wenn App-Benachrichtigungen ausgeschaltet sind.",
+    notifAllowDevice: "Benachrichtigungen auf diesem Gerät erlauben",
+    notifGlobalHint: "Diese Einstellungen gelten für Abos mit «App-Standard».",
     notifOff: "Aus",
     notifOn: "An",
     notifDaysLabel: "Vorlaufzeit",
@@ -4937,9 +4980,174 @@ function ServiceLogo({ icon, category, domain, letter, serviceName, color, size 
   );
 }
 
+const NOTIFICATION_ADVANCE_DAYS = [0, 1, 2, 3, 5, 7, 14];
+
+function normalizeSubscriptionNotifications(value) {
+  const prefs = value && typeof value === "object" ? value : {};
+  return {
+    mode: ["default", "off", "custom"].includes(prefs.mode) ? prefs.mode : "default",
+    days: NOTIFICATION_ADVANCE_DAYS.includes(prefs.days) ? prefs.days : 3,
+    hour: Number.isInteger(prefs.hour) && prefs.hour >= 0 && prefs.hour <= 23 ? prefs.hour : 9,
+  };
+}
+
+function resolveSubscriptionNotifications(sub, settings) {
+  const prefs = normalizeSubscriptionNotifications(sub.notifications);
+  if (prefs.mode === "off") return { ...prefs, enabled: false };
+  // Custom is independent of ALL global notification settings, including off.
+  if (prefs.mode === "custom") return { ...prefs, enabled: true };
+  const global = normalizeSubscriptionNotifications({ days: settings.notifDays, hour: settings.notifHour });
+  return { mode: "default", enabled: settings.notifEnabled === true, days: global.days, hour: global.hour };
+}
+
+function dueSubscriptionReminder(sub, settings, now) {
+  const prefs = resolveSubscriptionNotifications(sub, settings);
+  if (!prefs.enabled || sub.paused || now.getHours() < prefs.hour) return null;
+  const renewal = nextRenewalInfo(sub, toLocalISO(now));
+  if (renewal.isEnded || !Number.isFinite(renewal.daysLeft) || renewal.daysLeft < 0 || renewal.daysLeft > prefs.days) return null;
+  if (sub.endDate && toLocalISO(renewal.renewal) > sub.endDate) return null;
+  return renewal;
+}
+
+// One delivery path for inherited and custom reminders. Re-read current data
+// before every send, and only mark successful deliveries as sent for the day.
+function useSubscriptionNotifications(subscriptions, settings, t) {
+  const readPermission = () => typeof Notification === "undefined" ? "unsupported" : Notification.permission;
+  const [permission, setPermission] = useState(readPermission);
+  const latestRef = useRef(null);
+  latestRef.current = { subscriptions, settings, t };
+  const stateRef = useRef({ loaded: false, date: "", ids: new Set(), busy: false, rerun: false });
+  const fireRef = useRef(null);
+  const ready = Array.isArray(subscriptions);
+
+  useEffect(() => {
+    if (!ready) return;
+    let disposed = false;
+    const state = stateRef.current;
+    const fire = async () => {
+      if (disposed || readPermission() !== "granted") return;
+      if (state.busy) { state.rerun = true; return; }
+      state.busy = true;
+      try {
+        if (!state.loaded) {
+          try {
+            const saved = await window.storage.get("abbly:notificationLog", false);
+            const log = saved ? JSON.parse(saved.value) : null;
+            if (log && typeof log.date === "string" && Array.isArray(log.ids)) {
+              state.date = log.date;
+              state.ids = new Set(log.ids.map(String));
+            }
+          } catch {}
+          state.loaded = true;
+        }
+        if (disposed) return;
+        const ids = (latestRef.current.subscriptions || []).map(s => s.id);
+        for (const id of ids) {
+          if (disposed || readPermission() !== "granted") break;
+          const current = latestRef.current;
+          const sub = (current.subscriptions || []).find(s => s.id === id);
+          if (!sub) continue;
+          const now = new Date();
+          const day = toLocalISO(now);
+          if (state.date !== day) { state.date = day; state.ids.clear(); }
+          if (state.ids.has(String(id))) continue;
+          const renewal = dueSubscriptionReminder(sub, current.settings, now);
+          if (!renewal) continue;
+          const copy = current.t;
+          const when = renewal.daysLeft === 0 ? copy.todayWord : renewal.daysLeft === 1 ? copy.tomorrowWord : copy.inDays(renewal.daysLeft);
+          const sent = await showNotification(copy.appName, {
+            body: copy.notifBody(sub.name, when),
+            icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: "hubbo-" + id,
+            data: { id, cancelUrl: cancelSearchUrl(sub.name, current.settings.language) },
+            actions: [{ action: "cancel", title: copy.notifActionCancel }],
+          });
+          if (sent) {
+            state.ids.add(String(id));
+            try {
+              await window.storage.set("abbly:notificationLog", JSON.stringify({ date: state.date, ids: [...state.ids] }), false);
+            } catch {}
+          }
+        }
+      } catch {
+        // A failed delivery stays eligible for the next check.
+      } finally {
+        state.busy = false;
+        if (state.rerun) { state.rerun = false; if (fireRef.current) fireRef.current(); }
+      }
+    };
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      setPermission(readPermission()); fire();
+    };
+    const onFocus = () => { setPermission(readPermission()); fire(); };
+    fireRef.current = fire;
+    fire();
+    const timer = setInterval(fire, 60 * 1000);
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      disposed = true;
+      clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+      if (fireRef.current === fire) fireRef.current = null;
+    };
+  }, [ready]);
+
+  useEffect(() => {
+    if (fireRef.current) fireRef.current();
+  }, [subscriptions, settings.notifEnabled, settings.notifDays, settings.notifHour, settings.language]);
+
+  // Called only from a user's click, never from the notification timer.
+  const requestPermission = async () => {
+    let result = readPermission();
+    if (result === "default") {
+      try { result = await Notification.requestPermission(); } catch { result = readPermission(); }
+    }
+    setPermission(result);
+    if (result === "granted" && fireRef.current) fireRef.current();
+    return result;
+  };
+  return { permission, requestPermission };
+}
+
+function NotificationModeToggle({ value, onChange, colors, t }) {
+  const choices = [
+    { value: "default", label: t.notifModeDefault },
+    { value: "off", label: t.notifModeOff },
+    { value: "custom", label: t.notifModeCustom },
+  ];
+  const selected = Math.max(0, choices.findIndex(c => c.value === value));
+  return (
+    <div className="p-1 rounded-xl" style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}>
+      <div role="radiogroup" aria-label={t.notifTitle} className="relative grid grid-cols-3">
+        <span aria-hidden="true" className="rb-notif-thumb absolute inset-y-0 left-0 rounded-lg pointer-events-none" style={{ width: "33.333333%", transform: `translateX(${selected * 100}%)`, background: colors.surface, boxShadow: colors.cardShadow, border: `1px solid ${colors.border}` }} />
+        {choices.map((choice, index) => (
+          <button key={choice.value} type="button" role="radio" aria-checked={selected === index} tabIndex={selected === index ? 0 : -1}
+            className="relative z-10 min-w-0 py-3 px-1 text-xs font-medium rounded-lg"
+            style={{ color: selected === index ? ACCENT.terracotta : colors.textSecondary }}
+            onClick={() => onChange(choice.value)}
+            onKeyDown={(event) => {
+              let next;
+              if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % 3;
+              else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index + 2) % 3;
+              else if (event.key === "Home") next = 0;
+              else if (event.key === "End") next = 2;
+              else return;
+              event.preventDefault();
+              onChange(choices[next].value);
+              event.currentTarget.parentElement.querySelectorAll('[role="radio"]')[next].focus();
+            }}
+          >{choice.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const VIEW_ORDER = ["list", "calendar", "history", "savings"];
 
-const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", hasPromo: false, promoDiscount: "", promoUntil: "" };
+const emptyForm = { name: "", customName: "", plan: null, cost: "", currency: null, frequency: "monthly", category: "streaming", renewalDate: "", hasStartDate: false, startDate: "", hasEndDate: false, endDate: "", isShared: false, peopleCount: "2", note: "", hasPromo: false, promoDiscount: "", promoUntil: "", notifications: { mode: "default", days: 3, hour: 9 } };
 const defaultSettings = { language: "it", currency: "EUR", theme: "system", notifEnabled: false, notifDays: 3, notifHour: 9, categoryColors: {}, tourSeen: false };
 
 function useSystemPrefersDark() {
@@ -5654,7 +5862,7 @@ function HubboApp() {
   }
 
   async function handleDeleteAllData() {
-    const keys = ["abbly:subscriptions", "abbly:trash", "abbly:payments", "abbly:settings", "abbly:rates", "abbly:offers", "abbly:lastNotif"];
+    const keys = ["abbly:subscriptions", "abbly:trash", "abbly:payments", "abbly:settings", "abbly:rates", "abbly:offers", "abbly:lastNotif", "abbly:notificationLog"];
     try {
       for (const key of keys) await window.storage.delete(key, false);
       window.location.reload();
@@ -5908,7 +6116,7 @@ function HubboApp() {
     // startDate parte uguale a renewalDate, non vuota: un abbonamento non
     // può esistere senza data di inizio — richiesto da Erny l'11
     // settembre. Resta comunque modificabile a mano.
-    setForm({ ...emptyForm, currency: settings.currency, renewalDate: todayISO, startDate: todayISO });
+    setForm({ ...emptyForm, currency: settings.currency, renewalDate: todayISO, startDate: todayISO, notifications: normalizeSubscriptionNotifications({ days: settings.notifDays, hour: settings.notifHour }) });
     setFormError("");
     setDateAutoFixNote(null);
     setPickerOpen(false);
@@ -5946,6 +6154,7 @@ function HubboApp() {
       isShared: sub.sharedTotalCost != null,
       peopleCount: sub.sharedPeople ? String(sub.sharedPeople) : "2",
       note: sub.note || "",
+      notifications: normalizeSubscriptionNotifications(sub.notifications || { days: settings.notifDays, hour: settings.notifHour }),
     });
     setFormError("");
     setDateAutoFixNote(null);
@@ -6050,6 +6259,7 @@ function HubboApp() {
       startDate: form.startDate || null,
       endDate: form.hasEndDate ? form.endDate : null,
       note: form.note.trim() || null,
+      notifications: normalizeSubscriptionNotifications(form.notifications),
       lastIncrease,
       priceHistory,
       cycleHistory,
@@ -6802,58 +7012,7 @@ function HubboApp() {
     };
   }, [anyModalOpen]);
 
-  useEffect(() => {
-    if (!settings.notifEnabled || typeof Notification === "undefined") return;
-
-    let cancelled = false;
-
-    async function fire() {
-      try {
-        let permission = Notification.permission;
-        if (permission === "default") permission = await Notification.requestPermission();
-        if (permission !== "granted" || cancelled) return;
-
-        // Hold the reminders until the hour the user picked; before that, do nothing.
-        const now = new Date();
-        if (now.getHours() < settings.notifHour) return;
-
-        activeSubs
-          .filter((s) => s.daysLeft <= settings.notifDays && s.daysLeft >= 0)
-          .forEach((s) => {
-            const key = todayISO + ":" + s.id;
-            if (notifiedToday.has(key)) return;
-            notifiedToday.add(key);
-            const when =
-              s.daysLeft === 0 ? t.todayWord : s.daysLeft === 1 ? t.tomorrowWord : t.inDays(s.daysLeft);
-            showNotification(t.appName, {
-              body: t.notifBody(s.name, when),
-              icon: "icons/icon-192.png",
-              badge: "icons/icon-192.png",
-              tag: "hubbo-" + s.id,
-              // Everything the buttons need, since the worker that handles
-              // them cannot read the app's data.
-              data: { id: s.id, cancelUrl: cancelSearchUrl(s.name, settings.language) },
-              // One button, deliberately. With two, which one had been pressed
-              // was read from the name the phone reports, and that name proved
-              // unreliable on a real device. With one there is nothing to read:
-              // a button is a button, and an empty action is the body.
-              actions: [{ action: "cancel", title: t.notifActionCancel }],
-            });
-          });
-      } catch {
-        // Notification API unavailable or blocked (e.g. inside a sandboxed preview)
-      }
-    }
-
-    fire();
-    // Re-check periodically so a session left open still fires at the chosen hour.
-    const timer = setInterval(fire, 5 * 60 * 1000);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.notifEnabled, settings.notifDays, settings.notifHour, activeSubs.length]);
+  const notificationAccess = useSubscriptionNotifications(subs, settings, t);
 
   const usedCategories = useMemo(() => {
     const set = new Set(enriched.map((s) => s.category));
@@ -9890,6 +10049,46 @@ function HubboApp() {
               </div>
             )}
 
+            <div className="mb-5">
+              <div style={{ color: colors.textSecondary }} className="text-xs mb-2">{t.notifTitle}</div>
+              <NotificationModeToggle value={form.notifications.mode} colors={colors} t={t}
+                onChange={(mode) => {
+                  setForm((f) => ({ ...f, notifications: { ...f.notifications, mode } }));
+                  if (mode === "custom" || (mode === "default" && settings.notifEnabled)) notificationAccess.requestPermission();
+                }}
+              />
+              <p className="text-xs leading-relaxed mt-2 px-1" style={{ color: colors.textSecondary }}>
+                {form.notifications.mode === "custom" ? t.notifModeCustomHint : form.notifications.mode === "off" ? t.notifModeOffHint : t.notifModeDefaultHint}
+              </p>
+              {form.notifications.mode === "custom" && (
+                <div className="rounded-xl overflow-hidden mt-3" style={{ background: colors.surface2, border: `1px solid ${colors.border}` }}>
+                  <button type="button" className="w-full px-3.5 py-3 flex items-center justify-between gap-2 text-sm"
+                    onClick={() => setOptionPicker({ title: t.notifDaysLabel, value: form.notifications.days,
+                      options: NOTIFICATION_ADVANCE_DAYS.map((d) => ({ value: d, label: advanceLabel(d) })),
+                      onSelect: (days) => setForm((f) => ({ ...f, notifications: { ...f.notifications, days } })),
+                    })}>
+                    <span>{t.notifDaysLabel}</span>
+                    <span className="flex items-center gap-1.5" style={{ color: colors.textSecondary }}>{advanceLabel(form.notifications.days)}<Icon name="chevron-right" size={15} /></span>
+                  </button>
+                  <button type="button" className="w-full px-3.5 py-3 flex items-center justify-between gap-2 text-sm" style={{ borderTop: `1px solid ${colors.border}` }}
+                    onClick={() => setOptionPicker({ title: t.notifTimeLabel, value: form.notifications.hour,
+                      options: Array.from({ length: 24 }, (_, hour) => ({ value: hour, label: `${String(hour).padStart(2, "0")}:00` })),
+                      onSelect: (hour) => setForm((f) => ({ ...f, notifications: { ...f.notifications, hour } })),
+                    })}>
+                    <span>{t.notifTimeLabel}</span>
+                    <span className="flex items-center gap-1.5" style={{ color: colors.textSecondary }}>{String(form.notifications.hour).padStart(2, "0")}:00<Icon name="chevron-right" size={15} /></span>
+                  </button>
+                </div>
+              )}
+              {(form.notifications.mode === "custom" || (form.notifications.mode === "default" && settings.notifEnabled)) && (
+                <>
+                  {notificationAccess.permission === "default" && <button type="button" onClick={notificationAccess.requestPermission} className="text-xs font-medium mt-2 px-1" style={{ color: ACCENT.terracotta }}>{t.notifAllowDevice}</button>}
+                  {(notificationAccess.permission === "denied" || notificationAccess.permission === "unsupported") && <p className="text-xs mt-2 px-1" style={{ color: colors.textSecondary }}>{notificationAccess.permission === "denied" ? t.notifDenied : t.notifUnsupported}</p>}
+                  <p className="text-xs leading-relaxed mt-2 px-1" style={{ color: colors.textFaint }}>{t.notifNote}</p>
+                </>
+              )}
+            </div>
+
             {/* Non più una pillola "+ Aggiungi nota" da toccare per veder
                 comparire il campo: sempre visibile, in fondo alla scheda —
                 richiesto esplicitamente da Erny l'11 settembre ("come
@@ -10068,7 +10267,11 @@ function HubboApp() {
                 <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, boxShadow: colors.cardShadow }} className="rounded-2xl overflow-hidden">
                   <button
                     type="button"
-                    onClick={() => persistSettings({ ...settings, notifEnabled: !settings.notifEnabled })}
+                    onClick={() => {
+                      const enabled = !settings.notifEnabled;
+                      persistSettings({ ...settings, notifEnabled: enabled });
+                      if (enabled) notificationAccess.requestPermission();
+                    }}
                     className="w-full px-4 py-3.5 flex items-center justify-between text-sm"
                   >
                     <span>{t.notifTitle}</span>
@@ -10102,7 +10305,7 @@ function HubboApp() {
                           setOptionPicker({
                             title: t.notifDaysLabel,
                             value: settings.notifDays,
-                            options: [0, 1, 2, 3, 5, 7, 14].map((d) => ({ value: d, label: advanceLabel(d) })),
+                            options: NOTIFICATION_ADVANCE_DAYS.map((d) => ({ value: d, label: advanceLabel(d) })),
                             onSelect: (v) => persistSettings({ ...settingsRef.current, notifDays: v }),
                           })
                         }
@@ -10152,6 +10355,7 @@ function HubboApp() {
                 {notifTest && (
                   <p style={{ color: colors.textSecondary }} className="text-xs mt-1 px-1">{notifTest}</p>
                 )}
+                <p style={{ color: colors.textSecondary }} className="text-xs mt-2 px-1 leading-relaxed">{t.notifGlobalHint}</p>
                 <p style={{ color: colors.textFaint }} className="text-xs mt-2 px-1 leading-relaxed">{t.notifNote}</p>
               </div>
 
