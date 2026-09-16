@@ -400,6 +400,13 @@
         "disponibile": true,
         "nota": "Sconto forte per studenti e insegnanti, da rinnovare ogni anno."
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano scelto",
+        "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
+        "verificato": "2026-09-17"
+      },
       "link": "https://account.adobe.com/plans",
       "verificato": "2026-09-05"
     },
@@ -432,6 +439,13 @@
       "studenti": {
         "disponibile": true,
         "nota": "Gratuito per scuole e insegnanti."
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano scelto (mensile o annuale)",
+        "nota": "Utilizzabile una sola volta per account.",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.canva.com/it_it/pricing/",
       "verificato": "2026-09-05"
@@ -509,6 +523,13 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano scelto",
+        "nota": "Solo su app mobile (iOS/Android); sul resto vale la garanzia di rimborso di 30 giorni, non una prova vera e propria.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://my.surfshark.com/",
       "verificato": "2026-09-10"
     },
@@ -555,6 +576,13 @@
         "persone": 8,
         "nota": "Costa poco piu' del singolo: conviene quasi sempre in due."
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "si rinnova come iscrizione individuale di 30 giorni (l'annuale costa 39,99 €)",
+        "nota": "Una sola prova per account Nintendo; non utilizzabile se hai già un'iscrizione attiva.",
+        "verificato": "2026-09-17"
+      },
       "studenti": {
         "disponibile": false
       },
@@ -573,6 +601,13 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "il prezzo del piano scelto (mensile o annuale)",
+        "nota": "14 giorni scegliendo un piano annuale, 7 giorni scegliendo il mensile.",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.duolingo.com/settings/account",
       "verificato": "2026-09-10"
@@ -626,6 +661,13 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "9,99 €/mese",
+        "nota": "90 giorni invece di 30 per chi ha già un abbonamento Amazon Prime attivo.",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.amazon.it/kucentral",
       "verificato": "2026-09-10"
@@ -931,6 +973,13 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "11,99 €/mese (piano Premium)",
+        "nota": "Non disponibile per chi ha già avuto una prova o un abbonamento Deezer a pagamento.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.deezer.com/it/offers",
       "verificato": "2026-09-09"
     },
@@ -962,6 +1011,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano scelto (Individuale, Famiglia o Premium)",
+        "nota": "La prova copre solo i servizi Apple che non hai già provato o sottoscritto singolarmente: quelli già attivi restano al loro prezzo normale.",
+        "verificato": "2026-09-17"
+      },
       "nota": "Pacchetto: musica, video, iCloud+ e Arcade insieme, spesso conviene rispetto a prenderli separati.",
       "link": "https://apps.apple.com/account/subscriptions",
       "verificato": "2026-09-09"
@@ -977,6 +1033,12 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "11,99 €/mese o 95,88 €/anno",
+        "verificato": "2026-09-17"
       },
       "link": "https://mubi.com/it/plans",
       "verificato": "2026-09-09"
@@ -1084,6 +1146,12 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "3,99 $/mese piano Individuale o 5,99 $/mese piano Famiglie (prezzo mostrato in valuta locale al momento dell'attivazione)",
+        "verificato": "2026-09-17"
       },
       "link": "https://my.1password.com/",
       "verificato": "2026-09-09"
@@ -1238,6 +1306,12 @@
       },
       "studenti": {
         "disponibile": true
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano Pro scelto",
+        "verificato": "2026-09-17"
       },
       "link": "https://account.grammarly.com/subscription",
       "verificato": "2026-09-09"
@@ -1907,6 +1981,13 @@
         "disponibile": true,
         "nota": "LinkedIn Learning incluso è gratis con alcune tessere universitarie e bibliotecarie."
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano Premium scelto, mostrato solo al momento dell'attivazione (varia molto da piano a piano)",
+        "nota": "Non sempre disponibile: LinkedIn la concede una sola volta per tipo di piano e secondo criteri propri, non garantita a ogni account.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.linkedin.com/premium/products/",
       "verificato": "2026-09-09"
     },
@@ -2265,6 +2346,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "35 €/mese o 363 €/anno",
+        "nota": "Garanzia soddisfatti o rimborsati di 14 giorni dopo l'attivazione.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.coursera.org/account/subscriptions",
       "verificato": "2026-09-09"
     },
@@ -2342,6 +2430,12 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "42,99 €/anno (piano Premium)",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.calm.com/",
       "verificato": "2026-09-09"
     },
@@ -2357,6 +2451,13 @@
       "studenti": {
         "disponibile": true,
         "nota": "Gratuito per studenti universitari statunitensi con email .edu; altrove verificare."
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "il prezzo del piano scelto",
+        "nota": "14 giorni scegliendo il piano annuale (circa 4,84 €/mese equivalente), 7 giorni scegliendo il mensile (12,99 €/mese).",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.headspace.com/",
       "verificato": "2026-09-09"

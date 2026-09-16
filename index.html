@@ -185,7 +185,7 @@ const CATEGORY_PALETTE=[...CATEGORY_META.map(c=>c.color),"#6C8AE4","#5AA9E6","#5
 // refreshed from a rates API; offline they keep totals roughly meaningful.
 const RATES_TO_EUR={EUR:1,USD:0.92,GBP:1.17,CHF:1.06};function convertAmount(amount,from,to,liveRates){const table=liveRates||RATES_TO_EUR;const f=table[from]||RATES_TO_EUR[from]||1;const tRate=table[to]||RATES_TO_EUR[to]||1;return amount*f/tRate;}const LANGUAGES=[{code:"it",label:"Italiano"},{code:"en",label:"English"},{code:"es",label:"Español"},{code:"fr",label:"Français"},{code:"de",label:"Deutsch"}];const LOCALES={it:"it-IT",en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE"};// Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION="v199";const APP_BUILD_DATE="2026-09-16";// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
+const APP_VERSION="v204";const APP_BUILD_DATE="2026-09-16";// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
 // non un file dell'app, quindi va preso dalla rete per primo — la cache
 // eterna è esattamente l'errore già pagato con i tassi di cambio.
