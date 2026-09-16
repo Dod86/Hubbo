@@ -213,8 +213,18 @@ function ringCardStyle(segments, colors, light) {
     const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
     return /^[0-9a-f]{6}$/i.test(full) ? full.match(/../g).map((c) => parseInt(c, 16)) : null;
   };
-  // Il bordo trasparente conserva gli ingombri della v186 senza un contorno visibile.
-  const style = { background: colors.surface, border: "2px solid transparent", boxShadow: colors.cardShadow };
+  // v188: il gradiente deve coprire anche il bordo trasparente. Con i valori
+  // CSS predefiniti (origine padding-box + repeat) i 2px esterni ripetevano
+  // il lato opposto dello sfondo, creando righe e angoli discontinui.
+  // Proprietà separate: nessuno shorthand può azzerare origine e ritaglio.
+  const style = {
+    backgroundColor: colors.surface,
+    backgroundOrigin: "border-box",
+    backgroundClip: "border-box",
+    backgroundRepeat: "no-repeat",
+    border: "2px solid transparent",
+    boxShadow: colors.cardShadow,
+  };
   const base = parseHex(colors.surface);
   const palette = (segments || []).filter((s) => s.total > 0).map((s) => parseHex(s.color)).filter(Boolean).slice(0, 3);
   if (!base || !palette.length) return style;
@@ -223,7 +233,7 @@ function ringCardStyle(segments, colors, light) {
     return rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.32 - base[i]) * (light ? 0.35 : 0.27)));
   });
   const tint = (index, alpha = 1) => `rgba(${tones[index % tones.length].join(",")},${alpha})`;
-  style.background = `radial-gradient(ellipse at 0% 0%, ${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, ${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, ${tint(2, 0.5)} 0%, transparent 58%), ${colors.surface}`;
+  style.backgroundImage = `radial-gradient(ellipse at 0% 0%, ${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, ${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, ${tint(2, 0.5)} 0%, transparent 58%)`;
   return style;
 }
 
@@ -368,7 +378,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v187";
+const APP_VERSION = "v188";
 const APP_BUILD_DATE = "2026-09-16";
 
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
