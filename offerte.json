@@ -1,6 +1,6 @@
 {
   "versione": 2,
-  "aggiornato": "2026-09-16",
+  "aggiornato": "2026-09-17",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio, incluse eventuali caratteristiche stabili come una prova gratuita (campo 'provaGratuita', non ha una scadenza). 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato o che non ce l'ha affatto. Dalla versione 2 ogni offerta puo' avere anche: 'id' (identificativo stabile, usato per non ripetere le notifiche), 'destinatari' (elenco fra 'nuovi', 'esistenti', 'exclienti' — sostituisce gradualmente 'soloNuoviClienti', che resta valido dove 'destinatari' non c'e'), 'provaGiorni' (durata della prova gratuita, alternativa a un prezzo promozionale), 'prezzoSuccessivo' e 'frequenzaSuccessiva' (quanto costa dopo la promozione), 'piano' (quale piano del servizio riguarda), 'condizioni' e 'territorio'. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto. Non aggiungere mai un'offerta senza una 'scade' verificata sulla fonte ufficiale: e' cosi' che l'app la nasconde, non la mostra come valida per sempre.",
@@ -155,6 +155,13 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "15,99 €/mese (piano Individuale)",
+        "nota": "La durata mostrata può variare secondo Google stessa; non è disponibile per chi ha già avuto Premium, YouTube Music Premium o Google Play Musica.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.youtube.com/paid_memberships",
       "verificato": "2026-09-05",
       "opzioni": [
@@ -265,6 +272,13 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "10,99 €/mese (piano Individuale)",
+        "nota": "Chi ha acquistato di recente un dispositivo o degli auricolari Apple idonei può ottenere fino a 3 mesi gratuiti invece di 1.",
+        "verificato": "2026-09-17"
+      },
       "nota": "Dentro Apple One costa meno se usi anche iCloud+ e Apple TV+.",
       "link": "https://apps.apple.com/account/subscriptions",
       "verificato": "2026-09-05"
@@ -282,6 +296,13 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "9,99 €/mese",
+        "nota": "Chi ha acquistato di recente un iPhone, iPad, Mac o Apple TV 4K può ottenere fino a 3 mesi gratuiti invece dei 7 giorni standard, riscattabili entro 90 giorni dall'attivazione del dispositivo.",
+        "verificato": "2026-09-17"
       },
       "link": "https://apps.apple.com/account/subscriptions",
       "verificato": "2026-09-05"
@@ -316,6 +337,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "1,99 €/mese (piano Base, 100 GB)",
+        "nota": "Non cumulabile con altre offerte Google One; una sola prova alla volta.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://myaccount.google.com/subscriptions",
       "verificato": "2026-09-05"
     },
@@ -332,6 +360,13 @@
       },
       "studenti": {
         "disponibile": true
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "10,00 €/mese o 99,00 €/anno (piano Family)",
+        "nota": "Non disponibile per chi ha già avuto un abbonamento allo stesso piano.",
+        "verificato": "2026-09-17"
       },
       "link": "https://account.microsoft.com/services",
       "verificato": "2026-09-05"
@@ -570,6 +605,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "9,99 €/mese",
+        "nota": "60 giorni invece di 30 per chi ha già un abbonamento Amazon Prime attivo.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.audible.it/account",
       "verificato": "2026-09-10"
     },
@@ -600,6 +642,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "7,99 €/mese o 79,90 €/anno (piano Standard)",
+        "nota": "Anche gli abbonati Amazon Prime possono attivare 7 giorni di prova tramite il canale Paramount+ su Prime Video.",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.paramountplus.com/account",
       "verificato": "2026-09-10"
     },
@@ -616,6 +665,12 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "5,99 €/mese (piano Fan)",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.crunchyroll.com/account/membership",
       "verificato": "2026-09-10"
