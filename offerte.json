@@ -1,16 +1,25 @@
 {
-  "versione": 1,
-  "aggiornato": "2026-09-10",
+  "versione": 2,
+  "aggiornato": "2026-09-16",
   "paese": "IT",
   "valuta": "EUR",
-  "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio. 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto.",
+  "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio, incluse eventuali caratteristiche stabili come una prova gratuita (campo 'provaGratuita', non ha una scadenza). 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato o che non ce l'ha affatto. Dalla versione 2 ogni offerta puo' avere anche: 'id' (identificativo stabile, usato per non ripetere le notifiche), 'destinatari' (elenco fra 'nuovi', 'esistenti', 'exclienti' — sostituisce gradualmente 'soloNuoviClienti', che resta valido dove 'destinatari' non c'e'), 'provaGiorni' (durata della prova gratuita, alternativa a un prezzo promozionale), 'prezzoSuccessivo' e 'frequenzaSuccessiva' (quanto costa dopo la promozione), 'piano' (quale piano del servizio riguarda), 'condizioni' e 'territorio'. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto. Non aggiungere mai un'offerta senza una 'scade' verificata sulla fonte ufficiale: e' cosi' che l'app la nasconde, non la mostra come valida per sempre.",
   "offerte": [
     {
+      "id": "spotify-2026-tre-mesi-gratis",
       "servizio": "Spotify",
       "titolo": "Tre mesi a 0 €",
       "dettaglio": "Poi 11,99 € al mese. Vale solo per chi non ha mai avuto Premium.",
+      "provaGiorni": 90,
+      "prezzoSuccessivo": 11.99,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi"
+      ],
       "scade": "2026-09-23",
       "soloNuoviClienti": true,
+      "territorio": "IT",
+      "valuta": "EUR",
       "link": "https://www.spotify.com/it/premium/",
       "fonte": "spotify.com",
       "verificato": "2026-09-05"
@@ -215,7 +224,15 @@
       },
       "studenti": {
         "disponibile": true,
-        "nome": "Prime Student"
+        "nome": "Prime Student",
+        "provaGiorni": 90
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "4,99 €/mese o 49,90 €/anno",
+        "nota": "Richiede un metodo di pagamento; nessun addebito durante la prova, salvo disdetta prima della scadenza.",
+        "verificato": "2026-09-16"
       },
       "link": "https://www.amazon.it/gp/primecentral",
       "verificato": "2026-09-05",
