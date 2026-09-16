@@ -183,7 +183,7 @@ const CATEGORY_PALETTE=[...CATEGORY_META.map(c=>c.color),"#6C8AE4","#5AA9E6","#5
 // refreshed from a rates API; offline they keep totals roughly meaningful.
 const RATES_TO_EUR={EUR:1,USD:0.92,GBP:1.17,CHF:1.06};function convertAmount(amount,from,to,liveRates){const table=liveRates||RATES_TO_EUR;const f=table[from]||RATES_TO_EUR[from]||1;const tRate=table[to]||RATES_TO_EUR[to]||1;return amount*f/tRate;}const LANGUAGES=[{code:"it",label:"Italiano"},{code:"en",label:"English"},{code:"es",label:"Español"},{code:"fr",label:"Français"},{code:"de",label:"Deutsch"}];const LOCALES={it:"it-IT",en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE"};// Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION="v194";const APP_BUILD_DATE="2026-09-16";// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
+const APP_VERSION="v195";const APP_BUILD_DATE="2026-09-16";// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
 // non un file dell'app, quindi va preso dalla rete per primo — la cache
 // eterna è esattamente l'errore già pagato con i tassi di cambio.
@@ -749,7 +749,7 @@ function PriceSparkline({points,color,id,width=60,height=26}){if(!points||points
 //
 // A near-black brand would disappear against the dark theme's ring track, so
 // brands whose mark is black are deliberately left out rather than guessed at.
-const SERVICE_COLORS={"Disney+":"#113CCF","Amazon Prime Video":"#00A8E1","Amazon Prime":"#00A8E1","Kindle Unlimited":"#FF9900","YouTube Music":"#FF0000","Plex Pass":"#E5A00D","SoundCloud Go+":"#FF5500","Microsoft 365":"#D83B01","Adobe Creative Cloud":"#FA0F00","Adobe Photoshop":"#31A8FF","Adobe Lightroom":"#31A8FF","Adobe Premiere Pro":"#9999FF","Adobe Illustrator":"#FF9A00","Canva Pro":"#00C4CC",Vimeo:"#1AB7EA","Envato Elements":"#81B441",// L'aubergine ufficiale sparisce sul fondo scuro: azzurro della stessa
+const SERVICE_COLORS={"Disney+":"#113CCF","Amazon Prime Video":"#00A8E1","Amazon Prime":"#FF9900","Kindle Unlimited":"#FF9900","YouTube Music":"#FF0000","Plex Pass":"#E5A00D","SoundCloud Go+":"#FF5500","Microsoft 365":"#D83B01","Adobe Creative Cloud":"#FA0F00","Adobe Photoshop":"#31A8FF","Adobe Lightroom":"#31A8FF","Adobe Premiere Pro":"#9999FF","Adobe Illustrator":"#FF9A00","Canva Pro":"#00C4CC",Vimeo:"#1AB7EA","Envato Elements":"#81B441",// L'aubergine ufficiale sparisce sul fondo scuro: azzurro della stessa
 // tavolozza, che si vede su entrambi i temi.
 Slack:"#36C5F0","Google Workspace":"#4285F4","ChatGPT Plus":"#10A37F","Xbox Game Pass":"#107C10","Nintendo Switch Online":"#E60012","Chess.com":"#7FA650","Roblox Premium":"#E2231A","LinkedIn Premium":"#0A66C2","LinkedIn Learning":"#0A66C2","WhatsApp Premium":"#25D366","Reddit Premium":"#FF4500","Bumble Premium":"#FFC629",Headspace:"#FF7E1D","The Economist":"#E3120B","Financial Times":"#FCD0B1","National Geographic":"#FFCC00"};// Brands without a bundled vector (Disney+, Canva, Adobe...) get their real
 // logo fetched by domain; failures are remembered so we don't retry endlessly,
