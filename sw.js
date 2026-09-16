@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v192";
+const CACHE = "hubbo-v193";
 
 const CORE = [
   "./",
@@ -145,6 +145,22 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
+
+  // React, ReactDOM e il loro ripiego sul CDN vengono prima di tutto il
+  // resto: anche il paracadute degli errori è costruito con React, quindi
+  // se questi non arrivano non arriva nemmeno un messaggio d'errore, solo
+  // uno schermo nero muto — è già successo una volta, il 16 settembre,
+  // quando la cartella vendor/ non era stata caricata su GitHub insieme
+  // al resto. Il caricatore a catena in index.html (vedi build/precompile.js)
+  // ha già il proprio ripiego per questo esatto caso — ma passando anche
+  // questi attraverso lo strato di cache qui sotto, qualcosa si rompeva:
+  // lo script arrivava ma non veniva eseguito, senza errori visibili.
+  // Lasciarli fuori dal tutto qui vuol dire che raggiungono la rete
+  // esattamente come farebbero senza nessun service worker in mezzo.
+  const isBootstrapScript =
+    (sameOrigin && url.pathname.includes("/vendor/react")) ||
+    (url.hostname === "unpkg.com" && /\/react(-dom)?@/.test(url.pathname));
+  if (isBootstrapScript) return;
 
   // The page itself is fetched network-first: online you always get the newest
   // build, offline you still get the cached one.
