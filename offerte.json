@@ -429,6 +429,14 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano scelto",
+        "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
+        "link": "https://www.adobe.com/it/products/photoshop/free-trial-download.html",
+        "verificato": "2026-09-17"
+      },
       "link": "https://account.adobe.com/plans",
       "verificato": "2026-09-05"
     },
@@ -745,6 +753,14 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano scelto (Standard, Deluxe o Premium)",
+        "nota": "Richiede un metodo di pagamento; il prezzo del primo anno dopo la prova è scontato, il rinnovo torna al prezzo pieno.",
+        "link": "https://it.norton.com/downloads",
+        "verificato": "2026-09-17"
+      },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://my.norton.com/",
       "verificato": "2026-09-06"
@@ -761,6 +777,14 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano scelto",
+        "nota": "Non esiste una versione gratuita permanente, solo la prova a tempo.",
+        "link": "https://www.mcafee.com/it-it/antivirus.html",
+        "verificato": "2026-09-17"
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://home.mcafee.com/",
@@ -779,6 +803,14 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "circa 47,50 €/anno (piano Total Security)",
+        "nota": "Non richiede un metodo di pagamento per iniziare la prova, a differenza di molti concorrenti.",
+        "link": "https://www.bitdefender.it/solutions/free-trial.html",
+        "verificato": "2026-09-17"
+      },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://central.bitdefender.com/",
       "verificato": "2026-09-06"
@@ -796,6 +828,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano scelto",
+        "link": "https://www.kaspersky.it/downloads",
+        "verificato": "2026-09-17"
+      },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://my.kaspersky.com/",
       "verificato": "2026-09-06"
@@ -812,6 +851,13 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano Premium Security scelto",
+        "link": "https://www.avast.com/it-it/premium-security",
+        "verificato": "2026-09-17"
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://my.avast.com/",
@@ -836,6 +882,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "59,99 €/anno primo anno per 10 dispositivi (34,99 €/anno un solo PC), piano Internet Security",
+        "link": "https://www.avg.com/it-it/internet-security",
+        "verificato": "2026-09-17"
+      },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://my.avg.com/",
       "verificato": "2026-09-06",
@@ -859,6 +912,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano scelto",
+        "link": "https://www.eset.com/it/home/",
+        "verificato": "2026-09-17"
+      },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://home.eset.com/",
       "verificato": "2026-09-06"
@@ -875,6 +935,14 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "il prezzo del piano Premium scelto",
+        "nota": "Solo su Windows; su altri sistemi vale la garanzia di rimborso di 60 giorni, non una prova vera.",
+        "link": "https://www.malwarebytes.com/pricing",
+        "verificato": "2026-09-17"
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://my.malwarebytes.com/",
@@ -970,6 +1038,14 @@
       },
       "studenti": {
         "disponibile": true
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "11,99 €/mese (piano Individuale)",
+        "nota": "La durata mostrata può variare secondo Google stessa; una sola prova per metodo di pagamento.",
+        "link": "https://music.youtube.com/music_premium",
+        "verificato": "2026-09-17"
       },
       "nota": "Incluso nell'abbonamento a YouTube Premium.",
       "link": "https://myaccount.google.com/subscriptions",
@@ -1205,6 +1281,13 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano Premium o Families scelto",
+        "link": "https://www.lastpass.com/it/pricing",
+        "verificato": "2026-09-17"
+      },
       "link": "https://lastpass.com/",
       "verificato": "2026-09-09"
     },
@@ -1229,6 +1312,14 @@
       "annuale": {
         "disponibile": true,
         "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "7 $/mese o 60 $/anno (piano Pro)",
+        "nota": "Una sola prova per account; il piano Business ha invece 14 giorni di prova.",
+        "link": "https://www.todoist.com/help/articles/start-a-todoist-pro-trial-LAVIT1Xm3",
+        "verificato": "2026-09-17"
       },
       "famiglia": {
         "disponibile": false
@@ -1356,6 +1447,14 @@
       "annuale": {
         "disponibile": true,
         "nota": "Esistono anche piani biennali e triennali, ancora più economici a parità di mese."
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 15,
+        "poi": "9 $/mese (backup illimitato)",
+        "nota": "Non richiede un metodo di pagamento per iniziare.",
+        "link": "https://www.backblaze.com/cloud-backup/personal/free-trial",
+        "verificato": "2026-09-17"
       },
       "famiglia": {
         "disponibile": false
@@ -1515,6 +1614,14 @@
         "disponibile": true,
         "persone": 6
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "6,99 €/mese",
+        "nota": "Chi ha acquistato di recente un iPhone, iPad, Mac o Apple TV può ottenere fino a 3 mesi gratuiti invece di 1, riscattabili entro 90 giorni dall'attivazione del dispositivo.",
+        "link": "https://www.apple.com/apple-arcade/",
+        "verificato": "2026-09-17"
+      },
       "studenti": {
         "disponibile": false
       },
@@ -1574,6 +1681,14 @@
         "disponibile": true,
         "nota": "Il piano pluriennale costa molto meno all'anno del mensile."
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano scelto (Gold, Platinum o Diamond)",
+        "nota": "Chi acquista per la prima volta ha anche una garanzia di rimborso di 30 giorni, separata dalla prova.",
+        "link": "https://www.chess.com/membership",
+        "verificato": "2026-09-17"
+      },
       "famiglia": {
         "disponibile": false
       },
@@ -1610,6 +1725,14 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano scelto",
+        "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
+        "link": "https://www.adobe.com/it/products/photoshop-lightroom/free-trial-download.html",
+        "verificato": "2026-09-17"
+      },
       "link": "https://account.adobe.com/plans",
       "verificato": "2026-09-09"
     },
@@ -1625,6 +1748,14 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano scelto",
+        "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
+        "link": "https://www.adobe.com/it/products/premiere/free-trial-download.html",
+        "verificato": "2026-09-17"
+      },
       "link": "https://account.adobe.com/plans",
       "verificato": "2026-09-09"
     },
@@ -1639,6 +1770,14 @@
       },
       "studenti": {
         "disponibile": true
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo del piano scelto",
+        "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
+        "link": "https://www.adobe.com/it/products/illustrator/free-trial-download.html",
+        "verificato": "2026-09-17"
       },
       "link": "https://account.adobe.com/plans",
       "verificato": "2026-09-09"
@@ -2543,6 +2682,14 @@
       },
       "studenti": {
         "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "9,99 €/mese o 89,99 €/anno (piano Unlimited)",
+        "nota": "Anche il piano Unlimited+ (due account) ha 14 giorni di prova.",
+        "link": "https://www.storytel.com/it/it/start-your-free-trial",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.storytel.com/it/it/",
       "verificato": "2026-09-09"
