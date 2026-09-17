@@ -277,14 +277,29 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 30,
-        "poi": "10,99 €/mese (piano Individuale)",
+        "poi": "11,99 €/mese (piano Individuale)",
         "nota": "Chi ha acquistato di recente un dispositivo o degli auricolari Apple idonei può ottenere fino a 3 mesi gratuiti invece di 1.",
         "link": "https://www.apple.com/apple-music/",
         "verificato": "2026-09-17"
       },
       "nota": "Dentro Apple One costa meno se usi anche iCloud+ e Apple TV+.",
       "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Studenti",
+          "prezzo": 6.99
+        },
+        {
+          "nome": "Individuale",
+          "prezzo": 11.99
+        },
+        {
+          "nome": "Famiglia",
+          "prezzo": 19.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-17"
     },
     {
       "servizio": "Apple TV+",
@@ -357,7 +372,30 @@
         "disponibile": false
       },
       "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "50GB",
+          "prezzo": 0.99
+        },
+        {
+          "nome": "200GB",
+          "prezzo": 2.99
+        },
+        {
+          "nome": "2TB",
+          "prezzo": 9.99
+        },
+        {
+          "nome": "6TB",
+          "prezzo": 29.99
+        },
+        {
+          "nome": "12TB",
+          "prezzo": 59.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-17"
     },
     {
       "servizio": "Google One",
@@ -401,13 +439,24 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 30,
-        "poi": "10,00 €/mese o 99,00 €/anno (piano Family)",
+        "poi": "10,00 €/mese o 99,00 €/anno (piano Personal); 13,00 €/mese o 129,00 €/anno (piano Family)",
         "nota": "Non disponibile per chi ha già avuto un abbonamento allo stesso piano.",
         "link": "https://www.microsoft.com/it-it/microsoft-365",
         "verificato": "2026-09-17"
       },
       "link": "https://account.microsoft.com/services",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Personal",
+          "prezzo": 10.0
+        },
+        {
+          "nome": "Family",
+          "prezzo": 13.0
+        }
+      ],
+      "opzioniVerificato": "2026-09-17"
     },
     {
       "servizio": "Dropbox",
@@ -526,7 +575,19 @@
         "disponibile": false
       },
       "link": "https://openai.com/chatgpt/pricing/",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Go",
+          "prezzo": 8.0
+        },
+        {
+          "nome": "Plus",
+          "prezzo": 23.0
+        }
+      ],
+      "opzioniVerificato": "2026-09-17",
+      "nota": "Prezzo in dollari (20$ per Plus) convertito in euro con IVA italiana inclusa; Go ha invece un listino fisso per l'Italia."
     },
     {
       "servizio": "Claude Pro",
@@ -586,7 +647,7 @@
       "servizio": "PlayStation Plus",
       "annuale": {
         "disponibile": true,
-        "nota": "L'annuale costa molto meno di dodici mensilita'."
+        "nota": "Molto meno del mensile; a differenza del mensile e del trimestrale, il prezzo dell'annuale non è aumentato a maggio 2026."
       },
       "famiglia": {
         "disponibile": false,
@@ -596,7 +657,22 @@
         "disponibile": false
       },
       "link": "https://library.playstation.com/recurring-billing/subscriptions/",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-05",
+      "opzioni": [
+        {
+          "nome": "Essential",
+          "prezzo": 9.99
+        },
+        {
+          "nome": "Extra",
+          "prezzo": 15.99
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 18.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-17"
     },
     {
       "servizio": "Xbox Game Pass",
