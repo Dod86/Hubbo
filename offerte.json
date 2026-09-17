@@ -160,6 +160,7 @@
         "giorni": 30,
         "poi": "15,99 €/mese (piano Individuale)",
         "nota": "La durata mostrata può variare secondo Google stessa; non è disponibile per chi ha già avuto Premium, YouTube Music Premium o Google Play Musica.",
+        "link": "https://www.youtube.com/premium",
         "verificato": "2026-09-17"
       },
       "link": "https://www.youtube.com/paid_memberships",
@@ -239,6 +240,7 @@
         "giorni": 30,
         "poi": "4,99 €/mese o 49,90 €/anno",
         "nota": "Richiede un metodo di pagamento; nessun addebito durante la prova, salvo disdetta prima della scadenza.",
+        "link": "https://www.amazon.it/amazonprime",
         "verificato": "2026-09-16"
       },
       "link": "https://www.amazon.it/gp/primecentral",
@@ -277,6 +279,7 @@
         "giorni": 30,
         "poi": "10,99 €/mese (piano Individuale)",
         "nota": "Chi ha acquistato di recente un dispositivo o degli auricolari Apple idonei può ottenere fino a 3 mesi gratuiti invece di 1.",
+        "link": "https://www.apple.com/apple-music/",
         "verificato": "2026-09-17"
       },
       "nota": "Dentro Apple One costa meno se usi anche iCloud+ e Apple TV+.",
@@ -302,6 +305,7 @@
         "giorni": 7,
         "poi": "9,99 €/mese",
         "nota": "Chi ha acquistato di recente un iPhone, iPad, Mac o Apple TV 4K può ottenere fino a 3 mesi gratuiti invece dei 7 giorni standard, riscattabili entro 90 giorni dall'attivazione del dispositivo.",
+        "link": "https://tv.apple.com/it",
         "verificato": "2026-09-17"
       },
       "link": "https://apps.apple.com/account/subscriptions",
@@ -342,6 +346,7 @@
         "giorni": 30,
         "poi": "1,99 €/mese (piano Base, 100 GB)",
         "nota": "Non cumulabile con altre offerte Google One; una sola prova alla volta.",
+        "link": "https://one.google.com/",
         "verificato": "2026-09-17"
       },
       "link": "https://myaccount.google.com/subscriptions",
@@ -366,6 +371,7 @@
         "giorni": 30,
         "poi": "10,00 €/mese o 99,00 €/anno (piano Family)",
         "nota": "Non disponibile per chi ha già avuto un abbonamento allo stesso piano.",
+        "link": "https://www.microsoft.com/it-it/microsoft-365",
         "verificato": "2026-09-17"
       },
       "link": "https://account.microsoft.com/services",
@@ -405,6 +411,7 @@
         "giorni": 7,
         "poi": "il prezzo del piano scelto",
         "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
+        "link": "https://www.adobe.com/it/creativecloud/free-trial-download.html",
         "verificato": "2026-09-17"
       },
       "link": "https://account.adobe.com/plans",
@@ -445,6 +452,7 @@
         "giorni": 30,
         "poi": "il prezzo del piano scelto (mensile o annuale)",
         "nota": "Utilizzabile una sola volta per account.",
+        "link": "https://www.canva.com/it_it/canva-pro/",
         "verificato": "2026-09-17"
       },
       "link": "https://www.canva.com/it_it/pricing/",
@@ -528,6 +536,7 @@
         "giorni": 7,
         "poi": "il prezzo del piano scelto",
         "nota": "Solo su app mobile (iOS/Android); sul resto vale la garanzia di rimborso di 30 giorni, non una prova vera e propria.",
+        "link": "https://surfshark.com/vpn-free-trial",
         "verificato": "2026-09-17"
       },
       "link": "https://my.surfshark.com/",
@@ -581,6 +590,7 @@
         "giorni": 7,
         "poi": "si rinnova come iscrizione individuale di 30 giorni (l'annuale costa 39,99 €)",
         "nota": "Una sola prova per account Nintendo; non utilizzabile se hai già un'iscrizione attiva.",
+        "link": "https://www.nintendo.com/it-it/Assistenza/Nintendo-Switch/Come-iscriversi-alla-prova-gratuita-di-Nintendo-Switch-Online-1434315.html",
         "verificato": "2026-09-17"
       },
       "studenti": {
@@ -607,6 +617,7 @@
         "giorni": 14,
         "poi": "il prezzo del piano scelto (mensile o annuale)",
         "nota": "14 giorni scegliendo un piano annuale, 7 giorni scegliendo il mensile.",
+        "link": "https://www.duolingo.com/premium",
         "verificato": "2026-09-17"
       },
       "link": "https://www.duolingo.com/settings/account",
@@ -645,6 +656,7 @@
         "giorni": 30,
         "poi": "9,99 €/mese",
         "nota": "60 giorni invece di 30 per chi ha già un abbonamento Amazon Prime attivo.",
+        "link": "https://www.audible.it/",
         "verificato": "2026-09-17"
       },
       "link": "https://www.audible.it/account",
@@ -667,6 +679,7 @@
         "giorni": 30,
         "poi": "9,99 €/mese",
         "nota": "90 giorni invece di 30 per chi ha già un abbonamento Amazon Prime attivo.",
+        "link": "https://www.amazon.it/kindle-dbs/hz/subscribe/ku",
         "verificato": "2026-09-17"
       },
       "link": "https://www.amazon.it/kucentral",
@@ -689,6 +702,7 @@
         "giorni": 7,
         "poi": "7,99 €/mese o 79,90 €/anno (piano Standard)",
         "nota": "Anche gli abbonati Amazon Prime possono attivare 7 giorni di prova tramite il canale Paramount+ su Prime Video.",
+        "link": "https://www.paramountplus.com/it/",
         "verificato": "2026-09-17"
       },
       "link": "https://www.paramountplus.com/account",
@@ -712,6 +726,7 @@
         "disponibile": true,
         "giorni": 7,
         "poi": "5,99 €/mese (piano Fan)",
+        "link": "https://www.crunchyroll.com/premium",
         "verificato": "2026-09-17"
       },
       "link": "https://www.crunchyroll.com/account/membership",
@@ -978,6 +993,7 @@
         "giorni": 30,
         "poi": "11,99 €/mese (piano Premium)",
         "nota": "Non disponibile per chi ha già avuto una prova o un abbonamento Deezer a pagamento.",
+        "link": "https://www.deezer.com/it/offers",
         "verificato": "2026-09-17"
       },
       "link": "https://www.deezer.com/it/offers",
@@ -1016,6 +1032,7 @@
         "giorni": 30,
         "poi": "il prezzo del piano scelto (Individuale, Famiglia o Premium)",
         "nota": "La prova copre solo i servizi Apple che non hai già provato o sottoscritto singolarmente: quelli già attivi restano al loro prezzo normale.",
+        "link": "https://www.apple.com/apple-one/",
         "verificato": "2026-09-17"
       },
       "nota": "Pacchetto: musica, video, iCloud+ e Arcade insieme, spesso conviene rispetto a prenderli separati.",
@@ -1038,6 +1055,7 @@
         "disponibile": true,
         "giorni": 7,
         "poi": "11,99 €/mese o 95,88 €/anno",
+        "link": "https://mubi.com/it/plans",
         "verificato": "2026-09-17"
       },
       "link": "https://mubi.com/it/plans",
@@ -1151,6 +1169,7 @@
         "disponibile": true,
         "giorni": 14,
         "poi": "3,99 $/mese piano Individuale o 5,99 $/mese piano Famiglie (prezzo mostrato in valuta locale al momento dell'attivazione)",
+        "link": "https://1password.com/it/pricing",
         "verificato": "2026-09-17"
       },
       "link": "https://my.1password.com/",
@@ -1311,6 +1330,7 @@
         "disponibile": true,
         "giorni": 7,
         "poi": "il prezzo del piano Pro scelto",
+        "link": "https://www.grammarly.com/plans",
         "verificato": "2026-09-17"
       },
       "link": "https://account.grammarly.com/subscription",
@@ -1986,6 +2006,7 @@
         "giorni": 30,
         "poi": "il prezzo del piano Premium scelto, mostrato solo al momento dell'attivazione (varia molto da piano a piano)",
         "nota": "Non sempre disponibile: LinkedIn la concede una sola volta per tipo di piano e secondo criteri propri, non garantita a ogni account.",
+        "link": "https://www.linkedin.com/premium/products/",
         "verificato": "2026-09-17"
       },
       "link": "https://www.linkedin.com/premium/products/",
@@ -2349,8 +2370,9 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 7,
-        "poi": "35 €/mese o 363 €/anno",
+        "poi": "59 $/mese o 399 $/anno (fatturato in dollari, non in euro)",
         "nota": "Garanzia soddisfatti o rimborsati di 14 giorni dopo l'attivazione.",
+        "link": "https://www.coursera.org/courseraplus",
         "verificato": "2026-09-17"
       },
       "link": "https://www.coursera.org/account/subscriptions",
@@ -2434,6 +2456,7 @@
         "disponibile": true,
         "giorni": 7,
         "poi": "42,99 €/anno (piano Premium)",
+        "link": "https://www.calm.com/pricing",
         "verificato": "2026-09-17"
       },
       "link": "https://www.calm.com/",
@@ -2457,6 +2480,7 @@
         "giorni": 14,
         "poi": "il prezzo del piano scelto",
         "nota": "14 giorni scegliendo il piano annuale (circa 4,84 €/mese equivalente), 7 giorni scegliendo il mensile (12,99 €/mese).",
+        "link": "https://www.headspace.com/subscriptions/pricing",
         "verificato": "2026-09-17"
       },
       "link": "https://www.headspace.com/",

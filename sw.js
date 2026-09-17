@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v204";
+const CACHE = "hubbo-v205";
 
 const CORE = [
   "./",
@@ -57,6 +57,12 @@ self.addEventListener("notificationclick", (event) => {
   const action = event.action ? "cancel" : "body";
   const reported = event.action || "";
   const data = event.notification.data || {};
+  // Le notifiche di offerta (scheda "Da tenere d'occhio") non hanno pulsanti:
+  // un tocco è sempre un tocco sul corpo. Portano l'utente all'offerta
+  // dentro l'app, non fuori — la stessa regola di "nessuna iscrizione
+  // automatica" vale anche per il tocco sulla notifica, non solo per il
+  // pulsante dentro l'app.
+  const isOffer = data.kind === "offer";
   event.notification.close();
 
   event.waitUntil(
@@ -69,7 +75,7 @@ self.addEventListener("notificationclick", (event) => {
       // does not, which is why it must never be asked to do this quietly.
       let opened = false;
       let failure = "";
-      if (action === "cancel" && data.cancelUrl && self.clients.openWindow) {
+      if (!isOffer && action === "cancel" && data.cancelUrl && self.clients.openWindow) {
         try {
           await self.clients.openWindow(data.cancelUrl);
           opened = true;
@@ -95,7 +101,10 @@ self.addEventListener("notificationclick", (event) => {
               // record even though nothing depends on it any more.
               reported,
               buttons,
-              id: data.id || "",
+              kind: isOffer ? "offer" : "sub",
+              id: isOffer ? "" : data.id || "",
+              offerId: isOffer ? data.offerId || "" : "",
+              servizio: isOffer ? data.servizio || "" : "",
               hasUrl: !!data.cancelUrl,
               opened,
               failure,
@@ -108,28 +117,24 @@ self.addEventListener("notificationclick", (event) => {
 
       for (const client of open) {
         if ("focus" in client) {
-          client.postMessage({
-            type: "hubbo-notification",
-            action,
-            id: data.id || null,
-            cancelUrl: data.cancelUrl || null,
-            // What the notification was actually carrying, as opposed to what
-            // the code that created it intended to put there.
-            buttons,
-            opened,
-          });
+          client.postMessage(
+            isOffer
+              ? { type: "hubbo-notification", kind: "offer", offerId: data.offerId || "", servizio: data.servizio || "" }
+              : { type: "hubbo-notification", kind: "sub", action, id: data.id || null, cancelUrl: data.cancelUrl || null, buttons, opened }
+          );
           if (opened) return;
           return client.focus();
         }
       }
       if (opened) return;
       // Nothing open: a fresh page has nobody listening yet, so both the button
-      // and the subscription travel in the address.
+      // and the subscription (or the offer) travel in the address.
       try {
         if (self.clients.openWindow) {
-          await self.clients.openWindow(
-            "./#notif=" + encodeURIComponent(action) + "&sub=" + encodeURIComponent(data.id || "")
-          );
+          const url = isOffer
+            ? "./#notifOffer=" + encodeURIComponent(data.offerId || "") + "&servizio=" + encodeURIComponent(data.servizio || "")
+            : "./#notif=" + encodeURIComponent(action) + "&sub=" + encodeURIComponent(data.id || "");
+          await self.clients.openWindow(url);
         }
       } catch {
         // Nothing left to try, and a worker that throws here takes the other
