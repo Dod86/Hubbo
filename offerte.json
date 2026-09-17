@@ -312,6 +312,38 @@
       "verificato": "2026-09-05"
     },
     {
+      "servizio": "HBO Max",
+      "annuale": {
+        "disponibile": false,
+        "nota": "Solo abbonamento mensile al lancio in Italia (gennaio 2026): nessun piano annuale."
+      },
+      "famiglia": {
+        "disponibile": false,
+        "nota": "Il piano Premium permette fino a 4 dispositivi insieme, ma non è un piano famiglia con profili separati come altri servizi."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Sbarcato in Italia il 13 gennaio 2026 (Warner Bros. Discovery), al posto di Discovery+: include contenuti HBO, Warner Bros., DC Universe, produzioni originali ed Eurosport. Pacchetto Sport aggiuntivo a 3 €/mese, su qualsiasi piano base.",
+      "link": "https://www.hbomax.com/it/it",
+      "verificato": "2026-09-17",
+      "opzioni": [
+        {
+          "nome": "Base con pubblicità",
+          "prezzo": 5.99
+        },
+        {
+          "nome": "Standard",
+          "prezzo": 11.99
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 16.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-17"
+    },
+    {
       "servizio": "iCloud",
       "annuale": {
         "disponibile": false
@@ -643,6 +675,14 @@
       },
       "studenti": {
         "disponibile": true
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "9,99 €/mese o 59,99 €/anno",
+        "nota": "Nessun obbligo di rinnovo al termine della prova.",
+        "link": "https://www.strava.com/subscribe",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.strava.com/settings",
       "verificato": "2026-09-10"
@@ -1163,6 +1203,14 @@
       "studenti": {
         "disponibile": true
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "9,99 €/mese",
+        "nota": "Il piano Go (senza catalogo completo) ha invece 7 giorni di prova, a 5,99 €/mese.",
+        "link": "https://checkout.soundcloud.com/go",
+        "verificato": "2026-09-17"
+      },
       "link": "https://soundcloud.com/subscribe",
       "verificato": "2026-09-09"
     },
@@ -1188,6 +1236,14 @@
         "disponibile": true,
         "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "il prezzo del piano Premium scelto",
+        "nota": "Non richiede carta di credito per iniziare.",
+        "link": "https://trello.com/it/free-trial",
+        "verificato": "2026-09-17"
+      },
       "famiglia": {
         "disponibile": false
       },
@@ -1202,6 +1258,14 @@
       "annuale": {
         "disponibile": true,
         "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "il prezzo del piano Premium scelto",
+        "nota": "Fino a 100 persone del team hanno accesso completo durante la prova.",
+        "link": "https://asana.com/it/better-with-asana",
+        "verificato": "2026-09-17"
       },
       "famiglia": {
         "disponibile": false
@@ -1794,6 +1858,14 @@
       "studenti": {
         "disponibile": false
       },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "11,99 €/mese o 109,99 €/anno",
+        "nota": "Richiede un metodo di pagamento valido per verificare l'idoneità, addebitato solo alla fine della prova.",
+        "link": "https://www.capcut.com/it-it/help/capcut-pro-free-trial",
+        "verificato": "2026-09-17"
+      },
       "link": "https://www.capcut.com/pricing",
       "verificato": "2026-09-09"
     },
@@ -1900,6 +1972,14 @@
       "studenti": {
         "disponibile": true,
         "nota": "Gratuito per studenti e istituti con email dell'ateneo."
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 15,
+        "poi": "il prezzo del piano scelto",
+        "nota": "La durata varia per prodotto: 15 giorni per AutoCAD, 30 per molti altri (es. Forma). Non estendibile una volta scaduta.",
+        "link": "https://www.autodesk.com/free-trials",
+        "verificato": "2026-09-17"
       },
       "link": "https://www.autodesk.it/pricing",
       "verificato": "2026-09-09"
