@@ -269,10 +269,12 @@
       },
       "famiglia": {
         "disponibile": true,
-        "persone": 6
+        "persone": 6,
+        "nome": "Famiglia"
       },
       "studenti": {
-        "disponibile": true
+        "disponibile": true,
+        "nome": "Studenti"
       },
       "provaGratuita": {
         "disponibile": true,
