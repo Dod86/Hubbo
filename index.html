@@ -196,7 +196,7 @@ const CATEGORY_PALETTE=[...CATEGORY_META.map(c=>c.color),"#6C8AE4","#5AA9E6","#5
 // refreshed from a rates API; offline they keep totals roughly meaningful.
 const RATES_TO_EUR={EUR:1,USD:0.92,GBP:1.17,CHF:1.06};function convertAmount(amount,from,to,liveRates){const table=liveRates||RATES_TO_EUR;const f=table[from]||RATES_TO_EUR[from]||1;const tRate=table[to]||RATES_TO_EUR[to]||1;return amount*f/tRate;}const LANGUAGES=[{code:"it",label:"Italiano"},{code:"en",label:"English"},{code:"es",label:"Español"},{code:"fr",label:"Français"},{code:"de",label:"Deutsch"}];const LOCALES={it:"it-IT",en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE"};// Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION="v222";const APP_BUILD_DATE="2026-09-18";// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
+const APP_VERSION="v223";const APP_BUILD_DATE="2026-09-18";// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
 // non un file dell'app, quindi va preso dalla rete per primo — la cache
 // eterna è esattamente l'errore già pagato con i tassi di cambio.
@@ -1443,26 +1443,37 @@ if(adPrice<monthly-0.01){planSaving=monthly-adPrice;hints.push({id:"ads",icon:"t
 // numero. Resta a zero invece di ricevere una stima inventata.
 saving:planSaving,hints:hints.slice(0,3),link:plan.link||"",checked:plan.verificato||"",note:plan.nota||""});});return out.sort((a,b)=>b.monthly-a.monthly);},[activeSubs,savingsPlansByService,savingsFileCurrency,todayISO,settings.currency,settings.language,rates]);const savingsDuplicates=useMemo(()=>{// Il prezzo migliore già disponibile per un abbonamento, se il suo
 // piano alternativo (savingsPlanHints, calcolato qui sopra) costa
-// meno di quanto costa oggi. Serve a stimare quanto costerebbe
-// DAVVERO tenerlo acceso durante il proprio turno di rotazione — non
-// il prezzo pieno di oggi, se un piano più economico dello stesso
-// servizio è già a disposizione.
-const bestPriceById=new Map();savingsPlanHints.forEach(h=>{if(h.saving>0.01)bestPriceById.set(h.sub.id,h.monthly-h.saving);});const bestPriceOf=item=>{const discounted=bestPriceById.get(item.sub.id);return discounted!=null?Math.min(discounted,item.monthly):item.monthly;};const byGroup=new Map();activeSubs.forEach(s=>{const group=savingsOverlapGroup(s);if(!group)return;const list=byGroup.get(group)||[];list.push(s);byGroup.set(group,list);});return Array.from(byGroup.entries()).filter(entry=>entry[1].length>=2).map(entry=>{const group=entry[0];const label=group==="video"?t.savingsGroupVideo:group==="music"?t.savingsGroupMusic:group==="antivirus"?t.savingsGroupAntivirus:group==="vpn"?t.savingsGroupVpn:(CATEGORIES.find(c=>c.id===group)||CATEGORIES[CATEGORIES.length-1]).label;const items=entry[1].map(s=>({sub:s,monthly:monthlyEquivalent(convertAmount(costOn(s,todayISO),s.currency||settings.currency,settings.currency,rates),s.frequency)})).sort((a,b)=>b.monthly-a.monthly);const monthly=items.reduce((sum,x)=>sum+x.monthly,0);const keepOne=SAVINGS_KEEP_ONE.has(group);// Il numero deve raccontare la stessa storia della frase che gli sta
-// sotto, non una in disaccordo con l'altra. Per antivirus e VPN
-// ("ne serve uno solo") ha senso tenere il più caro e lasciare gli
-// altri: sono la stessa cosa, uno vale l'altro, si tiene il migliore.
-// Per streaming, musica, gaming e AI la frase dice "a rotazione" — un
-// servizio alla volta, a turno — e "tenere solo il più caro per
-// sempre" non è quello: è smettere di ruotare. La stima coerente con
-// la rotazione è il costo medio di un servizio alla volta, non quello
-// del più caro fra tutti — e quel costo medio usa il prezzo migliore
-// di ciascun servizio (bestPriceOf), non sempre il prezzo pieno: chi
-// ruota può anche tenere ciascun servizio sul suo piano più
-// economico mentre è il suo turno. Le due cose si sommano davvero,
-// non si escludono — dubbio sollevato da Erny il 17 settembre, che
-// aveva ragione: quello che andava evitato non era la somma in sé,
-// ma sommare due stime che contavano lo stesso sconto due volte.
-const saving=keepOne?Math.max(0,monthly-bestPriceOf(items[0])):Math.max(0,monthly-items.reduce((sum,x)=>sum+bestPriceOf(x),0)/items.length);return{id:group,label,items,monthly,saving,keepOne,potential:true};}).sort((a,b)=>b.saving-a.saving);},[activeSubs,todayISO,settings.currency,settings.language,settings.categoryColors,rates,savingsPlanHints]);// Quanto un abbonamento è cambiato da quando è iniziato: nasce interamente
+// meno di quanto costa oggi. Non tocca il numero di QUESTA scheda —
+// vedi sotto — serve solo a calcolare \`combinedSaving\`, che il totale
+// in alto usa per contare anche questa leva.
+const bestPriceById=new Map();savingsPlanHints.forEach(h=>{if(h.saving>0.01)bestPriceById.set(h.sub.id,h.monthly-h.saving);});const bestPriceOf=item=>{const discounted=bestPriceById.get(item.sub.id);return discounted!=null?Math.min(discounted,item.monthly):item.monthly;};const byGroup=new Map();activeSubs.forEach(s=>{const group=savingsOverlapGroup(s);if(!group)return;const list=byGroup.get(group)||[];list.push(s);byGroup.set(group,list);});return Array.from(byGroup.entries()).filter(entry=>entry[1].length>=2).map(entry=>{const group=entry[0];const label=group==="video"?t.savingsGroupVideo:group==="music"?t.savingsGroupMusic:group==="antivirus"?t.savingsGroupAntivirus:group==="vpn"?t.savingsGroupVpn:(CATEGORIES.find(c=>c.id===group)||CATEGORIES[CATEGORIES.length-1]).label;const items=entry[1].map(s=>({sub:s,monthly:monthlyEquivalent(convertAmount(costOn(s,todayISO),s.currency||settings.currency,settings.currency,rates),s.frequency)})).sort((a,b)=>b.monthly-a.monthly);const monthly=items.reduce((sum,x)=>sum+x.monthly,0);const keepOne=SAVINGS_KEEP_ONE.has(group);// Il numero DI QUESTA SCHEDA deve raccontare la stessa storia della
+// frase che gli sta sotto, non una in disaccordo con l'altra — e
+// di certo non una terza cosa che non è né l'una né l'altra. Per
+// antivirus e VPN ("ne serve uno solo") ha senso tenere il più
+// caro e lasciare gli altri: sono la stessa cosa, uno vale
+// l'altro, si tiene il migliore. Per streaming, musica, gaming e
+// AI la frase dice "a rotazione" — un servizio alla volta, a
+// turno — e "tenere solo il più caro per sempre" non è quello: è
+// smettere di ruotare. La stima coerente con la rotazione è il
+// costo medio di un servizio alla volta, AL PREZZO DI OGGI di
+// ciascuno — non un prezzo scontato che presuppone anche di
+// cambiare piano, un'azione diversa che questa scheda non nomina
+// né mostra. Mostrato da Erny con uno screenshot il 18 settembre:
+// la scheda "Ne hai più di uno" (rotazione) riportava già scontati
+// i piani alternativi, senza dirlo da nessuna parte — chi la
+// leggeva non aveva modo di capire da dove venisse quel numero, né
+// di sapere quanto varrebbe la rotazione DA SOLA se preferisse
+// solo quella. Le due leve restano scelte indipendenti, ciascuna
+// con la propria scheda e il proprio numero onesto; il totale in
+// alto (savingsHeadline, tramite combinedSaving qui sotto) resta
+// l'unico posto dove contare entrambe insieme, perché è l'unico
+// che dichiara di essere un massimo raggiungibile, non il
+// risultato di un'unica azione.
+const saving=keepOne?Math.max(0,monthly-items[0].monthly):Math.max(0,monthly-monthly/items.length);// Uso interno del solo totale in alto (savingsHeadline): quanto si
+// risparmierebbe facendo ENTRAMBE le cose insieme, rotazione e
+// piano migliore per il servizio di turno. Mai mostrato su questa
+// scheda — per questo non è chiamato "saving".
+const combinedSaving=keepOne?Math.max(0,monthly-bestPriceOf(items[0])):Math.max(0,monthly-items.reduce((sum,x)=>sum+bestPriceOf(x),0)/items.length);return{id:group,label,items,monthly,saving,combinedSaving,keepOne,potential:true};}).sort((a,b)=>b.saving-a.saving);},[activeSubs,todayISO,settings.currency,settings.language,settings.categoryColors,rates,savingsPlanHints]);// Quanto un abbonamento è cambiato da quando è iniziato: nasce interamente
 // dallo storico prezzi che l'app registra già da sola (lo stesso usato nel
 // dettaglio dell'abbonamento), non da un file da mantenere. Vero al cento
 // per cento perché è quello che l'utente ha davvero pagato, e non
@@ -1483,8 +1494,11 @@ const points=settled.map(p=>convertAmount(p.cost,p.currency||s.currency,settings
 // abbonamento come unico "servizio" coperto — così la stessa regola di
 // sovrapposizione che sceglie fra rotazione e opportunità combinate evita
 // anche di sommarlo alla rotazione dello stesso servizio, invece di
-// aggiungere una regola a parte.
-const savingsHeadline=useMemo(()=>{const candidates=[...savingsOpportunities.map(o=>({...o,services:new Set(o.subs.map(s=>s.id))})),...savingsDuplicates.map(g=>({...g,services:new Set(g.items.map(x=>x.sub.id))})),...savingsPlanHints.filter(h=>h.saving>0.01).map(h=>({...h,subs:[h.sub],currentCost:h.monthly,services:new Set([h.sub.id])}))].sort((a,b)=>b.saving-a.saving);const used=new Set();const selected=[];candidates.forEach(c=>{const overlap=Array.from(c.services).some(id=>used.has(id));if(overlap)return;c.services.forEach(id=>used.add(id));selected.push(c);});return{amount:selected.reduce((sum,c)=>sum+c.saving,0),selected};},[savingsOpportunities,savingsDuplicates,savingsPlanHints]);const savingsCategoryTotals=useMemo(()=>{const map={};savingsHeadline.selected.forEach(item=>{const subs=item.subs||(item.items||[]).map(x=>x.sub);const totalCurrent=item.currentCost||item.monthly||0;subs.forEach(s=>{const m=monthlyEquivalent(convertAmount(costOn(s,todayISO),s.currency||settings.currency,settings.currency,rates),s.frequency);const share=totalCurrent>0?m/totalCurrent:0;map[s.category]=(map[s.category]||0)+item.saving*share;});});return CATEGORIES.map(c=>({...c,total:map[c.id]||0})).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);},[savingsHeadline,todayISO,settings.currency,settings.language,settings.categoryColors,rates]);const savingsOffers=useMemo(()=>{if(!offersFile||!Array.isArray(offersFile.offerte))return[];const mine=new Map();enriched.forEach(s=>{const key=normaliseServiceName(s.name);const previous=mine.get(key);// Fra due abbonamenti allo stesso servizio vince quello attivo: è il
+// aggiungere una regola a parte. La rotazione entra qui con
+// \`combinedSaving\` (rotazione + miglior piano per il servizio di turno),
+// non con \`saving\` (la rotazione da sola, quella che resta mostrata sulla
+// sua scheda) — solo il totale in alto conta entrambe le leve insieme.
+const savingsHeadline=useMemo(()=>{const candidates=[...savingsOpportunities.map(o=>({...o,services:new Set(o.subs.map(s=>s.id))})),...savingsDuplicates.map(g=>({...g,saving:g.combinedSaving,services:new Set(g.items.map(x=>x.sub.id))})),...savingsPlanHints.filter(h=>h.saving>0.01).map(h=>({...h,subs:[h.sub],currentCost:h.monthly,services:new Set([h.sub.id])}))].sort((a,b)=>b.saving-a.saving);const used=new Set();const selected=[];candidates.forEach(c=>{const overlap=Array.from(c.services).some(id=>used.has(id));if(overlap)return;c.services.forEach(id=>used.add(id));selected.push(c);});return{amount:selected.reduce((sum,c)=>sum+c.saving,0),selected};},[savingsOpportunities,savingsDuplicates,savingsPlanHints]);const savingsCategoryTotals=useMemo(()=>{const map={};savingsHeadline.selected.forEach(item=>{const subs=item.subs||(item.items||[]).map(x=>x.sub);const totalCurrent=item.currentCost||item.monthly||0;subs.forEach(s=>{const m=monthlyEquivalent(convertAmount(costOn(s,todayISO),s.currency||settings.currency,settings.currency,rates),s.frequency);const share=totalCurrent>0?m/totalCurrent:0;map[s.category]=(map[s.category]||0)+item.saving*share;});});return CATEGORIES.map(c=>({...c,total:map[c.id]||0})).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);},[savingsHeadline,todayISO,settings.currency,settings.language,settings.categoryColors,rates]);const savingsOffers=useMemo(()=>{if(!offersFile||!Array.isArray(offersFile.offerte))return[];const mine=new Map();enriched.forEach(s=>{const key=normaliseServiceName(s.name);const previous=mine.get(key);// Fra due abbonamenti allo stesso servizio vince quello attivo: è il
 // caso più severo, ed è quello che decide se l'offerta ti riguarda.
 // "Finito" vale sia per data di fine sia per pausa, stessa cosa dal
 // 10 settembre.
