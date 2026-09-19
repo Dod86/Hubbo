@@ -810,7 +810,7 @@
     }
   ],
   "schemaListino": {
-    "descrizione": "Varianti tariffarie verificate. Dalla v237 il modulo Nuovo abbonamento usa `listino` come fonte primaria, preservando frequenza, addebito e vincoli; `opzioni` resta il fallback mensile.",
+    "descrizione": "Varianti tariffarie verificate. Il modulo Nuovo abbonamento usa `listino` come fonte primaria solo quando frequenza e cadenza di addebito sono ricorrenti, esplicite e coerenti; voci a consumo o addebito variabile restano informative. `opzioni` resta il fallback mensile.",
     "campi": {
       "nome": "nome del piano/variante",
       "prezzo": "importo addebitato nella valuta del file",
@@ -1423,8 +1423,8 @@
     {
       "servizio": "Apple Music",
       "annuale": {
-        "disponibile": true,
-        "nota": "Si paga tutto in una volta."
+        "disponibile": false,
+        "nota": "La pagina italiana ufficiale corrente espone solo piani mensili; nessun annuale pubblico viene suggerito senza un prezzo/condizione ufficiale verificabile."
       },
       "famiglia": {
         "disponibile": true,
@@ -2564,8 +2564,8 @@
     {
       "servizio": "Amazon Prime Video",
       "annuale": {
-        "disponibile": true,
-        "nota": "Incluso in Amazon Prime: l'annuale costa meno di dodici mensilità."
+        "disponibile": false,
+        "nota": "Non viene equiparato all’annuale di Amazon Prime: Prime è un bundle distinto che include Prime Video. Nessun annuale standalone di Prime Video viene suggerito senza fonte ufficiale verificabile."
       },
       "famiglia": {
         "disponibile": false

@@ -422,7 +422,7 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v238";
+const APP_VERSION = "v239";
 const APP_BUILD_DATE = "2026-09-19";
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -445,7 +445,14 @@ const SERVICE_NAME_ALIASES = {
 };
 function normaliseServiceName(name) {
     const key = String(name || "").trim().toLowerCase();
-    return SERVICE_NAME_ALIASES[key] || key;
+    const exact = SERVICE_NAME_ALIASES[key];
+    if (exact)
+        return exact;
+    // I doppioni storici possono essere salvati come "Spotify 2", "DAZN 3",
+    // ecc. Il numero finale si ignora SOLO se la base è un nome/alias realmente
+    // registrato nel catalogo: così "Microsoft 365" non diventa "Microsoft".
+    const withoutDuplicateNumber = key.replace(/\\s+\\d+$/, "");
+    return SERVICE_NAME_ALIASES[withoutDuplicateNumber] || key;
 }
 // I rinomini non devono rendere introvabile un servizio: chi cerca il nome
 // vecchio ("Gemini Advanced", "Fitbit Premium", "Duolingo Plus") deve
@@ -494,7 +501,7 @@ function offerAudienceCodes(offer) {
 // disdetto), "exclienti" per uno terminato. "nuovi" non è mai il caso qui,
 // perché questa funzione si applica solo dove un abbonamento esiste già.
 function ownedSubAudience(sub) {
-    return sub.isEnded || sub.paused ? "exclienti" : "esistenti";
+    return sub.isEnded ? "exclienti" : "esistenti";
 }
 // Confronta il piano scelto nel modulo abbonamento (\`sub.plan\`) con il nome
 // di un piano del catalogo (es. \`plan.pubblicita.nome\`), per non riproporre
@@ -1210,6 +1217,22 @@ const COMMON_SERVICES = [
     { name: "Cattolica Assicurazioni", category: "assicurazioni", icon: null, domain: "cattolica.it" },
     { name: "HDI Assicurazioni", category: "assicurazioni", icon: null, domain: "hdiassicurazioni.it" },
 ];
+// Un'unica tabella di normalizzazione per dati nuovi e storici. Gli alias
+// dichiarati nelle singole voci di COMMON_SERVICES vengono registrati qui
+// verso il nome canonico: il motore Risparmio, le offerte e il modulo piani
+// riconoscono così anche nomi usati da versioni precedenti senza rinominare
+// forzatamente ciò che l'utente ha già salvato.
+COMMON_SERVICES.forEach((service) => {
+    const canonical = String(service.name || "").trim().toLowerCase();
+    if (!canonical)
+        return;
+    SERVICE_NAME_ALIASES[canonical] = canonical;
+    (service.aliases || []).forEach((alias) => {
+        const key = String(alias || "").trim().toLowerCase();
+        if (key && !SERVICE_NAME_ALIASES[key])
+            SERVICE_NAME_ALIASES[key] = canonical;
+    });
+});
 const STRINGS = {
     it: {
         appName: "Hubbo",
@@ -3413,13 +3436,18 @@ function catalogPlansForEntry(entry) {
     // Quando esiste \`listino\` è la fonte autorevole per il modulo: contiene la
     // cadenza vera e impedisce di usare come costo mensile un semplice
     // equivalente/mese nato solo per i confronti Risparmio (es. Amazon Prime).
-    const listino = Array.isArray(entry.listino)
+    const hasStructuredListino = Array.isArray(entry.listino);
+    const listino = hasStructuredListino
         ? entry.listino
             .filter((o) => {
             const frequencyId = catalogFrequencyId(o && o.frequenza);
+            const billingFrequencyId = catalogFrequencyId(o && o.addebito);
             const price = Number(o && o.prezzo);
-            const billing = String((o && o.addebito) || "").trim().toLowerCase();
-            return !!frequencyId && Number.isFinite(price) && price > 0 && billing !== "a consumo";
+            // Il calendario può rappresentare solo una cadenza di addebito
+            // esplicita e coerente con il periodo del prezzo. "variabile" e
+            // "a consumo" restano nel catalogo informativo, ma non diventano
+            // per errore un rinnovo mensile selezionabile nel modulo.
+            return !!frequencyId && billingFrequencyId === frequencyId && Number.isFinite(price) && price > 0;
         })
             .map((o) => ({
             nome: o.nome,
@@ -3432,6 +3460,12 @@ function catalogPlansForEntry(entry) {
         : [];
     if (listino.length > 0)
         return listino;
+    // Se una scheda è già migrata a \`listino\` ma nessuna riga è rappresentabile
+    // come rinnovo ricorrente (es. Mullvad: ricarica a durata variabile), NON si
+    // torna alle vecchie \`opzioni\`: farlo reintrodurrebbe proprio la cadenza
+    // inventata che il listino strutturato serve a evitare.
+    if (hasStructuredListino)
+        return null;
     // I vecchi \`opzioni\` non dichiarano la cadenza perché sono nati come prezzi
     // mensili per Risparmio. Restano il fallback per i servizi che non hanno
     // ancora il listino strutturato, così non perdiamo i selettori già esistenti.
@@ -3453,6 +3487,47 @@ function catalogPlansForEntry(entry) {
 // used to be divided by twelve inline in four separate spots.
 function monthlyEquivalent(amount, frequency) {
     return (amount * freqOf(frequency).perYear) / 12;
+}
+// Se più suggerimenti si sovrappongono, scegliere semplicemente il più grande
+// per primo non garantisce il massimo reale: due opportunità più piccole e
+// compatibili possono valere più di una singola opportunità che le blocca
+// entrambe. Questa ricerca esatta seleziona quindi il miglior insieme senza
+// usare due volte lo stesso abbonamento. Il numero di candidati è piccolo
+// (deriva dagli abbonamenti dell'utente), perciò il branch-and-bound resta
+// leggero e soprattutto evita headline gonfiate o sottostimate.
+function bestCompatibleSavings(candidates) {
+    const list = (Array.isArray(candidates) ? candidates : [])
+        .filter((c) => c && Number(c.saving) > 0.01 && c.services && typeof c.services.has === "function")
+        .slice()
+        .sort((a, b) => Number(b.saving) - Number(a.saving));
+    const suffix = new Array(list.length + 1).fill(0);
+    for (let i = list.length - 1; i >= 0; i--)
+        suffix[i] = suffix[i + 1] + Number(list[i].saving);
+    let bestAmount = 0;
+    let bestSelected = [];
+    function visit(index, used, amount, selected) {
+        if (amount + suffix[index] <= bestAmount + 0.000001)
+            return;
+        if (index >= list.length) {
+            if (amount > bestAmount + 0.000001) {
+                bestAmount = amount;
+                bestSelected = selected.slice();
+            }
+            return;
+        }
+        const candidate = list[index];
+        const overlaps = Array.from(candidate.services).some((id) => used.has(id));
+        if (!overlaps) {
+            const nextUsed = new Set(used);
+            candidate.services.forEach((id) => nextUsed.add(id));
+            selected.push(candidate);
+            visit(index + 1, nextUsed, amount + Number(candidate.saving), selected);
+            selected.pop();
+        }
+        visit(index + 1, used, amount, selected);
+    }
+    visit(0, new Set(), 0, []);
+    return { amount: bestAmount, selected: bestSelected };
 }
 function midnight(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -8088,17 +8163,8 @@ function HubboApp() {
             ...savingsPlanHints
                 .filter((h) => h.saving > 0.01)
                 .map((h) => ({ ...h, subs: [h.sub], currentCost: h.monthly, services: new Set([h.sub.id]) })),
-        ].sort((a, b) => b.saving - a.saving);
-        const used = new Set();
-        const selected = [];
-        candidates.forEach((c) => {
-            const overlap = Array.from(c.services).some((id) => used.has(id));
-            if (overlap)
-                return;
-            c.services.forEach((id) => used.add(id));
-            selected.push(c);
-        });
-        return { amount: selected.reduce((sum, c) => sum + c.saving, 0), selected };
+        ];
+        return bestCompatibleSavings(candidates);
     }, [savingsOpportunities, savingsDuplicates, savingsPlanHints]);
     const savingsCategoryTotals = useMemo(() => {
         const map = {};
@@ -8130,10 +8196,10 @@ function HubboApp() {
         enriched.forEach((s) => {
             const key = normaliseServiceName(s.name);
             const previous = mine.get(key);
-            // Fra due abbonamenti allo stesso servizio vince quello attivo: è il
-            // caso più severo, ed è quello che decide se l'offerta ti riguarda.
-            // "Finito" vale sia per data di fine sia per pausa, stessa cosa dal
-            // 10 settembre.
+            // Fra due abbonamenti allo stesso servizio preferiamo quello attivo
+            // rispetto a uno terminato o in pausa, perché è il record più utile
+            // per valutare l'offerta. Questa priorità NON cambia il pubblico:
+            // una pausa resta classificata come cliente esistente.
             const prevDone = previous && (previous.isEnded || previous.paused);
             const sDone = s.isEnded || s.paused;
             if (!previous || (prevDone && !sDone))
@@ -8145,11 +8211,10 @@ function HubboApp() {
             // Solo offerte che toccano qualcosa che hai davvero. Il resto è un
             // volantino, e un volantino non ha niente a che fare con la tua spesa.
             // A chi è rivolta l'offerta decide se ti riguarda: un abbonamento
-            // terminato o in pausa ti rende un ex cliente, non equivale a non
-            // essere mai stato cliente — un'offerta "solo nuovi clienti" non è
-            // per te in nessuno dei due casi. Stessa classificazione (e lo stesso
-            // \`offerAudienceCodes\`) già usata per mostrare a chi è rivolta
-            // ciascuna offerta.
+            // terminato è un ex cliente; una pausa resta invece un cliente
+            // esistente. Nessuno dei due è un nuovo cliente. Stessa classificazione
+            // (e lo stesso \`offerAudienceCodes\`) già usata per mostrare a chi è
+            // rivolta ciascuna offerta.
             .filter((x) => !!x.sub && offerAudienceCodes(x.offer).includes(ownedSubAudience(x.sub)))
             .sort((a, b) => (a.offer.scade < b.offer.scade ? -1 : 1));
     }, [offersFile, enriched, todayISO]);
