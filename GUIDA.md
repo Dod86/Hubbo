@@ -9,6 +9,7 @@ manifest.json       dice al telefono come installarla
 sw.js               fa funzionare l'app offline
 offerte.json        fallback locale del catalogo, legato alla release
 catalog/offerte.json catalogo remoto primario, aggiornabile senza release
+catalog/manifest.json versione/schema/hash del catalogo remoto
 icons/              l'icona che vedrai sulla schermata home
 ```
 
@@ -63,6 +64,7 @@ hubbo/
 ├── offerte.json
 ├── catalog/
 │   ├── offerte.json
+│   ├── manifest.json
 │   └── README.md
 ├── vendor/
 │   ├── react.production.min.js
@@ -142,53 +144,96 @@ barra del browser: indistinguibile da un'app normale.
 
 ---
 
-## Aggiornare il catalogo senza rilasciare l'app — Parti 8A/8B
+## Aggiornare il catalogo senza rilasciare l'app — Parti 8A/8B/8C/8D/8E
 
-Dalla v241 Hubbo pubblica il catalogo remoto con **due file coordinati**:
+Dalla v243 il catalogo remoto usa **snapshot immutabili**. Il file
+`catalog/offerte.json` resta la copia di lavoro, mentre l'app legge
+`catalog/manifest.json`, che punta a una cartella versionata sotto
+`catalog/versions/`.
 
-- **`catalog/offerte.json`** — dati commerciali veri e propri;
-- **`catalog/manifest.json`** — versione del catalogo, versione schema, data di
-  generazione, app minima, URL del JSON e SHA-256.
+Struttura corrente:
 
-Il file **`offerte.json` alla radice** resta invece il fallback locale della
-release. Va cambiato solo insieme a una nuova release dell'app, non durante la
-manutenzione settimanale ordinaria.
+- `catalog/offerte.json` — copia di lavoro per il prossimo aggiornamento;
+- `catalog/manifest.json` — puntatore live alla versione attiva;
+- `catalog/versions/v000001/offerte.json` — snapshot immutabile v1;
+- `catalog/versions/v000001/manifest.json` — manifest immutabile v1;
+- `offerte.json` alla radice — fallback locale della release app.
 
-La v241 legge prima l'ultima copia valida già salvata, poi prova il manifest
-remoto e usa il `catalogUrl` dichiarato al suo interno. In questa sola fase 8B,
-se il manifest non è raggiungibile, resta anche il ripiego diretto al catalogo
-remoto della v240. La verifica obbligatoria dello SHA-256 e delle compatibilità
-arriva in 8C.
+La catena sicura resta:
 
-### Aggiornamento commerciale ordinario
+1. scarica il manifest live;
+2. controlla schema e versione minima dell'app;
+3. scarica lo snapshot indicato dal manifest;
+4. valida JSON e schema;
+5. verifica lo SHA-256 sui byte ricevuti;
+6. salva il candidato in staging e lo rilegge;
+7. lo rende attivo solo dopo il salvataggio verificato.
 
-1. Modifica **solo** `catalog/offerte.json`;
-2. dalla radice del progetto esegui:
+### Nuovo aggiornamento commerciale
+
+1. modifica `catalog/offerte.json`;
+2. esegui dalla radice del progetto:
 
    ```bash
-   node build/generate-catalog-manifest.js
+   node build/publish-catalog-version.js
    ```
 
-   Il comando incrementa `catalogVersion`, aggiorna `generatedAt`, legge
-   `schemaVersion` dal catalogo e ricalcola lo SHA-256;
-3. verifica prima della pubblicazione:
+   Lo script crea automaticamente la versione successiva, ad esempio
+   `catalog/versions/v000002/`, e rifiuta di sovrascrivere cartelle già
+   pubblicate;
+3. verifica:
 
    ```bash
    node build/generate-catalog-manifest.js --check
+   node build/rollback-catalog.js --check
    node verifiche/checks-catalog-versioning.js
+   node verifiche/checks-catalog-rollback.js
    ```
 
-4. su GitHub carica **entrambi**:
-   - `catalog/offerte.json`;
-   - `catalog/manifest.json`.
+4. su GitHub carica **la nuova cartella versionata** e il nuovo
+   `catalog/manifest.json`.
 
-Per questo aggiornamento dati **non** cambiare `index.html`, `sw.js`, il numero
-di versione app o `offerte.json` alla radice, finché non cambia lo schema o la
-compatibilità minima richiesta.
+Per un normale aggiornamento dati non serve cambiare `index.html`, `sw.js`,
+versione app o `offerte.json` alla radice finché schema e compatibilità minima
+restano invariati.
 
-Il manifest iniziale della v241 usa `catalogVersion: 1`, `schemaVersion: 5` e
-`minAppVersion: v240`. `catalogVersion` è indipendente dalla versione Hubbo: può
-aumentare ogni settimana senza pubblicare una nuova app.
+### Audit settimanale prima di toccare il catalogo
+
+Dalla v244, dalla radice del progetto esegui:
+
+```bash
+node build/catalog-weekly-audit.js
+```
+
+Il comando controlla automaticamente struttura, duplicati, alias, categorie,
+prezzi, frequenze/addebiti, vincoli/rateizzazioni, promo e target, fonti/link,
+date di verifica, piani selezionabili, opportunità intelligenti e compatibilità
+con i vecchi snapshot. Confronta inoltre `catalog/offerte.json` con la versione
+attualmente live e crea un report in `audit/reports/`.
+
+Il report separa i **blocchi automatici** dalle sole voci che richiedono una
+verifica umana. I link vengono ricontrollati online e gli errori temporanei non
+vengono elevati subito: `audit/state.json` conserva gli esiti fra una settimana
+e l'altra. Per una prova senza rete: `node build/catalog-weekly-audit.js --offline`.
+
+La policy è configurabile in `audit/policy.json`; non modificare prezzi o
+condizioni per “far passare” l'audit: ogni dato commerciale va confermato sulla
+fonte ufficiale italiana.
+
+### Rollback
+
+Per tornare a una versione già pubblicata:
+
+```bash
+node build/rollback-catalog.js --catalog-version 1
+```
+
+Lo script riverifica integralmente lo snapshot scelto e aggiorna solo il
+manifest live. Per applicare il rollback online basta quindi caricare su GitHub
+**solo `catalog/manifest.json`**. Le versioni successive non vengono cancellate.
+
+La v243 parte con `catalogVersion: 1`, schema 5 e `minAppVersion: v240`. Il
+numero del catalogo è indipendente dalla versione Hubbo.
 
 Dentro il catalogo restano gli stessi elenchi e le stesse regole della v239:
 **piani**, **offerte** e **opportunita**. Nessun prezzo va inventato o convertito
