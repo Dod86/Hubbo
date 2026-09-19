@@ -422,7 +422,7 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v235";
+const APP_VERSION = "v237";
 const APP_BUILD_DATE = "2026-09-19";
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -1294,6 +1294,7 @@ const STRINGS = {
         customService: "Altro (scrivi tu)",
         plan: "Piano",
         choosePlan: "Scegli un piano...",
+        planCommitment: (n) => \`vincolo \${n} \${n === 1 ? "mese" : "mesi"}\`,
         customServiceName: "Nome dell'abbonamento",
         cost: "Costo",
         frequency: "Frequenza",
@@ -1579,6 +1580,7 @@ const STRINGS = {
         customService: "Other (type your own)",
         plan: "Plan",
         choosePlan: "Choose a plan...",
+        planCommitment: (n) => \`\${n}-month commitment\`,
         customServiceName: "Subscription name",
         cost: "Cost",
         frequency: "Frequency",
@@ -1864,6 +1866,7 @@ const STRINGS = {
         customService: "Otro (escríbelo tú)",
         plan: "Plan",
         choosePlan: "Elige un plan...",
+        planCommitment: (n) => \`permanencia de \${n} \${n === 1 ? "mes" : "meses"}\`,
         customServiceName: "Nombre de la suscripción",
         cost: "Coste",
         frequency: "Frecuencia",
@@ -2149,6 +2152,7 @@ const STRINGS = {
         customService: "Autre (à saisir)",
         plan: "Formule",
         choosePlan: "Choisissez une formule...",
+        planCommitment: (n) => \`engagement \${n} mois\`,
         customServiceName: "Nom de l'abonnement",
         cost: "Coût",
         frequency: "Fréquence",
@@ -2434,6 +2438,7 @@ const STRINGS = {
         customService: "Anderer (selbst eingeben)",
         plan: "Tarif",
         choosePlan: "Tarif auswählen...",
+        planCommitment: (n) => \`\${n} Monate Mindestlaufzeit\`,
         customServiceName: "Name des Abos",
         cost: "Kosten",
         frequency: "Häufigkeit",
@@ -3379,6 +3384,65 @@ const FREQUENCIES = [
 ];
 function freqOf(frequency) {
     return FREQUENCIES.find((f) => f.id === frequency) || FREQUENCIES[2];
+}
+// \`offerte.json\` usa etichette italiane per la cadenza del listino. Il modulo
+// invece salva gli ID interni qui sopra: questa mappa e il filtro sotto sono
+// l'unico ponte tra i due formati. Le voci a consumo/giornaliere non vengono
+// proposte come normali abbonamenti perché l'app non può rappresentarle senza
+// falsare calendario e spesa mensile.
+const CATALOG_FREQUENCY_IDS = Object.freeze({
+    settimanale: "weekly",
+    "ogni 2 settimane": "biweekly",
+    mensile: "monthly",
+    trimestrale: "quarterly",
+    semestrale: "semiannual",
+    annuale: "annual",
+    biennale: "biennial",
+});
+function catalogFrequencyId(value) {
+    return CATALOG_FREQUENCY_IDS[String(value || "").trim().toLowerCase()] || null;
+}
+function catalogPlansForEntry(entry) {
+    if (!entry)
+        return null;
+    // Quando esiste \`listino\` è la fonte autorevole per il modulo: contiene la
+    // cadenza vera e impedisce di usare come costo mensile un semplice
+    // equivalente/mese nato solo per i confronti Risparmio (es. Amazon Prime).
+    const listino = Array.isArray(entry.listino)
+        ? entry.listino
+            .filter((o) => {
+            const frequencyId = catalogFrequencyId(o && o.frequenza);
+            const price = Number(o && o.prezzo);
+            const billing = String((o && o.addebito) || "").trim().toLowerCase();
+            return !!frequencyId && Number.isFinite(price) && price > 0 && billing !== "a consumo";
+        })
+            .map((o) => ({
+            nome: o.nome,
+            prezzo: Number(o.prezzo),
+            frequencyId: catalogFrequencyId(o.frequenza),
+            vincoloMesi: Number(o.vincoloMesi) > 0 ? Number(o.vincoloMesi) : 0,
+            nota: o.nota || "",
+            source: "listino",
+        }))
+        : [];
+    if (listino.length > 0)
+        return listino;
+    // I vecchi \`opzioni\` non dichiarano la cadenza perché sono nati come prezzi
+    // mensili per Risparmio. Restano il fallback per i servizi che non hanno
+    // ancora il listino strutturato, così non perdiamo i selettori già esistenti.
+    const opzioni = Array.isArray(entry.opzioni)
+        ? entry.opzioni
+            .filter((o) => o && o.nome && Number.isFinite(Number(o.prezzo)) && Number(o.prezzo) > 0)
+            .map((o) => ({
+            nome: o.nome,
+            prezzo: Number(o.prezzo),
+            frequencyId: "monthly",
+            vincoloMesi: 0,
+            nota: "",
+            source: "opzioni",
+        }))
+        : [];
+    return opzioni.length > 0 ? opzioni : null;
 }
 // One charge expressed as a monthly amount, whatever the cadence. Yearly plans
 // used to be divided by twelve inline in four separate spots.
@@ -6333,11 +6397,11 @@ function HubboApp() {
             window.removeEventListener("focus", onVisible);
         };
     }, []);
-    // I piani noti per il servizio scelto nel modulo di inserimento, se ce ne
-    // sono più di uno — altrimenti non c'è scelta da offrire. Stessa fonte
-    // delle offerte (\`offerte.json\`, aggiornabile senza rilascio), stesso modo
-    // di far corrispondere il nome anche se scritto a mano invece che scelto
-    // dall'elenco (\`normaliseServiceName\`, la stessa usata per le offerte).
+    // Piani selezionabili nel modulo. Da v237 il modulo usa prima \`listino\`,
+    // perché è l'unica fonte che sa distinguere davvero 99 €/anno da 99 €/mese
+    // e i piani mensili con vincolo annuale; \`opzioni\` resta il fallback per le
+    // schede non ancora migrate. Anche un solo piano viene mostrato: se il dato
+    // esiste nel catalogo deve poter essere scelto, non restare nascosto.
     const servicePlans = useMemo(() => {
         if (!offersFile || !Array.isArray(offersFile.piani))
             return null;
@@ -6346,8 +6410,9 @@ function HubboApp() {
             return null;
         const key = normaliseServiceName(typedName);
         const entry = offersFile.piani.find((p) => p.servizio && normaliseServiceName(p.servizio) === key);
-        return entry && Array.isArray(entry.opzioni) && entry.opzioni.length > 1 ? entry.opzioni : null;
+        return catalogPlansForEntry(entry);
     }, [offersFile, form.name, form.customName]);
+    const selectedServicePlan = useMemo(() => (servicePlans && form.plan ? servicePlans.find((o) => o.nome === form.plan) || null : null), [servicePlans, form.plan]);
     // "Abbonamento già terminato" non è più un interruttore da toccare a
     // parte: si deduce da sé se la data di fine scritta è già passata. Un
     // dato che si può dedurre non merita un secondo posto dove ripeterlo —
@@ -9360,7 +9425,11 @@ function HubboApp() {
                             React.createElement("button", { type: "button", onClick: () => setOptionPicker({
                                     title: t.plan,
                                     value: form.plan,
-                                    options: servicePlans.map((o) => ({ value: o.nome, label: \`\${o.nome} · \${money(o.prezzo, offersFile.valuta || "EUR")}\` })),
+                                    options: servicePlans.map((o) => ({
+                                        value: o.nome,
+                                        label: o.nome,
+                                        detail: \`\${money(o.prezzo, offersFile.valuta || "EUR")}\${t.freqShort[o.frequencyId] || ""}\${o.vincoloMesi ? \` · \${t.planCommitment(o.vincoloMesi)}\` : ""}\`,
+                                    })),
                                     onSelect: (v) => {
                                         const chosen = servicePlans.find((o) => o.nome === v);
                                         if (!chosen)
@@ -9370,11 +9439,23 @@ function HubboApp() {
                                             plan: chosen.nome,
                                             cost: String(chosen.prezzo).replace(".", ","),
                                             currency: offersFile.valuta || f.currency,
+                                            frequency: chosen.frequencyId || f.frequency,
                                         }));
                                     },
-                                }), style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: form.plan ? colors.textPrimary : colors.textFaint }, className: "w-full rounded-xl px-3.5 py-2.5 text-sm mb-3.5 text-left flex items-center justify-between" },
-                                form.plan || t.choosePlan,
-                                React.createElement("span", { style: { color: colors.textFaint, fontSize: 10 } }, "\\u25BE")))),
+                                }), style: {
+                                    background: colors.surface2,
+                                    border: \`1px solid \${colors.border}\`,
+                                    color: form.plan ? colors.textPrimary : colors.textFaint,
+                                    marginBottom: selectedServicePlan ? 6 : 14,
+                                }, className: "w-full rounded-xl px-3.5 py-2.5 text-sm text-left flex items-center justify-between gap-2" },
+                                React.createElement("span", { className: "truncate" }, form.plan || t.choosePlan),
+                                React.createElement("span", { style: { color: colors.textFaint, fontSize: 10 }, className: "flex-shrink-0" }, "\\u25BE")),
+                            selectedServicePlan && (React.createElement("div", { className: "px-1 mb-3.5" },
+                                React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" },
+                                    money(selectedServicePlan.prezzo, offersFile.valuta || form.currency || "EUR"),
+                                    t.freqShort[selectedServicePlan.frequencyId] || "",
+                                    selectedServicePlan.vincoloMesi ? \` · \${t.planCommitment(selectedServicePlan.vincoloMesi)}\` : ""),
+                                selectedServicePlan.nota && (React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed mt-0.5" }, selectedServicePlan.nota)))))),
                         React.createElement("div", { "data-tour": "formCost", className: "flex items-start gap-2 mb-3.5" },
                             React.createElement("div", { className: "flex-1 min-w-0" },
                                 React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, form.isShared ? t.totalCostLabel : t.cost),
@@ -9831,8 +9912,10 @@ function HubboApp() {
                             border: \`1px solid \${active ? ACCENT.terracotta : colors.border}\`,
                         }, className: "rounded-xl px-3.5 py-3 text-sm font-medium flex items-center gap-2.5 text-left" },
                         o.logo ? (React.createElement(ServiceLogo, { icon: serviceIcon(o.logo), domain: serviceDomain(o.logo), category: o.logoCategory, letter: String(o.label).charAt(0).toUpperCase(), serviceName: o.logo || o.label, color: o.color || colors.textSecondary, size: 26 })) : o.color ? (React.createElement("span", { style: { background: o.color, width: 10, height: 10, borderRadius: 999 }, className: "flex-shrink-0" })) : null,
-                        React.createElement("span", { className: "flex-1 truncate" }, o.label),
-                        active && React.createElement("span", { style: { fontSize: 13 } }, "\\u2713")));
+                        React.createElement("span", { className: "flex-1 min-w-0" },
+                            React.createElement("span", { className: "block truncate" }, o.label),
+                            o.detail && (React.createElement("span", { style: { opacity: 0.72 }, className: "block text-xs font-normal truncate mt-0.5" }, o.detail))),
+                        active && React.createElement("span", { style: { fontSize: 13 }, className: "flex-shrink-0" }, "\\u2713")));
                 })),
                 optionPicker.multi && (() => {
                     const [multiValues, multiSetter] = optionPicker.multiKey === "historyCats" ? [historyCats, setHistoryCats] : [filterCategories, setFilterCategories];

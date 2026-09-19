@@ -1,16 +1,19 @@
 {
-  "versione": 3,
+  "versione": 4,
   "aggiornato": "2026-09-19",
   "paese": "IT",
   "valuta": "EUR",
-  "note": "Catalogo prezzi Hubbo Italia. Schema v3: `opzioni` contiene solo prezzi mensili direttamente utilizzabili dal form senza conversioni; `listino` separa annuali, impegni, rinnovi, B2B e tariffe a consumo. Parte 4 (v235): telefonia, Internet e mobilità, con offerte temporanee/target rinviate alla Parte 5.",
+  "note": "Catalogo prezzi Hubbo Italia. Schema v4: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano dalla v237; `opzioni` resta il fallback mensile per le schede non ancora migrate e per i confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica e requisiti verificabili. Parte 5B (v237): il modulo preserva la cadenza reale e non trasforma annuali o tariffe a consumo in normali prezzi mensili.",
   "offerte": [
     {
       "id": "spotify-2026-tre-mesi-gratis",
       "servizio": "Spotify",
       "titolo": "Tre mesi a 0 €",
-      "dettaglio": "Poi 11,99 € al mese. Vale solo per chi non ha mai avuto Premium.",
-      "provaGiorni": 90,
+      "dettaglio": "Premium Individual gratis per 3 mesi; poi 11,99 €/mese. Solo per chi non ha mai avuto Premium.",
+      "tipo": "prova",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 3,
       "prezzoSuccessivo": 11.99,
       "frequenzaSuccessiva": "monthly",
       "destinatari": [
@@ -18,11 +21,505 @@
       ],
       "scade": "2026-09-23",
       "soloNuoviClienti": true,
+      "requisiti": [
+        "Mai avuto Spotify Premium",
+        "Pagamento diretto a Spotify con metodo idoneo"
+      ],
       "territorio": "IT",
       "valuta": "EUR",
       "link": "https://www.spotify.com/it/premium/",
       "fonte": "spotify.com",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "now-entertainment-499-12m-2026",
+      "servizio": "Now",
+      "titolo": "Entertainment a 4,99 €/mese",
+      "dettaglio": "4,99 €/mese per 12 mesi con vincolo; poi listino, oggi 8,99 €/mese. Riservata ai nuovi clienti NOW.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 4.99,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 8.99,
+      "frequenzaSuccessiva": "monthly",
+      "vincoloMesi": 12,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo cliente NOW",
+        "Vincolo di durata 12 mesi"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.nowtv.it/offerta-now",
+      "fonte": "nowtv.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "now-cinema-entertainment-799-12m-2026",
+      "servizio": "Now",
+      "titolo": "Cinema + Entertainment a 7,99 €/mese",
+      "dettaglio": "7,99 €/mese per 12 mesi con vincolo; poi listino, oggi 11,99 €/mese. Riservata ai nuovi clienti NOW.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 7.99,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 11.99,
+      "frequenzaSuccessiva": "monthly",
+      "vincoloMesi": 12,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo cliente NOW",
+        "Vincolo di durata 12 mesi"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.nowtv.it/offerta-now",
+      "fonte": "nowtv.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "now-sport-1999-12m-2026",
+      "servizio": "Now",
+      "titolo": "Sport a 19,99 €/mese",
+      "dettaglio": "19,99 €/mese per 12 mesi con vincolo; poi listino, oggi 29,99 €/mese. Riservata ai nuovi clienti NOW.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 19.99,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 29.99,
+      "frequenzaSuccessiva": "monthly",
+      "vincoloMesi": 12,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo cliente NOW",
+        "Vincolo di durata 12 mesi"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.nowtv.it/offerta-now",
+      "fonte": "nowtv.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "now-cinema-entertainment-sport-2799-12m-2026",
+      "servizio": "Now",
+      "titolo": "Cinema + Entertainment + Sport a 27,99 €/mese",
+      "dettaglio": "27,99 €/mese per 12 mesi con vincolo; poi listino, oggi 41,99 €/mese. Riservata ai nuovi clienti NOW.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 27.99,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 41.99,
+      "frequenzaSuccessiva": "monthly",
+      "vincoloMesi": 12,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo cliente NOW",
+        "Vincolo di durata 12 mesi"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.nowtv.it/offerta-now",
+      "fonte": "nowtv.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "sky-prova-30-giorni-9-2026",
+      "servizio": "Sky",
+      "titolo": "Prova Sky: 30 giorni a 9 €",
+      "dettaglio": "30 giorni di Sky e Netflix a 9 € una tantum, senza rinnovo automatico. Nuovi clienti; ex clienti solo se cessati da almeno 18 mesi.",
+      "tipo": "prova",
+      "prezzoPromozionale": 9.0,
+      "frequenzaPromozionale": "una_tantum",
+      "durataPromozionaleGiorni": 30,
+      "rinnovoAutomatico": false,
+      "destinatari": [
+        "nuovi",
+        "exclienti"
+      ],
+      "scade": "2026-09-30",
+      "requisiti": [
+        "Nuovo cliente Sky TV o ex cliente cessato da almeno 18 mesi",
+        "Non aver già usato Prova Sky",
+        "Pagamento con carta di credito non prepagata"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.sky.it/offerte/prova-sky",
+      "fonte": "sky.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "sky-tv-sport-2499-18m-2026",
+      "servizio": "Sky",
+      "titolo": "Sky TV + Sport a 24,99 €/mese",
+      "dettaglio": "24,99 €/mese per 18 mesi invece di 51,90 €; profilo Sky Smart. Attivazione Sky Stream 19 € una tantum.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 24.99,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 18,
+      "prezzoListinoRiferimento": 51.9,
+      "vincoloMesi": 18,
+      "costoAttivazione": 19.0,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-20",
+      "requisiti": [
+        "Sky Stream con profilo Sky Smart",
+        "Permanenza minima 18 mesi"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.sky.it/offerte/sky-sport-sky-calcio-insieme",
+      "fonte": "sky.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "sky-tv-sport-calcio-2999-18m-2026",
+      "servizio": "Sky",
+      "titolo": "Sky TV + Sport + Calcio a 29,99 €/mese",
+      "dettaglio": "29,99 €/mese per 18 mesi invece di 59,90 €; profilo Sky Smart. Il prezzo dopo il vincolo non viene fissato da Hubbo: Sky comunica il rinnovo alla scadenza.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 29.99,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 18,
+      "prezzoListinoRiferimento": 59.9,
+      "vincoloMesi": 18,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-20",
+      "requisiti": [
+        "Sky Stream con profilo Sky Smart",
+        "Permanenza minima 18 mesi"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.sky.it/offerte/sky-sport-sky-calcio-insieme",
+      "fonte": "sky.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-tv-plus-device-3-mesi-2026",
+      "servizio": "Apple TV+",
+      "titolo": "3 mesi gratis con un dispositivo idoneo",
+      "dettaglio": "3 mesi gratis per la prima sottoscrizione con acquisto di un dispositivo idoneo; poi 9,99 €/mese. Da attivare entro 3 mesi dalla configurazione.",
+      "tipo": "prova",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 3,
+      "prezzoSuccessivo": 9.99,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo iPhone, iPad, Apple TV o Mac idoneo",
+        "Prima sottoscrizione al servizio",
+        "Attivazione entro 3 mesi dalla configurazione del dispositivo"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.apple.com/it/promo/pdf/IT_ATV%2B_Promo_TandCs.pdf",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-music-device-3-mesi-2026",
+      "servizio": "Apple Music",
+      "titolo": "3 mesi gratis con un dispositivo idoneo",
+      "dettaglio": "3 mesi gratis per la prima sottoscrizione con acquisto di un dispositivo idoneo; poi 11,99 €/mese. Da attivare entro 3 mesi dalla configurazione.",
+      "tipo": "prova",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 3,
+      "prezzoSuccessivo": 11.99,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo dispositivo Apple/Beats idoneo",
+        "Prima sottoscrizione al servizio",
+        "Attivazione entro 3 mesi dalla configurazione del dispositivo"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.apple.com/it/promo/pdf/IT_IT_Apple_Music_Promo_Terms_3_month_PDF.pdf",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-arcade-device-3-mesi-2026",
+      "servizio": "Apple Arcade",
+      "titolo": "3 mesi gratis con un dispositivo idoneo",
+      "dettaglio": "3 mesi gratis per la prima sottoscrizione con acquisto di un dispositivo idoneo; poi 6,99 €/mese. Da attivare entro 3 mesi dalla configurazione.",
+      "tipo": "prova",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 3,
+      "prezzoSuccessivo": 6.99,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo iPhone, iPad, Apple TV o Mac idoneo",
+        "Prima sottoscrizione al servizio",
+        "Attivazione entro 3 mesi dalla configurazione del dispositivo"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.apple.com/it/promo/pdf/IT_IT_Arcade_Promo_TandCs_PDF.pdf",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-fitness-plus-device-3-mesi-2026",
+      "servizio": "Apple Fitness+",
+      "titolo": "3 mesi gratis con un dispositivo idoneo",
+      "dettaglio": "3 mesi gratis per la prima sottoscrizione con acquisto di un dispositivo idoneo; poi 9,99 €/mese. Da attivare entro 3 mesi dalla configurazione.",
+      "tipo": "prova",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 3,
+      "prezzoSuccessivo": 9.99,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo dispositivo Apple idoneo",
+        "Prima sottoscrizione al servizio",
+        "Attivazione entro 3 mesi dalla configurazione del dispositivo"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.apple.com/it/promo/pdf/IT_IT_Fitness_Plus_Promo_TandCs.pdf",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "telepass-sempre-autunno200-2026",
+      "servizio": "Telepass",
+      "titolo": "Telepass Sempre: 1 anno gratis + 200 € cashback",
+      "dettaglio": "Per nuovi clienti: 12 mesi di canone gratis, poi 4,90 €/mese. Con codice AUTUNNO200 fino a 150 € cashback carburante/ricarica e 50 € pedaggi.",
+      "tipo": "bonus",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 4.9,
+      "frequenzaSuccessiva": "monthly",
+      "valoreBonusMassimo": 200.0,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-24",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo cliente Telepass",
+        "Codice AUTUNNO200 in app",
+        "Cashback soggetto a soglie e massimali mensili"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.telepass.com/it/privati/offerte/sempre",
+      "fonte": "telepass.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "telepass-pay-x-6-mesi-gratis-2026",
+      "servizio": "Telepass",
+      "titolo": "Telepass Pay X: 6 mesi gratis",
+      "dettaglio": "Servizi Telepass gratis 6 mesi; conto e carta BNL gratis 12 mesi. Mesi 7–12: 3,90 €/mese; poi totale 7,30 €/mese salvo azzeramento del canone BNL.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 6,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "fasi": [
+        {
+          "daMese": 1,
+          "aMese": 6,
+          "prezzo": 0.0,
+          "nota": "Contratti Telepass + Pay X gratuiti; conto/carta BNL gratuiti."
+        },
+        {
+          "daMese": 7,
+          "aMese": 12,
+          "prezzo": 3.9,
+          "nota": "Servizi Telepass; conto/carta BNL ancora gratuiti."
+        },
+        {
+          "daMese": 13,
+          "prezzo": 7.3,
+          "nota": "Totale ordinario indicato; il canone BNL può essere azzerato se ricorrono le condizioni."
+        }
+      ],
+      "requisiti": [
+        "Nuovo cliente",
+        "Sottoscrizione Telepass Family + Telepass Pay X",
+        "Apertura conto BNL e carta prepagata Mastercard"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.telepass.com/it/privati/offerte/telepass-pay-x",
+      "fonte": "telepass.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "unipolmove-base-1-anno-gratis-2026",
+      "servizio": "UnipolMove",
+      "titolo": "UnipolMove Base: 1 anno gratis",
+      "dettaglio": "12 mesi di canone gratis; poi 2,50 €/mese per il primo dispositivo e 0 € per il secondo. Attivazione e consegna in Italia gratuite.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 2.5,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-10-19",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Nuovo cliente privato",
+        "Ex clienti esclusi"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.unipolmove.it/promo/",
+      "fonte": "unipolmove.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "unipolmove-europeo-1-anno-gratis-2026",
+      "servizio": "UnipolMove",
+      "titolo": "UnipolMove Europeo: 1 anno gratis",
+      "dettaglio": "12 mesi gratis; poi 2,90 €/mese per il primo dispositivo e 1 €/mese per l’eventuale secondo. Già cliente? Il passaggio va richiesto tramite assistenza/agenzia.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 2.9,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi",
+        "esistenti"
+      ],
+      "scade": "2026-09-30",
+      "requisiti": [
+        "Cliente privato con veicolo leggero a uso personale",
+        "Per clienti già attivi: contattare assistenza o agenzia per il passaggio"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.unipolmove.it/piani/privati/europeo/",
+      "fonte": "unipolmove.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "iliad-top230-999-finestra-2026",
+      "servizio": "Iliad Mobile",
+      "titolo": "TOP 230 a 9,99 €/mese",
+      "dettaglio": "230 GB in 4G/5G, minuti e SMS illimitati e 18 GB extra in UE. Attivazione SIM 9,99 €. La finestra di sottoscrizione termina il 29/10/2026.",
+      "tipo": "finestra_attivazione",
+      "prezzoPromozionale": 9.99,
+      "frequenzaPromozionale": "mensile",
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-10-29",
+      "costoAttivazione": 9.99,
+      "requisiti": [
+        "Nuova attivazione dell’offerta entro la scadenza pubblicata"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.iliad.it/offerta-iliad-top230-999.html",
+      "fonte": "iliad.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "ho-tantiamici-extra-ricarica-settembre-2026",
+      "servizio": "ho. Mobile",
+      "titolo": "ho. Tanti amici: 15 € di ricarica all’invitato",
+      "dettaglio": "Con invito ho. e portabilità: 10 € extra + 5 € previsti dall’iniziativa, per un totale di 15 € dopo il primo rinnovo. Anche l’invitante riceve 15 €.",
+      "tipo": "bonus",
+      "valoreBonus": 15.0,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-30",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Invito ho. Tanti amici",
+        "Nuova SIM/eSIM",
+        "Portabilità del numero",
+        "Primo rinnovo effettuato"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://supporto.ho-mobile.it/entro-in-ho/regolamenti",
+      "fonte": "ho-mobile.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "tim-wifi-casa-fisso-mobile-2490-2026",
+      "servizio": "TIM WiFi Casa",
+      "titolo": "TIM WiFi Casa a 24,90 €/mese con fisso + mobile",
+      "dettaglio": "Per nuovo impianto/passaggio a TIM, online con domiciliazione e mobile TIM: 24,90 €/mese invece di 31,90 €. Durata 24 mesi; modem/attivazione hanno condizioni rateali dedicate.",
+      "tipo": "sconto",
+      "prezzoPromozionale": 24.9,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 24,
+      "prezzoListinoRiferimento": 31.9,
+      "vincoloMesi": 24,
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-09-26",
+      "requisiti": [
+        "Nuovo impianto o passaggio a TIM Fisso",
+        "Attivazione online",
+        "Domiciliazione bancaria",
+        "Condizione fisso + mobile TIM"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.tim.it/fisso-e-mobile/fibra-e-adsl/fibra-mobile",
+      "fonte": "tim.it",
+      "verificato": "2026-09-19"
     }
   ],
   "piani": [
@@ -5714,6 +6211,21 @@
       "addebito": "cadenza effettiva dell’addebito (mensile/annuale)",
       "vincoloMesi": "durata minima quando presente",
       "nota": "limitazioni o disponibilità rilevanti"
+    }
+  },
+  "schemaPromozioni": {
+    "descrizione": "Promozioni a tempo verificate su fonti ufficiali. Devono avere sempre `scade`; se una promo non ha una scadenza pubblica non entra qui, per evitare che Hubbo mostri condizioni obsolete.",
+    "campi": {
+      "tipo": "prova | sconto | bonus | finestra_attivazione",
+      "prezzoPromozionale": "importo durante la fase promozionale, quando applicabile",
+      "frequenzaPromozionale": "mensile | annuale | una_tantum",
+      "durataPromozionaleMesi": "durata del beneficio; distinta dalla scadenza per aderire",
+      "prezzoSuccessivo": "prezzo noto dopo la fase promo; omesso se non determinabile con certezza",
+      "vincoloMesi": "permanenza minima quando prevista",
+      "destinatari": "nuovi | esistenti | exclienti",
+      "requisiti": "condizioni di idoneità che la UI deve poter mostrare/auditare",
+      "scade": "ultimo giorno noto per aderire alla promozione",
+      "verificato": "data dell’ultima verifica reale sulla fonte ufficiale"
     }
   }
 }
