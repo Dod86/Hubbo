@@ -422,15 +422,14 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v242";
+const APP_VERSION = "v243";
 const APP_BUILD_DATE = "2026-09-19";
-// Parte 8A/8B/8C — dati commerciali separati dall'app. Da v242 il manifest è
-// obbligatorio per ogni aggiornamento remoto: nessun catalogo scaricato viene
-// attivato se schema, versione minima dell'app o SHA-256 non coincidono.
-// \`./offerte.json\` resta la fotografia locale fidata della release e garantisce
-// il primo avvio/offline quando non esiste ancora una copia remota verificata.
+// Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
+// live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
+// rollback basta ripuntare il manifest a una versione già pubblicata. La catena
+// sicura 8C resta invariata: schema, app minima e SHA-256 devono coincidere prima
+// di salvare e attivare. \`./offerte.json\` resta il fallback locale della release.
 const REMOTE_CATALOG_MANIFEST_URL = "https://dod86.github.io/Hubbo/catalog/manifest.json";
-const REMOTE_CATALOG_URL = "https://dod86.github.io/Hubbo/catalog/offerte.json";
 const LOCAL_CATALOG_URL = "./offerte.json";
 const CATALOG_STORAGE_KEY = "abbly:offers";
 const CATALOG_PENDING_STORAGE_KEY = "abbly:offers:pending";
