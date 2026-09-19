@@ -1,9 +1,9 @@
 {
-  "versione": 2,
-  "aggiornato": "2026-09-17",
+  "versione": 3,
+  "aggiornato": "2026-09-19",
   "paese": "IT",
   "valuta": "EUR",
-  "note": "Due elenchi con vite diverse. 'piani' sono fatti che cambiano due volte l'anno: quali piani esistono per un servizio, incluse eventuali caratteristiche stabili come una prova gratuita (campo 'provaGratuita', non ha una scadenza). 'offerte' sono promozioni a tempo, che scadono. Ogni voce porta la data in cui e' stata verificata; l'app nasconde da sola tutto cio' che ha 'scade' nel passato o che non ce l'ha affatto. Dalla versione 2 ogni offerta puo' avere anche: 'id' (identificativo stabile, usato per non ripetere le notifiche), 'destinatari' (elenco fra 'nuovi', 'esistenti', 'exclienti' — sostituisce gradualmente 'soloNuoviClienti', che resta valido dove 'destinatari' non c'e'), 'provaGiorni' (durata della prova gratuita, alternativa a un prezzo promozionale), 'prezzoSuccessivo' e 'frequenzaSuccessiva' (quanto costa dopo la promozione), 'piano' (quale piano del servizio riguarda), 'condizioni' e 'territorio'. I prezzi ci sono solo dove la fonte e' il sito ufficiale, e vanno sempre mostrati con la data di verifica accanto. Non aggiungere mai un'offerta senza una 'scade' verificata sulla fonte ufficiale: e' cosi' che l'app la nasconde, non la mostra come valida per sempre.",
+  "note": "Catalogo prezzi Hubbo Italia. Schema v3: `opzioni` contiene solo prezzi mensili direttamente utilizzabili dal form senza conversioni; `listino` separa annuali, impegni, rinnovi, B2B e tariffe a consumo. Parte 4 (v235): telefonia, Internet e mobilità, con offerte temporanee/target rinviate alla Parte 5.",
   "offerte": [
     {
       "id": "spotify-2026-tre-mesi-gratis",
@@ -80,7 +80,7 @@
         "disponibile": false
       },
       "link": "https://www.disneyplus.com/account",
-      "verificato": "2026-09-05",
+      "verificato": "2026-09-19",
       "opzioni": [
         {
           "nome": "Standard con pubblicità",
@@ -95,7 +95,45 @@
           "prezzo": 15.99
         }
       ],
-      "opzioniVerificato": "2026-09-10"
+      "opzioniVerificato": "2026-09-19",
+      "fontePrezzi": "https://www.disneyplus.com/it-it",
+      "listino": [
+        {
+          "nome": "Standard con pubblicità",
+          "prezzo": 6.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Standard",
+          "prezzo": 10.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 15.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Standard · annuale",
+          "prezzo": 109.9,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Premium · annuale",
+          "prezzo": 159.9,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ]
     },
     {
       "servizio": "Spotify",
@@ -144,8 +182,8 @@
     {
       "servizio": "YouTube Premium",
       "annuale": {
-        "disponibile": true,
-        "nota": "Si paga tutto in una volta."
+        "disponibile": false,
+        "nota": "Il piano annuale non è disponibile in Italia secondo l’elenco ufficiale Google/YouTube verificato il 19/09/2026."
       },
       "famiglia": {
         "disponibile": true,
@@ -164,7 +202,7 @@
         "verificato": "2026-09-17"
       },
       "link": "https://www.youtube.com/paid_memberships",
-      "verificato": "2026-09-05",
+      "verificato": "2026-09-19",
       "opzioni": [
         {
           "nome": "Premium Lite",
@@ -183,40 +221,313 @@
           "prezzo": 29.99
         }
       ],
-      "opzioniVerificato": "2026-09-10"
+      "opzioniVerificato": "2026-09-10",
+      "fonteAnnuale": "https://support.google.com/youtube/answer/11417260?hl=it",
+      "listino": [
+        {
+          "nome": "Premium Lite",
+          "prezzo": 8.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Individuale",
+          "prezzo": 15.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Studenti",
+          "prezzo": 10.49,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Famiglia",
+          "prezzo": 29.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
     },
     {
       "servizio": "DAZN",
       "annuale": {
         "disponibile": true,
-        "nota": "Molto meno del mensile, ma con vincolo di dodici mesi."
+        "nota": "Disponibile sia in un’unica soluzione sia in 12 rate mensili, con prezzi diversi per piano.",
+        "piani": [
+          {
+            "nome": "SPORTS",
+            "prezzoUnaSoluzione": 99.0,
+            "prezzoRateMensili": 11.99
+          },
+          {
+            "nome": "FULL",
+            "prezzoUnaSoluzione": 379.0,
+            "prezzoRateMensili": 36.99
+          },
+          {
+            "nome": "FAMILY",
+            "prezzoUnaSoluzione": 619.0,
+            "prezzoRateMensili": 61.99
+          },
+          {
+            "nome": "GOAL",
+            "prezzoUnaSoluzione": 129.0,
+            "prezzoRateMensili": 13.99
+          },
+          {
+            "nome": "MYCLUBPASS",
+            "prezzoUnaSoluzione": 329.0,
+            "prezzoRateMensili": 29.99
+          }
+        ]
       },
       "famiglia": {
         "disponibile": true,
-        "nome": "DAZN Family",
-        "nota": "Due dispositivi su reti diverse."
+        "nome": "FAMILY",
+        "nota": "Il piano FAMILY consente due riproduzioni simultanee anche su due reti internet differenti; l’account resta destinato al nucleo domestico."
       },
       "studenti": {
         "disponibile": false
       },
-      "nota": "Il listino si e' mosso piu' volte nel 2026 e il prezzo cambia anche a seconda di come paghi. Da controllare sempre.",
-      "link": "https://www.dazn.com/it-IT/account/signin",
-      "verificato": "2026-09-10"
+      "nota": "Prezzi diretti DAZN Italia. I prezzi tramite Apple/Google o altri partner possono essere diversi. MYCLUBPASS mensile non è normalmente disponibile nel flusso welcome.",
+      "link": "https://www.dazn.com/it-IT/help/articles/16184063399709-piani-e-prezzi-di-dazn",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.dazn.com/it-IT/help/articles/16184063399709-piani-e-prezzi-di-dazn",
+      "opzioni": [
+        {
+          "nome": "SPORTS",
+          "prezzo": 14.99
+        },
+        {
+          "nome": "FULL",
+          "prezzo": 46.99
+        },
+        {
+          "nome": "FAMILY",
+          "prezzo": 71.99
+        },
+        {
+          "nome": "GOAL",
+          "prezzo": 19.99
+        },
+        {
+          "nome": "MYCLUBPASS",
+          "prezzo": 39.99
+        },
+        {
+          "nome": "FULL MOBILE",
+          "prezzo": 19.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "SPORTS",
+          "prezzo": 14.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "SPORTS · annuale una soluzione",
+          "prezzo": 99.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "SPORTS · annuale 12 rate",
+          "prezzo": 11.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "FULL",
+          "prezzo": 46.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "FULL · annuale una soluzione",
+          "prezzo": 379.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "FULL · annuale 12 rate",
+          "prezzo": 36.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "FAMILY",
+          "prezzo": 71.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "FAMILY · annuale una soluzione",
+          "prezzo": 619.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "FAMILY · annuale 12 rate",
+          "prezzo": 61.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "GOAL",
+          "prezzo": 19.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "GOAL · annuale una soluzione",
+          "prezzo": 129.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "GOAL · annuale 12 rate",
+          "prezzo": 13.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "MYCLUBPASS",
+          "prezzo": 39.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Piano mensile non disponibile normalmente su dazn.com/welcome."
+        },
+        {
+          "nome": "MYCLUBPASS · annuale una soluzione",
+          "prezzo": 329.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "MYCLUBPASS · annuale 12 rate",
+          "prezzo": 29.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "FULL MOBILE",
+          "prezzo": 19.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Solo smartphone."
+        }
+      ]
     },
     {
       "servizio": "Now",
       "annuale": {
         "disponibile": true,
-        "nota": "Le formule con vincolo di dodici mesi costano meno di quelle senza."
+        "nota": "NOW offre formule con vincolo di 12 mesi a prezzi promozionali/variabili. In `opzioni` sono mantenuti solo i prezzi mensili di listino senza vincolo; le promo vanno in `offerte`."
       },
       "famiglia": {
-        "disponibile": false
+        "disponibile": false,
+        "nota": "Premium abilita due visioni contemporanee nel nucleo domestico, ma non è un piano famiglia separato."
       },
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.nowtv.it/myaccount",
-      "verificato": "2026-09-10"
+      "link": "https://www.nowtv.it/offerta-now",
+      "verificato": "2026-09-19",
+      "nota": "Prezzi di listino senza vincolo verificati sul sito NOW. Le offerte 12 mesi per nuovi clienti scadono/cambiano e saranno gestite come promozioni temporanee nella Parte 5.",
+      "fontePrezzi": "https://www.nowtv.it/offerta-now",
+      "opzioni": [
+        {
+          "nome": "Entertainment",
+          "prezzo": 8.99
+        },
+        {
+          "nome": "Cinema + Entertainment",
+          "prezzo": 11.99
+        },
+        {
+          "nome": "Cinema + Entertainment + Premium",
+          "prezzo": 19.99
+        },
+        {
+          "nome": "Sport",
+          "prezzo": 29.99
+        },
+        {
+          "nome": "Cinema + Entertainment + Sport",
+          "prezzo": 41.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Entertainment",
+          "prezzo": 8.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Cinema + Entertainment",
+          "prezzo": 11.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Cinema + Entertainment + Premium",
+          "prezzo": 19.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Sport",
+          "prezzo": 29.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Cinema + Entertainment + Sport",
+          "prezzo": 41.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Premium (add-on)",
+          "prezzo": 10.0,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Prezzo di listino dell’opzione Premium; richiede un Pass NOW."
+        }
+      ]
     },
     {
       "servizio": "Amazon Prime",
@@ -259,7 +570,31 @@
           "prezzo": 2.49
         }
       ],
-      "opzioniVerificato": "2026-09-10"
+      "opzioniVerificato": "2026-09-10",
+      "listino": [
+        {
+          "nome": "Mensile",
+          "prezzo": 4.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Annuale",
+          "prezzo": 49.9,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Student mensile",
+          "prezzo": 2.49,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Tariffa studenti già presente nel catalogo; requisiti da verificare al checkout."
+        }
+      ]
     },
     {
       "servizio": "Apple Music",
@@ -286,7 +621,7 @@
       },
       "nota": "Dentro Apple One costa meno se usi anche iCloud+ e Apple TV+.",
       "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-05",
+      "verificato": "2026-09-19",
       "opzioni": [
         {
           "nome": "Studenti",
@@ -301,18 +636,42 @@
           "prezzo": 19.99
         }
       ],
-      "opzioniVerificato": "2026-09-17"
+      "opzioniVerificato": "2026-09-19",
+      "fontePrezzi": "https://www.apple.com/it/apple-music/",
+      "listino": [
+        {
+          "nome": "Studenti",
+          "prezzo": 6.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Individuale",
+          "prezzo": 11.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Famiglia",
+          "prezzo": 19.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
     },
     {
       "servizio": "Apple TV+",
       "annuale": {
-        "disponibile": true,
-        "nota": "Si paga tutto in una volta."
+        "disponibile": false,
+        "nota": "La pagina/prezzistica italiana corrente espone il piano mensile; nessun annuale pubblico viene inserito senza un prezzo ufficiale verificabile."
       },
       "famiglia": {
         "disponibile": true,
         "persone": 6,
-        "nota": "Compreso nell'abbonamento, tramite In famiglia."
+        "nota": "Condivisione tramite “In famiglia”, fino a sei persone complessive."
       },
       "studenti": {
         "disponibile": false
@@ -321,12 +680,29 @@
         "disponibile": true,
         "giorni": 7,
         "poi": "9,99 €/mese",
-        "nota": "Chi ha acquistato di recente un iPhone, iPad, Mac o Apple TV 4K può ottenere fino a 3 mesi gratuiti invece dei 7 giorni standard, riscattabili entro 90 giorni dall'attivazione del dispositivo.",
+        "nota": "Per nuovi abbonati. Con un nuovo dispositivo Apple idoneo può essere disponibile una prova di 3 mesi, secondo i requisiti Apple.",
         "link": "https://tv.apple.com/it",
-        "verificato": "2026-09-17"
+        "verificato": "2026-09-19"
       },
-      "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-05"
+      "link": "https://tv.apple.com/it",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.apple.com/it/newsroom/2026/08/leagues-cup-kicks-off-tomorrow-august-4-on-apple-tv/",
+      "opzioni": [
+        {
+          "nome": "Apple TV",
+          "prezzo": 9.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Apple TV",
+          "prezzo": 9.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
     },
     {
       "servizio": "HBO Max",
@@ -374,7 +750,7 @@
         "disponibile": false
       },
       "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-05",
+      "verificato": "2026-09-19",
       "opzioni": [
         {
           "nome": "50GB",
@@ -397,7 +773,45 @@
           "prezzo": 59.99
         }
       ],
-      "opzioniVerificato": "2026-09-17"
+      "opzioniVerificato": "2026-09-19",
+      "fontePrezzi": "https://www.apple.com/it/icloud/",
+      "listino": [
+        {
+          "nome": "50GB",
+          "prezzo": 0.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "200GB",
+          "prezzo": 2.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "2TB",
+          "prezzo": 9.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "6TB",
+          "prezzo": 29.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "12TB",
+          "prezzo": 59.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
     },
     {
       "servizio": "Google One",
@@ -428,7 +842,7 @@
       "servizio": "Microsoft 365",
       "annuale": {
         "disponibile": true,
-        "nota": "Circa due mensilita' in meno."
+        "nota": "Personal, Family e Premium sono disponibili anche con addebito annuale."
       },
       "famiglia": {
         "disponibile": true,
@@ -441,13 +855,13 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 30,
-        "poi": "10,00 €/mese o 99,00 €/anno (piano Personal); 13,00 €/mese o 129,00 €/anno (piano Family)",
+        "poi": "10,00 €/mese o 99,00 €/anno (Personal); 13,00 €/mese o 129,00 €/anno (Family); 22,00 €/mese o 219,00 €/anno (Premium)",
         "nota": "Non disponibile per chi ha già avuto un abbonamento allo stesso piano.",
         "link": "https://www.microsoft.com/it-it/microsoft-365",
         "verificato": "2026-09-17"
       },
-      "link": "https://account.microsoft.com/services",
-      "verificato": "2026-09-05",
+      "link": "https://www.microsoft.com/it-it/microsoft-365/personal-family",
+      "verificato": "2026-09-19",
       "opzioni": [
         {
           "nome": "Personal",
@@ -456,9 +870,58 @@
         {
           "nome": "Family",
           "prezzo": 13.0
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 22.0
         }
       ],
-      "opzioniVerificato": "2026-09-17"
+      "opzioniVerificato": "2026-09-19",
+      "fontePrezzi": "https://www.microsoft.com/it-it/microsoft-365/personal-family",
+      "listino": [
+        {
+          "nome": "Personal",
+          "prezzo": 10.0,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Personal · annuale",
+          "prezzo": 99.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Family",
+          "prezzo": 13.0,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Family · annuale",
+          "prezzo": 129.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 22.0,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Premium · annuale",
+          "prezzo": 219.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ]
     },
     {
       "servizio": "Dropbox",
@@ -480,14 +943,14 @@
       "servizio": "Adobe Creative Cloud",
       "annuale": {
         "disponibile": true,
-        "nota": "Il piano annuale prepagato costa meno di quello annuale pagato mese per mese."
+        "nota": "I prezzi standard verificati qui sotto sono formule annuali con addebito mensile."
       },
       "famiglia": {
         "disponibile": false
       },
       "studenti": {
         "disponibile": true,
-        "nota": "Sconto forte per studenti e insegnanti, da rinnovare ogni anno."
+        "nota": "Esiste un piano studenti/docenti; le promozioni a tempo restano fuori dal listino stabile."
       },
       "provaGratuita": {
         "disponibile": true,
@@ -497,14 +960,34 @@
         "link": "https://www.adobe.com/it/creativecloud/free-trial-download.html",
         "verificato": "2026-09-17"
       },
-      "link": "https://account.adobe.com/plans",
-      "verificato": "2026-09-05"
+      "link": "https://www.adobe.com/it/creativecloud/plans.html",
+      "verificato": "2026-09-19",
+      "nota": "Creative Cloud Pro e Fotografia hanno un impegno annuale nei prezzi pubblici verificati; per questo non sono inseriti in `opzioni` del form corrente.",
+      "fontePrezzi": "https://www.adobe.com/it/creativecloud/plans.html",
+      "listino": [
+        {
+          "nome": "Creative Cloud Pro · annuale, addebito mensile",
+          "prezzo": 79.96,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Prezzo standard incl. IVA; promo primi mesi esclusa."
+        },
+        {
+          "nome": "Fotografia 1 TB · annuale, addebito mensile",
+          "prezzo": 24.39,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Incl. IVA; include Lightroom, Lightroom Classic e Photoshop."
+        }
+      ]
     },
     {
       "servizio": "Adobe Photoshop",
       "annuale": {
         "disponibile": true,
-        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+        "nota": "Piano annuale con addebito mensile."
       },
       "famiglia": {
         "disponibile": false
@@ -520,8 +1003,19 @@
         "link": "https://www.adobe.com/it/products/photoshop/free-trial-download.html",
         "verificato": "2026-09-17"
       },
-      "link": "https://account.adobe.com/plans",
-      "verificato": "2026-09-05"
+      "link": "https://www.adobe.com/it/products/photoshop.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.adobe.com/it/products/photoshop.html",
+      "listino": [
+        {
+          "nome": "App singola · annuale, addebito mensile",
+          "prezzo": 26.64,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Incl. IVA."
+        }
+      ]
     },
     {
       "servizio": "Canva Pro",
@@ -530,13 +1024,11 @@
         "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
-        "disponibile": true,
-        "persone": 5,
-        "nome": "Canva Pro per team"
+        "disponibile": false
       },
       "studenti": {
-        "disponibile": true,
-        "nota": "Gratuito per scuole e insegnanti."
+        "disponibile": false,
+        "nota": "Canva Education è rivolto a scuole/docenti idonei; non è un generico piano studenti consumer."
       },
       "provaGratuita": {
         "disponibile": true,
@@ -547,7 +1039,8 @@
         "verificato": "2026-09-17"
       },
       "link": "https://www.canva.com/it_it/pricing/",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-19",
+      "nota": "Il prezzo visualizzato da Canva varia per località/account e non viene fissato nel catalogo senza un EUR Italia stabile verificabile."
     },
     {
       "servizio": "Notion",
@@ -679,46 +1172,162 @@
     {
       "servizio": "Xbox Game Pass",
       "annuale": {
-        "disponibile": false
+        "disponibile": false,
+        "nota": "Nel listino pubblico italiano verificato i piani correnti sono esposti con rinnovo mensile."
       },
       "famiglia": {
-        "disponibile": true,
-        "persone": 5,
-        "nota": "Piano Amici e famiglia, dove disponibile."
+        "disponibile": false,
+        "nota": "Il vecchio riferimento “Amici e famiglia” non viene più trattato come piano corrente."
       },
       "studenti": {
         "disponibile": false
       },
-      "link": "https://account.microsoft.com/services",
-      "verificato": "2026-09-05"
+      "link": "https://www.xbox.com/it-IT/xbox-game-pass",
+      "verificato": "2026-09-19",
+      "nota": "Tier correnti: Essential, Premium, PC Game Pass e Ultimate. Ultimate include anche Fortnite Crew, EA Play e Ubisoft+ Classics: le opportunità bundle saranno gestite nella Parte 6.",
+      "fontePrezzi": "https://www.xbox.com/it-IT/games/store/pc-game-pass/cfq7ttc0kgq8/0002",
+      "opzioni": [
+        {
+          "nome": "Essential",
+          "prezzo": 8.99
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 12.99
+        },
+        {
+          "nome": "PC Game Pass",
+          "prezzo": 12.99
+        },
+        {
+          "nome": "Ultimate",
+          "prezzo": 20.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Essential",
+          "prezzo": 8.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 12.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "PC Game Pass",
+          "prezzo": 12.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Ultimate",
+          "prezzo": 20.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "Fortnite Crew",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Abbonamento mensile. La pagina ufficiale localizzata mostra 11,99 USD e avverte che il prezzo locale può dipendere dalla piattaforma: nessun EUR viene convertito o inventato. Incluso in Xbox Game Pass Ultimate secondo il listino Xbox corrente.",
+      "link": "https://www.fortnite.com/fortnite-crew-subscription?lang=it",
+      "fontePrezzi": "https://www.fortnite.com/fortnite-crew-subscription?lang=it",
+      "verificato": "2026-09-19"
     },
     {
       "servizio": "Nintendo Switch Online",
       "annuale": {
         "disponibile": true,
-        "nota": "Si paga tutto in una volta."
+        "nota": "Le iscrizioni da 12 mesi hanno prezzi distinti per Individuale/Familiare e per Pacchetto aggiuntivo.",
+        "piani": [
+          {
+            "nome": "Individuale",
+            "prezzo": 19.99
+          },
+          {
+            "nome": "Familiare",
+            "prezzo": 34.99
+          },
+          {
+            "nome": "Individuale + Pacchetto aggiuntivo",
+            "prezzo": 39.99
+          },
+          {
+            "nome": "Familiare + Pacchetto aggiuntivo",
+            "prezzo": 69.99
+          }
+        ]
       },
       "famiglia": {
         "disponibile": true,
         "persone": 8,
-        "nota": "Costa poco piu' del singolo: conviene quasi sempre in due."
+        "nota": "L’iscrizione familiare copre fino a 8 account Nintendo."
       },
       "provaGratuita": {
         "disponibile": true,
         "giorni": 7,
-        "poi": "si rinnova come iscrizione individuale di 30 giorni (l'annuale costa 39,99 €)",
-        "nota": "Una sola prova per account Nintendo; non utilizzabile se hai già un'iscrizione attiva.",
-        "link": "https://www.nintendo.com/it-it/Assistenza/Nintendo-Switch/Come-iscriversi-alla-prova-gratuita-di-Nintendo-Switch-Online-1434315.html",
-        "verificato": "2026-09-17"
+        "poi": "eventuale rinnovo secondo le condizioni mostrate da Nintendo al momento dell’attivazione",
+        "nota": "Una sola prova per account idoneo; non confondere il prezzo 39,99 € con l’annuale standard: è il 12 mesi Individuale + Pacchetto aggiuntivo.",
+        "link": "https://www.nintendo.com/it-it/Nintendo-Switch-Online/Nintendo-Switch-Online-Panoramica-1183143.html",
+        "verificato": "2026-09-19"
       },
       "studenti": {
         "disponibile": false
       },
-      "link": "https://accounts.nintendo.com/",
-      "verificato": "2026-09-10"
+      "link": "https://www.nintendo.com/it-it/Nintendo-Switch-Online/Nintendo-Switch-Online-Panoramica-1183143.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.nintendo.com/it-it/Nintendo-Switch-Online/Nintendo-Switch-Online-Panoramica-1183143.html",
+      "listino": [
+        {
+          "nome": "Individuale",
+          "prezzo": 19.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Familiare",
+          "prezzo": 34.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Individuale + Pacchetto aggiuntivo",
+          "prezzo": 39.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Familiare + Pacchetto aggiuntivo",
+          "prezzo": 69.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ]
     },
     {
-      "servizio": "Duolingo Plus",
+      "servizio": "Duolingo",
       "annuale": {
         "disponibile": true,
         "nota": "Circa la meta' del mensile su base annua."
@@ -739,7 +1348,7 @@
         "verificato": "2026-09-17"
       },
       "link": "https://www.duolingo.com/settings/account",
-      "verificato": "2026-09-10"
+      "verificato": "2026-09-19"
     },
     {
       "servizio": "Strava",
@@ -768,8 +1377,8 @@
     {
       "servizio": "Audible",
       "annuale": {
-        "disponibile": true,
-        "nota": "Si paga tutto in una volta."
+        "disponibile": false,
+        "nota": "Nel listino pubblico italiano verificato è esposto il rinnovo mensile; non viene inventato un annuale."
       },
       "famiglia": {
         "disponibile": false
@@ -781,12 +1390,29 @@
         "disponibile": true,
         "giorni": 30,
         "poi": "9,99 €/mese",
-        "nota": "60 giorni invece di 30 per chi ha già un abbonamento Amazon Prime attivo.",
+        "nota": "Le pagine Audible italiane correnti indicano 60 giorni di prova per i membri Prime.",
         "link": "https://www.audible.it/",
-        "verificato": "2026-09-17"
+        "verificato": "2026-09-19"
       },
       "link": "https://www.audible.it/account",
-      "verificato": "2026-09-10"
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.audible.it/",
+      "opzioni": [
+        {
+          "nome": "Mensile",
+          "prezzo": 9.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Mensile",
+          "prezzo": 9.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
     },
     {
       "servizio": "Kindle Unlimited",
@@ -841,9 +1467,8 @@
         "nota": "Si paga tutto in una volta."
       },
       "famiglia": {
-        "disponibile": true,
-        "persone": 4,
-        "nome": "Mega Fan e Ultimate Fan"
+        "disponibile": false,
+        "nota": "Più riproduzioni simultanee non equivalgono a un piano famiglia separato."
       },
       "studenti": {
         "disponibile": false
@@ -851,12 +1476,15 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 7,
-        "poi": "5,99 €/mese (piano Fan)",
+        "poi": "prezzo mostrato al checkout per il piano scelto",
+        "nota": "La pagina ufficiale italiana non espone al catalogo un listino EUR abbastanza affidabile: nessun prezzo viene inserito per deduzione.",
         "link": "https://www.crunchyroll.com/premium",
-        "verificato": "2026-09-17"
+        "verificato": "2026-09-19"
       },
       "link": "https://www.crunchyroll.com/account/membership",
-      "verificato": "2026-09-10"
+      "verificato": "2026-09-19",
+      "nota": "Piani Fan/Mega Fan/Ultimate Fan disponibili; prezzo EUR omesso finché verificabile direttamente in modo stabile.",
+      "fontePrezzi": "https://www.crunchyroll.com/premium"
     },
     {
       "servizio": "Norton",
@@ -879,9 +1507,9 @@
         "link": "https://it.norton.com/downloads",
         "verificato": "2026-09-17"
       },
-      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
+      "nota": "Primo acquisto, rinnovo e numero di dispositivi possono avere prezzi diversi. Per evitare falsi risparmi, Hubbo non fissa un importo unico finché il piano/rinnovo non è univoco.",
       "link": "https://my.norton.com/",
-      "verificato": "2026-09-06"
+      "verificato": "2026-09-19"
     },
     {
       "servizio": "McAfee",
@@ -1021,7 +1649,7 @@
       "servizio": "ESET",
       "annuale": {
         "disponibile": true,
-        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+        "nota": "Listino verificato per HOME Security Essential, 3 dispositivi / 1 anno."
       },
       "famiglia": {
         "disponibile": true,
@@ -1037,9 +1665,20 @@
         "link": "https://www.eset.com/it/home/",
         "verificato": "2026-09-17"
       },
-      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://home.eset.com/",
-      "verificato": "2026-09-06"
+      "nota": "Il catalogo registra solo la configurazione verificata direttamente; sconti e bundle ulteriori restano fuori finché non sono univoci.",
+      "link": "https://www.eset.com/it/privati/protection-plans/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.eset.com/it/privati/protection-plans/",
+      "listino": [
+        {
+          "nome": "HOME Security Essential · 3 dispositivi",
+          "prezzo": 47.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "1 anno."
+        }
+      ]
     },
     {
       "servizio": "Malwarebytes",
@@ -1070,7 +1709,7 @@
       "servizio": "ExpressVPN",
       "annuale": {
         "disponibile": true,
-        "nota": "Si compra ad anni, non a mesi. I piani da 2 o 3 anni costano meno all'anno, ma si pagano tutti in una volta."
+        "nota": "Sono disponibili più durate in base al tier e al checkout."
       },
       "famiglia": {
         "disponibile": false
@@ -1078,9 +1717,9 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
-      "link": "https://portal.expressvpn.com/my-subscription",
-      "verificato": "2026-09-10"
+      "nota": "ExpressVPN usa i tier Basic, Advanced e Pro; i prezzi locali possono variare. Nessun EUR viene dedotto da altre valute.",
+      "link": "https://www.expressvpn.com/order",
+      "verificato": "2026-09-19"
     },
     {
       "servizio": "Proton VPN",
@@ -1147,7 +1786,8 @@
     {
       "servizio": "YouTube Music",
       "annuale": {
-        "disponibile": true
+        "disponibile": false,
+        "nota": "Il piano annuale non è disponibile in Italia secondo l’elenco ufficiale Google/YouTube verificato il 19/09/2026."
       },
       "famiglia": {
         "disponibile": true,
@@ -1167,7 +1807,8 @@
       },
       "nota": "Incluso nell'abbonamento a YouTube Premium.",
       "link": "https://myaccount.google.com/subscriptions",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "fonteAnnuale": "https://support.google.com/youtube/answer/11417260?hl=it"
     },
     {
       "servizio": "Deezer",
@@ -1211,12 +1852,14 @@
     {
       "servizio": "Apple One",
       "annuale": {
-        "disponibile": false
+        "disponibile": false,
+        "nota": "Apple One è un abbonamento mensile senza vincoli di durata."
       },
       "famiglia": {
         "disponibile": true,
         "persone": 6,
-        "nota": "Il piano famiglia copre tutti i servizi Apple inclusi."
+        "nome": "Famiglia",
+        "nota": "Famiglia e Premium sono condivisibili tramite “In famiglia”."
       },
       "studenti": {
         "disponibile": false
@@ -1225,13 +1868,52 @@
         "disponibile": true,
         "giorni": 30,
         "poi": "il prezzo del piano scelto (Individuale, Famiglia o Premium)",
-        "nota": "La prova copre solo i servizi Apple che non hai già provato o sottoscritto singolarmente: quelli già attivi restano al loro prezzo normale.",
-        "link": "https://www.apple.com/apple-one/",
-        "verificato": "2026-09-17"
+        "nota": "La prova si applica ai servizi inclusi che non hai già provato o sottoscritto.",
+        "link": "https://www.apple.com/it/apple-one/",
+        "verificato": "2026-09-19"
       },
-      "nota": "Pacchetto: musica, video, iCloud+ e Arcade insieme, spesso conviene rispetto a prenderli separati.",
-      "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-09"
+      "nota": "Bundle Apple. Individuale 19,95 €, Famiglia 25,95 €, Premium 34,95 € al mese.",
+      "link": "https://www.apple.com/it/apple-one/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.apple.com/it/apple-one/",
+      "opzioni": [
+        {
+          "nome": "Individuale",
+          "prezzo": 19.95
+        },
+        {
+          "nome": "Famiglia",
+          "prezzo": 25.95
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 34.95
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Individuale",
+          "prezzo": 19.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Famiglia",
+          "prezzo": 25.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 34.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
     },
     {
       "servizio": "MUBI",
@@ -1676,7 +2358,8 @@
     {
       "servizio": "Mullvad VPN",
       "annuale": {
-        "disponibile": false
+        "disponibile": false,
+        "nota": "Il costo è sempre 5 €/mese: non c’è uno sconto annuale da confrontare."
       },
       "famiglia": {
         "disponibile": false
@@ -1684,14 +2367,33 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Prezzo fisso al mese qualunque sia la durata: nessuno sconto per pagare più mesi insieme, a differenza della maggior parte delle altre VPN.",
-      "link": "https://mullvad.net/it/account",
-      "verificato": "2026-09-09"
+      "nota": "Tariffa flat 5 €/mese, IVA inclusa, qualunque sia la durata della ricarica.",
+      "link": "https://mullvad.net/it/pricing",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://mullvad.net/it/pricing",
+      "opzioni": [
+        {
+          "nome": "Mullvad VPN",
+          "prezzo": 5.0
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Mullvad VPN",
+          "prezzo": 5.0,
+          "frequenza": "mensile",
+          "addebito": "variabile",
+          "vincoloMesi": 0,
+          "nota": "IVA inclusa; stesso equivalente mensile per 1 mese, 1 anno o più."
+        }
+      ]
     },
     {
       "servizio": "GeForce NOW",
       "annuale": {
-        "disponibile": false
+        "disponibile": true,
+        "nota": "NVIDIA ha sostituito i vecchi Ultimate da 6 mesi con nuovi abbonamenti da 12 mesi. I prezzi EUR non vengono strutturati finché la pagina ufficiale italiana non li espone in modo affidabile al catalogo."
       },
       "famiglia": {
         "disponibile": false
@@ -1699,15 +2401,26 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "I piani più alti si pagano a blocchi di sei mesi, non con uno sconto annuale vero e proprio.",
+      "nota": "Piani Free, Performance e Ultimate. Performance/Ultimate hanno formule a durata estesa; il vecchio testo sui blocchi da 6 mesi era obsoleto.",
       "link": "https://www.nvidia.com/it-it/geforce-now/",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.nvidia.com/it-it/geforce-now/faq/"
     },
     {
       "servizio": "EA Play",
       "annuale": {
         "disponibile": true,
-        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+        "nota": "EA Play: 39,99 €/anno; EA Play Pro: 119,99 €/anno.",
+        "piani": [
+          {
+            "nome": "EA Play",
+            "prezzo": 39.99
+          },
+          {
+            "nome": "EA Play Pro",
+            "prezzo": 119.99
+          }
+        ]
       },
       "famiglia": {
         "disponibile": false
@@ -1715,14 +2428,67 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Incluso automaticamente in Xbox Game Pass Ultimate e in PC Game Pass.",
+      "nota": "EA Play è incluso in PC Game Pass; EA Play è incluso anche in Game Pass Ultimate. EA Play Pro è il livello PC superiore.",
       "link": "https://www.ea.com/it-it/ea-play",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.ea.com/it-it/games/ea-sports-fc/ea-play",
+      "opzioni": [
+        {
+          "nome": "EA Play",
+          "prezzo": 5.99
+        },
+        {
+          "nome": "EA Play Pro",
+          "prezzo": 16.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "EA Play",
+          "prezzo": 5.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "EA Play · annuale",
+          "prezzo": 39.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "EA Play Pro",
+          "prezzo": 16.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "EA Play Pro · annuale",
+          "prezzo": 119.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ]
     },
     {
       "servizio": "Ubisoft+",
       "annuale": {
-        "disponibile": false
+        "disponibile": true,
+        "nota": "Classics 79,99 €/anno; Premium 179,99 €/anno.",
+        "piani": [
+          {
+            "nome": "Classics",
+            "prezzo": 79.99
+          },
+          {
+            "nome": "Premium",
+            "prezzo": 179.99
+          }
+        ]
       },
       "famiglia": {
         "disponibile": false
@@ -1730,8 +2496,50 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://www.ubisoft.com/it-it/ubisoft-plus",
-      "verificato": "2026-09-09"
+      "link": "https://store.ubisoft.com/it/exclude-subs-features",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://store.ubisoft.com/it/exclude-subs-features",
+      "opzioni": [
+        {
+          "nome": "Classics",
+          "prezzo": 7.99
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 17.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Classics",
+          "prezzo": 7.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Classics · annuale",
+          "prezzo": 79.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Premium",
+          "prezzo": 17.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Premium · annuale",
+          "prezzo": 179.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ]
     },
     {
       "servizio": "Twitch Turbo",
@@ -1750,26 +2558,104 @@
     {
       "servizio": "Apple Arcade",
       "annuale": {
-        "disponibile": false
+        "disponibile": true,
+        "prezzo": 49.99,
+        "nota": "49,99 € all’anno, addebito annuale."
       },
       "famiglia": {
         "disponibile": true,
-        "persone": 6
+        "persone": 6,
+        "nota": "Condivisione con altre cinque persone tramite “In famiglia”."
       },
       "provaGratuita": {
         "disponibile": true,
         "giorni": 30,
-        "poi": "6,99 €/mese",
-        "nota": "Chi ha acquistato di recente un iPhone, iPad, Mac o Apple TV può ottenere fino a 3 mesi gratuiti invece di 1, riscattabili entro 90 giorni dall'attivazione del dispositivo.",
-        "link": "https://www.apple.com/apple-arcade/",
-        "verificato": "2026-09-17"
+        "poi": "6,99 €/mese o 49,99 €/anno",
+        "nota": "Con un nuovo dispositivo Apple idoneo può essere disponibile una prova di 3 mesi.",
+        "link": "https://www.apple.com/it/apple-arcade/",
+        "verificato": "2026-09-19"
       },
       "studenti": {
         "disponibile": false
       },
-      "nota": "Compreso in Apple One.",
-      "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-09"
+      "nota": "Incluso nei piani Apple One.",
+      "link": "https://www.apple.com/it/apple-arcade/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.apple.com/it/apple-arcade/",
+      "opzioni": [
+        {
+          "nome": "Mensile",
+          "prezzo": 6.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Mensile",
+          "prezzo": 6.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Annuale",
+          "prezzo": 49.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ]
+    },
+    {
+      "servizio": "Apple Fitness+",
+      "annuale": {
+        "disponibile": true,
+        "prezzo": 79.99,
+        "nota": "79,99 € all’anno, addebito annuale."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "persone": 6,
+        "nota": "Condivisione con altre cinque persone tramite “In famiglia”."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "9,99 €/mese o 79,99 €/anno",
+        "nota": "Prima iscrizione: 1 mese gratuito. Con un dispositivo Apple idoneo e i requisiti previsti, 3 mesi gratuiti.",
+        "link": "https://www.apple.com/it/apple-fitness-plus/",
+        "verificato": "2026-09-19"
+      },
+      "nota": "Incluso in Apple One Premium.",
+      "link": "https://www.apple.com/it/apple-fitness-plus/",
+      "fontePrezzi": "https://www.apple.com/it/apple-fitness-plus/",
+      "verificato": "2026-09-19",
+      "opzioni": [
+        {
+          "nome": "Mensile",
+          "prezzo": 9.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Mensile",
+          "prezzo": 9.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Annuale",
+          "prezzo": 79.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ]
     },
     {
       "servizio": "Google Play Pass",
@@ -1779,13 +2665,15 @@
       },
       "famiglia": {
         "disponibile": true,
-        "persone": 6
+        "persone": 6,
+        "nota": "Condivisione con il gruppo Famiglia Google, fino a sei persone complessive."
       },
       "studenti": {
         "disponibile": false
       },
       "link": "https://play.google.com/store/account/subscriptions",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "nota": "Prezzi non strutturati in questa fase: il catalogo evita di importare valori in valuta/mercato non chiaramente italiano."
     },
     {
       "servizio": "Humble Choice",
@@ -1800,21 +2688,6 @@
       },
       "nota": "Solo mensile: non esiste un piano annuale.",
       "link": "https://www.humblebundle.com/subscription",
-      "verificato": "2026-09-09"
-    },
-    {
-      "servizio": "Epic Games",
-      "annuale": {
-        "disponibile": false
-      },
-      "famiglia": {
-        "disponibile": false
-      },
-      "studenti": {
-        "disponibile": false
-      },
-      "nota": "Il negozio è gratuito; qui in Hubbo di solito rappresenta un acquisto singolo, non un abbonamento ricorrente vero.",
-      "link": "https://www.epicgames.com/",
       "verificato": "2026-09-09"
     },
     {
@@ -1859,7 +2732,7 @@
       "servizio": "Adobe Lightroom",
       "annuale": {
         "disponibile": true,
-        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+        "nota": "Disponibile annuale con addebito mensile o prepagato."
       },
       "famiglia": {
         "disponibile": false
@@ -1875,14 +2748,33 @@
         "link": "https://www.adobe.com/it/products/photoshop-lightroom/free-trial-download.html",
         "verificato": "2026-09-17"
       },
-      "link": "https://account.adobe.com/plans",
-      "verificato": "2026-09-09"
+      "link": "https://www.adobe.com/it/products/photoshop-lightroom/plans.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.adobe.com/it/products/photoshop-lightroom/plans.html",
+      "listino": [
+        {
+          "nome": "Lightroom 1 TB · annuale, addebito mensile",
+          "prezzo": 14.86,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Incl. IVA."
+        },
+        {
+          "nome": "Lightroom 1 TB · annuale prepagato",
+          "prezzo": 145.52,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "Incl. IVA."
+        }
+      ]
     },
     {
       "servizio": "Adobe Premiere Pro",
       "annuale": {
         "disponibile": true,
-        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+        "nota": "Piano annuale con addebito mensile."
       },
       "famiglia": {
         "disponibile": false
@@ -1898,14 +2790,25 @@
         "link": "https://www.adobe.com/it/products/premiere/free-trial-download.html",
         "verificato": "2026-09-17"
       },
-      "link": "https://account.adobe.com/plans",
-      "verificato": "2026-09-09"
+      "link": "https://www.adobe.com/it/creativecloud/plans.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.adobe.com/it/creativecloud/plans.html",
+      "listino": [
+        {
+          "nome": "App singola · annuale, addebito mensile",
+          "prezzo": 26.64,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Incl. IVA."
+        }
+      ]
     },
     {
       "servizio": "Adobe Illustrator",
       "annuale": {
         "disponibile": true,
-        "nota": "Il piano annuale prepagato costa meno di quello pagato mese per mese."
+        "nota": "Piano annuale con addebito mensile."
       },
       "famiglia": {
         "disponibile": false
@@ -1921,14 +2824,25 @@
         "link": "https://www.adobe.com/it/products/illustrator/free-trial-download.html",
         "verificato": "2026-09-17"
       },
-      "link": "https://account.adobe.com/plans",
-      "verificato": "2026-09-09"
+      "link": "https://www.adobe.com/it/products/illustrator/plans.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.adobe.com/it/products/illustrator/plans.html",
+      "listino": [
+        {
+          "nome": "App singola · annuale, addebito mensile",
+          "prezzo": 26.64,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Incl. IVA."
+        }
+      ]
     },
     {
       "servizio": "CapCut Pro",
       "annuale": {
         "disponibile": true,
-        "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
+        "nota": "La disponibilità dei cicli e il prezzo finale possono variare per regione, piattaforma e canale di acquisto."
       },
       "famiglia": {
         "disponibile": false
@@ -1939,13 +2853,14 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 7,
-        "poi": "11,99 €/mese o 109,99 €/anno",
+        "poi": "il prezzo mostrato al checkout per regione e piattaforma",
         "nota": "Richiede un metodo di pagamento valido per verificare l'idoneità, addebitato solo alla fine della prova.",
         "link": "https://www.capcut.com/it-it/help/capcut-pro-free-trial",
-        "verificato": "2026-09-17"
+        "verificato": "2026-09-19"
       },
       "link": "https://www.capcut.com/pricing",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "nota": "CapCut dichiara che il prezzo può variare per regione/piattaforma e che fa fede il checkout: Hubbo non conserva un vecchio prezzo fisso."
     },
     {
       "servizio": "Figma",
@@ -1961,7 +2876,8 @@
         "nota": "Gratuito per studenti e insegnanti."
       },
       "link": "https://www.figma.com/pricing/",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "nota": "La fonte ufficiale espone il listino in USD; Hubbo non converte in EUR."
     },
     {
       "servizio": "Framer",
@@ -1976,7 +2892,8 @@
         "disponibile": false
       },
       "link": "https://www.framer.com/pricing/",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "nota": "La fonte ufficiale espone i piani in USD; Hubbo non converte in EUR."
     },
     {
       "servizio": "Sketch",
@@ -1991,36 +2908,6 @@
         "disponibile": true
       },
       "link": "https://www.sketch.com/pricing/",
-      "verificato": "2026-09-09"
-    },
-    {
-      "servizio": "Affinity",
-      "annuale": {
-        "disponibile": false
-      },
-      "famiglia": {
-        "disponibile": false
-      },
-      "studenti": {
-        "disponibile": false
-      },
-      "nota": "Pagamento unico, non un abbonamento: si compra una volta e resta.",
-      "link": "https://affinity.serif.com/",
-      "verificato": "2026-09-09"
-    },
-    {
-      "servizio": "DaVinci Resolve",
-      "annuale": {
-        "disponibile": false
-      },
-      "famiglia": {
-        "disponibile": false
-      },
-      "studenti": {
-        "disponibile": false
-      },
-      "nota": "Ha una versione gratuita molto completa; la versione Studio si compra una volta sola, non è un abbonamento.",
-      "link": "https://www.blackmagicdesign.com/products/davinciresolve",
       "verificato": "2026-09-09"
     },
     {
@@ -2074,8 +2961,9 @@
       "studenti": {
         "disponibile": false
       },
-      "link": "https://vimeo.com/upgrade",
-      "verificato": "2026-09-09"
+      "link": "https://vimeo.com/upgrade-plan",
+      "verificato": "2026-09-19",
+      "nota": "La fonte ufficiale espone il listino in USD; Hubbo non converte in EUR."
     },
     {
       "servizio": "Envato Elements",
@@ -2090,7 +2978,8 @@
         "disponibile": false
       },
       "link": "https://elements.envato.com/pricing",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "nota": "I tier correnti sono Core, Plus e Ultimate; la fonte espone USD, quindi nessun EUR viene dedotto."
     },
     {
       "servizio": "Freepik",
@@ -2105,13 +2994,14 @@
         "disponibile": false
       },
       "link": "https://www.freepik.com/pricing",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "nota": "La fonte ufficiale espone il listino in USD; Hubbo non converte in EUR."
     },
     {
       "servizio": "Adobe Stock",
       "annuale": {
         "disponibile": true,
-        "nota": "L'annuale prepagato costa meno del mensile."
+        "nota": "I piani verificati principali sono annuali con addebito mensile."
       },
       "famiglia": {
         "disponibile": false
@@ -2120,7 +3010,39 @@
         "disponibile": false
       },
       "link": "https://stock.adobe.com/it/plans",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-19",
+      "nota": "I pacchetti crediti una tantum non sono abbonamenti e non entrano nel listino ricorrente. I prezzi sotto sono piani annuali con addebito mensile.",
+      "fontePrezzi": "https://stock.adobe.com/it/plans",
+      "listino": [
+        {
+          "nome": "10 crediti Stock/mese",
+          "prezzo": 29.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "10 crediti Stock/mese + AI Studio",
+          "prezzo": 39.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "40 crediti Stock/mese + AI Studio",
+          "prezzo": 89.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        },
+        {
+          "nome": "Stock illimitati + AI Studio",
+          "prezzo": 129.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12
+        }
+      ]
     },
     {
       "servizio": "Perplexity Pro",
@@ -2138,7 +3060,7 @@
       "verificato": "2026-09-09"
     },
     {
-      "servizio": "Gemini Advanced",
+      "servizio": "Google AI",
       "annuale": {
         "disponibile": false
       },
@@ -2148,9 +3070,9 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Compreso nell'abbonamento Google One AI Premium, che porta anche più spazio di archiviazione.",
-      "link": "https://myaccount.google.com/subscriptions",
-      "verificato": "2026-09-09"
+      "nota": "Piani Google AI in evoluzione. Nessun prezzo EUR inserito finché il checkout/pagina Italia non espone valori e capacità in modo coerente; evitare conversioni da USD o altri mercati.",
+      "link": "https://one.google.com/intl/it_it/about/google-ai-plans/",
+      "verificato": "2026-09-19"
     },
     {
       "servizio": "Midjourney",
@@ -2307,21 +3229,6 @@
         "verificato": "2026-09-17"
       },
       "link": "https://www.linkedin.com/premium/products/",
-      "verificato": "2026-09-09"
-    },
-    {
-      "servizio": "WhatsApp Premium",
-      "annuale": {
-        "disponibile": false
-      },
-      "famiglia": {
-        "disponibile": false
-      },
-      "studenti": {
-        "disponibile": false
-      },
-      "nota": "Non esiste un piano Premium per il singolo utente: questa voce riguarda più spesso WhatsApp Business.",
-      "link": "https://www.whatsapp.com/",
       "verificato": "2026-09-09"
     },
     {
@@ -2901,24 +3808,218 @@
       "verificato": "2026-09-09"
     },
     {
-      "servizio": "Fitbit Premium",
+      "servizio": "Google Health Premium",
       "annuale": {
         "disponibile": true,
         "nota": "Circa due mensilità in meno pagando l'anno in anticipo."
       },
       "famiglia": {
-        "disponibile": true,
-        "persone": 6,
-        "nota": "Incluso nel piano famiglia di Google One con abbastanza spazio."
+        "disponibile": false
       },
       "studenti": {
         "disponibile": false
       },
-      "link": "https://myaccount.google.com/subscriptions",
-      "verificato": "2026-09-09"
+      "link": "https://store.google.com/it/product/google_health_premium?hl=it",
+      "verificato": "2026-09-19",
+      "nota": "Fitbit Premium è stato rinominato Google Health Premium dal 19 maggio 2026. Le funzioni Premium richiedono un dispositivo Fitbit o Pixel Watch compatibile."
     },
     {
-      "servizio": "Nike Training Club",
+      "servizio": "Amazon Music Unlimited",
+      "annuale": {
+        "disponibile": false,
+        "nota": "Nessun prezzo annuale stabile inserito senza verifica ufficiale Italia."
+      },
+      "famiglia": {
+        "disponibile": false,
+        "nota": "Il catalogo non propone un confronto famiglia finché prezzo e condizioni Italia non sono esposti in modo stabile dalla fonte ufficiale."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "prezzo mostrato al checkout",
+        "nota": "Durata/eligibilità possono variare. Il prezzo EUR non viene dedotto da pagine affiliate o da mercati esteri.",
+        "link": "https://www.amazon.it/music/unlimited",
+        "verificato": "2026-09-19"
+      },
+      "nota": "Prezzo volutamente non strutturato: Hubbo preferisce nessun dato a un dato italiano non verificabile in modo stabile.",
+      "link": "https://www.amazon.it/music/unlimited",
+      "fontePrezzi": "https://www.amazon.it/music/unlimited",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Adobe Acrobat",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Disponibile con contratto annuale fatturato mensilmente o prepagato; esiste anche il mensile senza impegno."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": true,
+        "nota": "Adobe offre condizioni dedicate a studenti/docenti; le promo non entrano nel listino stabile."
+      },
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 7,
+        "poi": "il prezzo standard del piano scelto",
+        "link": "https://www.adobe.com/it/acrobat/pricing/pricing.html",
+        "verificato": "2026-09-19"
+      },
+      "nota": "Le eventuali promo per nuovi abbonati sono escluse dai prezzi stabili e saranno gestite in `offerte` nella Parte 5.",
+      "link": "https://www.adobe.com/it/acrobat/pricing/pricing.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.adobe.com/it/acrobat/pricing/pricing.html",
+      "opzioni": [
+        {
+          "nome": "Standard · mensile senza impegno",
+          "prezzo": 30.74
+        },
+        {
+          "nome": "Pro · mensile senza impegno",
+          "prezzo": 36.59
+        },
+        {
+          "nome": "Studio · mensile senza impegno",
+          "prezzo": 43.04
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Standard · annuale, addebito mensile",
+          "prezzo": 18.45,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "IVA inclusa."
+        },
+        {
+          "nome": "Pro · annuale, addebito mensile",
+          "prezzo": 24.39,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Prezzo standard, IVA inclusa; promo nuovi clienti esclusa."
+        },
+        {
+          "nome": "Studio · annuale, addebito mensile",
+          "prezzo": 30.74,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "IVA inclusa."
+        },
+        {
+          "nome": "Standard · annuale prepagato",
+          "prezzo": 218.36,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "IVA inclusa."
+        },
+        {
+          "nome": "Pro · annuale prepagato",
+          "prezzo": 291.19,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "Prezzo standard, IVA inclusa; promo nuovi clienti esclusa."
+        },
+        {
+          "nome": "Studio · annuale prepagato",
+          "prezzo": 365.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "IVA inclusa."
+        },
+        {
+          "nome": "Standard · mensile senza impegno",
+          "prezzo": 30.74,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "IVA inclusa."
+        },
+        {
+          "nome": "Pro · mensile senza impegno",
+          "prezzo": 36.59,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "IVA inclusa."
+        },
+        {
+          "nome": "Studio · mensile senza impegno",
+          "prezzo": 43.04,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "IVA inclusa."
+        }
+      ]
+    },
+    {
+      "servizio": "PEC",
+      "annuale": {
+        "disponibile": true,
+        "nota": "La durata e il rinnovo dipendono dal gestore PEC scelto."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "PEC è una categoria di servizio, non un unico fornitore: Hubbo non assegna un prezzo nazionale perché cambia per gestore, spazio e servizi inclusi.",
+      "link": "https://www.agid.gov.it/it/piattaforme/posta-elettronica-certificata",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Proton Pass",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Sono disponibili formule a pagamento, ma il catalogo non forza un importo finché la pagina italiana non espone un EUR stabile leggibile."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nota": "Proton offre anche piani multiutente/famiglia in alcune configurazioni."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Prezzo volutamente assente: nessuna conversione da USD o valore dinamico del checkout.",
+      "link": "https://proton.me/pass/pricing",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Shopify",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "La pagina italiana corrente espone i prezzi di riferimento in USD: nessuna conversione automatica in EUR.",
+      "link": "https://www.shopify.com/it/prezzi",
+      "verificato": "2026-09-19",
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 3,
+        "poi": "prezzo mostrato da Shopify per il mercato/account",
+        "link": "https://www.shopify.com/it/prezzi",
+        "verificato": "2026-09-19"
+      }
+    },
+    {
+      "servizio": "Etsy Plus",
       "annuale": {
         "disponibile": false
       },
@@ -2928,9 +4029,1691 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Il grosso dei contenuti è gratuito; verificare se la versione a pagamento esiste ancora nel tuo paese.",
-      "link": "https://www.nike.com/it/ntc-app",
-      "verificato": "2026-09-09"
+      "nota": "Etsy Plus costa 10 USD/mese e viene addebitato nella valuta domestica; Hubbo non converte USD→EUR.",
+      "link": "https://help.etsy.com/hc/it/articles/360001589928-Cos-%C3%A8-Etsy-Plus",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "eBay Negozio",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Quote mensili ufficiali dei Negozi eBay; eventuali imposte/commissioni di vendita restano separate.",
+      "link": "https://www.ebay.it/help/selling/fees-credits-invoices/shop-packages-benefits?id=5147",
+      "verificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Negozio Base",
+          "prezzo": 24.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Negozio Premium",
+          "prezzo": 49.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Negozio Premium Plus",
+          "prezzo": 179.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ],
+      "fontePrezzi": "https://www.ebay.it/help/selling/fees-credits-invoices/shop-packages-benefits?id=5147"
+    },
+    {
+      "servizio": "Amazon Seller",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il piano Professionale è 39 € + IVA/mese; l’Individuale è 0,99 € per unità venduta. Commissioni di vendita e logistica sono separate.",
+      "link": "https://sell.amazon.it/prezzi",
+      "verificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Professionale",
+          "prezzo": 39.0,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "IVA esclusa; commissioni aggiuntive escluse."
+        },
+        {
+          "nome": "Individuale",
+          "prezzo": 0.99,
+          "frequenza": "per unità venduta",
+          "addebito": "a consumo",
+          "vincoloMesi": 0,
+          "nota": "IVA/commissioni ulteriori secondo condizioni."
+        }
+      ],
+      "fontePrezzi": "https://sell.amazon.it/prezzi"
+    },
+    {
+      "servizio": "Wix",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Wix dichiara che prezzi e valuta variano in base alla località; la pagina letta mostra USD di riferimento, quindi nessun EUR viene dedotto.",
+      "link": "https://www.wix.com/plans",
+      "verificato": "2026-09-19",
+      "provaGratuita": {
+        "disponibile": false,
+        "nota": "Garanzia di rimborso 14 giorni, non trattata come prova gratuita."
+      }
+    },
+    {
+      "servizio": "Squarespace",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Piani correnti Basic, Core, Plus e Advanced; la pagina consultata non espone un EUR stabile nel testo, quindi nessun importo viene dedotto.",
+      "link": "https://it.squarespace.com/prezzi",
+      "verificato": "2026-09-19",
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "prezzo del piano disponibile per il proprio account/mercato",
+        "link": "https://it.squarespace.com/prezzi",
+        "verificato": "2026-09-19"
+      }
+    },
+    {
+      "servizio": "WooCommerce",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il core WooCommerce è gratuito e senza abbonamento mensile; i costi dipendono da hosting, pagamenti ed estensioni. Nessun finto prezzo unico.",
+      "link": "https://woocommerce.com/it/pricing/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "PrestaShop",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Classic è scaricabile gratis; Hosted ha un prezzo ufficiale EUR, IVA esclusa. I costi di dominio/moduli restano separati.",
+      "link": "https://prestashop.com/prestashop-offers/",
+      "verificato": "2026-09-19",
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "Hosted 29 €/mese senza impegno oppure piano annuale",
+        "link": "https://prestashop.com/prestashop-offers/hosted",
+        "verificato": "2026-09-19"
+      },
+      "listino": [
+        {
+          "nome": "Hosted · mensile senza impegno",
+          "prezzo": 29.0,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "IVA esclusa."
+        },
+        {
+          "nome": "Hosted · annuale prepagato",
+          "prezzo": 290.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "IVA esclusa; la pagina indica equivalente circa 24 €/mese."
+        }
+      ],
+      "fontePrezzi": "https://prestashop.com/prestashop-offers/"
+    },
+    {
+      "servizio": "BigCommerce",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "La fonte ufficiale espone USD e soglie GMV; nessun EUR viene convertito o dedotto.",
+      "link": "https://www.bigcommerce.com/pricing/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "WordPress",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "WordPress.com espone i piani in USD sulla pagina italiana corrente; il software WordPress.org resta distinto e gratuito. Nessuna conversione EUR.",
+      "link": "https://wordpress.com/it/pricing/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Mailchimp",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Il prezzo dipende dal piano e soprattutto dal numero massimo di contatti; la fonte usa un configuratore e USD di base. Hubbo non salva un singolo prezzo fuorviante.",
+      "link": "https://mailchimp.com/it/pricing/marketing/",
+      "verificato": "2026-09-19",
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "prezzo determinato da piano e numero di contatti",
+        "link": "https://mailchimp.com/it/pricing/marketing/",
+        "verificato": "2026-09-19"
+      }
+    },
+    {
+      "servizio": "HubSpot",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "HubSpot espone EUR, ma il totale cambia per Hub, seat, contatti, onboarding e crediti. Nessun importo unico viene usato dal motore Risparmio.",
+      "link": "https://www.hubspot.com/pricing/bundle?currencyCode=EUR",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Calendly",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "La fonte ufficiale espone USD per seat; nessuna conversione EUR.",
+      "link": "https://calendly.com/pricing",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "QuickBooks",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Prezzi e disponibilità cambiano per mercato/prodotto; nessun prezzo Italia viene dedotto da altri paesi.",
+      "link": "https://quickbooks.intuit.com/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Xero",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "La fonte europea consultata espone USD e annuncia variazioni dal 1 novembre 2026; nessuna conversione EUR.",
+      "link": "https://www.xero.com/ie/pricing-plans/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Aruba Hosting",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Rinnovi annuali per le estensioni più comuni; importi IVA esclusa. Le promo primo anno con scadenza sono escluse e saranno trattate nella Parte 5.",
+      "link": "https://www.aruba.it/listino-hosting.aspx",
+      "verificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Hosting Basic · rinnovo",
+          "prezzo": 34.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "Da, per TLD comuni; IVA esclusa."
+        },
+        {
+          "nome": "Hosting Easy · rinnovo",
+          "prezzo": 59.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "Da, per TLD comuni; IVA esclusa."
+        },
+        {
+          "nome": "Hosting Advanced · rinnovo",
+          "prezzo": 79.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "Da, per TLD comuni; IVA esclusa."
+        },
+        {
+          "nome": "Hosting Professional · rinnovo",
+          "prezzo": 160.0,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "Da; IVA esclusa."
+        }
+      ],
+      "fontePrezzi": "https://www.aruba.it/listino-hosting.aspx"
+    },
+    {
+      "servizio": "GoDaddy",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "La localizzazione del listino può cambiare valuta e le offerte iniziali differiscono dai rinnovi; nessun prezzo unico viene fissato nel catalogo stabile.",
+      "link": "https://www.godaddy.com/it/hosting/web-hosting",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Namecheap",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Listino e rinnovi ufficiali sono in USD; nessuna conversione EUR.",
+      "link": "https://www.namecheap.com/hosting/shared/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Cloudflare",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Piani Free/Pro/Business e servizi a consumo; la fonte espone USD. Nessuna conversione EUR.",
+      "link": "https://www.cloudflare.com/plans/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "DigitalOcean",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Cloud a consumo: dal 1 gennaio 2026 i Droplet usano fatturazione al secondo con cap mensili. Nessun singolo prezzo ricorrente rappresenta il servizio.",
+      "link": "https://www.digitalocean.com/pricing/droplets",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Vercel",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Hobby gratuito, Pro e consumo; i prezzi ufficiali sono USD e tasse escluse. Nessuna conversione EUR.",
+      "link": "https://vercel.com/pricing",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Netlify",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Free, Personal, Pro e crediti d’uso; i prezzi ufficiali sono USD. Nessuna conversione EUR.",
+      "link": "https://www.netlify.com/pricing/",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Substack",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Per i creator la pubblicazione è gratuita; Substack trattiene il 10% delle transazioni a pagamento, oltre alle commissioni del processore. Non è un canone mensile fisso.",
+      "link": "https://support.substack.com/hc/en-us/articles/360037607131-How-much-does-Substack-cost",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Ghost",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Ghost(Pro) espone Starter/Publisher/Business in USD con fatturazione annuale; nessuna conversione EUR.",
+      "link": "https://ghost.org/pricing",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Slack",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "La pagina italiana espone il listino in USD per utente; promo correnti e USD non vengono trasformati in EUR.",
+      "link": "https://slack.com/intl/it-it/pricing",
+      "verificato": "2026-09-19"
+    },
+    {
+      "servizio": "Google Workspace",
+      "annuale": {
+        "disponibile": true
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Prezzi ufficiali EUR per utente. `opzioni` usa solo il flessibile senza impegno annuale; l’impegno annuale resta nel listino.",
+      "link": "https://workspace.google.com/intl/it/business/",
+      "verificato": "2026-09-19",
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 14,
+        "poi": "prezzo del piano scelto",
+        "link": "https://workspace.google.com/intl/it/business/",
+        "verificato": "2026-09-19"
+      },
+      "listino": [
+        {
+          "nome": "Business Starter · flessibile",
+          "prezzo": 8.1,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Per utente."
+        },
+        {
+          "nome": "Business Starter · impegno annuale",
+          "prezzo": 6.8,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Per utente; risparmio dichiarato 16%."
+        },
+        {
+          "nome": "Business Standard · flessibile",
+          "prezzo": 16.2,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Per utente."
+        },
+        {
+          "nome": "Business Standard · impegno annuale",
+          "prezzo": 13.6,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Per utente; risparmio dichiarato 16%."
+        },
+        {
+          "nome": "Business Plus · flessibile",
+          "prezzo": 25.3,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Per utente."
+        },
+        {
+          "nome": "Business Plus · impegno annuale",
+          "prezzo": 21.1,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Per utente; risparmio dichiarato 16%."
+        }
+      ],
+      "fontePrezzi": "https://workspace.google.com/intl/it/business/",
+      "opzioni": [
+        {
+          "nome": "Business Starter · flessibile / utente",
+          "prezzo": 8.1
+        },
+        {
+          "nome": "Business Standard · flessibile / utente",
+          "prezzo": 16.2
+        },
+        {
+          "nome": "Business Plus · flessibile / utente",
+          "prezzo": 25.3
+        }
+      ],
+      "opzioniVerificato": "2026-09-19"
+    },
+    {
+      "servizio": "TIM Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Listino mobile TIM verificato. TIM Mobile Digital è mostrata oggi in promo a 9,99 €/mese ma il prezzo di riferimento barrato è 12,99 €; la promo corrente resta fuori dal listino stabile e sarà gestita nella Parte 5.",
+      "link": "https://www.tim.it/fisso-e-mobile/mobile",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.tim.it/fisso-e-mobile/mobile",
+      "opzioni": [
+        {
+          "nome": "TIM Mobile Digital · listino",
+          "prezzo": 12.99
+        },
+        {
+          "nome": "TIM Young · base Under 30",
+          "prezzo": 9.99
+        },
+        {
+          "nome": "TIM 60+",
+          "prezzo": 12.99
+        },
+        {
+          "nome": "TIM Basic",
+          "prezzo": 7.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "TIM Mobile Digital · listino",
+          "prezzo": 12.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "TIM Young · base Under 30",
+          "prezzo": 9.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "TIM 60+",
+          "prezzo": 12.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "TIM Basic",
+          "prezzo": 7.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "TIM WiFi Casa",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Prezzi di riferimento TIM: le riduzioni attive fino al 26/09/2026 sono promozioni e non vengono mescolate al listino stabile. L’opzione Fibra 10 GIGA aggiunge 5 €/mese.",
+      "link": "https://www.tim.it/fisso-e-mobile/fibra-e-adsl/fibra-internet-casa",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.tim.it/fisso-e-mobile/fibra-e-adsl/fibra-internet-casa",
+      "opzioni": [
+        {
+          "nome": "TIM WiFi Casa · prezzo di riferimento",
+          "prezzo": 31.9
+        },
+        {
+          "nome": "TIM WiFi Casa + opzione 10 GIGA · prezzo di riferimento",
+          "prezzo": 36.9
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "TIM WiFi Casa · prezzo di riferimento",
+          "prezzo": 31.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Prezzo di riferimento prima delle promo temporanee correnti."
+        },
+        {
+          "nome": "TIM WiFi Casa + opzione 10 GIGA · prezzo di riferimento",
+          "prezzo": 36.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "31,90 € + opzione Fibra 10 GIGA da 5 €/mese; copertura XGS-PON richiesta."
+        }
+      ]
+    },
+    {
+      "servizio": "Vodafone Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Listino Vodafone mobile corrente. Eventuali mesi gratis, invita-un-amico e condizioni convergenti sono promozioni/condizioni separate e non alterano il canone stabile qui registrato.",
+      "link": "https://privati.vodafone.it/mobile/passa-a-vodafone",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://privati.vodafone.it/mobile/passa-a-vodafone",
+      "opzioni": [
+        {
+          "nome": "START · 150 GB",
+          "prezzo": 9.95
+        },
+        {
+          "nome": "PRO · 250 GB",
+          "prezzo": 11.95
+        },
+        {
+          "nome": "POWER · 400 GB",
+          "prezzo": 14.95
+        },
+        {
+          "nome": "ULTRA · Giga illimitati",
+          "prezzo": 19.95
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "START · 150 GB",
+          "prezzo": 9.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "PRO · 250 GB",
+          "prezzo": 11.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "POWER · 400 GB",
+          "prezzo": 14.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "ULTRA · Giga illimitati",
+          "prezzo": 19.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "Vodafone Casa",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Canoni base rete fissa Vodafone. Sconti Casa+Mobile e altre promo sono condizioni separate e saranno trattati nella Parte 5/opportunità combinate.",
+      "link": "https://privati.vodafone.it/casa/fibra",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://privati.vodafone.it/casa/fibra",
+      "opzioni": [
+        {
+          "nome": "Casa FWA",
+          "prezzo": 25.95
+        },
+        {
+          "nome": "Casa Start",
+          "prezzo": 27.95
+        },
+        {
+          "nome": "Casa Pro",
+          "prezzo": 29.95
+        },
+        {
+          "nome": "Casa Ultra",
+          "prezzo": 36.95
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Casa FWA",
+          "prezzo": 25.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Casa Start",
+          "prezzo": 27.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Casa Pro",
+          "prezzo": 29.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Casa Ultra",
+          "prezzo": 36.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "WINDTRE Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Start Unlimited 5G Easy Pay è il canone ricorrente verificato sulle condizioni ufficiali correnti. Costi SIM/attivazione e promozioni smartphone sono separati.",
+      "link": "https://www.windtre.it/offerte-smartphone",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.windtre.it/offerte-smartphone",
+      "opzioni": [
+        {
+          "nome": "Start Unlimited 5G Easy Pay",
+          "prezzo": 12.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Start Unlimited 5G Easy Pay",
+          "prezzo": 12.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "WINDTRE Super Fibra",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Prezzi di regime dalla trasparenza tariffaria WINDTRE; attivazione, rate modem e promozioni possono modificare l’esborso nei primi mesi e sono indicati separatamente dalla fonte.",
+      "link": "https://www.windtre.it/trasparenza-tariffaria",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.windtre.it/trasparenza-tariffaria",
+      "opzioni": [
+        {
+          "nome": "Super Fibra Full",
+          "prezzo": 35.89
+        },
+        {
+          "nome": "Super Internet Casa Full FWA 5G",
+          "prezzo": 32.98
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Super Fibra Full",
+          "prezzo": 35.89,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Super Internet Casa Full FWA 5G",
+          "prezzo": 32.98,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "Iliad Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Sono incluse solo offerte sottoscrivibili senza una data di fine pubblicata. TOP 230 a 9,99 € termina il 29/10/2026 e viene rimandata alla Parte 5 come offerta temporanea.",
+      "link": "https://www.iliad.it/trasparenza-tariffaria-mobile.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.iliad.it/trasparenza-tariffaria-mobile.html",
+      "opzioni": [
+        {
+          "nome": "Voce",
+          "prezzo": 4.99
+        },
+        {
+          "nome": "GIGA 150",
+          "prezzo": 7.99
+        },
+        {
+          "nome": "Giga 180",
+          "prezzo": 8.99
+        },
+        {
+          "nome": "GIGA 250",
+          "prezzo": 11.99
+        },
+        {
+          "nome": "Dati 350",
+          "prezzo": 14.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Voce",
+          "prezzo": 4.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "GIGA 150",
+          "prezzo": 7.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Giga 180",
+          "prezzo": 8.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "GIGA 250",
+          "prezzo": 11.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Dati 350",
+          "prezzo": 14.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "Iliadbox",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Canoni base 2026 e prezzi convergenti Casa+Mobile separati nel listino. I prezzi convergenti richiedono una linea mobile idonea e non sono opzioni universali.",
+      "link": "https://www.iliad.it/iliadbox/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.iliad.it/iliadbox/",
+      "opzioni": [
+        {
+          "nome": "iliadbox Wi-Fi 7 2026",
+          "prezzo": 26.99
+        },
+        {
+          "nome": "iliadbox super 2026",
+          "prezzo": 34.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "iliadbox Wi-Fi 7 2026",
+          "prezzo": 26.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "iliadbox Wi-Fi 7 · Casa + Mobile",
+          "prezzo": 22.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Prezzo condizionato a linea mobile idonea."
+        },
+        {
+          "nome": "iliadbox super 2026",
+          "prezzo": 34.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "iliadbox super · Casa + Mobile",
+          "prezzo": 29.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Prezzo condizionato a linea mobile idonea."
+        }
+      ]
+    },
+    {
+      "servizio": "Fastweb Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Canoni mobile Fastweb correnti. Contributo SIM/eSIM e convergenze con casa/energia sono separati.",
+      "link": "https://www.fastweb.it/adsl-fibra-ottica/configuratore-offerta/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.fastweb.it/adsl-fibra-ottica/configuratore-offerta/",
+      "opzioni": [
+        {
+          "nome": "Mobile Start · 150 GB",
+          "prezzo": 9.95
+        },
+        {
+          "nome": "Mobile Pro · 250 GB",
+          "prezzo": 11.95
+        },
+        {
+          "nome": "Mobile Power · 400 GB",
+          "prezzo": 14.95
+        },
+        {
+          "nome": "Mobile Ultra · Giga illimitati",
+          "prezzo": 19.95
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Mobile Start · 150 GB",
+          "prezzo": 9.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Mobile Pro · 250 GB",
+          "prezzo": 11.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Mobile Power · 400 GB",
+          "prezzo": 14.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Mobile Ultra · Giga illimitati",
+          "prezzo": 19.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "Fastweb Casa",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Canoni base casa Fastweb. Gli sconti ottenibili aggiungendo una SIM o energia sono condizioni convergenti e non sostituiscono il listino base.",
+      "link": "https://www.fastweb.it/adsl-fibra-ottica/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.fastweb.it/adsl-fibra-ottica/",
+      "opzioni": [
+        {
+          "nome": "Casa FWA Light",
+          "prezzo": 25.95
+        },
+        {
+          "nome": "Casa Start",
+          "prezzo": 27.95
+        },
+        {
+          "nome": "Casa Pro",
+          "prezzo": 29.95
+        },
+        {
+          "nome": "Casa Ultra",
+          "prezzo": 36.95
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Casa FWA Light",
+          "prezzo": 25.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Casa Start",
+          "prezzo": 27.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Casa Pro",
+          "prezzo": 29.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Casa Ultra",
+          "prezzo": 36.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "ho. Casa",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "SIM dati casa da 500 GB in 5G. Il prezzo già-cliente richiede una SIM ho. chiamate+internet; costo di attivazione separato.",
+      "link": "https://www.ho-mobile.it/offer-home",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.ho-mobile.it/offer-home",
+      "opzioni": [
+        {
+          "nome": "500 GB 5G · nuovo cliente",
+          "prezzo": 14.95
+        },
+        {
+          "nome": "500 GB 5G · già cliente ho.",
+          "prezzo": 12.95
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "500 GB 5G · nuovo cliente",
+          "prezzo": 14.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "500 GB 5G · già cliente ho.",
+          "prezzo": 12.95,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "PosteMobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Scheda censita ma senza opzioni stabili: le offerte pubbliche correnti sono fortemente promozionali/target e cambiano con scadenze ravvicinate. Saranno trattate nella Parte 5.",
+      "link": "https://www.postemobile.it/offerte-privati",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.postemobile.it/offerte-privati",
+      "listino": []
+    },
+    {
+      "servizio": "ho. Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Scheda censita ma senza opzioni stabili: i prezzi mobile correnti sono legati a provenienza/portabilità, iniziative online e countdown. Niente canone “universale” inventato; Parte 5 gestirà le promo.",
+      "link": "https://www.ho-mobile.it/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.ho-mobile.it/",
+      "listino": []
+    },
+    {
+      "servizio": "Kena Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Offerte in commercializzazione dalla trasparenza Kena. L’idoneità può dipendere da provenienza, canale o altre condizioni: verificare sempre i dettagli della singola offerta.",
+      "link": "https://www.kenamobile.it/chi-siamo/per-i-consumatori/trasparenza-tariffaria/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.kenamobile.it/chi-siamo/per-i-consumatori/trasparenza-tariffaria/",
+      "opzioni": [
+        {
+          "nome": "Voce 10 GB",
+          "prezzo": 4.99
+        },
+        {
+          "nome": "150 GB TOP 5G",
+          "prezzo": 4.99
+        },
+        {
+          "nome": "200 GB Limited Ed. 5G",
+          "prezzo": 5.99
+        },
+        {
+          "nome": "250 GB 5G",
+          "prezzo": 7.99
+        },
+        {
+          "nome": "350 GB 5G",
+          "prezzo": 9.99
+        },
+        {
+          "nome": "200 GB 5G",
+          "prezzo": 11.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Voce 10 GB",
+          "prezzo": 4.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "150 GB TOP 5G",
+          "prezzo": 4.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "200 GB Limited Ed. 5G",
+          "prezzo": 5.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "250 GB 5G",
+          "prezzo": 7.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "350 GB 5G",
+          "prezzo": 9.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "200 GB 5G",
+          "prezzo": 11.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "CoopVoce",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Canoni ricorrenti delle offerte Self SIM; eventuale primo mese incluso o iniziative di acquisizione sono promozioni separate.",
+      "link": "https://www.coopvoce.it/portale/offerte/self-sim.html",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.coopvoce.it/portale/offerte/self-sim.html",
+      "opzioni": [
+        {
+          "nome": "SMART",
+          "prezzo": 3.9
+        },
+        {
+          "nome": "SMART 30",
+          "prezzo": 4.9
+        },
+        {
+          "nome": "TURBO 200",
+          "prezzo": 7.9
+        },
+        {
+          "nome": "TURBO 400",
+          "prezzo": 9.9
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "SMART",
+          "prezzo": 3.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "SMART 30",
+          "prezzo": 4.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "TURBO 200",
+          "prezzo": 7.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "TURBO 400",
+          "prezzo": 9.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "Very Mobile",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Fasce di canone ricorrente censite; Giga e accessibilità dipendono dall’offerta e dall’operatore di provenienza. Il nome evita di attribuire un bundle universale dove non esiste.",
+      "link": "https://verymobile.it/offerte/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://verymobile.it/offerte/",
+      "opzioni": [
+        {
+          "nome": "Very 4,99 € · Voce",
+          "prezzo": 4.99
+        },
+        {
+          "nome": "Very 5,99 €",
+          "prezzo": 5.99
+        },
+        {
+          "nome": "Very 6,99 €",
+          "prezzo": 6.99
+        },
+        {
+          "nome": "Very 7,99 €",
+          "prezzo": 7.99
+        },
+        {
+          "nome": "Very 8,99 €",
+          "prezzo": 8.99
+        },
+        {
+          "nome": "Very 9,99 €",
+          "prezzo": 9.99
+        },
+        {
+          "nome": "Very 11,99 €",
+          "prezzo": 11.99
+        },
+        {
+          "nome": "Very 12,99 €",
+          "prezzo": 12.99
+        },
+        {
+          "nome": "Very 13,99 €",
+          "prezzo": 13.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Very 4,99 € · Voce",
+          "prezzo": 4.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 5,99 €",
+          "prezzo": 5.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 6,99 €",
+          "prezzo": 6.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 7,99 €",
+          "prezzo": 7.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 8,99 €",
+          "prezzo": 8.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 9,99 €",
+          "prezzo": 9.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 11,99 €",
+          "prezzo": 11.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 12,99 €",
+          "prezzo": 12.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Very 13,99 €",
+          "prezzo": 13.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        }
+      ]
+    },
+    {
+      "servizio": "Starlink",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Scheda strutturale senza prezzo universale: disponibilità e prezzo devono essere verificati inserendo l’indirizzo di servizio. Hubbo non riusa come universale un vecchio prezzo regolamentare.",
+      "link": "https://www.starlink.com/residential",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.starlink.com/residential",
+      "listino": []
+    },
+    {
+      "servizio": "Telepass",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Canoni ordinari “salvo promozioni”. Le promozioni attuali (mesi/anno gratis) non alterano il listino stabile e saranno censite nella Parte 5.",
+      "link": "https://www.telepass.com/it/privati/offerte",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.telepass.com/it/privati/offerte",
+      "opzioni": [
+        {
+          "nome": "Base",
+          "prezzo": 3.9
+        },
+        {
+          "nome": "Plus",
+          "prezzo": 4.9
+        },
+        {
+          "nome": "Sempre",
+          "prezzo": 4.9
+        },
+        {
+          "nome": "Pay X",
+          "prezzo": 7.3
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Base",
+          "prezzo": 3.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Plus",
+          "prezzo": 4.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Sempre",
+          "prezzo": 4.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Pay X",
+          "prezzo": 7.3,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Pay Per Use · telepedaggio",
+          "prezzo": 1.0,
+          "frequenza": "giornaliera",
+          "addebito": "a consumo",
+          "vincoloMesi": 0,
+          "nota": "1 € per giorno di utilizzo del telepedaggio; attivazione 20 € separata."
+        }
+      ]
+    },
+    {
+      "servizio": "UnipolMove",
+      "annuale": {
+        "disponibile": false
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Canoni ordinari dopo la promozione: Base 2,50 €/mese, Europeo 2,90 €/mese. Il primo anno gratis e gli sconti di attivazione in corso hanno scadenza e sono rimandati alla Parte 5.",
+      "link": "https://www.unipolmove.it/piani/privati/",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://www.unipolmove.it/piani/privati/",
+      "opzioni": [
+        {
+          "nome": "Base · canone ordinario",
+          "prezzo": 2.5
+        },
+        {
+          "nome": "Europeo · canone ordinario",
+          "prezzo": 2.9
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Base · canone ordinario",
+          "prezzo": 2.5,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Europeo · canone ordinario",
+          "prezzo": 2.9,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Pay per Use",
+          "prezzo": 1.0,
+          "frequenza": "giornaliera",
+          "addebito": "a consumo",
+          "vincoloMesi": 0,
+          "nota": "1 € di canone per giorno in cui lo usi; attivazione separata."
+        }
+      ]
+    },
+    {
+      "servizio": "Uber One",
+      "annuale": {
+        "disponibile": true,
+        "nome": "Annuale",
+        "prezzo": 49.99,
+        "nota": "49,99 € addebitati annualmente."
+      },
+      "famiglia": {
+        "disponibile": true,
+        "nome": "Condivisione familiare",
+        "persone": 2,
+        "nota": "Per membri idonei: il titolare può collegare un membro secondario alla volta, senza trasformare il piano in un generico “family plan”."
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "Abbonamento Uber One in EUR. Il piano annuale è un totale annuo e resta nel listino, non come finto prezzo mensile.",
+      "link": "https://help.uber.com/it-IT/riders/article/co-je-uber%C2%A0one?nodeId=1bf486b9-ba63-475c-afbe-9d87dc1af3e9",
+      "verificato": "2026-09-19",
+      "fontePrezzi": "https://help.uber.com/it-IT/riders/article/co-je-uber%C2%A0one?nodeId=1bf486b9-ba63-475c-afbe-9d87dc1af3e9",
+      "opzioni": [
+        {
+          "nome": "Mensile",
+          "prezzo": 4.99
+        }
+      ],
+      "opzioniVerificato": "2026-09-19",
+      "listino": [
+        {
+          "nome": "Mensile",
+          "prezzo": 4.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Annuale",
+          "prezzo": 49.99,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ],
+      "famigliaVerificato": "2026-09-19"
     }
-  ]
+  ],
+  "schemaListino": {
+    "descrizione": "Varianti tariffarie verificate. Campo informativo/audit: la UI corrente usa `opzioni` per il selettore mensile.",
+    "campi": {
+      "nome": "nome del piano/variante",
+      "prezzo": "importo addebitato nella valuta del file",
+      "frequenza": "periodo di riferimento (mensile/annuale)",
+      "addebito": "cadenza effettiva dell’addebito (mensile/annuale)",
+      "vincoloMesi": "durata minima quando presente",
+      "nota": "limitazioni o disponibilità rilevanti"
+    }
+  }
 }
