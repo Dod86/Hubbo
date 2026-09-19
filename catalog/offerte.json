@@ -1,6 +1,6 @@
 {
   "versione": 5,
-  "aggiornato": "2026-09-19",
+  "aggiornato": "2026-09-20",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente.",
@@ -1360,10 +1360,8 @@
         "nota": "L'annuale costa meno di dodici mensilita'."
       },
       "famiglia": {
-        "disponibile": true,
-        "nome": "Amazon Household",
-        "persone": 2,
-        "nota": "Due adulti condividono le spedizioni; Prime Video no."
+        "disponibile": false,
+        "nota": "Amazon Family non è un piano alternativo: è una funzione inclusa per i clienti Prime."
       },
       "studenti": {
         "disponibile": true,
@@ -1379,7 +1377,7 @@
         "verificato": "2026-09-16"
       },
       "link": "https://www.amazon.it/gp/primecentral",
-      "verificato": "2026-09-05",
+      "verificato": "2026-09-20",
       "opzioni": [
         {
           "nome": "Mensile",
@@ -1418,7 +1416,17 @@
           "vincoloMesi": 0,
           "nota": "Tariffa studenti già presente nel catalogo; requisiti da verificare al checkout."
         }
-      ]
+      ],
+      "famigliaVerificato": "2026-09-20",
+      "condivisioneInclusa": {
+        "disponibile": true,
+        "nome": "Amazon Family",
+        "persone": 2,
+        "costoAggiuntivo": 0,
+        "nota": "Puoi invitare un altro adulto del tuo nucleo familiare e condividere molti benefici Prime senza costi aggiuntivi, mantenendo account separati. Sono inclusi consegne Prime, Prime Video con pubblicità, Amazon Music Prime, offerte Prime e Amazon Luna.",
+        "link": "https://www.amazon.it/prime/familyhub",
+        "verificato": "2026-09-20"
+      }
     },
     {
       "servizio": "Apple Music",
