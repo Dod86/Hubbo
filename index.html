@@ -298,23 +298,14 @@ function fixedAccentCardStyle(accentColor, colors, light) {
   const grey = accent[0] * 0.2126 + accent[1] * 0.7152 + accent[2] * 0.0722;
   const tone = (strength) => accent.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.32 - base[i]) * strength));
   const tones = [
-    tone(light ? 0.42 : 0.32),
-    tone(light ? 0.31 : 0.24),
-    tone(light ? 0.23 : 0.18)
-  ];
-  const tint = (index, alpha = 1) => `rgba(${tones[index].join(",")},${alpha})`;
-  style.backgroundImage = `radial-gradient(ellipse at 0% 0%, ${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, ${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, ${tint(2, 0.55)} 0%, transparent 58%)`;
+  tone(light ? 0.42 : 0.32),
+  tone(light ? 0.31 : 0.24),
+  tone(light ? 0.23 : 0.18)];
+
+  const tint = (index, alpha = 1) => \`rgba(\${tones[index].join(",")},\${alpha})\`;
+  style.backgroundImage = \`radial-gradient(ellipse at 0% 0%, \${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, \${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, \${tint(2, 0.55)} 0%, transparent 58%)\`;
   return style;
 }
-
-const SAVINGS_SECTION_ACCENTS = {
-  decideNow: ACCENT.terracotta,
-  offers: ACCENT.amber,
-  duplicates: "#4F8D93",
-  opportunities: ACCENT.green,
-  plans: "#8A74C6",
-  watchlist: "#6D93C4"
-};
 
 // v194: sfondo tenue delle sole righe Elenco, dal colore del loro anello.
 function serviceCardBackground(ringColor, colors, light) {
@@ -339,6 +330,17 @@ function serviceCardBackground(ringColor, colors, light) {
 // Side by side — and "elimina" often sits next to a secondary action — they
 // read as the same colour, so the alarm has been pushed properly red.
 const ACCENT = { amber: "#E3A857", terracotta: "#C4643C", danger: "#E05545", green: "#4CAF7D" };
+
+const SAVINGS_SECTION_ACCENTS = {
+  decideNow: ACCENT.terracotta,
+  offers: ACCENT.amber,
+  duplicates: "#4F8D93",
+  opportunities: ACCENT.green,
+  plans: "#8A74C6",
+  watchlist: "#6D93C4"
+};
+
+
 
 // The open ring is the mark of the app, and it appears in three places: the
 // wordmark, the add button and the spending ring. They have to be the same
@@ -484,7 +486,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v251";
+const APP_VERSION = "v252";
 const APP_BUILD_DATE = "2026-09-20";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
