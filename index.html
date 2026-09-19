@@ -422,31 +422,52 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v241";
+const APP_VERSION = "v242";
 const APP_BUILD_DATE = "2026-09-19";
-// Parte 8A/8B — dati commerciali separati dall'app. Il manifest remoto è il
-// punto di ingresso versionato del catalogo; \`catalogUrl\` indica il JSON dati.
-// \`REMOTE_CATALOG_URL\` resta come ripiego compatibile con la v240 se il manifest
-// non è raggiungibile. \`./offerte.json\` è invece la fotografia locale della
-// release, utile al primo avvio/offline.
+// Parte 8A/8B/8C — dati commerciali separati dall'app. Da v242 il manifest è
+// obbligatorio per ogni aggiornamento remoto: nessun catalogo scaricato viene
+// attivato se schema, versione minima dell'app o SHA-256 non coincidono.
+// \`./offerte.json\` resta la fotografia locale fidata della release e garantisce
+// il primo avvio/offline quando non esiste ancora una copia remota verificata.
 const REMOTE_CATALOG_MANIFEST_URL = "https://dod86.github.io/Hubbo/catalog/manifest.json";
 const REMOTE_CATALOG_URL = "https://dod86.github.io/Hubbo/catalog/offerte.json";
 const LOCAL_CATALOG_URL = "./offerte.json";
 const CATALOG_STORAGE_KEY = "abbly:offers";
-// In 8B il manifest viene controllato strutturalmente e usato per risolvere la
-// versione/URL del catalogo. La verifica SHA-256, la compatibilità obbligatoria
-// di schema/app e l'attivazione atomica appartengono alla Parte 8C.
+const CATALOG_PENDING_STORAGE_KEY = "abbly:offers:pending";
+const SUPPORTED_CATALOG_SCHEMA_VERSION = 5;
+function appVersionNumber(version) {
+    const match = /^v(\\d+)$/.exec(String(version || ""));
+    return match ? Number(match[1]) : null;
+}
 function isUsableCatalogManifest(manifest) {
     return !!(manifest &&
         Number.isInteger(manifest.catalogVersion) && manifest.catalogVersion > 0 &&
         Number.isInteger(manifest.schemaVersion) && manifest.schemaVersion > 0 &&
-        typeof manifest.generatedAt === "string" && manifest.generatedAt.length > 0 &&
-        typeof manifest.minAppVersion === "string" && manifest.minAppVersion.length > 0 &&
+        typeof manifest.generatedAt === "string" && !Number.isNaN(Date.parse(manifest.generatedAt)) &&
+        typeof manifest.minAppVersion === "string" && appVersionNumber(manifest.minAppVersion) !== null &&
         typeof manifest.catalogUrl === "string" && /^https:\\/\\//i.test(manifest.catalogUrl) &&
         typeof manifest.sha256 === "string" && /^[a-f0-9]{64}$/i.test(manifest.sha256));
 }
-function isUsableCatalogFile(file) {
-    return !!(file && Array.isArray(file.piani));
+function isCatalogManifestCompatible(manifest) {
+    if (!isUsableCatalogManifest(manifest))
+        return false;
+    const current = appVersionNumber(APP_VERSION);
+    const minimum = appVersionNumber(manifest.minAppVersion);
+    return (current !== null && minimum !== null && minimum <= current &&
+        manifest.schemaVersion === SUPPORTED_CATALOG_SCHEMA_VERSION);
+}
+function isUsableCatalogFile(file, expectedSchema = SUPPORTED_CATALOG_SCHEMA_VERSION) {
+    return !!(file &&
+        Number(file.versione) === Number(expectedSchema) &&
+        Array.isArray(file.piani) &&
+        Array.isArray(file.offerte) &&
+        Array.isArray(file.opportunita));
+}
+async function sha256Hex(bytes) {
+    if (!window.crypto || !window.crypto.subtle || typeof window.crypto.subtle.digest !== "function")
+        return null;
+    const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 // I nomi del listino devono combaciare con quelli del catalogo. Quello che non
 // combacia viene ignorato: indovinare accoppiamenti significa attribuire a un
@@ -6425,53 +6446,99 @@ function HubboApp() {
             cancelled = true;
         };
     }, []);
-    // Parte 8A/8B — catalogo remoto con fallback locale e manifest versionato.
-    // L'ordine resta retrocompatibile:
-    // 1) ultima copia già salvata, per mostrare subito dati validi/offline;
-    // 2) manifest remoto -> URL/versione del catalogo;
-    // 3) endpoint remoto v240 come ripiego se il manifest non è disponibile;
-    // 4) \`./offerte.json\` soltanto se non esiste ancora nessuna copia valida.
-    // Un errore remoto non sovrascrive mai il catalogo già in uso.
+    // Parte 8C — aggiornamento remoto sicuro e atomico. Sequenza obbligatoria:
+    // scarica -> valida -> verifica SHA-256 -> salva -> attiva. La copia persistente
+    // verificata viene mostrata subito; un errore successivo non la sostituisce.
+    // Il fallback locale entra soltanto se non esiste una copia verificata valida.
     const [offersFile, setOffersFile] = useState(null);
     const offersFetchRef = useRef(0);
     const OFFERS_MIN_REFETCH_MS = 30 * 60 * 1000;
     useEffect(() => {
         let cancelled = false;
+        const decodeAndValidateCatalog = (rawText, manifest) => {
+            if (typeof rawText !== "string" || !isCatalogManifestCompatible(manifest))
+                return null;
+            try {
+                const file = JSON.parse(rawText);
+                return isUsableCatalogFile(file, manifest.schemaVersion) ? file : null;
+            }
+            catch {
+                return null;
+            }
+        };
+        const readVerifiedEnvelope = async (rawValue) => {
+            try {
+                const saved = typeof rawValue === "string" ? JSON.parse(rawValue) : rawValue;
+                if (!saved || saved.verified !== true || typeof saved.rawText !== "string")
+                    return null;
+                if (!isCatalogManifestCompatible(saved.manifest))
+                    return null;
+                const file = decodeAndValidateCatalog(saved.rawText, saved.manifest);
+                if (!file)
+                    return null;
+                const hash = await sha256Hex(new TextEncoder().encode(saved.rawText));
+                if (!hash || hash !== String(saved.manifest.sha256).toLowerCase())
+                    return null;
+                return { file, manifest: saved.manifest, hash };
+            }
+            catch {
+                return null;
+            }
+        };
         const loadCachedCatalog = async () => {
             try {
+                // Un candidato lasciato a metà da un arresto precedente non diventa
+                // mai attivo da solo: l'ultima copia confermata resta la sola autorità.
+                try {
+                    await window.storage.delete(CATALOG_PENDING_STORAGE_KEY, false);
+                }
+                catch { }
                 const cachedRaw = await window.storage.get(CATALOG_STORAGE_KEY, false);
                 if (!cachedRaw || cancelled)
                     return false;
-                const cached = JSON.parse(cachedRaw.value);
-                if (!isUsableCatalogFile(cached && cached.file))
+                const verified = await readVerifiedEnvelope(cachedRaw.value);
+                if (!verified || cancelled)
                     return false;
-                setOffersFile(cached.file);
+                setOffersFile(verified.file);
                 return true;
             }
             catch {
                 return false;
             }
         };
-        const fetchCatalog = async (url, source, manifest = null) => {
+        const saveVerifiedCatalog = async (rawText, manifest, hash) => {
+            const record = {
+                formatVersion: 1,
+                verified: true,
+                rawText,
+                fetchedAt: Date.now(),
+                source: "remote-manifest",
+                manifest,
+                sha256: hash,
+            };
+            const encoded = JSON.stringify(record);
             try {
-                const res = await fetch(url, { cache: "no-store" });
-                if (!res.ok || cancelled)
-                    return false;
-                const file = await res.json();
-                if (!isUsableCatalogFile(file) || cancelled)
-                    return false;
-                setOffersFile(file);
+                // Staging separato: se l'app viene chiusa qui, \`abbly:offers\` conserva
+                // ancora l'ultima versione valida. Solo un candidato riletto e
+                // riverificato può sostituire la copia attiva.
+                await window.storage.set(CATALOG_PENDING_STORAGE_KEY, encoded, false);
+                const pendingRaw = await window.storage.get(CATALOG_PENDING_STORAGE_KEY, false);
+                const pending = pendingRaw && await readVerifiedEnvelope(pendingRaw.value);
+                if (!pending || pending.hash !== hash)
+                    return null;
+                await window.storage.set(CATALOG_STORAGE_KEY, encoded, false);
+                const activeRaw = await window.storage.get(CATALOG_STORAGE_KEY, false);
+                const active = activeRaw && await readVerifiedEnvelope(activeRaw.value);
+                if (!active || active.hash !== hash)
+                    return null;
                 try {
-                    await window.storage.set(CATALOG_STORAGE_KEY, JSON.stringify({ file, fetchedAt: Date.now(), source, manifest }), false);
+                    await window.storage.delete(CATALOG_PENDING_STORAGE_KEY, false);
                 }
-                catch {
-                    // Il catalogo appena scaricato resta utilizzabile in memoria anche
-                    // se il dispositivo non consente di aggiornare la copia persistente.
-                }
-                return true;
+                catch { }
+                return active.file;
             }
             catch {
-                return false;
+                return null;
             }
         };
         const fetchCatalogManifest = async () => {
@@ -6480,10 +6547,59 @@ function HubboApp() {
                 if (!res.ok || cancelled)
                     return null;
                 const manifest = await res.json();
-                return !cancelled && isUsableCatalogManifest(manifest) ? manifest : null;
+                return !cancelled && isCatalogManifestCompatible(manifest) ? manifest : null;
             }
             catch {
                 return null;
+            }
+        };
+        const fetchVerifiedRemoteCatalog = async (manifest) => {
+            if (!isCatalogManifestCompatible(manifest))
+                return false;
+            try {
+                const res = await fetch(manifest.catalogUrl, { cache: "no-store" });
+                if (!res.ok || cancelled)
+                    return false;
+                const bytes = await res.arrayBuffer();
+                if (cancelled)
+                    return false;
+                let rawText;
+                let file;
+                try {
+                    rawText = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+                    file = decodeAndValidateCatalog(rawText, manifest);
+                }
+                catch {
+                    return false;
+                }
+                if (!file || cancelled)
+                    return false;
+                const hash = await sha256Hex(bytes);
+                if (!hash || hash !== String(manifest.sha256).toLowerCase() || cancelled)
+                    return false;
+                const savedFile = await saveVerifiedCatalog(rawText, manifest, hash);
+                if (!savedFile || cancelled)
+                    return false;
+                setOffersFile(savedFile);
+                return true;
+            }
+            catch {
+                return false;
+            }
+        };
+        const fetchLocalCatalog = async () => {
+            try {
+                const res = await fetch(LOCAL_CATALOG_URL, { cache: "no-store" });
+                if (!res.ok || cancelled)
+                    return false;
+                const file = await res.json();
+                if (!isUsableCatalogFile(file, SUPPORTED_CATALOG_SCHEMA_VERSION) || cancelled)
+                    return false;
+                setOffersFile(file);
+                return true;
+            }
+            catch {
+                return false;
             }
         };
         const fetchFreshRemote = async (force) => {
@@ -6491,26 +6607,22 @@ function HubboApp() {
             if (!force && now - offersFetchRef.current < OFFERS_MIN_REFETCH_MS)
                 return false;
             offersFetchRef.current = now;
+            // Da 8C non esiste più il ripiego diretto all'endpoint dati: senza un
+            // manifest compatibile non c'è hash attendibile e il remoto non si attiva.
             const manifest = await fetchCatalogManifest();
-            if (manifest) {
-                return fetchCatalog(manifest.catalogUrl, "remote-manifest", manifest);
-            }
-            // Compatibilità 8A/v240: finché 8C non renderà obbligatoria la verifica
-            // del manifest, un problema del solo manifest non disattiva il remoto.
-            return fetchCatalog(REMOTE_CATALOG_URL, "remote-legacy");
+            if (!manifest)
+                return false;
+            return fetchVerifiedRemoteCatalog(manifest);
         };
         (async () => {
             const hasCachedCatalog = await loadCachedCatalog();
             const hasFreshRemote = await fetchFreshRemote(true);
-            // Il fallback locale è una rete di sicurezza, non una fonte che deve
-            // rimpiazzare una copia remota valida solo perché in questo momento la
-            // rete non risponde.
             if (!hasFreshRemote && !hasCachedCatalog) {
-                await fetchCatalog(LOCAL_CATALOG_URL, "local-fallback");
+                await fetchLocalCatalog();
             }
         })();
-        // Quando l'app torna in primo piano si ricontrolla solo la fonte remota.
-        // L'intervallo evita richieste ripetute durante normali cambi di scheda.
+        // Quando l'app torna in primo piano ricontrolla soltanto il remoto sicuro.
+        // Un fallimento non tocca la copia già attiva.
         const onVisible = () => {
             if (document.visibilityState === "visible")
                 fetchFreshRemote(false);
