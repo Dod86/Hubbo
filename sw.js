@@ -1,10 +1,14 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v239";
+const CACHE = "hubbo-v240";
 
 const CORE = [
   "./",
   "./index.html",
   "./manifest.json",
+  // Parte 8A: copia locale immutabile della release. Il catalogo remoto è
+  // fuori dal CORE e resta network-first; questo file esiste solo per
+  // garantire un avvio offline anche senza una copia catalogo già salvata.
+  "./offerte.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
@@ -186,10 +190,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // The offers list is data, not a file. Same origin, so without this it
-  // would fall into the cache-first branch below and be answered forever from
-  // the first copy ever fetched — the exact fault already paid for once with
-  // the exchange rates. Network first, cache only as a fallback offline.
+  // I cataloghi sono dati, non asset. Sia `catalog/offerte.json` (remoto) sia
+  // `./offerte.json` (fallback locale) devono restare network-first quando la
+  // rete esiste; il precache del fallback garantisce soltanto l'uso offline.
   if (sameOrigin && url.pathname.endsWith("offerte.json")) {
     event.respondWith(
       fetch(req)

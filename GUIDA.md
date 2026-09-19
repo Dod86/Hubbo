@@ -7,7 +7,8 @@ carichi e funziona.
 index.html          l'app
 manifest.json       dice al telefono come installarla
 sw.js               fa funzionare l'app offline
-offerte.json        il listino dei piani e delle offerte
+offerte.json        fallback locale del catalogo, legato alla release
+catalog/offerte.json catalogo remoto primario, aggiornabile senza release
 icons/              l'icona che vedrai sulla schermata home
 ```
 
@@ -49,7 +50,7 @@ Se hai già un account, salta al passo 2.
 1. Nella pagina del repository appena creato, premi **uploading an existing file**
    (il link nel testo al centro)
 2. Trascina **index.html**, **manifest.json**, **sw.js**, **offerte.json**
-3. Trascina anche la **cartella icons** intera
+3. Trascina anche le cartelle **catalog**, **icons** e **vendor** intere
 4. In fondo premi **Commit changes**
 
 Verifica che si veda così:
@@ -60,6 +61,12 @@ hubbo/
 ├── manifest.json
 ├── sw.js
 ├── offerte.json
+├── catalog/
+│   ├── offerte.json
+│   └── README.md
+├── vendor/
+│   ├── react.production.min.js
+│   └── react-dom.production.min.js
 └── icons/
     ├── icon-192.png
     ├── icon-512.png
@@ -135,27 +142,38 @@ barra del browser: indistinguibile da un'app normale.
 
 ---
 
-## Aggiornare le offerte senza rilasciare l'app
+## Aggiornare il catalogo senza rilasciare l'app — Parte 8A
 
-`offerte.json` è l'unico file che puoi cambiare da solo, quando vuoi, senza
-toccare l'app e senza cambiare la versione in `sw.js`. Aprilo su GitHub, premi
-la matita ✏️, modifica e salva: entro mezza giornata tutti i telefoni hanno il
-nuovo contenuto.
+Dalla v240 Hubbo distingue due copie del catalogo:
 
-Dentro ci sono due elenchi:
+- **`catalog/offerte.json`** è la fonte remota primaria. È questa la copia da
+  aggiornare quando cambiano prezzi, piani, promozioni o opportunità. Il suo URL
+  pubblico stabile è `https://dod86.github.io/Hubbo/catalog/offerte.json`.
+- **`offerte.json`** alla radice è il fallback locale della release. Va cambiato
+  solo insieme a una nuova release dell'app, non durante la manutenzione
+  settimanale ordinaria. Il service worker lo precachea per garantire un
+  catalogo di emergenza anche offline.
 
-- **piani** — quali piani esiste per ogni servizio (annuale, famiglia,
-  studenti, con pubblicità). Cambiano raramente.
-- **offerte** — promozioni a tempo. Ognuna **deve** avere il campo `scade`:
-  passata quella data l'app la nasconde da sola, così un file dimenticato
-  smette di parlare invece di dire prezzi vecchi.
+All'avvio Hubbo usa questa sequenza: ultima copia valida già salvata → tentativo
+del catalogo remoto → fallback locale soltanto se non esiste ancora nessuna
+copia valida. Se il remoto non risponde, una copia valida già scaricata non viene
+sostituita dal fallback più vecchio. Quando l'app torna in primo piano, ricontrolla
+periodicamente solo il catalogo remoto.
 
-Il campo `verificato` è la data in cui hai controllato quella voce, e viene
-mostrata all'utente. Aggiornala quando ricontrolli.
+Quindi, per un normale aggiornamento commerciale, su GitHub devi modificare
+**solo `catalog/offerte.json`**: non cambiare `index.html`, `sw.js`, il numero di
+versione app o `offerte.json` alla radice. Le Parti 8B–8D aggiungeranno manifest,
+versioning formale, SHA-256, storico immutabile e rollback.
 
-I nomi in `servizio` devono essere identici a quelli del catalogo dell'app: un
-nome sbagliato non dà errore, la voce semplicemente non comparirà mai. Il
-controllo `verifiche/checks.js` se ne accorge.
+Dentro il catalogo restano gli stessi elenchi e le stesse regole della v239:
+
+- **piani** — piani e listini strutturati;
+- **offerte** — promozioni a tempo, sempre con `scade`;
+- **opportunita** — regole multi-servizio del motore Risparmio.
+
+Il campo `verificato` indica quando una voce è stata ricontrollata. I nomi in
+`servizio` devono continuare a corrispondere al catalogo interno/alias supportati:
+i controlli automatici segnalano gli errori.
 
 ---
 

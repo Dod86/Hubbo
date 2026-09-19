@@ -422,13 +422,23 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v239";
+const APP_VERSION = "v240";
 const APP_BUILD_DATE = "2026-09-19";
-// Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
-// cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
-// non un file dell'app, quindi va preso dalla rete per primo — la cache
-// eterna è esattamente l'errore già pagato con i tassi di cambio.
-const OFFERS_URL = "./offerte.json";
+// Parte 8A — il catalogo commerciale non è più un file dell'app. La PWA
+// prova prima l'endpoint remoto stabile, che può essere aggiornato senza una
+// nuova release; \`./offerte.json\` resta una copia locale di fallback legata
+// alla release, utile al primo avvio/offline. La futura app Android potrà usare
+// lo stesso endpoint remoto senza cambiare schema o contenuti.
+const REMOTE_CATALOG_URL = "https://dod86.github.io/Hubbo/catalog/offerte.json";
+const LOCAL_CATALOG_URL = "./offerte.json";
+const CATALOG_STORAGE_KEY = "abbly:offers";
+// In 8A la validazione resta volutamente minima e retrocompatibile: il
+// controllo completo di schema/hash/versione appartiene alle Parti 8B/8C.
+// Qui basta impedire che una risposta palesemente non-catalogo sostituisca
+// l'ultima copia funzionante.
+function isUsableCatalogFile(file) {
+    return !!(file && Array.isArray(file.piani));
+}
 // I nomi del listino devono combaciare con quelli del catalogo. Quello che non
 // combacia viene ignorato: indovinare accoppiamenti significa attribuire a un
 // servizio un piano che non ha.
@@ -6406,68 +6416,75 @@ function HubboApp() {
             cancelled = true;
         };
     }, []);
-    // Il listino delle offerte, preso dalla rete a ogni avvio e conservato per
-    // l'uso offline. Se il file non c'è ancora — o non lo si vuole pubblicare —
-    // la scheda continua a funzionare con le sole cose che sa dai tuoi dati.
+    // Parte 8A — catalogo remoto con fallback locale. L'ordine è:
+    // 1) ultima copia già salvata, per mostrare subito dati validi/offline;
+    // 2) endpoint remoto, fonte primaria e aggiornabile senza release app;
+    // 3) \`./offerte.json\` soltanto se non esiste ancora nessuna copia valida.
+    // Un errore remoto non sovrascrive mai il catalogo già in uso.
     const [offersFile, setOffersFile] = useState(null);
-    // Ultimo tentativo di scaricare il catalogo, per non richiederlo di nuovo
-    // ogni volta che si torna nell'app: un intervallo minimo fra un tentativo
-    // e l'altro, non un tentativo a ogni ritorno.
     const offersFetchRef = useRef(0);
     const OFFERS_MIN_REFETCH_MS = 30 * 60 * 1000;
     useEffect(() => {
         let cancelled = false;
-        const loadCached = async () => {
+        const loadCachedCatalog = async () => {
             try {
-                const cachedRaw = await window.storage.get("abbly:offers", false);
-                if (cachedRaw && !cancelled) {
-                    const cached = JSON.parse(cachedRaw.value);
-                    // La copia locale serve solo a far comparire subito qualcosa e a
-                    // reggere l'uso offline. Non ferma la lettura dal server: una
-                    // finestra di freschezza qui significava che una correzione al
-                    // listino non arrivava per mezza giornata, e che il file vecchio e
-                    // quello nuovo erano indistinguibili a schermo. Stessa trappola dei
-                    // tassi, terzo travestimento.
-                    if (cached && cached.file)
-                        setOffersFile(cached.file);
-                }
+                const cachedRaw = await window.storage.get(CATALOG_STORAGE_KEY, false);
+                if (!cachedRaw || cancelled)
+                    return false;
+                const cached = JSON.parse(cachedRaw.value);
+                if (!isUsableCatalogFile(cached && cached.file))
+                    return false;
+                setOffersFile(cached.file);
+                return true;
             }
             catch {
-                // nessuna copia ancora
+                return false;
             }
         };
-        // \`force\` salta l'intervallo minimo: usato solo al primo avvio, dove non
-        // c'è ancora nessun tentativo precedente da rispettare.
-        const fetchFresh = async (force) => {
+        const fetchCatalog = async (url, source) => {
+            try {
+                const res = await fetch(url, { cache: "no-store" });
+                if (!res.ok || cancelled)
+                    return false;
+                const file = await res.json();
+                if (!isUsableCatalogFile(file) || cancelled)
+                    return false;
+                setOffersFile(file);
+                try {
+                    await window.storage.set(CATALOG_STORAGE_KEY, JSON.stringify({ file, fetchedAt: Date.now(), source }), false);
+                }
+                catch {
+                    // Il catalogo appena scaricato resta utilizzabile in memoria anche
+                    // se il dispositivo non consente di aggiornare la copia persistente.
+                }
+                return true;
+            }
+            catch {
+                return false;
+            }
+        };
+        const fetchFreshRemote = async (force) => {
             const now = Date.now();
             if (!force && now - offersFetchRef.current < OFFERS_MIN_REFETCH_MS)
-                return;
+                return false;
             offersFetchRef.current = now;
-            try {
-                const res = await fetch(OFFERS_URL, { cache: "no-store" });
-                if (!res.ok || cancelled)
-                    return;
-                const file = await res.json();
-                if (!file || !Array.isArray(file.piani) || cancelled)
-                    return;
-                setOffersFile(file);
-                await window.storage.set("abbly:offers", JSON.stringify({ file, fetchedAt: Date.now() }), false);
-            }
-            catch {
-                // offline, oppure il file non è pubblicato: si tiene quello che c'è
-            }
+            return fetchCatalog(REMOTE_CATALOG_URL, "remote");
         };
         (async () => {
-            await loadCached();
-            await fetchFresh(true);
+            const hasCachedCatalog = await loadCachedCatalog();
+            const hasFreshRemote = await fetchFreshRemote(true);
+            // Il fallback locale è una rete di sicurezza, non una fonte che deve
+            // rimpiazzare una copia remota valida solo perché in questo momento la
+            // rete non risponde.
+            if (!hasFreshRemote && !hasCachedCatalog) {
+                await fetchCatalog(LOCAL_CATALOG_URL, "local-fallback");
+            }
         })();
-        // Riscaricato anche al ritorno nell'app: la copia scaricata all'avvio
-        // può restare aperta per ore, e nel frattempo il catalogo può essere
-        // stato corretto. L'intervallo minimo evita di rifarlo ad ogni singolo
-        // cambio di scheda o ritorno in primo piano.
+        // Quando l'app torna in primo piano si ricontrolla solo la fonte remota.
+        // L'intervallo evita richieste ripetute durante normali cambi di scheda.
         const onVisible = () => {
             if (document.visibilityState === "visible")
-                fetchFresh(false);
+                fetchFreshRemote(false);
         };
         document.addEventListener("visibilitychange", onVisible);
         window.addEventListener("focus", onVisible);
