@@ -1,4 +1,4 @@
-# Catalogo remoto Hubbo — Parti 8A/8B/8C/8D/8E/8F/8G
+# Catalogo remoto Hubbo — Parti 8A/8B/8C/8D/8E/8F/8G/8H
 
 Questa cartella contiene i dati commerciali aggiornabili senza una nuova release
 dell'app. Dalla v243 il manifest pubblico è un **puntatore live** a snapshot
@@ -12,16 +12,19 @@ Struttura:
 - `versions/vNNNNNN/manifest.json` — manifest immutabile dello stesso snapshot.
 - `contracts/client-contract-v1.json` — protocollo multipiattaforma PWA/Android;
 - `contracts/manifest-v1.schema.json` — schema machine-readable del manifest;
-- `contracts/catalog-v5.schema.json` — schema machine-readable del catalogo v5.
+- `contracts/catalog-v5.schema.json` — schema machine-readable del catalogo v5;
+- `contracts/user-catalog-ref-v1.schema.json` — schema del riferimento stabile salvato nei dati utente.
 
 Endpoint live:
 
 - `https://dod86.github.io/Hubbo/catalog/manifest.json`
 
-La v243 parte con `catalogVersion: 1`, conservata in
-`catalog/versions/v000001/`. Il manifest live punta quindi a:
+Lo storico parte da `catalogVersion: 1`, conservata immutabilmente in
+`catalog/versions/v000001/`. Dalla v247 il live è **catalogVersion 2**, in
+`catalog/versions/v000002/`, che aggiunge il registro di identità stabile senza
+modificare i dati commerciali. Il manifest live punta a:
 
-`https://dod86.github.io/Hubbo/catalog/versions/v000001/offerte.json`
+`https://dod86.github.io/Hubbo/catalog/versions/v000002/offerte.json`
 
 ## Pubblicare una nuova versione del catalogo
 
@@ -102,3 +105,24 @@ manifest, schema v5, SHA-256, snapshot immutabili, rollback e sequenza di
 attivazione sicura. Cambiano solo gli adapter di piattaforma (HTTP, SHA-256,
 storage pending/active e fallback incluso nell'AAB/APK). Nessun codice Android è
 necessario in questa fase e nessun dato commerciale è stato modificato.
+
+
+## Protezione dati utente (v247 / Parte 8H)
+
+`catalogVersion 2` aggiunge `identitaCatalogo` versione 1. Ogni servizio e piano
+rappresentato possiede un `serviceId`/`planId` stabile: una rinominazione futura non
+deve cambiarlo e il vecchio nome deve restare alias. Nella fotografia v2 sono censiti
+263 servizi e 204 piani con ID, senza collisioni. Lo schema catalogo resta v5 perché
+il registro è opzionale e `v000001` deve continuare a validare.
+
+La PWA salva, quando possibile, un riferimento additivo `catalogRef` negli abbonamenti
+e nel cestino. Il riferimento segue `contracts/user-catalog-ref-v1.schema.json` e
+contiene gli ID oltre ai nomi/alias necessari al fallback. L'app confronta prima gli
+ID; i nomi sono compatibilità legacy, non identità. Nessun aggiornamento catalogo deve
+riscrivere nome, piano, prezzo, frequenza, date o storico inseriti dall'utente.
+
+Il registro permette anche il rollback a snapshot pre-8H: se lo snapshot scelto non
+ha ID, `catalogRef` conserva nomi/alias sufficienti a tentare la riconciliazione. La
+pipeline 8F esegue `checks-user-data-protection.js` e blocca la pubblicazione se un ID
+già pubblicato sparisce, viene riutilizzato in modo incompatibile o una rinominazione
+perde l'alias storico.
