@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dod86.github.io/Hubbo/catalog/contracts/catalog-v5.schema.json",
+  "title": "Hubbo commercial catalog schema v5",
+  "type": "object",
+  "required": ["versione", "aggiornato", "paese", "valuta", "offerte", "opportunita", "piani"],
+  "properties": {
+    "versione": { "const": 5 },
+    "aggiornato": { "$ref": "#/$defs/date" },
+    "paese": { "type": "string", "minLength": 2 },
+    "valuta": { "type": "string", "minLength": 3 },
+    "note": { "type": "string" },
+    "schemaListino": { "type": "object" },
+    "schemaPromozioni": { "type": "object" },
+    "schemaOpportunita": { "type": "object" },
+    "piani": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/piano" }
+    },
+    "offerte": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/offerta" }
+    },
+    "opportunita": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/opportunita" }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "httpsUrl": { "type": "string", "pattern": "^https://" },
+    "nonNegative": { "type": "number", "minimum": 0 },
+    "stringArray": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "availability": {
+      "type": "object",
+      "required": ["disponibile"],
+      "properties": {
+        "disponibile": { "type": "boolean" },
+        "nome": { "type": "string" },
+        "prezzo": { "$ref": "#/$defs/nonNegative" },
+        "nota": { "type": "string" },
+        "persone": { "type": "number", "minimum": 1 },
+        "provaGiorni": { "type": "number", "minimum": 0 },
+        "dettaglio": { "type": "string" },
+        "piani": { "type": "array", "items": { "$ref": "#/$defs/annualPlan" } }
+      },
+      "additionalProperties": true
+    },
+    "annualPlan": {
+      "type": "object",
+      "required": ["nome"],
+      "properties": {
+        "nome": { "type": "string", "minLength": 1 },
+        "prezzo": { "$ref": "#/$defs/nonNegative" },
+        "prezzoUnaSoluzione": { "$ref": "#/$defs/nonNegative" },
+        "prezzoRateMensili": { "$ref": "#/$defs/nonNegative" }
+      },
+      "additionalProperties": true
+    },
+    "trial": {
+      "type": "object",
+      "required": ["disponibile"],
+      "properties": {
+        "disponibile": { "type": "boolean" },
+        "giorni": { "type": "number", "minimum": 0 },
+        "poi": { "type": "string" },
+        "nota": { "type": "string" },
+        "link": { "$ref": "#/$defs/httpsUrl" },
+        "verificato": { "$ref": "#/$defs/date" }
+      },
+      "additionalProperties": true
+    },
+    "opzione": {
+      "type": "object",
+      "required": ["nome", "prezzo"],
+      "properties": {
+        "nome": { "type": "string", "minLength": 1 },
+        "prezzo": { "$ref": "#/$defs/nonNegative" }
+      },
+      "additionalProperties": true
+    },
+    "listino": {
+      "type": "object",
+      "required": ["nome", "prezzo", "frequenza", "addebito", "vincoloMesi"],
+      "properties": {
+        "nome": { "type": "string", "minLength": 1 },
+        "prezzo": { "$ref": "#/$defs/nonNegative" },
+        "frequenza": { "type": "string", "minLength": 1 },
+        "addebito": { "type": "string", "minLength": 1 },
+        "vincoloMesi": { "type": "number", "minimum": 0 },
+        "nota": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "piano": {
+      "type": "object",
+      "required": ["servizio", "annuale", "famiglia", "studenti", "link", "verificato"],
+      "properties": {
+        "servizio": { "type": "string", "minLength": 1 },
+        "pubblicita": { "$ref": "#/$defs/availability" },
+        "annuale": { "$ref": "#/$defs/availability" },
+        "famiglia": { "$ref": "#/$defs/availability" },
+        "studenti": { "$ref": "#/$defs/availability" },
+        "provaGratuita": { "$ref": "#/$defs/trial" },
+        "link": { "$ref": "#/$defs/httpsUrl" },
+        "fontePrezzi": { "$ref": "#/$defs/httpsUrl" },
+        "fonteAnnuale": { "$ref": "#/$defs/httpsUrl" },
+        "verificato": { "$ref": "#/$defs/date" },
+        "famigliaVerificato": { "$ref": "#/$defs/date" },
+        "opzioniVerificato": { "$ref": "#/$defs/date" },
+        "nota": { "type": "string" },
+        "opzioni": { "type": "array", "items": { "$ref": "#/$defs/opzione" } },
+        "listino": { "type": "array", "items": { "$ref": "#/$defs/listino" } }
+      },
+      "additionalProperties": true
+    },
+    "promoPhase": {
+      "type": "object",
+      "required": ["daMese", "prezzo"],
+      "properties": {
+        "daMese": { "type": "number", "minimum": 1 },
+        "aMese": { "type": "number", "minimum": 1 },
+        "prezzo": { "$ref": "#/$defs/nonNegative" },
+        "nota": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "offerta": {
+      "type": "object",
+      "required": ["id", "servizio", "titolo", "dettaglio", "tipo", "destinatari", "scade", "requisiti", "territorio", "valuta", "link", "fonte", "verificato"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "servizio": { "type": "string", "minLength": 1 },
+        "titolo": { "type": "string", "minLength": 1 },
+        "dettaglio": { "type": "string", "minLength": 1 },
+        "tipo": { "enum": ["prova", "sconto", "bonus", "finestra_attivazione"] },
+        "prezzoPromozionale": { "$ref": "#/$defs/nonNegative" },
+        "frequenzaPromozionale": { "type": "string", "minLength": 1 },
+        "durataPromozionaleMesi": { "type": "number", "minimum": 0 },
+        "durataPromozionaleGiorni": { "type": "number", "minimum": 0 },
+        "prezzoSuccessivo": { "$ref": "#/$defs/nonNegative" },
+        "frequenzaSuccessiva": { "type": "string", "minLength": 1 },
+        "vincoloMesi": { "type": "number", "minimum": 0 },
+        "costoAttivazione": { "$ref": "#/$defs/nonNegative" },
+        "prezzoListinoRiferimento": { "$ref": "#/$defs/nonNegative" },
+        "valoreBonus": { "$ref": "#/$defs/nonNegative" },
+        "valoreBonusMassimo": { "$ref": "#/$defs/nonNegative" },
+        "rinnovoAutomatico": { "type": "boolean" },
+        "soloNuoviClienti": { "type": "boolean" },
+        "destinatari": { "type": "array", "minItems": 1, "items": { "enum": ["nuovi", "esistenti", "exclienti"] } },
+        "requisiti": { "$ref": "#/$defs/stringArray" },
+        "fasi": { "type": "array", "items": { "$ref": "#/$defs/promoPhase" } },
+        "scade": { "$ref": "#/$defs/date" },
+        "territorio": { "type": "string", "minLength": 2 },
+        "valuta": { "type": "string", "minLength": 3 },
+        "link": { "$ref": "#/$defs/httpsUrl" },
+        "fonte": { "type": "string", "minLength": 1 },
+        "verificato": { "$ref": "#/$defs/date" }
+      },
+      "additionalProperties": true
+    },
+    "serviceRule": {
+      "type": "object",
+      "required": ["servizio"],
+      "properties": {
+        "servizio": { "type": "string", "minLength": 1 },
+        "pianiAmmessi": { "$ref": "#/$defs/stringArray" },
+        "pianiEsclusi": { "$ref": "#/$defs/stringArray" },
+        "costoMensileMin": { "$ref": "#/$defs/nonNegative" },
+        "costoMensileMax": { "$ref": "#/$defs/nonNegative" },
+        "accettaPianoSconosciuto": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "opportunita": {
+      "type": "object",
+      "required": ["id", "tipo", "gruppo", "titolo", "minServizi", "serviziInclusi", "nota", "link", "fonte", "verificato"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "tipo": { "enum": ["bundle", "incluso"] },
+        "gruppo": { "type": "string", "minLength": 1 },
+        "titolo": { "type": "string", "minLength": 1 },
+        "alternativa": { "type": "string" },
+        "costoAlternativa": { "$ref": "#/$defs/nonNegative" },
+        "frequenzaAlternativa": { "type": "string" },
+        "valuta": { "type": "string" },
+        "minServizi": { "type": "number", "minimum": 1 },
+        "escludiSePossiedi": { "$ref": "#/$defs/stringArray" },
+        "serviziInclusi": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/serviceRule" } },
+        "mantieni": { "$ref": "#/$defs/serviceRule" },
+        "nota": { "type": "string", "minLength": 1 },
+        "link": { "$ref": "#/$defs/httpsUrl" },
+        "fonte": { "type": "string", "minLength": 1 },
+        "verificato": { "$ref": "#/$defs/date" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

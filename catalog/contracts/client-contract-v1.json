@@ -1,0 +1,60 @@
+{
+  "contractVersion": 1,
+  "name": "Hubbo Catalog Update Protocol",
+  "platformNeutral": true,
+  "supportedClients": ["pwa", "android-native"],
+  "liveManifestUrl": "https://dod86.github.io/Hubbo/catalog/manifest.json",
+  "manifestSchema": "https://dod86.github.io/Hubbo/catalog/contracts/manifest-v1.schema.json",
+  "catalogSchema": "https://dod86.github.io/Hubbo/catalog/contracts/catalog-v5.schema.json",
+  "encoding": "UTF-8",
+  "digestAlgorithm": "SHA-256",
+  "supportedCatalogSchemaVersion": 5,
+  "clientCompatibility": {
+    "manifestField": "minAppVersion",
+    "format": "v<positive integer>",
+    "semantics": "Minimum Hubbo catalog-client capability level required by this catalog. It is independent from the marketing, Play Store or PWA release version.",
+    "pwaCapabilityConstant": "CATALOG_CLIENT_CAPABILITY_VERSION"
+  },
+  "transport": {
+    "httpsRequired": true,
+    "manifestCachePolicy": "network-first/no-store",
+    "catalogCachePolicy": "network-first/no-store",
+    "catalogUrlMustComeFromVerifiedManifest": true
+  },
+  "updateSequence": [
+    "fetch-manifest",
+    "validate-manifest",
+    "check-client-compatibility",
+    "fetch-catalog-bytes",
+    "decode-utf8",
+    "parse-json",
+    "validate-catalog-schema",
+    "verify-sha256-on-downloaded-bytes",
+    "persist-to-staging",
+    "read-back-and-reverify",
+    "commit-active-copy",
+    "activate"
+  ],
+  "failurePolicy": {
+    "neverActivateUnverifiedData": true,
+    "keepLastVerifiedCopy": true,
+    "bundledFallbackRequired": true,
+    "fallbackOnlyWhenNoVerifiedCopyExists": true
+  },
+  "versioning": {
+    "catalogVersion": "positive integer",
+    "snapshotPathTemplate": "catalog/versions/vNNNNNN/offerte.json",
+    "immutableSnapshots": true,
+    "rollback": "Change only the live manifest to a previously published immutable snapshot after revalidation."
+  },
+  "platformAdapterResponsibilities": [
+    "HTTPS fetch returning raw response bytes",
+    "SHA-256 calculation on raw bytes",
+    "UTF-8 decoding with malformed-input rejection",
+    "persistent active storage",
+    "separate staging storage",
+    "bundled local fallback access",
+    "atomic-or-equivalent commit semantics",
+    "clock only for metadata; never for catalog integrity"
+  ]
+}
