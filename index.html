@@ -336,6 +336,7 @@ const SAVINGS_SECTION_ACCENTS = {
   offers: "#D9A14A",
   duplicates: "#B58A57",
   opportunities: "#CA8761",
+  benefits: "#A9785D",
   plans: "#B48187",
   watchlist: "#C29A6E"
 };
@@ -486,7 +487,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v253";
+const APP_VERSION = "v254";
 const APP_BUILD_DATE = "2026-09-20";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -3006,6 +3007,9 @@ const LEDGER_STRINGS = {
     savingsOnlyOne: (amount) => \`Ne serve uno solo: tenendo il resto spendi \${amount} al mese in più.\`,
     savingsOnlyOneHint: "Ne serve uno solo.",
     savingsAntivirusNote: "Due antivirus attivi insieme possono anche darsi fastidio a vicenda.",
+    savingsIncludedBenefits: "Vantaggi inclusi",
+    savingsIncludedBenefitsHint: "Funzioni già comprese nel tuo abbonamento: non sono piani alternativi e non richiedono un secondo abbonamento.",
+    savingsNoExtraCost: "Senza costi aggiuntivi",
     savingsPlans: "Piani alternativi",
     savingsPlansHint: "Quando conosce il prezzo di entrambi i piani, l'app fa il confronto per te; se manca, trovi qui sotto cosa cambia — in quel caso il confronto tocca a te, sul sito.",
     savingsYearly: "Esiste il piano annuale",
@@ -3119,6 +3123,9 @@ const LEDGER_STRINGS = {
     savingsOnlyOne: (amount) => \`You only need one: keeping the rest costs you \${amount} a month.\`,
     savingsOnlyOneHint: "You only need one.",
     savingsAntivirusNote: "Two antivirus programs running together can also get in each other's way.",
+    savingsIncludedBenefits: "Included benefits",
+    savingsIncludedBenefitsHint: "Features already included with your subscription: they are not alternative plans and do not require a second subscription.",
+    savingsNoExtraCost: "No extra cost",
     savingsPlans: "Other plans",
     savingsPlansHint: "When it knows the price of both plans, the app makes the comparison for you; if it's missing, you'll find below what changes — in that case the comparison is up to you, on the site.",
     savingsYearly: "There is a yearly plan",
@@ -3232,6 +3239,9 @@ const LEDGER_STRINGS = {
     savingsOnlyOne: (amount) => \`Basta con uno: mantener el resto te cuesta \${amount} al mes.\`,
     savingsOnlyOneHint: "Basta con uno.",
     savingsAntivirusNote: "Dos antivirus activos a la vez también pueden estorbarse entre sí.",
+    savingsIncludedBenefits: "Ventajas incluidas",
+    savingsIncludedBenefitsHint: "Funciones ya incluidas en tu suscripción: no son planes alternativos ni requieren una segunda suscripción.",
+    savingsNoExtraCost: "Sin coste adicional",
     savingsPlans: "Otros planes",
     savingsPlansHint: "Cuando conoce el precio de los dos planes, la app hace la comparación por ti; si falta, verás abajo qué cambia — en ese caso la comparación te toca a ti, en el sitio.",
     savingsYearly: "Existe el plan anual",
@@ -3345,6 +3355,9 @@ const LEDGER_STRINGS = {
     savingsOnlyOne: (amount) => \`Un seul suffit : garder les autres vous coûte \${amount} par mois.\`,
     savingsOnlyOneHint: "Un seul suffit.",
     savingsAntivirusNote: "Deux antivirus actifs en même temps peuvent aussi se gêner l'un l'autre.",
+    savingsIncludedBenefits: "Avantages inclus",
+    savingsIncludedBenefitsHint: "Fonctions déjà comprises dans votre abonnement : ce ne sont pas des formules alternatives et elles ne nécessitent pas un second abonnement.",
+    savingsNoExtraCost: "Sans coût supplémentaire",
     savingsPlans: "Autres formules",
     savingsPlansHint: "Quand elle connaît le prix des deux formules, l'application fait la comparaison pour vous ; sinon, vous trouverez ci-dessous ce qui change — dans ce cas, la comparaison vous revient, sur le site.",
     savingsYearly: "Il existe une formule annuelle",
@@ -3458,6 +3471,9 @@ const LEDGER_STRINGS = {
     savingsOnlyOne: (amount) => \`Einer reicht: die übrigen kosten dich \${amount} im Monat.\`,
     savingsOnlyOneHint: "Einer reicht.",
     savingsAntivirusNote: "Zwei gleichzeitig laufende Virenscanner können sich auch gegenseitig behindern.",
+    savingsIncludedBenefits: "Enthaltene Vorteile",
+    savingsIncludedBenefitsHint: "Funktionen, die bereits in deinem Abo enthalten sind: keine alternativen Tarife und kein zweites Abo nötig.",
+    savingsNoExtraCost: "Ohne Zusatzkosten",
     savingsPlans: "Andere Tarife",
     savingsPlansHint: "Wenn sie den Preis beider Tarife kennt, vergleicht die App für dich; fehlt er, findest du unten, was sich ändert — dann liegt der Vergleich bei dir, auf der Website.",
     savingsYearly: "Es gibt einen Jahrestarif",
@@ -8507,6 +8523,31 @@ function HubboApp() {
     return out.sort((a, b) => b.monthly - a.monthly);
   }, [activeSubs, savingsPlansByService, savingsFileCurrency, todayISO, settings.currency, settings.language, rates]);
 
+  // Vantaggi già inclusi nel piano principale (es. Amazon Family):
+  // sono separati dai "Piani alternativi" perché non rappresentano un
+  // abbonamento diverso da scegliere, ma una possibilità già compresa.
+  const savingsIncludedBenefits = useMemo(() => {
+    if (savingsPlansByService.size === 0) return [];
+    const out = [];
+    activeSubs.forEach((s) => {
+      const plan = savingsPlansByService.get(catalogServiceKey(offersFile, s));
+      if (!plan) return;
+      const benefit = plan.condivisioneInclusa;
+      if (!benefit || !benefit.disponibile || s.sharedPeople) return;
+      const checked = benefit.verificato || plan.verificato;
+      if (!catalogFactIsFresh(checked, todayISO)) return;
+      out.push({
+        sub: s,
+        name: benefit.nome || t.savingsIncludedBenefits,
+        note: benefit.nota || "",
+        link: benefit.link || plan.link || "",
+        checked,
+        noExtraCost: benefit.costoAggiuntivo === 0
+      });
+    });
+    return out.sort((a, b) => a.sub.name.localeCompare(b.sub.name, settings.language || "it", { sensitivity: "base" }));
+  }, [activeSubs, savingsPlansByService, offersFile, todayISO, settings.language]);
+
   const savingsDuplicates = useMemo(() => {
     // Il prezzo migliore già disponibile per un abbonamento, se il suo
     // piano alternativo (savingsPlanHints, calcolato qui sopra) costa
@@ -8959,6 +9000,7 @@ function HubboApp() {
   savingsOffers.length === 0 &&
   savingsDuplicates.length === 0 &&
   savingsPlanHints.length === 0 &&
+  savingsIncludedBenefits.length === 0 &&
   savingsOpportunities.length === 0;
 
   // Payments are *recorded*, not recalculated. Each billing date that passes
@@ -10764,6 +10806,48 @@ function HubboApp() {
 
     )
     )
+    )
+    ),
+
+
+    savingsIncludedBenefits.length > 0 && /*#__PURE__*/
+    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.benefits, colors, effectiveTheme === "light") }, /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.benefits } }, /*#__PURE__*/React.createElement(Icon, { name: "users", size: 15 })), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 15 } }, t.savingsIncludedBenefits)
+    ), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsIncludedBenefitsHint), /*#__PURE__*/
+    React.createElement("div", { className: "flex flex-col gap-2" },
+    savingsIncludedBenefits.map((row) => {
+      const s = row.sub;
+      const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+      return (/*#__PURE__*/
+        React.createElement("div", { key: \`\${s.id}::\${row.name}\`, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl px-4 py-3.5 flex items-start gap-3" }, /*#__PURE__*/
+        React.createElement("div", { className: "flex-shrink-0 mt-0.5" }, /*#__PURE__*/
+        React.createElement(ServiceLogo, { icon: serviceIcon(s.name), domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 34 })
+        ), /*#__PURE__*/
+        React.createElement("div", { className: "min-w-0 flex-1" }, /*#__PURE__*/
+        React.createElement("div", { className: "flex items-start justify-between gap-2" }, /*#__PURE__*/
+        React.createElement("div", null, /*#__PURE__*/
+        React.createElement("div", { className: "text-sm font-medium" }, row.name), /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs mt-0.5" }, s.name)
+        ),
+        row.noExtraCost && /*#__PURE__*/
+        React.createElement("span", { style: { color: legibleOn(ACCENT.green, colors.surface), background: \`\${ACCENT.green}18\` }, className: "text-[10px] font-semibold rounded-full px-2 py-1 flex-shrink-0" },
+        t.savingsNoExtraCost
+        )
+
+        ),
+        row.note && /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs mt-2 leading-relaxed" }, row.note),
+        row.link && /*#__PURE__*/
+        React.createElement("a", { href: row.link, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface2) }, className: "inline-flex items-center gap-1.5 mt-2 text-xs font-medium" }, /*#__PURE__*/
+        React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
+        )
+
+        )
+        ));
+
+    })
     )
     ),
 
