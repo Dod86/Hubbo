@@ -263,6 +263,16 @@ aggiunto soltanto `catalogRef`. In caso di rollback a v000001, che non possiede 
 registro identità, i nomi/alias salvati nel riferimento permettono comunque di
 riconciliare i dati.
 
+### Test finali del sistema remoto (v248 / Parte 8I)
+
+La Parte 8 è completata. La v248 verifica automaticamente i casi di catalogo valido,
+rete/offline, JSON o hash errati, schema/client incompatibili, rollback, alias storici,
+fallback locale vecchio e aggiornamenti con abbonamenti già salvati. Non cambia il
+formato del catalogo: `catalogVersion` resta 2, schema 5 e capability minima v247.
+
+Per la v248 **non ci sono nuovi file pubblici**: rispetto alla v247 vanno aggiornati
+solo `index.html` e `sw.js`.
+
 Dentro il catalogo restano gli stessi elenchi e le stesse regole della v239:
 **piani**, **offerte** e **opportunita**. Nessun prezzo va inventato o convertito
 arbitrariamente; il campo `verificato` continua a indicare l'ultima verifica
