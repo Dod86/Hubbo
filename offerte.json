@@ -1,9 +1,9 @@
 {
-  "versione": 4,
+  "versione": 5,
   "aggiornato": "2026-09-19",
   "paese": "IT",
   "valuta": "EUR",
-  "note": "Catalogo prezzi Hubbo Italia. Schema v4: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano dalla v237; `opzioni` resta il fallback mensile per le schede non ancora migrate e per i confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica e requisiti verificabili. Parte 5B (v237): il modulo preserva la cadenza reale e non trasforma annuali o tariffe a consumo in normali prezzi mensili.",
+  "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente.",
   "offerte": [
     {
       "id": "spotify-2026-tre-mesi-gratis",
@@ -522,6 +522,333 @@
       "verificato": "2026-09-19"
     }
   ],
+  "opportunita": [
+    {
+      "id": "apple-one-individuale",
+      "tipo": "bundle",
+      "gruppo": "apple-one-da-attivare",
+      "titolo": "Riunisci i servizi Apple con Apple One Individuale",
+      "alternativa": "Apple One · Individuale",
+      "costoAlternativa": 19.95,
+      "frequenzaAlternativa": "monthly",
+      "valuta": "EUR",
+      "minServizi": 2,
+      "escludiSePossiedi": [
+        "Apple One"
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "Apple Music",
+          "pianiAmmessi": [
+            "Studenti",
+            "Individuale"
+          ],
+          "costoMensileMax": 13.5
+        },
+        {
+          "servizio": "Apple TV+"
+        },
+        {
+          "servizio": "Apple Arcade"
+        },
+        {
+          "servizio": "iCloud",
+          "pianiAmmessi": [
+            "50GB"
+          ],
+          "costoMensileMax": 1.5
+        }
+      ],
+      "nota": "Include Apple Music, Apple TV, Apple Arcade e iCloud+ 50 GB. Hubbo considera solo i servizi compatibili che stai già pagando e mostra la proposta soltanto se il totale reale è più alto di Apple One.",
+      "link": "https://www.apple.com/it/apple-one/",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-one-famiglia",
+      "tipo": "bundle",
+      "gruppo": "apple-one-da-attivare",
+      "titolo": "Riunisci i servizi Apple con Apple One Famiglia",
+      "alternativa": "Apple One · Famiglia",
+      "costoAlternativa": 25.95,
+      "frequenzaAlternativa": "monthly",
+      "valuta": "EUR",
+      "minServizi": 2,
+      "escludiSePossiedi": [
+        "Apple One"
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "Apple Music"
+        },
+        {
+          "servizio": "Apple TV+"
+        },
+        {
+          "servizio": "Apple Arcade"
+        },
+        {
+          "servizio": "iCloud",
+          "pianiAmmessi": [
+            "50GB",
+            "200GB"
+          ],
+          "costoMensileMax": 3.5
+        }
+      ],
+      "nota": "Include Apple Music, Apple TV, Apple Arcade e iCloud+ 200 GB ed è condivisibile in famiglia. Hubbo non presume che la condivisione sia adatta: confronta soltanto i costi dei servizi che il piano copre davvero.",
+      "link": "https://www.apple.com/it/apple-one/",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-one-premium",
+      "tipo": "bundle",
+      "gruppo": "apple-one-da-attivare",
+      "titolo": "Riunisci i servizi Apple con Apple One Premium",
+      "alternativa": "Apple One · Premium",
+      "costoAlternativa": 34.95,
+      "frequenzaAlternativa": "monthly",
+      "valuta": "EUR",
+      "minServizi": 2,
+      "escludiSePossiedi": [
+        "Apple One"
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "Apple Music"
+        },
+        {
+          "servizio": "Apple TV+"
+        },
+        {
+          "servizio": "Apple Arcade"
+        },
+        {
+          "servizio": "Apple Fitness+"
+        },
+        {
+          "servizio": "iCloud",
+          "pianiAmmessi": [
+            "50GB",
+            "200GB",
+            "2TB"
+          ],
+          "costoMensileMax": 10.5
+        }
+      ],
+      "nota": "Include Apple Music, Apple TV, Apple Arcade, Apple Fitness+ e iCloud+ 2 TB. Eventuali piani iCloud più grandi restano fuori dal confronto perché Apple One non li sostituisce integralmente.",
+      "link": "https://www.apple.com/it/apple-one/",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "youtube-premium-include-music",
+      "tipo": "incluso",
+      "gruppo": "youtube-premium-ridondanza",
+      "titolo": "YouTube Music è già incluso in YouTube Premium",
+      "mantieni": {
+        "servizio": "YouTube Premium",
+        "pianiEsclusi": [
+          "Premium Lite",
+          "Lite"
+        ],
+        "accettaPianoSconosciuto": true
+      },
+      "serviziInclusi": [
+        {
+          "servizio": "YouTube Music"
+        }
+      ],
+      "minServizi": 1,
+      "nota": "YouTube Premium include i vantaggi di YouTube Music Premium. Se li stai pagando separatamente, Hubbo conta come risparmio solo il costo dell’abbonamento Music che può essere eliminato.",
+      "link": "https://support.google.com/youtube/answer/9155410?hl=it",
+      "fonte": "support.google.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "amazon-prime-include-video",
+      "tipo": "incluso",
+      "gruppo": "amazon-prime-ridondanza",
+      "titolo": "Prime Video è già incluso in Amazon Prime",
+      "mantieni": {
+        "servizio": "Amazon Prime",
+        "accettaPianoSconosciuto": true
+      },
+      "serviziInclusi": [
+        {
+          "servizio": "Amazon Prime Video"
+        }
+      ],
+      "minServizi": 1,
+      "nota": "Se possiedi Amazon Prime e anche un abbonamento Prime Video separato, Hubbo tratta il secondo come ridondante e non modifica il costo del Prime che già stai pagando.",
+      "link": "https://www.amazon.it/gp/primecentral",
+      "fonte": "amazon.it",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-one-owned-individuale",
+      "tipo": "incluso",
+      "gruppo": "apple-one-gia-attivo",
+      "titolo": "Hai già Apple One: elimina i servizi Apple duplicati",
+      "mantieni": {
+        "servizio": "Apple One",
+        "pianiAmmessi": [
+          "Individuale"
+        ],
+        "costoMensileMin": 18,
+        "costoMensileMax": 22
+      },
+      "serviziInclusi": [
+        {
+          "servizio": "Apple Music",
+          "pianiAmmessi": [
+            "Studenti",
+            "Individuale"
+          ],
+          "costoMensileMax": 13.5
+        },
+        {
+          "servizio": "Apple TV+"
+        },
+        {
+          "servizio": "Apple Arcade"
+        },
+        {
+          "servizio": "iCloud",
+          "pianiAmmessi": [
+            "50GB"
+          ],
+          "costoMensileMax": 1.5
+        }
+      ],
+      "minServizi": 1,
+      "nota": "Il piano Individuale include Apple Music, Apple TV, Apple Arcade e iCloud+ 50 GB. Sono conteggiati solo gli abbonamenti separati compatibili.",
+      "link": "https://www.apple.com/it/apple-one/",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-one-owned-famiglia",
+      "tipo": "incluso",
+      "gruppo": "apple-one-gia-attivo",
+      "titolo": "Hai già Apple One: elimina i servizi Apple duplicati",
+      "mantieni": {
+        "servizio": "Apple One",
+        "pianiAmmessi": [
+          "Famiglia"
+        ],
+        "costoMensileMin": 23,
+        "costoMensileMax": 29
+      },
+      "serviziInclusi": [
+        {
+          "servizio": "Apple Music"
+        },
+        {
+          "servizio": "Apple TV+"
+        },
+        {
+          "servizio": "Apple Arcade"
+        },
+        {
+          "servizio": "iCloud",
+          "pianiAmmessi": [
+            "50GB",
+            "200GB"
+          ],
+          "costoMensileMax": 3.5
+        }
+      ],
+      "minServizi": 1,
+      "nota": "Il piano Famiglia include Apple Music, Apple TV, Apple Arcade e iCloud+ 200 GB. Sono conteggiati solo gli abbonamenti separati coperti dal bundle.",
+      "link": "https://www.apple.com/it/apple-one/",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    },
+    {
+      "id": "apple-one-owned-premium",
+      "tipo": "incluso",
+      "gruppo": "apple-one-gia-attivo",
+      "titolo": "Hai già Apple One: elimina i servizi Apple duplicati",
+      "mantieni": {
+        "servizio": "Apple One",
+        "pianiAmmessi": [
+          "Premium"
+        ],
+        "costoMensileMin": 30,
+        "costoMensileMax": 40
+      },
+      "serviziInclusi": [
+        {
+          "servizio": "Apple Music"
+        },
+        {
+          "servizio": "Apple TV+"
+        },
+        {
+          "servizio": "Apple Arcade"
+        },
+        {
+          "servizio": "Apple Fitness+"
+        },
+        {
+          "servizio": "iCloud",
+          "pianiAmmessi": [
+            "50GB",
+            "200GB",
+            "2TB"
+          ],
+          "costoMensileMax": 10.5
+        }
+      ],
+      "minServizi": 1,
+      "nota": "Il piano Premium include anche Apple Fitness+ e iCloud+ 2 TB. Hubbo lascia fuori eventuali piani iCloud superiori a 2 TB.",
+      "link": "https://www.apple.com/it/apple-one/",
+      "fonte": "apple.com",
+      "verificato": "2026-09-19"
+    }
+  ],
+  "schemaListino": {
+    "descrizione": "Varianti tariffarie verificate. Dalla v237 il modulo Nuovo abbonamento usa `listino` come fonte primaria, preservando frequenza, addebito e vincoli; `opzioni` resta il fallback mensile.",
+    "campi": {
+      "nome": "nome del piano/variante",
+      "prezzo": "importo addebitato nella valuta del file",
+      "frequenza": "periodo di riferimento (mensile/annuale)",
+      "addebito": "cadenza effettiva dell’addebito (mensile/annuale)",
+      "vincoloMesi": "durata minima quando presente",
+      "nota": "limitazioni o disponibilità rilevanti"
+    }
+  },
+  "schemaPromozioni": {
+    "descrizione": "Promozioni a tempo verificate su fonti ufficiali. Devono avere sempre `scade`; se una promo non ha una scadenza pubblica non entra qui, per evitare che Hubbo mostri condizioni obsolete.",
+    "campi": {
+      "tipo": "prova | sconto | bonus | finestra_attivazione",
+      "prezzoPromozionale": "importo durante la fase promozionale, quando applicabile",
+      "frequenzaPromozionale": "mensile | annuale | una_tantum",
+      "durataPromozionaleMesi": "durata del beneficio; distinta dalla scadenza per aderire",
+      "prezzoSuccessivo": "prezzo noto dopo la fase promo; omesso se non determinabile con certezza",
+      "vincoloMesi": "permanenza minima quando prevista",
+      "destinatari": "nuovi | esistenti | exclienti",
+      "requisiti": "condizioni di idoneità che la UI deve poter mostrare/auditare",
+      "scade": "ultimo giorno noto per aderire alla promozione",
+      "verificato": "data dell’ultima verifica reale sulla fonte ufficiale"
+    }
+  },
+  "schemaOpportunita": {
+    "descrizione": "Regole multi-servizio verificate. Hubbo non usa un risparmio fisso: confronta sempre i costi reali degli abbonamenti attivi con il costo dell’alternativa, oppure con il costo dell’abbonamento da mantenere quando un servizio è già incluso.",
+    "campi": {
+      "tipo": "bundle | incluso",
+      "gruppo": "chiave usata per mostrare una sola proposta migliore fra varianti equivalenti",
+      "serviziInclusi": "servizi che il bundle può sostituire; ogni voce può limitare i piani/costi compatibili",
+      "minServizi": "numero minimo di servizi effettivamente sostituiti perché il bundle sia proponibile",
+      "mantieni": "per tipo incluso: servizio già posseduto che contiene gli altri",
+      "costoAlternativa": "prezzo dell’alternativa; il risparmio viene ricalcolato sui costi reali dell’utente",
+      "frequenzaAlternativa": "cadenza del costoAlternativa",
+      "escludiSePossiedi": "servizi che rendono la regola non applicabile",
+      "verificato": "data dell’ultima verifica reale della composizione/condizione"
+    }
+  },
   "piani": [
     {
       "servizio": "Netflix",
@@ -6201,31 +6528,5 @@
       ],
       "famigliaVerificato": "2026-09-19"
     }
-  ],
-  "schemaListino": {
-    "descrizione": "Varianti tariffarie verificate. Campo informativo/audit: la UI corrente usa `opzioni` per il selettore mensile.",
-    "campi": {
-      "nome": "nome del piano/variante",
-      "prezzo": "importo addebitato nella valuta del file",
-      "frequenza": "periodo di riferimento (mensile/annuale)",
-      "addebito": "cadenza effettiva dell’addebito (mensile/annuale)",
-      "vincoloMesi": "durata minima quando presente",
-      "nota": "limitazioni o disponibilità rilevanti"
-    }
-  },
-  "schemaPromozioni": {
-    "descrizione": "Promozioni a tempo verificate su fonti ufficiali. Devono avere sempre `scade`; se una promo non ha una scadenza pubblica non entra qui, per evitare che Hubbo mostri condizioni obsolete.",
-    "campi": {
-      "tipo": "prova | sconto | bonus | finestra_attivazione",
-      "prezzoPromozionale": "importo durante la fase promozionale, quando applicabile",
-      "frequenzaPromozionale": "mensile | annuale | una_tantum",
-      "durataPromozionaleMesi": "durata del beneficio; distinta dalla scadenza per aderire",
-      "prezzoSuccessivo": "prezzo noto dopo la fase promo; omesso se non determinabile con certezza",
-      "vincoloMesi": "permanenza minima quando prevista",
-      "destinatari": "nuovi | esistenti | exclienti",
-      "requisiti": "condizioni di idoneità che la UI deve poter mostrare/auditare",
-      "scade": "ultimo giorno noto per aderire alla promozione",
-      "verificato": "data dell’ultima verifica reale sulla fonte ufficiale"
-    }
-  }
+  ]
 }

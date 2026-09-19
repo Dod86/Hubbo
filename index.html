@@ -422,7 +422,7 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v237";
+const APP_VERSION = "v238";
 const APP_BUILD_DATE = "2026-09-19";
 // Il listino sta accanto all'app, non dentro: cambiando quel file le offerte
 // cambiano su tutti i telefoni senza rilasciare una nuova versione. È un dato,
@@ -2695,6 +2695,7 @@ const LEDGER_STRINGS = {
         savingsPotentialMonthly: (amount) => \`\${amount} al mese\`,
         savingsIfOne: (amount) => \`Se ne mantieni uno solo, potresti ridurre la spesa di \${amount} al mese\`,
         savingsReplaces: "Sostituisce",
+        savingsCanRemove: "Puoi eliminare",
         savingsWith: "Con",
         savingsOpportunity: "Opportunità di risparmio",
         savingsDecideNow: "Da decidere adesso",
@@ -2807,6 +2808,7 @@ const LEDGER_STRINGS = {
         savingsPotentialMonthly: (amount) => \`\${amount} a month\`,
         savingsIfOne: (amount) => \`If you keep only one, you could reduce spending by \${amount} a month\`,
         savingsReplaces: "Replaces",
+        savingsCanRemove: "You can remove",
         savingsWith: "With",
         savingsOpportunity: "Saving opportunity",
         savingsDecideNow: "Decide now",
@@ -2919,6 +2921,7 @@ const LEDGER_STRINGS = {
         savingsPotentialMonthly: (amount) => \`\${amount} al mes\`,
         savingsIfOne: (amount) => \`Si mantienes solo uno, podrías reducir el gasto en \${amount} al mes\`,
         savingsReplaces: "Sustituye",
+        savingsCanRemove: "Puedes eliminar",
         savingsWith: "Con",
         savingsOpportunity: "Oportunidad de ahorro",
         savingsDecideNow: "Para decidir ahora",
@@ -3031,6 +3034,7 @@ const LEDGER_STRINGS = {
         savingsPotentialMonthly: (amount) => \`\${amount} par mois\`,
         savingsIfOne: (amount) => \`En n’en gardant qu’un, vous pourriez réduire la dépense de \${amount} par mois\`,
         savingsReplaces: "Remplace",
+        savingsCanRemove: "Vous pouvez supprimer",
         savingsWith: "Avec",
         savingsOpportunity: "Opportunité d’économie",
         savingsDecideNow: "À décider maintenant",
@@ -3143,6 +3147,7 @@ const LEDGER_STRINGS = {
         savingsPotentialMonthly: (amount) => \`\${amount} im Monat\`,
         savingsIfOne: (amount) => \`Wenn du nur einen behältst, könntest du \${amount} im Monat sparen\`,
         savingsReplaces: "Ersetzt",
+        savingsCanRemove: "Du kannst entfernen",
         savingsWith: "Mit",
         savingsOpportunity: "Sparmöglichkeit",
         savingsDecideNow: "Jetzt entscheiden",
@@ -7892,15 +7897,158 @@ function HubboApp() {
         const raw = offersFile && (offersFile.opportunita || offersFile.risparmi);
         if (!Array.isArray(raw))
             return [];
-        const byName = new Map(activeSubs.map((s) => [normaliseServiceName(s.name), s]));
-        return raw.map((o, index) => {
+        // Più di una riga con lo stesso servizio può esistere (es. due account):
+        // non collassiamo tutto in una Map semplice. Una regola bundle può coprire
+        // al massimo una riga per servizio; se ce ne sono più d'una, scegliamo la
+        // più costosa compatibile e non fingiamo che un solo bundle le sostituisca
+        // tutte.
+        const byName = new Map();
+        activeSubs.forEach((s) => {
+            const key = normaliseServiceName(s.name);
+            const list = byName.get(key) || [];
+            list.push(s);
+            byName.set(key, list);
+        });
+        const monthlyOf = (sub) => monthlyEquivalent(convertAmount(costOn(sub, todayISO), sub.currency || settings.currency, settings.currency, rates), sub.frequency);
+        const textKey = (value) => String(value || "").trim().toLowerCase();
+        const planContains = (sub, values) => {
+            const plan = textKey(sub && sub.plan);
+            if (!plan || !Array.isArray(values) || values.length === 0)
+                return false;
+            return values.some((v) => plan.includes(textKey(v)));
+        };
+        // Una voce di \`serviziInclusi\` può essere una stringa oppure un oggetto
+        // con limiti sul piano. I limiti di costo servono solo come fallback per
+        // gli abbonamenti storici creati prima che Hubbo salvasse il nome piano:
+        // se il piano è noto, il nome è la fonte più affidabile e il prezzo non
+        // deve invalidarlo solo perché l'utente ha uno sconto personale.
+        const matchesSpec = (sub, rawSpec) => {
+            if (!sub || !rawSpec)
+                return false;
+            const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec;
+            if (normaliseServiceName(sub.name) !== normaliseServiceName(spec.servizio))
+                return false;
+            const hasPlan = !!String(sub.plan || "").trim();
+            if (hasPlan && Array.isArray(spec.pianiEsclusi) && planContains(sub, spec.pianiEsclusi))
+                return false;
+            if (hasPlan && Array.isArray(spec.pianiAmmessi) && !planContains(sub, spec.pianiAmmessi))
+                return false;
+            if (!hasPlan && Array.isArray(spec.pianiAmmessi) && !spec.accettaPianoSconosciuto) {
+                const m = monthlyOf(sub);
+                const hasFallback = spec.costoMensileMin != null || spec.costoMensileMax != null;
+                if (!hasFallback)
+                    return false;
+                if (spec.costoMensileMin != null && m < Number(spec.costoMensileMin) - 0.01)
+                    return false;
+                if (spec.costoMensileMax != null && m > Number(spec.costoMensileMax) + 0.01)
+                    return false;
+            }
+            else if (!hasPlan && (spec.costoMensileMin != null || spec.costoMensileMax != null)) {
+                const m = monthlyOf(sub);
+                if (spec.costoMensileMin != null && m < Number(spec.costoMensileMin) - 0.01)
+                    return false;
+                if (spec.costoMensileMax != null && m > Number(spec.costoMensileMax) + 0.01)
+                    return false;
+            }
+            return true;
+        };
+        const pickSpec = (rawSpec, excluded = new Set()) => {
+            const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec;
+            if (!spec || !spec.servizio)
+                return null;
+            const candidates = (byName.get(normaliseServiceName(spec.servizio)) || [])
+                .filter((s) => !excluded.has(s.id) && matchesSpec(s, spec))
+                .sort((a, b) => monthlyOf(b) - monthlyOf(a));
+            return candidates[0] || null;
+        };
+        const built = raw.map((o, index) => {
+            if (!o || typeof o !== "object")
+                return null;
+            if (o.verificato && !catalogFactIsFresh(o.verificato, todayISO))
+                return null;
+            if (o.tipo === "bundle") {
+                const blocked = Array.isArray(o.escludiSePossiedi)
+                    && o.escludiSePossiedi.some((name) => (byName.get(normaliseServiceName(name)) || []).length > 0);
+                if (blocked)
+                    return null;
+                const specs = Array.isArray(o.serviziInclusi) ? o.serviziInclusi : [];
+                const used = new Set();
+                const subs = [];
+                specs.forEach((spec) => {
+                    const sub = pickSpec(spec, used);
+                    if (sub) {
+                        used.add(sub.id);
+                        subs.push(sub);
+                    }
+                });
+                if (subs.length < Number(o.minServizi || 1))
+                    return null;
+                const altRaw = o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
+                if (altRaw == null || !Number.isFinite(Number(altRaw)))
+                    return null;
+                const currentCost = subs.reduce((sum, sub) => sum + monthlyOf(sub), 0);
+                const alternativeCost = monthlyEquivalent(convertAmount(Number(altRaw), o.valuta || savingsFileCurrency, settings.currency, rates), o.frequenzaAlternativa || "monthly");
+                const saving = currentCost - alternativeCost;
+                if (!(saving > 0.01))
+                    return null;
+                return {
+                    id: o.id || \`opportunity-\${index}\`,
+                    ...o,
+                    opportunityKind: "bundle",
+                    subs,
+                    replacedSubs: subs,
+                    currentCost,
+                    alternativeCost,
+                    saving,
+                };
+            }
+            if (o.tipo === "incluso") {
+                const keep = pickSpec(o.mantieni);
+                if (!keep)
+                    return null;
+                const used = new Set([keep.id]);
+                const includedSubs = [];
+                (Array.isArray(o.serviziInclusi) ? o.serviziInclusi : []).forEach((spec) => {
+                    const sub = pickSpec(spec, used);
+                    if (sub) {
+                        used.add(sub.id);
+                        includedSubs.push(sub);
+                    }
+                });
+                if (includedSubs.length < Number(o.minServizi || 1))
+                    return null;
+                const keepCost = monthlyOf(keep);
+                const redundantCost = includedSubs.reduce((sum, sub) => sum + monthlyOf(sub), 0);
+                if (!(redundantCost > 0.01))
+                    return null;
+                return {
+                    id: o.id || \`opportunity-\${index}\`,
+                    ...o,
+                    opportunityKind: "included",
+                    keptSub: keep,
+                    includedSubs,
+                    replacedSubs: includedSubs,
+                    subs: [keep, ...includedSubs],
+                    currentCost: keepCost + redundantCost,
+                    alternativeCost: keepCost,
+                    saving: redundantCost,
+                };
+            }
+            // Compatibilità con il vecchio schema: lista esatta di servizi da
+            // sostituire e prezzo fisso dell'alternativa.
             const names = o.sostituisce || o.replaces || [];
             if (!Array.isArray(names) || names.length === 0)
                 return null;
-            const subs = names.map((name) => byName.get(normaliseServiceName(name))).filter(Boolean);
+            const used = new Set();
+            const subs = names.map((name) => {
+                const sub = pickSpec(name, used);
+                if (sub)
+                    used.add(sub.id);
+                return sub;
+            }).filter(Boolean);
             if (subs.length !== names.length)
                 return null;
-            const currentCost = subs.reduce((sum, sub) => sum + monthlyEquivalent(convertAmount(costOn(sub, todayISO), sub.currency || settings.currency, settings.currency, rates), sub.frequency), 0);
+            const currentCost = subs.reduce((sum, sub) => sum + monthlyOf(sub), 0);
             const altRaw = o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
             if (altRaw == null || !Number.isFinite(Number(altRaw)))
                 return null;
@@ -7908,8 +8056,19 @@ function HubboApp() {
             const saving = currentCost - alternativeCost;
             if (!(saving > 0.01))
                 return null;
-            return { id: o.id || \`opportunity-\${index}\`, ...o, subs, currentCost, alternativeCost, saving };
-        }).filter(Boolean).sort((a, b) => b.saving - a.saving);
+            return { id: o.id || \`opportunity-\${index}\`, ...o, opportunityKind: "legacy", subs, replacedSubs: subs, currentCost, alternativeCost, saving };
+        }).filter(Boolean);
+        // Apple One ha più livelli: mostrare tre card alternative sarebbe rumore.
+        // \`gruppo\` fa vincere la proposta che, sui costi REALI dell'utente, lascia
+        // più soldi in tasca. Le regole senza gruppo continuano a vivere da sole.
+        const bestByGroup = new Map();
+        built.forEach((item) => {
+            const key = item.gruppo || item.id;
+            const prev = bestByGroup.get(key);
+            if (!prev || item.saving > prev.saving + 0.01)
+                bestByGroup.set(key, item);
+        });
+        return Array.from(bestByGroup.values()).sort((a, b) => b.saving - a.saving);
     }, [offersFile, activeSubs, todayISO, settings.currency, settings.language, rates, savingsFileCurrency]);
     // Pick a compatible set of opportunities for the headline. Overlapping
     // services are counted only once, so the headline cannot inflate the
@@ -7944,11 +8103,19 @@ function HubboApp() {
     const savingsCategoryTotals = useMemo(() => {
         const map = {};
         savingsHeadline.selected.forEach((item) => {
-            const subs = item.subs || (item.items || []).map((x) => x.sub);
-            const totalCurrent = item.currentCost || item.monthly || 0;
-            subs.forEach((s) => {
-                const m = monthlyEquivalent(convertAmount(costOn(s, todayISO), s.currency || settings.currency, settings.currency, rates), s.frequency);
-                const share = totalCurrent > 0 ? m / totalCurrent : 0;
+            // Per una ridondanza (es. YouTube Music già incluso in Premium) il
+            // servizio che RESTA serve al confronto economico, ma non è lui a
+            // generare il risparmio. L'anello deve quindi attribuire la quota alle
+            // sole righe eliminate; per bundle/rotazioni/piani il fallback resta
+            // identico a prima.
+            const subs = item.replacedSubs || item.subs || (item.items || []).map((x) => x.sub);
+            const monthlyParts = subs.map((s) => ({
+                sub: s,
+                monthly: monthlyEquivalent(convertAmount(costOn(s, todayISO), s.currency || settings.currency, settings.currency, rates), s.frequency),
+            }));
+            const totalCoveredCost = monthlyParts.reduce((sum, x) => sum + x.monthly, 0);
+            monthlyParts.forEach(({ sub: s, monthly: m }) => {
+                const share = totalCoveredCost > 0 ? m / totalCoveredCost : 0;
                 map[s.category] = (map[s.category] || 0) + item.saving * share;
             });
         });
@@ -9159,9 +9326,10 @@ function HubboApp() {
                             React.createElement("div", { className: "flex flex-col gap-2" }, savingsOpportunities.map((o) => (React.createElement("div", { key: o.id, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-4" },
                                 React.createElement("div", { className: "text-sm font-medium" }, o.titolo || o.title || o.alternativa || o.alternative || t.savingsOpportunity),
                                 React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-2" },
-                                    t.savingsReplaces,
+                                    o.opportunityKind === "included" ? t.savingsCanRemove : t.savingsReplaces,
                                     ": ",
-                                    o.subs.map((s) => s.name).join(', ')),
+                                    (o.replacedSubs || o.subs).map((s) => s.name).join(', ')),
+                                o.nota && (React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota)),
                                 React.createElement("div", { className: "flex items-center gap-2 mt-2 text-xs" },
                                     React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", textDecoration: 'line-through', color: colors.textFaint } }, money(o.currentCost)),
                                     React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }),
