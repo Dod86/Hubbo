@@ -10,7 +10,7 @@ sw.js               fa funzionare l'app offline
 offerte.json        fallback locale del catalogo, legato alla release
 catalog/offerte.json catalogo remoto primario, aggiornabile senza release
 catalog/manifest.json versione/schema/hash del catalogo remoto
-catalog/contracts/ contratto dati condiviso PWA/Android
+catalog/contracts/ contratto dati/identità condiviso PWA/Android
 icons/              l'icona che vedrai sulla schermata home
 ```
 
@@ -66,7 +66,15 @@ hubbo/
 ├── catalog/
 │   ├── offerte.json
 │   ├── manifest.json
-│   └── README.md
+│   ├── README.md
+│   ├── contracts/
+│   │   ├── client-contract-v1.json
+│   │   ├── manifest-v1.schema.json
+│   │   ├── catalog-v5.schema.json
+│   │   └── user-catalog-ref-v1.schema.json
+│   └── versions/
+│       ├── v000001/
+│       └── v000002/
 ├── vendor/
 │   ├── react.production.min.js
 │   └── react-dom.production.min.js
@@ -145,7 +153,7 @@ barra del browser: indistinguibile da un'app normale.
 
 ---
 
-## Aggiornare il catalogo senza rilasciare l'app — Parti 8A/8B/8C/8D/8E/8F/8G
+## Aggiornare il catalogo senza rilasciare l'app — Parti 8A/8B/8C/8D/8E/8F/8G/8H
 
 Dalla v243 il catalogo remoto usa **snapshot immutabili**. Il file
 `catalog/offerte.json` resta la copia di lavoro, mentre l'app legge
@@ -156,8 +164,9 @@ Struttura corrente:
 
 - `catalog/offerte.json` — copia di lavoro per il prossimo aggiornamento;
 - `catalog/manifest.json` — puntatore live alla versione attiva;
-- `catalog/versions/v000001/offerte.json` — snapshot immutabile v1;
-- `catalog/versions/v000001/manifest.json` — manifest immutabile v1;
+- `catalog/versions/v000001/` — snapshot immutabile pre-8H;
+- `catalog/versions/v000002/` — snapshot immutabile corrente con identità stabili;
+- `catalog/contracts/` — schemi/protocollo condivisi PWA/Android, incluso `catalogRef`;
 - `offerte.json` alla radice — fallback locale della release app.
 
 La catena sicura resta:
@@ -228,16 +237,31 @@ Lo script riverifica integralmente lo snapshot scelto e aggiorna solo il
 manifest live. Per applicare il rollback online basta quindi caricare su GitHub
 **solo `catalog/manifest.json`**. Le versioni successive non vengono cancellate.
 
-La v243 parte con `catalogVersion: 1`, schema 5 e `minAppVersion: v240`. Il
-numero del catalogo è indipendente dalla versione Hubbo. Da v246 anche la
-compatibilità è esplicitamente separata dalla release PWA: `minAppVersion` va
-letto come capability minima del **client catalogo**, mentre la PWA dichiara la
-propria con `CATALOG_CLIENT_CAPABILITY_VERSION`. La futura Android potrà quindi
-avere versionName/versionCode propri e implementare lo stesso livello catalogo.
+Il catalogo corrente è `catalogVersion: 2`, schema 5 e richiede capability minima
+`v247`; `v000001` resta immutabile per storico/rollback. Il numero del catalogo è
+indipendente dalla versione Hubbo. Da v246 la compatibilità è separata dalla
+release PWA: `minAppVersion` va letto come capability minima del **client catalogo**,
+mentre la PWA dichiara la propria con `CATALOG_CLIENT_CAPABILITY_VERSION`. La futura
+Android può quindi avere versionName/versionCode propri e implementare lo stesso
+livello catalogo.
 
 Il contratto riutilizzabile è pubblicato in `catalog/contracts/`: contiene il
-protocollo v1, lo schema manifest e lo schema catalogo v5. Android deve cambiare
-solo gli adapter di rete/storage/hash, non il formato dati né la sequenza sicura.
+protocollo v1, lo schema manifest, lo schema catalogo v5 e lo schema di `catalogRef`.
+Android deve cambiare solo gli adapter di rete/storage/hash, non il formato dati,
+l'identità stabile né la sequenza sicura.
+
+### Protezione degli abbonamenti già salvati (v247 / Parte 8H)
+
+Il catalogo v2 contiene `identitaCatalogo`: ogni servizio/piano noto ha un ID stabile.
+Gli abbonamenti possono ricevere un campo additivo `catalogRef` con questi ID e una
+fotografia dei nomi/alias utili al fallback storico. Hubbo usa prima gli ID e usa
+nomi/alias soltanto per compatibilità con record o snapshot vecchi.
+
+**Il catalogo non rinomina i dati dell'utente:** nome, piano, prezzo, frequenza, date,
+storico, pause e note restano quelli salvati. Anche durante una migrazione viene
+aggiunto soltanto `catalogRef`. In caso di rollback a v000001, che non possiede il
+registro identità, i nomi/alias salvati nel riferimento permettono comunque di
+riconciliare i dati.
 
 Dentro il catalogo restano gli stessi elenchi e le stesse regole della v239:
 **piani**, **offerte** e **opportunita**. Nessun prezzo va inventato o convertito

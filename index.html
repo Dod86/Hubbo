@@ -422,7 +422,7 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v246";
+const APP_VERSION = "v247";
 const APP_BUILD_DATE = "2026-09-19";
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -437,7 +437,7 @@ const CATALOG_PENDING_STORAGE_KEY = "abbly:offers:pending";
 // commerciale dell’app. La futura app Android potrà dichiarare questa stessa
 // capability anche se la sua versione Play Store seguirà una numerazione diversa.
 // Va incrementata solo quando cambia il protocollo/schema che il client sa gestire.
-const CATALOG_CLIENT_CAPABILITY_VERSION = "v245";
+const CATALOG_CLIENT_CAPABILITY_VERSION = "v247";
 const SUPPORTED_CATALOG_SCHEMA_VERSION = 5;
 function appVersionNumber(version) {
     const match = /^v(\\d+)$/.exec(String(version || ""));
@@ -497,6 +497,168 @@ function normaliseServiceName(name) {
     // registrato nel catalogo: così "Microsoft 365" non diventa "Microsoft".
     const withoutDuplicateNumber = key.replace(/\\s+\\d+$/, "");
     return SERVICE_NAME_ALIASES[withoutDuplicateNumber] || key;
+}
+// Parte 8H — identità stabile dei dati utente. I nomi commerciali possono
+// cambiare; serviceId/planId no. Il registro vive nel catalogo remoto ed è
+// quindi aggiornabile senza una release app. I cataloghi storici privi del
+// registro continuano a funzionare con il matching nome/alias precedente.
+const USER_CATALOG_REF_VERSION = 1;
+function catalogIdentityServices(file) {
+    const registry = file && file.identitaCatalogo;
+    return registry && registry.versione === 1 && Array.isArray(registry.servizi) ? registry.servizi : [];
+}
+function catalogIdentityServiceById(file, serviceId) {
+    if (!serviceId)
+        return null;
+    return catalogIdentityServices(file).find((s) => s && s.id === serviceId) || null;
+}
+function catalogIdentityServiceByName(file, name) {
+    const raw = String(name || "").trim();
+    const keys = new Set([
+        normaliseServiceName(raw),
+        normaliseServiceName(raw.replace(/\\s+\\d+$/, "")),
+    ].filter(Boolean));
+    if (keys.size === 0)
+        return null;
+    return catalogIdentityServices(file).find((service) => {
+        const names = [service && service.nome, ...((service && service.alias) || [])].filter(Boolean);
+        return names.some((value) => keys.has(normaliseServiceName(value)));
+    }) || null;
+}
+function catalogIdentityServiceForSubscription(file, sub) {
+    if (!sub)
+        return null;
+    const ref = sub.catalogRef;
+    return catalogIdentityServiceById(file, ref && ref.serviceId) || catalogIdentityServiceByName(file, sub.name);
+}
+function catalogCommercialServiceNames(file) {
+    if (!file || typeof file !== "object")
+        return [];
+    const out = [];
+    (file.piani || []).forEach((p) => { if (p && p.servizio)
+        out.push(p.servizio); });
+    (file.offerte || []).forEach((o) => { if (o && o.servizio)
+        out.push(o.servizio); });
+    (file.opportunita || []).forEach((o) => {
+        (o && o.escludiSePossiedi || []).forEach((name) => { if (name)
+            out.push(name); });
+        (o && o.serviziInclusi || []).forEach((spec) => {
+            const name = typeof spec === "string" ? spec : spec && spec.servizio;
+            if (name)
+                out.push(name);
+        });
+        if (o && o.mantieni) {
+            const name = typeof o.mantieni === "string" ? o.mantieni : o.mantieni.servizio;
+            if (name)
+                out.push(name);
+        }
+    });
+    return out;
+}
+function legacyCatalogServiceNameForSubscription(file, sub) {
+    if (!sub)
+        return null;
+    const ref = sub.catalogRef || {};
+    const candidates = [sub.name, ref.serviceNameAtSave, ...((ref.serviceAliasesAtSave) || [])]
+        .filter(Boolean)
+        .map((name) => normaliseServiceName(String(name).replace(/\\s+\\d+$/, "")));
+    const known = catalogCommercialServiceNames(file);
+    for (const name of known) {
+        const key = normaliseServiceName(name);
+        if (candidates.includes(key))
+            return name;
+    }
+    return null;
+}
+function catalogServiceKey(file, value) {
+    const isSub = value && typeof value === "object" && !Array.isArray(value);
+    const service = isSub ? catalogIdentityServiceForSubscription(file, value) : catalogIdentityServiceByName(file, value);
+    if (service && service.id)
+        return \`id:\${service.id}\`;
+    const name = isSub ? (legacyCatalogServiceNameForSubscription(file, value) || value.name) : value;
+    return \`name:\${normaliseServiceName(name)}\`;
+}
+function catalogIdentityPlanByName(service, planName) {
+    if (!service || !planName || !Array.isArray(service.piani))
+        return null;
+    const key = String(planName).trim().toLowerCase();
+    return service.piani.find((plan) => {
+        const names = [plan && plan.nome, ...((plan && plan.alias) || [])].filter(Boolean);
+        return names.some((value) => String(value).trim().toLowerCase() === key);
+    }) || null;
+}
+function catalogIdentityPlanById(service, planId) {
+    if (!service || !planId || !Array.isArray(service.piani))
+        return null;
+    return service.piani.find((p) => p && p.id === planId) || null;
+}
+function buildSubscriptionCatalogRef(file, name, planName, previousRef) {
+    const service = catalogIdentityServiceByName(file, name);
+    // Con un registro identità disponibile, un nome che non risolve è un
+    // servizio personalizzato: non va mai trascinato dietro l'ID del servizio
+    // che si stava modificando prima. Il caso rollback pre-8H viene gestito dal
+    // chiamante conservando il ref esistente quando il registro manca del tutto.
+    if (!service || !service.id)
+        return null;
+    const sameService = !!(previousRef && previousRef.serviceId === service.id);
+    let plan = catalogIdentityPlanByName(service, planName);
+    if (!plan && sameService && previousRef.planId && planName) {
+        const oldNames = [previousRef.planNameAtSave, ...((previousRef.planAliasesAtSave) || [])]
+            .filter(Boolean)
+            .map((value) => String(value).trim().toLowerCase());
+        if (oldNames.includes(String(planName).trim().toLowerCase())) {
+            plan = catalogIdentityPlanById(service, previousRef.planId);
+        }
+    }
+    const samePlan = !!(plan && previousRef && previousRef.planId === plan.id);
+    return {
+        version: USER_CATALOG_REF_VERSION,
+        serviceId: service.id,
+        // Snapshot descrittivo: non viene mai usato come etichetta UI e non viene
+        // riscritto se il catalogo rinomina il servizio. Serve a rendere i backup
+        // autoesplicativi e come ultimo fallback diagnostico.
+        serviceNameAtSave: sameService && previousRef.serviceNameAtSave ? previousRef.serviceNameAtSave : String(name || service.nome || ""),
+        serviceAliasesAtSave: sameService && Array.isArray(previousRef.serviceAliasesAtSave)
+            ? previousRef.serviceAliasesAtSave
+            : [...new Set([service.nome, ...((service.alias) || [])].filter(Boolean))],
+        planId: plan && plan.id ? plan.id : null,
+        planNameAtSave: plan && plan.id
+            ? (samePlan && previousRef.planNameAtSave ? previousRef.planNameAtSave : String(planName || plan.nome || ""))
+            : (planName || null),
+        planAliasesAtSave: plan && plan.id
+            ? (samePlan && Array.isArray(previousRef.planAliasesAtSave)
+                ? previousRef.planAliasesAtSave
+                : [...new Set([plan.nome, ...((plan.alias) || [])].filter(Boolean))])
+            : [],
+    };
+}
+function subscriptionMatchesCatalogPlan(file, sub, catalogPlanName) {
+    if (!sub || !catalogPlanName)
+        return false;
+    const service = catalogIdentityServiceForSubscription(file, sub);
+    const savedPlan = service && sub.catalogRef && catalogIdentityPlanById(service, sub.catalogRef.planId);
+    const catalogPlan = service && catalogIdentityPlanByName(service, catalogPlanName);
+    if (savedPlan && catalogPlan)
+        return savedPlan.id === catalogPlan.id;
+    const ref = sub.catalogRef || {};
+    const candidates = [sub.plan, ref.planNameAtSave, ...((ref.planAliasesAtSave) || [])].filter(Boolean);
+    return candidates.some((name) => samePlanName(name, catalogPlanName));
+}
+function subscriptionPlanMatchesAny(file, sub, values) {
+    if (!sub || !Array.isArray(values) || values.length === 0)
+        return false;
+    return values.some((value) => subscriptionMatchesCatalogPlan(file, sub, value) || String(sub.plan || "").trim().toLowerCase().includes(String(value || "").trim().toLowerCase()));
+}
+function ensureSubscriptionCatalogRef(file, sub) {
+    if (!sub || typeof sub !== "object")
+        return sub;
+    const existing = sub.catalogRef;
+    if (existing && existing.version === USER_CATALOG_REF_VERSION && existing.serviceId)
+        return sub;
+    if (catalogIdentityServices(file).length === 0)
+        return sub;
+    const ref = buildSubscriptionCatalogRef(file, sub.name, sub.plan || null, existing || null);
+    return ref && ref.serviceId ? { ...sub, catalogRef: ref } : sub;
 }
 // I rinomini non devono rendere introvabile un servizio: chi cerca il nome
 // vecchio ("Gemini Advanced", "Fitbit Premium", "Duolingo Plus") deve
@@ -5506,14 +5668,14 @@ function useOfferNotifications(watchlist, offersFile, enabled, t, activeSubs) {
                 if (disposed)
                     return;
                 const current = latestRef.current;
-                const owned = new Set((current.activeSubs || []).map((s) => normaliseServiceName(s.name)));
+                const owned = new Set((current.activeSubs || []).map((s) => catalogServiceKey(current.offersFile, s)));
                 // Un'offerta per un servizio che segui ma possiedi già non è una
                 // notizia: te lo sei già preso, non c'è niente da decidere.
                 // Segnalato da Erny il 17 settembre insieme allo stesso problema
                 // nella scheda "Da tenere d'occhio" — vedi watchlistEntries più
                 // sotto.
                 const names = new Set((current.watchlist || [])
-                    .map((w) => normaliseServiceName(w.name))
+                    .map((w) => catalogServiceKey(current.offersFile, w.name))
                     .filter((key) => !owned.has(key)));
                 // Scelta deliberata, non una svista: qui si leggono solo le
                 // promozioni a tempo (\`offerte[]\`). L'arrivo di una nuova prova
@@ -5528,7 +5690,7 @@ function useOfferNotifications(watchlist, offersFile, enabled, t, activeSubs) {
                         break;
                     if (!offerIsLive(offer, todayIso))
                         continue;
-                    if (!names.has(normaliseServiceName(offer.servizio)))
+                    if (!names.has(catalogServiceKey(current.offersFile, offer.servizio)))
                         continue;
                     const id = offerId(offer);
                     if (!id || state.ids.has(id))
@@ -6639,6 +6801,39 @@ function HubboApp() {
             window.removeEventListener("focus", onVisible);
         };
     }, []);
+    // Parte 8H — migrazione additiva dei soli metadati di identità. Nome,
+    // piano, prezzo, date, storico e qualunque altro dato inserito dall'utente
+    // restano byte-per-byte invariati; si aggiunge solo \`catalogRef\` quando un
+    // vecchio abbonamento può essere riconosciuto con certezza. Anche il cestino
+    // viene protetto, perché una voce ripristinata mesi dopo deve conservare lo
+    // stesso collegamento al catalogo. Un rollback a un catalogo pre-8H non
+    // cancella mai i riferimenti già scritti.
+    useEffect(() => {
+        if (!offersFile || catalogIdentityServices(offersFile).length === 0)
+            return;
+        let cancelled = false;
+        const migrate = async (key, list, setter) => {
+            if (!Array.isArray(list))
+                return;
+            let changed = false;
+            const next = list.map((sub) => {
+                const migrated = ensureSubscriptionCatalogRef(offersFile, sub);
+                if (migrated !== sub)
+                    changed = true;
+                return migrated;
+            });
+            if (!changed || cancelled)
+                return;
+            setter(next);
+            try {
+                await window.storage.set(key, JSON.stringify(next), false);
+            }
+            catch { }
+        };
+        migrate("abbly:subscriptions", subs, setSubs);
+        migrate("abbly:trash", trash, setTrash);
+        return () => { cancelled = true; };
+    }, [offersFile, subs, trash]);
     // Piani selezionabili nel modulo. Da v237 il modulo usa prima \`listino\`,
     // perché è l'unica fonte che sa distinguere davvero 99 €/anno da 99 €/mese
     // e i piani mensili con vincolo annuale; \`opzioni\` resta il fallback per le
@@ -6650,8 +6845,8 @@ function HubboApp() {
         const typedName = form.name === "__custom__" ? form.customName : form.name;
         if (!typedName)
             return null;
-        const key = normaliseServiceName(typedName);
-        const entry = offersFile.piani.find((p) => p.servizio && normaliseServiceName(p.servizio) === key);
+        const key = catalogServiceKey(offersFile, typedName);
+        const entry = offersFile.piani.find((p) => p.servizio && catalogServiceKey(offersFile, p.servizio) === key);
         return catalogPlansForEntry(entry);
     }, [offersFile, form.name, form.customName]);
     const selectedServicePlan = useMemo(() => (servicePlans && form.plan ? servicePlans.find((o) => o.nome === form.plan) || null : null), [servicePlans, form.plan]);
@@ -6921,8 +7116,15 @@ function HubboApp() {
                     : [{ from: null, renewalDate: prevSub.renewalDate, frequency: prevSub.frequency }];
                 return cycleChanged ? [...base, { from: todayISO, renewalDate: form.renewalDate, frequency: form.frequency }] : base;
             })();
+        const catalogRef = catalogIdentityServices(offersFile).length === 0
+            ? (prevSub && prevSub.catalogRef ? prevSub.catalogRef : null)
+            : buildSubscriptionCatalogRef(offersFile, finalName, form.plan || null, prevSub && prevSub.catalogRef ? prevSub.catalogRef : null);
         const subData = {
             name: finalName,
+            // Collegamento stabile al catalogo: non sostituisce né rinomina il dato
+            // dell'utente, ma permette ai cataloghi futuri di riconoscerlo anche se
+            // cambiano marchio o nome piano. null per servizi personalizzati.
+            catalogRef,
             // Il nome del piano scelto nel modulo (es. "Premium", "Standard con
             // pubblicità"), non solo il prezzo che ne deriva: senza questo,
             // Risparmio non può sapere quale piano hai già e rischia di
@@ -7759,8 +7961,8 @@ function HubboApp() {
     function followService(name) {
         if (!Array.isArray(watchlist) || !name)
             return;
-        const key = normaliseServiceName(name);
-        if (watchlist.some((w) => normaliseServiceName(w.name) === key))
+        const key = catalogServiceKey(offersFile, name);
+        if (watchlist.some((w) => catalogServiceKey(offersFile, w.name) === key))
             return;
         const next = [{ name, since: todayISO }, ...watchlist];
         persistWatchlist(next);
@@ -7769,7 +7971,7 @@ function HubboApp() {
         // si segnano come già viste, non come "nuove da notificare".
         if (offersFile && Array.isArray(offersFile.offerte)) {
             const liveIds = offersFile.offerte
-                .filter((o) => normaliseServiceName(o.servizio) === key && offerIsLive(o, todayISO))
+                .filter((o) => catalogServiceKey(offersFile, o.servizio) === key && offerIsLive(o, todayISO))
                 .map((o) => offerId(o))
                 .filter(Boolean);
             offerNotifications.markSeen(liveIds);
@@ -7778,8 +7980,8 @@ function HubboApp() {
     function unfollowService(name) {
         if (!Array.isArray(watchlist))
             return;
-        const key = normaliseServiceName(name);
-        persistWatchlist(watchlist.filter((w) => normaliseServiceName(w.name) !== key));
+        const key = catalogServiceKey(offersFile, name);
+        persistWatchlist(watchlist.filter((w) => catalogServiceKey(offersFile, w.name) !== key));
     }
     const usedCategories = useMemo(() => {
         const set = new Set(enriched.map((s) => s.category));
@@ -7873,7 +8075,7 @@ function HubboApp() {
         if (offersFile && Array.isArray(offersFile.piani)) {
             offersFile.piani.forEach((p) => {
                 if (p && p.servizio)
-                    map.set(normaliseServiceName(p.servizio), p);
+                    map.set(catalogServiceKey(offersFile, p.servizio), p);
             });
         }
         return map;
@@ -7915,7 +8117,7 @@ function HubboApp() {
             return [];
         const out = [];
         activeSubs.forEach((s) => {
-            const plan = savingsPlansByService.get(normaliseServiceName(s.name));
+            const plan = savingsPlansByService.get(catalogServiceKey(offersFile, s));
             if (!plan)
                 return;
             // Stessa regola dei 120 giorni delle prove gratuite (vedi
@@ -7928,7 +8130,7 @@ function HubboApp() {
             const hints = [];
             // Proporre l'annuale a chi paga già una volta l'anno o meno spesso
             // sarebbe un consiglio già seguito.
-            if (plan.annuale && plan.annuale.disponibile && freqOf(s.frequency).perYear > 1 && !samePlanName(s.plan, plan.annuale.nome)) {
+            if (plan.annuale && plan.annuale.disponibile && freqOf(s.frequency).perYear > 1 && !subscriptionMatchesCatalogPlan(offersFile, s, plan.annuale.nome)) {
                 // Se il prezzo dell'annuale è nel listino (plan.opzioni), il
                 // confronto lo fa l'app — altrimenti resta la sola conferma che
                 // il piano esiste, come prima. Segnalato da Erny il 18
@@ -7943,7 +8145,7 @@ function HubboApp() {
             }
             // Niente consiglio famiglia per chi ha già scelto — nel modulo
             // abbonamento — esattamente quel piano.
-            if (plan.famiglia && plan.famiglia.disponibile && !s.sharedPeople && !samePlanName(s.plan, plan.famiglia.nome)) {
+            if (plan.famiglia && plan.famiglia.disponibile && !s.sharedPeople && !subscriptionMatchesCatalogPlan(offersFile, s, plan.famiglia.nome)) {
                 // Qui il confronto non è "risparmi X": non sappiamo con quante
                 // persone lo divideresti davvero, quindi affermarlo sarebbe
                 // inventato. Il prezzo vero del piano, quando c'è, è comunque un
@@ -7960,7 +8162,7 @@ function HubboApp() {
             let planSaving = 0;
             // Stesso motivo: se il piano scelto è già quello con pubblicità, non
             // ha senso proporlo come risparmio possibile.
-            if (plan.pubblicita && plan.pubblicita.disponibile && plan.pubblicita.prezzo != null && !samePlanName(s.plan, plan.pubblicita.nome)) {
+            if (plan.pubblicita && plan.pubblicita.disponibile && plan.pubblicita.prezzo != null && !subscriptionMatchesCatalogPlan(offersFile, s, plan.pubblicita.nome)) {
                 const adPrice = convertAmount(plan.pubblicita.prezzo, savingsFileCurrency, settings.currency, rates);
                 // Solo se costa davvero meno di quello che paghi: su un piano già
                 // economico il suggerimento sarebbe un invito a spendere di più.
@@ -7974,7 +8176,7 @@ function HubboApp() {
                     });
                 }
             }
-            if (plan.studenti && plan.studenti.disponibile && !samePlanName(s.plan, plan.studenti.nome)) {
+            if (plan.studenti && plan.studenti.disponibile && !subscriptionMatchesCatalogPlan(offersFile, s, plan.studenti.nome)) {
                 // Stesso principio della famiglia: un prezzo vero, non una stima
                 // di risparmio (dipende da requisiti di idoneità che l'app non
                 // controlla).
@@ -8141,7 +8343,7 @@ function HubboApp() {
         // tutte.
         const byName = new Map();
         activeSubs.forEach((s) => {
-            const key = normaliseServiceName(s.name);
+            const key = catalogServiceKey(offersFile, s);
             const list = byName.get(key) || [];
             list.push(s);
             byName.set(key, list);
@@ -8163,12 +8365,12 @@ function HubboApp() {
             if (!sub || !rawSpec)
                 return false;
             const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec;
-            if (normaliseServiceName(sub.name) !== normaliseServiceName(spec.servizio))
+            if (catalogServiceKey(offersFile, sub) !== catalogServiceKey(offersFile, spec.servizio))
                 return false;
             const hasPlan = !!String(sub.plan || "").trim();
-            if (hasPlan && Array.isArray(spec.pianiEsclusi) && planContains(sub, spec.pianiEsclusi))
+            if (hasPlan && Array.isArray(spec.pianiEsclusi) && subscriptionPlanMatchesAny(offersFile, sub, spec.pianiEsclusi))
                 return false;
-            if (hasPlan && Array.isArray(spec.pianiAmmessi) && !planContains(sub, spec.pianiAmmessi))
+            if (hasPlan && Array.isArray(spec.pianiAmmessi) && !subscriptionPlanMatchesAny(offersFile, sub, spec.pianiAmmessi))
                 return false;
             if (!hasPlan && Array.isArray(spec.pianiAmmessi) && !spec.accettaPianoSconosciuto) {
                 const m = monthlyOf(sub);
@@ -8193,7 +8395,7 @@ function HubboApp() {
             const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec;
             if (!spec || !spec.servizio)
                 return null;
-            const candidates = (byName.get(normaliseServiceName(spec.servizio)) || [])
+            const candidates = (byName.get(catalogServiceKey(offersFile, spec.servizio)) || [])
                 .filter((s) => !excluded.has(s.id) && matchesSpec(s, spec))
                 .sort((a, b) => monthlyOf(b) - monthlyOf(a));
             return candidates[0] || null;
@@ -8205,7 +8407,7 @@ function HubboApp() {
                 return null;
             if (o.tipo === "bundle") {
                 const blocked = Array.isArray(o.escludiSePossiedi)
-                    && o.escludiSePossiedi.some((name) => (byName.get(normaliseServiceName(name)) || []).length > 0);
+                    && o.escludiSePossiedi.some((name) => (byName.get(catalogServiceKey(offersFile, name)) || []).length > 0);
                 if (blocked)
                     return null;
                 const specs = Array.isArray(o.serviziInclusi) ? o.serviziInclusi : [];
@@ -8356,7 +8558,7 @@ function HubboApp() {
             return [];
         const mine = new Map();
         enriched.forEach((s) => {
-            const key = normaliseServiceName(s.name);
+            const key = catalogServiceKey(offersFile, s);
             const previous = mine.get(key);
             // Fra due abbonamenti allo stesso servizio preferiamo quello attivo
             // rispetto a uno terminato o in pausa, perché è il record più utile
@@ -8369,7 +8571,7 @@ function HubboApp() {
         });
         return offersFile.offerte
             .filter((o) => offerIsLive(o, todayISO))
-            .map((o) => ({ offer: o, sub: mine.get(normaliseServiceName(o.servizio)) }))
+            .map((o) => ({ offer: o, sub: mine.get(catalogServiceKey(offersFile, o.servizio)) }))
             // Solo offerte che toccano qualcosa che hai davvero. Il resto è un
             // volantino, e un volantino non ha niente a che fare con la tua spesa.
             // A chi è rivolta l'offerta decide se ti riguarda: un abbonamento
@@ -8396,16 +8598,16 @@ function HubboApp() {
         // la cancelliamo, così se un giorno disdici quell'abbonamento la
         // ritrovi automaticamente qui, senza doverla riseguire — solo la
         // scheda smette di proporti come opportunità qualcosa che hai già.
-        const owned = new Set(activeSubs.map((s) => normaliseServiceName(s.name)));
+        const owned = new Set(activeSubs.map((s) => catalogServiceKey(offersFile, s)));
         const liveOffers = offersFile && Array.isArray(offersFile.offerte)
             ? offersFile.offerte.filter((o) => offerIsLive(o, todayISO))
             : [];
         return watchlist
             .map((w) => {
-            const key = normaliseServiceName(w.name);
+            const key = catalogServiceKey(offersFile, w.name);
             const catalog = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, w.name));
             const cat = CATEGORIES.find((c) => c.id === (catalog && catalog.category)) || CATEGORIES[CATEGORIES.length - 1];
-            const offers = liveOffers.filter((o) => normaliseServiceName(o.servizio) === key);
+            const offers = liveOffers.filter((o) => catalogServiceKey(offersFile, o.servizio) === key);
             // La prova gratuita, quando esiste, è una caratteristica stabile del
             // piano (\`piani[]\`), non un'offerta a scadenza: ha senso solo qui,
             // per un servizio che non hai — mai per uno che possiedi già, dove
@@ -8432,7 +8634,7 @@ function HubboApp() {
                 planLink: plan && plan.link,
             };
         })
-            .filter((w) => !owned.has(normaliseServiceName(w.name)))
+            .filter((w) => !owned.has(catalogServiceKey(offersFile, w.name)))
             .sort((a, b) => (b.since || "").localeCompare(a.since || ""));
     }, [watchlist, activeSubs, offersFile, todayISO, savingsPlansByService, settings.language, settings.categoryColors]);
     // Elenco completo del foglio "Da tenere d'occhio": stesso catalogo del
@@ -8446,16 +8648,16 @@ function HubboApp() {
         if (!Array.isArray(watchlist))
             return [];
         const query = watchlistSearch.trim().toLowerCase();
-        const owned = new Set(activeSubs.map((s) => normaliseServiceName(s.name)));
+        const owned = new Set(activeSubs.map((s) => catalogServiceKey(offersFile, s)));
         return COMMON_SERVICES.filter((s) => serviceMatchesQuery(s, query))
-            .filter((s) => !owned.has(normaliseServiceName(s.name)))
+            .filter((s) => !owned.has(catalogServiceKey(offersFile, s.name)))
             .sort((a, b) => a.name.localeCompare(b.name, "it", { sensitivity: "base" }));
     }, [watchlist, activeSubs, watchlistSearch]);
     // Spunte già segnate: un semplice insieme di nomi normalizzati, per
     // sapere quali righe del foglio mostrare già selezionate.
     const watchlistFollowedSet = useMemo(() => {
-        return new Set((Array.isArray(watchlist) ? watchlist : []).map((w) => normaliseServiceName(w.name)));
-    }, [watchlist]);
+        return new Set((Array.isArray(watchlist) ? watchlist : []).map((w) => catalogServiceKey(offersFile, w.name)));
+    }, [watchlist, offersFile]);
     // "Cambiamenti di prezzo" non entra più qui: si è spostato nello
     // Storico (non porta nessun risparmio, è solo uno storico dei prezzi),
     // quindi non deve più impedire alla Scheda Risparmio di mostrarsi
@@ -9485,7 +9687,7 @@ function HubboApp() {
                                             // sola home del dominio (una pagina di gestione
                                             // abbonamento invece della vetrina): quando c'è,
                                             // ha la precedenza.
-                                            const plan = savingsPlansByService.get(normaliseServiceName(s.name));
+                                            const plan = savingsPlansByService.get(catalogServiceKey(offersFile, s));
                                             const manageLink = (plan && plan.link) || (site ? \`https://\${site}\` : null);
                                             return manageLink ? (React.createElement("a", { href: manageLink, target: "_blank", rel: "noopener noreferrer", style: { background: ACCENT.amber, color: INK }, className: "flex-1 rounded-xl py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5" },
                                                 React.createElement(Icon, { name: "externalLink", size: 13 }),
@@ -10449,7 +10651,7 @@ function HubboApp() {
                         React.createElement("input", { value: watchlistSearch, onChange: (e) => setWatchlistSearch(e.target.value), placeholder: t.watchlistSearchPlaceholder, style: { background: "transparent", color: colors.textPrimary, border: "none", outline: "none", width: "100%" }, className: "text-base" }))),
                 React.createElement("div", { className: "flex flex-col gap-1" }, watchlistCandidates.length === 0 ? (React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs px-1 py-2" }, t.watchlistNoMatch)) : (watchlistCandidates.map((s) => {
                     const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
-                    const active = watchlistFollowedSet.has(normaliseServiceName(s.name));
+                    const active = watchlistFollowedSet.has(catalogServiceKey(offersFile, s.name));
                     return (React.createElement("button", { key: s.name, type: "button", onClick: () => (active ? unfollowService(s.name) : followService(s.name)), className: "flex items-center gap-3 rounded-xl px-2 py-2.5 text-left" },
                         React.createElement("span", { style: {
                                 background: active ? ACCENT.amber : "transparent",

@@ -6528,5 +6528,2086 @@
       ],
       "famigliaVerificato": "2026-09-19"
     }
-  ]
+  ],
+  "identitaCatalogo": {
+    "versione": 1,
+    "servizi": [
+      {
+        "id": "svc-netflix",
+        "nome": "Netflix",
+        "piani": [
+          {
+            "id": "plan-netflix-premium",
+            "nome": "Premium"
+          },
+          {
+            "id": "plan-netflix-standard",
+            "nome": "Standard"
+          },
+          {
+            "id": "plan-netflix-standard-con-pubblicita",
+            "nome": "Standard con pubblicità"
+          }
+        ]
+      },
+      {
+        "id": "svc-disney",
+        "nome": "Disney+",
+        "piani": [
+          {
+            "id": "plan-disney-premium",
+            "nome": "Premium"
+          },
+          {
+            "id": "plan-disney-premium-annuale",
+            "nome": "Premium · annuale"
+          },
+          {
+            "id": "plan-disney-standard",
+            "nome": "Standard"
+          },
+          {
+            "id": "plan-disney-standard-con-pubblicita",
+            "nome": "Standard con pubblicità"
+          },
+          {
+            "id": "plan-disney-standard-annuale",
+            "nome": "Standard · annuale"
+          }
+        ]
+      },
+      {
+        "id": "svc-amazon-prime-video",
+        "nome": "Amazon Prime Video"
+      },
+      {
+        "id": "svc-now",
+        "nome": "Now",
+        "piani": [
+          {
+            "id": "plan-now-cinema-entertainment",
+            "nome": "Cinema + Entertainment"
+          },
+          {
+            "id": "plan-now-cinema-entertainment-premium",
+            "nome": "Cinema + Entertainment + Premium"
+          },
+          {
+            "id": "plan-now-cinema-entertainment-sport",
+            "nome": "Cinema + Entertainment + Sport"
+          },
+          {
+            "id": "plan-now-entertainment",
+            "nome": "Entertainment"
+          },
+          {
+            "id": "plan-now-premium-add-on",
+            "nome": "Premium (add-on)"
+          },
+          {
+            "id": "plan-now-sport",
+            "nome": "Sport"
+          }
+        ]
+      },
+      {
+        "id": "svc-sky",
+        "nome": "Sky"
+      },
+      {
+        "id": "svc-dazn",
+        "nome": "DAZN",
+        "piani": [
+          {
+            "id": "plan-dazn-family",
+            "nome": "FAMILY"
+          },
+          {
+            "id": "plan-dazn-family-annuale-12-rate",
+            "nome": "FAMILY · annuale 12 rate"
+          },
+          {
+            "id": "plan-dazn-family-annuale-una-soluzione",
+            "nome": "FAMILY · annuale una soluzione"
+          },
+          {
+            "id": "plan-dazn-full",
+            "nome": "FULL"
+          },
+          {
+            "id": "plan-dazn-full-mobile",
+            "nome": "FULL MOBILE"
+          },
+          {
+            "id": "plan-dazn-full-annuale-12-rate",
+            "nome": "FULL · annuale 12 rate"
+          },
+          {
+            "id": "plan-dazn-full-annuale-una-soluzione",
+            "nome": "FULL · annuale una soluzione"
+          },
+          {
+            "id": "plan-dazn-goal",
+            "nome": "GOAL"
+          },
+          {
+            "id": "plan-dazn-goal-annuale-12-rate",
+            "nome": "GOAL · annuale 12 rate"
+          },
+          {
+            "id": "plan-dazn-goal-annuale-una-soluzione",
+            "nome": "GOAL · annuale una soluzione"
+          },
+          {
+            "id": "plan-dazn-myclubpass",
+            "nome": "MYCLUBPASS"
+          },
+          {
+            "id": "plan-dazn-myclubpass-annuale-12-rate",
+            "nome": "MYCLUBPASS · annuale 12 rate"
+          },
+          {
+            "id": "plan-dazn-myclubpass-annuale-una-soluzione",
+            "nome": "MYCLUBPASS · annuale una soluzione"
+          },
+          {
+            "id": "plan-dazn-sports",
+            "nome": "SPORTS"
+          },
+          {
+            "id": "plan-dazn-sports-annuale-12-rate",
+            "nome": "SPORTS · annuale 12 rate"
+          },
+          {
+            "id": "plan-dazn-sports-annuale-una-soluzione",
+            "nome": "SPORTS · annuale una soluzione"
+          }
+        ]
+      },
+      {
+        "id": "svc-infinity",
+        "nome": "Infinity+"
+      },
+      {
+        "id": "svc-spotify",
+        "nome": "Spotify",
+        "piani": [
+          {
+            "id": "plan-spotify-duo",
+            "nome": "Duo"
+          },
+          {
+            "id": "plan-spotify-family",
+            "nome": "Family"
+          },
+          {
+            "id": "plan-spotify-individual",
+            "nome": "Individual"
+          },
+          {
+            "id": "plan-spotify-premium-family",
+            "nome": "Premium Family"
+          },
+          {
+            "id": "plan-spotify-spotify-free",
+            "nome": "Spotify Free"
+          },
+          {
+            "id": "plan-spotify-student",
+            "nome": "Student"
+          }
+        ]
+      },
+      {
+        "id": "svc-apple-music",
+        "nome": "Apple Music",
+        "piani": [
+          {
+            "id": "plan-apple-music-famiglia",
+            "nome": "Famiglia"
+          },
+          {
+            "id": "plan-apple-music-individuale",
+            "nome": "Individuale"
+          },
+          {
+            "id": "plan-apple-music-studenti",
+            "nome": "Studenti"
+          }
+        ]
+      },
+      {
+        "id": "svc-amazon-music-unlimited",
+        "nome": "Amazon Music Unlimited",
+        "alias": [
+          "Amazon Music"
+        ]
+      },
+      {
+        "id": "svc-youtube-premium",
+        "nome": "YouTube Premium",
+        "piani": [
+          {
+            "id": "plan-youtube-premium-famiglia",
+            "nome": "Famiglia"
+          },
+          {
+            "id": "plan-youtube-premium-individuale",
+            "nome": "Individuale"
+          },
+          {
+            "id": "plan-youtube-premium-premium-lite",
+            "nome": "Premium Lite"
+          },
+          {
+            "id": "plan-youtube-premium-studenti",
+            "nome": "Studenti"
+          }
+        ]
+      },
+      {
+        "id": "svc-youtube-music",
+        "nome": "YouTube Music"
+      },
+      {
+        "id": "svc-audible",
+        "nome": "Audible",
+        "piani": [
+          {
+            "id": "plan-audible-mensile",
+            "nome": "Mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-deezer",
+        "nome": "Deezer"
+      },
+      {
+        "id": "svc-tidal",
+        "nome": "Tidal"
+      },
+      {
+        "id": "svc-crunchyroll",
+        "nome": "Crunchyroll"
+      },
+      {
+        "id": "svc-paramount",
+        "nome": "Paramount+"
+      },
+      {
+        "id": "svc-apple-tv",
+        "nome": "Apple TV+",
+        "piani": [
+          {
+            "id": "plan-apple-tv-apple-tv",
+            "nome": "Apple TV"
+          }
+        ]
+      },
+      {
+        "id": "svc-hbo-max",
+        "nome": "HBO Max",
+        "piani": [
+          {
+            "id": "plan-hbo-max-base-con-pubblicita",
+            "nome": "Base con pubblicità"
+          },
+          {
+            "id": "plan-hbo-max-premium",
+            "nome": "Premium"
+          },
+          {
+            "id": "plan-hbo-max-standard",
+            "nome": "Standard"
+          }
+        ]
+      },
+      {
+        "id": "svc-tim",
+        "nome": "TIM"
+      },
+      {
+        "id": "svc-tim-mobile",
+        "nome": "TIM Mobile",
+        "alias": [
+          "TIM Mobile Digital",
+          "TIM Young",
+          "TIM 60+",
+          "TIM Basic"
+        ],
+        "piani": [
+          {
+            "id": "plan-tim-mobile-tim-60",
+            "nome": "TIM 60+"
+          },
+          {
+            "id": "plan-tim-mobile-tim-basic",
+            "nome": "TIM Basic"
+          },
+          {
+            "id": "plan-tim-mobile-tim-mobile-digital-listino",
+            "nome": "TIM Mobile Digital · listino"
+          },
+          {
+            "id": "plan-tim-mobile-tim-young-base-under-30",
+            "nome": "TIM Young · base Under 30"
+          }
+        ]
+      },
+      {
+        "id": "svc-tim-wifi-casa",
+        "nome": "TIM WiFi Casa",
+        "alias": [
+          "TIM Fibra",
+          "TIM WiFi",
+          "TIM WiFi Digital"
+        ],
+        "piani": [
+          {
+            "id": "plan-tim-wifi-casa-tim-wifi-casa-opzione-10-giga-prezzo-di-riferimento",
+            "nome": "TIM WiFi Casa + opzione 10 GIGA · prezzo di riferimento"
+          },
+          {
+            "id": "plan-tim-wifi-casa-tim-wifi-casa-prezzo-di-riferimento",
+            "nome": "TIM WiFi Casa · prezzo di riferimento"
+          }
+        ]
+      },
+      {
+        "id": "svc-vodafone",
+        "nome": "Vodafone"
+      },
+      {
+        "id": "svc-vodafone-mobile",
+        "nome": "Vodafone Mobile",
+        "alias": [
+          "Vodafone Start",
+          "Vodafone Pro",
+          "Vodafone Power",
+          "Vodafone Ultra"
+        ],
+        "piani": [
+          {
+            "id": "plan-vodafone-mobile-power-400-gb",
+            "nome": "POWER · 400 GB"
+          },
+          {
+            "id": "plan-vodafone-mobile-pro-250-gb",
+            "nome": "PRO · 250 GB"
+          },
+          {
+            "id": "plan-vodafone-mobile-start-150-gb",
+            "nome": "START · 150 GB"
+          },
+          {
+            "id": "plan-vodafone-mobile-ultra-giga-illimitati",
+            "nome": "ULTRA · Giga illimitati"
+          }
+        ]
+      },
+      {
+        "id": "svc-vodafone-casa",
+        "nome": "Vodafone Casa",
+        "alias": [
+          "Casa Start",
+          "Casa Pro",
+          "Casa Ultra",
+          "Vodafone FWA"
+        ],
+        "piani": [
+          {
+            "id": "plan-vodafone-casa-casa-fwa",
+            "nome": "Casa FWA"
+          },
+          {
+            "id": "plan-vodafone-casa-casa-pro",
+            "nome": "Casa Pro"
+          },
+          {
+            "id": "plan-vodafone-casa-casa-start",
+            "nome": "Casa Start"
+          },
+          {
+            "id": "plan-vodafone-casa-casa-ultra",
+            "nome": "Casa Ultra"
+          }
+        ]
+      },
+      {
+        "id": "svc-windtre",
+        "nome": "WindTre"
+      },
+      {
+        "id": "svc-windtre-mobile",
+        "nome": "WINDTRE Mobile",
+        "alias": [
+          "Start Unlimited 5G Easy Pay",
+          "WINDTRE Start Unlimited"
+        ],
+        "piani": [
+          {
+            "id": "plan-windtre-mobile-start-unlimited-5g-easy-pay",
+            "nome": "Start Unlimited 5G Easy Pay"
+          }
+        ]
+      },
+      {
+        "id": "svc-windtre-super-fibra",
+        "nome": "WINDTRE Super Fibra",
+        "alias": [
+          "Super Fibra Full",
+          "Super Internet Casa Full"
+        ],
+        "piani": [
+          {
+            "id": "plan-windtre-super-fibra-super-fibra-full",
+            "nome": "Super Fibra Full"
+          },
+          {
+            "id": "plan-windtre-super-fibra-super-internet-casa-full-fwa-5g",
+            "nome": "Super Internet Casa Full FWA 5G"
+          }
+        ]
+      },
+      {
+        "id": "svc-iliad",
+        "nome": "Iliad"
+      },
+      {
+        "id": "svc-iliad-mobile",
+        "nome": "Iliad Mobile",
+        "alias": [
+          "GIGA 250",
+          "GIGA 150",
+          "Giga 180",
+          "Iliad Voce",
+          "Iliad Dati"
+        ],
+        "piani": [
+          {
+            "id": "plan-iliad-mobile-dati-350",
+            "nome": "Dati 350"
+          },
+          {
+            "id": "plan-iliad-mobile-giga-150",
+            "nome": "GIGA 150"
+          },
+          {
+            "id": "plan-iliad-mobile-giga-180",
+            "nome": "Giga 180"
+          },
+          {
+            "id": "plan-iliad-mobile-giga-250",
+            "nome": "GIGA 250"
+          },
+          {
+            "id": "plan-iliad-mobile-voce",
+            "nome": "Voce"
+          }
+        ]
+      },
+      {
+        "id": "svc-iliadbox",
+        "nome": "Iliadbox",
+        "alias": [
+          "iliadbox Wi-Fi 7",
+          "iliadbox super",
+          "Fibra Iliad"
+        ],
+        "piani": [
+          {
+            "id": "plan-iliadbox-iliadbox-super-2026",
+            "nome": "iliadbox super 2026"
+          },
+          {
+            "id": "plan-iliadbox-iliadbox-super-casa-mobile",
+            "nome": "iliadbox super · Casa + Mobile"
+          },
+          {
+            "id": "plan-iliadbox-iliadbox-wi-fi-7-2026",
+            "nome": "iliadbox Wi-Fi 7 2026"
+          },
+          {
+            "id": "plan-iliadbox-iliadbox-wi-fi-7-casa-mobile",
+            "nome": "iliadbox Wi-Fi 7 · Casa + Mobile"
+          }
+        ]
+      },
+      {
+        "id": "svc-fastweb",
+        "nome": "Fastweb"
+      },
+      {
+        "id": "svc-fastweb-mobile",
+        "nome": "Fastweb Mobile",
+        "alias": [
+          "Fastweb Mobile Start",
+          "Fastweb Mobile Pro",
+          "Fastweb Mobile Power",
+          "Fastweb Mobile Ultra"
+        ],
+        "piani": [
+          {
+            "id": "plan-fastweb-mobile-mobile-power-400-gb",
+            "nome": "Mobile Power · 400 GB"
+          },
+          {
+            "id": "plan-fastweb-mobile-mobile-pro-250-gb",
+            "nome": "Mobile Pro · 250 GB"
+          },
+          {
+            "id": "plan-fastweb-mobile-mobile-start-150-gb",
+            "nome": "Mobile Start · 150 GB"
+          },
+          {
+            "id": "plan-fastweb-mobile-mobile-ultra-giga-illimitati",
+            "nome": "Mobile Ultra · Giga illimitati"
+          }
+        ]
+      },
+      {
+        "id": "svc-fastweb-casa",
+        "nome": "Fastweb Casa",
+        "alias": [
+          "Fastweb Casa Start",
+          "Fastweb Casa Pro",
+          "Fastweb Casa Ultra",
+          "Fastweb Casa FWA Light"
+        ],
+        "piani": [
+          {
+            "id": "plan-fastweb-casa-casa-fwa-light",
+            "nome": "Casa FWA Light"
+          },
+          {
+            "id": "plan-fastweb-casa-casa-pro",
+            "nome": "Casa Pro"
+          },
+          {
+            "id": "plan-fastweb-casa-casa-start",
+            "nome": "Casa Start"
+          },
+          {
+            "id": "plan-fastweb-casa-casa-ultra",
+            "nome": "Casa Ultra"
+          }
+        ]
+      },
+      {
+        "id": "svc-postemobile",
+        "nome": "PosteMobile"
+      },
+      {
+        "id": "svc-ho-mobile",
+        "nome": "ho. Mobile"
+      },
+      {
+        "id": "svc-ho-casa",
+        "nome": "ho. Casa",
+        "alias": [
+          "ho Casa",
+          "ho. SIM Dati Casa",
+          "ho. 500 Giga Casa"
+        ],
+        "piani": [
+          {
+            "id": "plan-ho-casa-500-gb-5g-gia-cliente-ho",
+            "nome": "500 GB 5G · già cliente ho."
+          },
+          {
+            "id": "plan-ho-casa-500-gb-5g-nuovo-cliente",
+            "nome": "500 GB 5G · nuovo cliente"
+          }
+        ]
+      },
+      {
+        "id": "svc-kena-mobile",
+        "nome": "Kena Mobile",
+        "piani": [
+          {
+            "id": "plan-kena-mobile-150-gb-top-5g",
+            "nome": "150 GB TOP 5G"
+          },
+          {
+            "id": "plan-kena-mobile-200-gb-5g",
+            "nome": "200 GB 5G"
+          },
+          {
+            "id": "plan-kena-mobile-200-gb-limited-ed-5g",
+            "nome": "200 GB Limited Ed. 5G"
+          },
+          {
+            "id": "plan-kena-mobile-250-gb-5g",
+            "nome": "250 GB 5G"
+          },
+          {
+            "id": "plan-kena-mobile-350-gb-5g",
+            "nome": "350 GB 5G"
+          },
+          {
+            "id": "plan-kena-mobile-voce-10-gb",
+            "nome": "Voce 10 GB"
+          }
+        ]
+      },
+      {
+        "id": "svc-coopvoce",
+        "nome": "CoopVoce",
+        "piani": [
+          {
+            "id": "plan-coopvoce-smart",
+            "nome": "SMART"
+          },
+          {
+            "id": "plan-coopvoce-smart-30",
+            "nome": "SMART 30"
+          },
+          {
+            "id": "plan-coopvoce-turbo-200",
+            "nome": "TURBO 200"
+          },
+          {
+            "id": "plan-coopvoce-turbo-400",
+            "nome": "TURBO 400"
+          }
+        ]
+      },
+      {
+        "id": "svc-very-mobile",
+        "nome": "Very Mobile",
+        "piani": [
+          {
+            "id": "plan-very-mobile-very-11-99",
+            "nome": "Very 11,99 €"
+          },
+          {
+            "id": "plan-very-mobile-very-12-99",
+            "nome": "Very 12,99 €"
+          },
+          {
+            "id": "plan-very-mobile-very-13-99",
+            "nome": "Very 13,99 €"
+          },
+          {
+            "id": "plan-very-mobile-very-4-99-voce",
+            "nome": "Very 4,99 € · Voce"
+          },
+          {
+            "id": "plan-very-mobile-very-5-99",
+            "nome": "Very 5,99 €"
+          },
+          {
+            "id": "plan-very-mobile-very-6-99",
+            "nome": "Very 6,99 €"
+          },
+          {
+            "id": "plan-very-mobile-very-7-99",
+            "nome": "Very 7,99 €"
+          },
+          {
+            "id": "plan-very-mobile-very-8-99",
+            "nome": "Very 8,99 €"
+          },
+          {
+            "id": "plan-very-mobile-very-9-99",
+            "nome": "Very 9,99 €"
+          }
+        ]
+      },
+      {
+        "id": "svc-pec",
+        "nome": "PEC"
+      },
+      {
+        "id": "svc-icloud",
+        "nome": "iCloud",
+        "piani": [
+          {
+            "id": "plan-icloud-12tb",
+            "nome": "12TB"
+          },
+          {
+            "id": "plan-icloud-200gb",
+            "nome": "200GB"
+          },
+          {
+            "id": "plan-icloud-2tb",
+            "nome": "2TB"
+          },
+          {
+            "id": "plan-icloud-50gb",
+            "nome": "50GB"
+          },
+          {
+            "id": "plan-icloud-6tb",
+            "nome": "6TB"
+          }
+        ]
+      },
+      {
+        "id": "svc-google-one",
+        "nome": "Google One"
+      },
+      {
+        "id": "svc-microsoft-365",
+        "nome": "Microsoft 365",
+        "piani": [
+          {
+            "id": "plan-microsoft-365-family",
+            "nome": "Family"
+          },
+          {
+            "id": "plan-microsoft-365-family-annuale",
+            "nome": "Family · annuale"
+          },
+          {
+            "id": "plan-microsoft-365-personal",
+            "nome": "Personal"
+          },
+          {
+            "id": "plan-microsoft-365-personal-annuale",
+            "nome": "Personal · annuale"
+          },
+          {
+            "id": "plan-microsoft-365-premium",
+            "nome": "Premium"
+          },
+          {
+            "id": "plan-microsoft-365-premium-annuale",
+            "nome": "Premium · annuale"
+          }
+        ]
+      },
+      {
+        "id": "svc-dropbox",
+        "nome": "Dropbox"
+      },
+      {
+        "id": "svc-adobe-creative-cloud",
+        "nome": "Adobe Creative Cloud",
+        "piani": [
+          {
+            "id": "plan-adobe-creative-cloud-creative-cloud-pro-annuale-addebito-mensile",
+            "nome": "Creative Cloud Pro · annuale, addebito mensile"
+          },
+          {
+            "id": "plan-adobe-creative-cloud-fotografia-1-tb-annuale-addebito-mensile",
+            "nome": "Fotografia 1 TB · annuale, addebito mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-adobe-acrobat",
+        "nome": "Adobe Acrobat",
+        "alias": [
+          "Acrobat",
+          "Acrobat Standard",
+          "Acrobat Pro",
+          "Acrobat Studio"
+        ],
+        "piani": [
+          {
+            "id": "plan-adobe-acrobat-pro-annuale-prepagato",
+            "nome": "Pro · annuale prepagato"
+          },
+          {
+            "id": "plan-adobe-acrobat-pro-annuale-addebito-mensile",
+            "nome": "Pro · annuale, addebito mensile"
+          },
+          {
+            "id": "plan-adobe-acrobat-pro-mensile-senza-impegno",
+            "nome": "Pro · mensile senza impegno"
+          },
+          {
+            "id": "plan-adobe-acrobat-standard-annuale-prepagato",
+            "nome": "Standard · annuale prepagato"
+          },
+          {
+            "id": "plan-adobe-acrobat-standard-annuale-addebito-mensile",
+            "nome": "Standard · annuale, addebito mensile"
+          },
+          {
+            "id": "plan-adobe-acrobat-standard-mensile-senza-impegno",
+            "nome": "Standard · mensile senza impegno"
+          },
+          {
+            "id": "plan-adobe-acrobat-studio-annuale-prepagato",
+            "nome": "Studio · annuale prepagato"
+          },
+          {
+            "id": "plan-adobe-acrobat-studio-annuale-addebito-mensile",
+            "nome": "Studio · annuale, addebito mensile"
+          },
+          {
+            "id": "plan-adobe-acrobat-studio-mensile-senza-impegno",
+            "nome": "Studio · mensile senza impegno"
+          }
+        ]
+      },
+      {
+        "id": "svc-notion",
+        "nome": "Notion"
+      },
+      {
+        "id": "svc-trello",
+        "nome": "Trello"
+      },
+      {
+        "id": "svc-asana",
+        "nome": "Asana"
+      },
+      {
+        "id": "svc-zoom",
+        "nome": "Zoom"
+      },
+      {
+        "id": "svc-1password",
+        "nome": "1Password"
+      },
+      {
+        "id": "svc-bitwarden",
+        "nome": "Bitwarden"
+      },
+      {
+        "id": "svc-proton-pass",
+        "nome": "Proton Pass",
+        "alias": [
+          "Pass Plus",
+          "Proton Pass Plus"
+        ]
+      },
+      {
+        "id": "svc-lastpass",
+        "nome": "LastPass"
+      },
+      {
+        "id": "svc-github",
+        "nome": "GitHub"
+      },
+      {
+        "id": "svc-todoist",
+        "nome": "Todoist"
+      },
+      {
+        "id": "svc-evernote",
+        "nome": "Evernote"
+      },
+      {
+        "id": "svc-obsidian",
+        "nome": "Obsidian"
+      },
+      {
+        "id": "svc-airtable",
+        "nome": "Airtable"
+      },
+      {
+        "id": "svc-clickup",
+        "nome": "ClickUp"
+      },
+      {
+        "id": "svc-linear",
+        "nome": "Linear"
+      },
+      {
+        "id": "svc-grammarly",
+        "nome": "Grammarly"
+      },
+      {
+        "id": "svc-wetransfer",
+        "nome": "WeTransfer"
+      },
+      {
+        "id": "svc-backblaze",
+        "nome": "Backblaze"
+      },
+      {
+        "id": "svc-mega",
+        "nome": "MEGA"
+      },
+      {
+        "id": "svc-norton",
+        "nome": "Norton"
+      },
+      {
+        "id": "svc-mcafee",
+        "nome": "McAfee"
+      },
+      {
+        "id": "svc-bitdefender",
+        "nome": "Bitdefender"
+      },
+      {
+        "id": "svc-kaspersky",
+        "nome": "Kaspersky"
+      },
+      {
+        "id": "svc-avast",
+        "nome": "Avast",
+        "piani": [
+          {
+            "id": "plan-avast-versione-gratuita",
+            "nome": "Versione gratuita"
+          }
+        ]
+      },
+      {
+        "id": "svc-avg",
+        "nome": "AVG",
+        "piani": [
+          {
+            "id": "plan-avg-versione-gratuita",
+            "nome": "Versione gratuita"
+          }
+        ]
+      },
+      {
+        "id": "svc-malwarebytes",
+        "nome": "Malwarebytes"
+      },
+      {
+        "id": "svc-eset",
+        "nome": "ESET",
+        "piani": [
+          {
+            "id": "plan-eset-home-security-essential-3-dispositivi",
+            "nome": "HOME Security Essential · 3 dispositivi"
+          }
+        ]
+      },
+      {
+        "id": "svc-nordvpn",
+        "nome": "NordVPN"
+      },
+      {
+        "id": "svc-expressvpn",
+        "nome": "ExpressVPN"
+      },
+      {
+        "id": "svc-surfshark",
+        "nome": "Surfshark"
+      },
+      {
+        "id": "svc-proton-vpn",
+        "nome": "Proton VPN"
+      },
+      {
+        "id": "svc-proton-mail",
+        "nome": "Proton Mail"
+      },
+      {
+        "id": "svc-mullvad-vpn",
+        "nome": "Mullvad VPN",
+        "piani": [
+          {
+            "id": "plan-mullvad-vpn-mullvad-vpn",
+            "nome": "Mullvad VPN"
+          }
+        ]
+      },
+      {
+        "id": "svc-adobe-photoshop",
+        "nome": "Adobe Photoshop",
+        "piani": [
+          {
+            "id": "plan-adobe-photoshop-app-singola-annuale-addebito-mensile",
+            "nome": "App singola · annuale, addebito mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-adobe-lightroom",
+        "nome": "Adobe Lightroom",
+        "piani": [
+          {
+            "id": "plan-adobe-lightroom-lightroom-1-tb-annuale-prepagato",
+            "nome": "Lightroom 1 TB · annuale prepagato"
+          },
+          {
+            "id": "plan-adobe-lightroom-lightroom-1-tb-annuale-addebito-mensile",
+            "nome": "Lightroom 1 TB · annuale, addebito mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-adobe-premiere-pro",
+        "nome": "Adobe Premiere Pro",
+        "piani": [
+          {
+            "id": "plan-adobe-premiere-pro-app-singola-annuale-addebito-mensile",
+            "nome": "App singola · annuale, addebito mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-adobe-illustrator",
+        "nome": "Adobe Illustrator",
+        "piani": [
+          {
+            "id": "plan-adobe-illustrator-app-singola-annuale-addebito-mensile",
+            "nome": "App singola · annuale, addebito mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-canva-pro",
+        "nome": "Canva Pro"
+      },
+      {
+        "id": "svc-capcut-pro",
+        "nome": "CapCut Pro"
+      },
+      {
+        "id": "svc-figma",
+        "nome": "Figma"
+      },
+      {
+        "id": "svc-framer",
+        "nome": "Framer"
+      },
+      {
+        "id": "svc-sketch",
+        "nome": "Sketch"
+      },
+      {
+        "id": "svc-blender-studio",
+        "nome": "Blender Studio"
+      },
+      {
+        "id": "svc-autodesk",
+        "nome": "Autodesk"
+      },
+      {
+        "id": "svc-shopify",
+        "nome": "Shopify"
+      },
+      {
+        "id": "svc-etsy-plus",
+        "nome": "Etsy Plus"
+      },
+      {
+        "id": "svc-ebay-negozio",
+        "nome": "eBay Negozio",
+        "piani": [
+          {
+            "id": "plan-ebay-negozio-negozio-base",
+            "nome": "Negozio Base"
+          },
+          {
+            "id": "plan-ebay-negozio-negozio-premium",
+            "nome": "Negozio Premium"
+          },
+          {
+            "id": "plan-ebay-negozio-negozio-premium-plus",
+            "nome": "Negozio Premium Plus"
+          }
+        ]
+      },
+      {
+        "id": "svc-amazon-seller",
+        "nome": "Amazon Seller",
+        "piani": [
+          {
+            "id": "plan-amazon-seller-individuale",
+            "nome": "Individuale"
+          },
+          {
+            "id": "plan-amazon-seller-professionale",
+            "nome": "Professionale"
+          }
+        ]
+      },
+      {
+        "id": "svc-wix",
+        "nome": "Wix"
+      },
+      {
+        "id": "svc-squarespace",
+        "nome": "Squarespace"
+      },
+      {
+        "id": "svc-woocommerce",
+        "nome": "WooCommerce"
+      },
+      {
+        "id": "svc-prestashop",
+        "nome": "PrestaShop",
+        "piani": [
+          {
+            "id": "plan-prestashop-hosted-annuale-prepagato",
+            "nome": "Hosted · annuale prepagato"
+          },
+          {
+            "id": "plan-prestashop-hosted-mensile-senza-impegno",
+            "nome": "Hosted · mensile senza impegno"
+          }
+        ]
+      },
+      {
+        "id": "svc-bigcommerce",
+        "nome": "BigCommerce"
+      },
+      {
+        "id": "svc-wordpress",
+        "nome": "WordPress"
+      },
+      {
+        "id": "svc-mailchimp",
+        "nome": "Mailchimp"
+      },
+      {
+        "id": "svc-hubspot",
+        "nome": "HubSpot"
+      },
+      {
+        "id": "svc-calendly",
+        "nome": "Calendly"
+      },
+      {
+        "id": "svc-quickbooks",
+        "nome": "QuickBooks"
+      },
+      {
+        "id": "svc-xero",
+        "nome": "Xero"
+      },
+      {
+        "id": "svc-aruba-hosting",
+        "nome": "Aruba Hosting",
+        "piani": [
+          {
+            "id": "plan-aruba-hosting-hosting-advanced-rinnovo",
+            "nome": "Hosting Advanced · rinnovo"
+          },
+          {
+            "id": "plan-aruba-hosting-hosting-basic-rinnovo",
+            "nome": "Hosting Basic · rinnovo"
+          },
+          {
+            "id": "plan-aruba-hosting-hosting-easy-rinnovo",
+            "nome": "Hosting Easy · rinnovo"
+          },
+          {
+            "id": "plan-aruba-hosting-hosting-professional-rinnovo",
+            "nome": "Hosting Professional · rinnovo"
+          }
+        ]
+      },
+      {
+        "id": "svc-godaddy",
+        "nome": "GoDaddy"
+      },
+      {
+        "id": "svc-namecheap",
+        "nome": "Namecheap"
+      },
+      {
+        "id": "svc-cloudflare",
+        "nome": "Cloudflare"
+      },
+      {
+        "id": "svc-digitalocean",
+        "nome": "DigitalOcean"
+      },
+      {
+        "id": "svc-vercel",
+        "nome": "Vercel"
+      },
+      {
+        "id": "svc-netlify",
+        "nome": "Netlify"
+      },
+      {
+        "id": "svc-substack",
+        "nome": "Substack"
+      },
+      {
+        "id": "svc-ghost",
+        "nome": "Ghost"
+      },
+      {
+        "id": "svc-chatgpt-plus",
+        "nome": "ChatGPT Plus",
+        "piani": [
+          {
+            "id": "plan-chatgpt-plus-go",
+            "nome": "Go"
+          },
+          {
+            "id": "plan-chatgpt-plus-plus",
+            "nome": "Plus"
+          }
+        ]
+      },
+      {
+        "id": "svc-claude-pro",
+        "nome": "Claude Pro"
+      },
+      {
+        "id": "svc-perplexity-pro",
+        "nome": "Perplexity Pro"
+      },
+      {
+        "id": "svc-google-ai",
+        "nome": "Google AI",
+        "alias": [
+          "Gemini",
+          "Gemini Advanced",
+          "Google One AI Premium",
+          "Google AI Plus",
+          "Google AI Pro",
+          "Google AI Ultra"
+        ]
+      },
+      {
+        "id": "svc-midjourney",
+        "nome": "Midjourney"
+      },
+      {
+        "id": "svc-elevenlabs",
+        "nome": "ElevenLabs"
+      },
+      {
+        "id": "svc-deepl-pro",
+        "nome": "DeepL Pro"
+      },
+      {
+        "id": "svc-playstation-plus",
+        "nome": "PlayStation Plus",
+        "piani": [
+          {
+            "id": "plan-playstation-plus-essential",
+            "nome": "Essential"
+          },
+          {
+            "id": "plan-playstation-plus-extra",
+            "nome": "Extra"
+          },
+          {
+            "id": "plan-playstation-plus-premium",
+            "nome": "Premium"
+          }
+        ]
+      },
+      {
+        "id": "svc-xbox-game-pass",
+        "nome": "Xbox Game Pass",
+        "piani": [
+          {
+            "id": "plan-xbox-game-pass-essential",
+            "nome": "Essential"
+          },
+          {
+            "id": "plan-xbox-game-pass-pc-game-pass",
+            "nome": "PC Game Pass"
+          },
+          {
+            "id": "plan-xbox-game-pass-premium",
+            "nome": "Premium"
+          },
+          {
+            "id": "plan-xbox-game-pass-ultimate",
+            "nome": "Ultimate"
+          }
+        ]
+      },
+      {
+        "id": "svc-geforce-now",
+        "nome": "GeForce NOW"
+      },
+      {
+        "id": "svc-nintendo-switch-online",
+        "nome": "Nintendo Switch Online",
+        "piani": [
+          {
+            "id": "plan-nintendo-switch-online-familiare",
+            "nome": "Familiare"
+          },
+          {
+            "id": "plan-nintendo-switch-online-familiare-pacchetto-aggiuntivo",
+            "nome": "Familiare + Pacchetto aggiuntivo"
+          },
+          {
+            "id": "plan-nintendo-switch-online-individuale",
+            "nome": "Individuale"
+          },
+          {
+            "id": "plan-nintendo-switch-online-individuale-pacchetto-aggiuntivo",
+            "nome": "Individuale + Pacchetto aggiuntivo"
+          }
+        ]
+      },
+      {
+        "id": "svc-ea-play",
+        "nome": "EA Play",
+        "piani": [
+          {
+            "id": "plan-ea-play-ea-play",
+            "nome": "EA Play"
+          },
+          {
+            "id": "plan-ea-play-ea-play-pro",
+            "nome": "EA Play Pro"
+          },
+          {
+            "id": "plan-ea-play-ea-play-pro-annuale",
+            "nome": "EA Play Pro · annuale"
+          },
+          {
+            "id": "plan-ea-play-ea-play-annuale",
+            "nome": "EA Play · annuale"
+          }
+        ]
+      },
+      {
+        "id": "svc-ubisoft",
+        "nome": "Ubisoft+",
+        "piani": [
+          {
+            "id": "plan-ubisoft-classics",
+            "nome": "Classics"
+          },
+          {
+            "id": "plan-ubisoft-classics-annuale",
+            "nome": "Classics · annuale"
+          },
+          {
+            "id": "plan-ubisoft-premium",
+            "nome": "Premium"
+          },
+          {
+            "id": "plan-ubisoft-premium-annuale",
+            "nome": "Premium · annuale"
+          }
+        ]
+      },
+      {
+        "id": "svc-twitch-turbo",
+        "nome": "Twitch Turbo"
+      },
+      {
+        "id": "svc-apple-arcade",
+        "nome": "Apple Arcade",
+        "piani": [
+          {
+            "id": "plan-apple-arcade-annuale",
+            "nome": "Annuale"
+          },
+          {
+            "id": "plan-apple-arcade-mensile",
+            "nome": "Mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-google-play-pass",
+        "nome": "Google Play Pass"
+      },
+      {
+        "id": "svc-humble-choice",
+        "nome": "Humble Choice"
+      },
+      {
+        "id": "svc-fortnite-crew",
+        "nome": "Fortnite Crew",
+        "alias": [
+          "Crew di Fortnite",
+          "Epic Games"
+        ]
+      },
+      {
+        "id": "svc-telegram-premium",
+        "nome": "Telegram Premium"
+      },
+      {
+        "id": "svc-discord-nitro",
+        "nome": "Discord Nitro"
+      },
+      {
+        "id": "svc-snapchat",
+        "nome": "Snapchat+"
+      },
+      {
+        "id": "svc-tinder-gold",
+        "nome": "Tinder Gold"
+      },
+      {
+        "id": "svc-x-premium",
+        "nome": "X Premium"
+      },
+      {
+        "id": "svc-meta-verified",
+        "nome": "Meta Verified"
+      },
+      {
+        "id": "svc-linkedin-premium",
+        "nome": "LinkedIn Premium"
+      },
+      {
+        "id": "svc-palestra",
+        "nome": "Palestra"
+      },
+      {
+        "id": "svc-peloton",
+        "nome": "Peloton"
+      },
+      {
+        "id": "svc-apple-fitness",
+        "nome": "Apple Fitness+",
+        "alias": [
+          "Apple Fitness",
+          "Fitness+"
+        ],
+        "piani": [
+          {
+            "id": "plan-apple-fitness-annuale",
+            "nome": "Annuale"
+          },
+          {
+            "id": "plan-apple-fitness-mensile",
+            "nome": "Mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-strava",
+        "nome": "Strava"
+      },
+      {
+        "id": "svc-amazon-prime",
+        "nome": "Amazon Prime",
+        "piani": [
+          {
+            "id": "plan-amazon-prime-amazon-household",
+            "nome": "Amazon Household"
+          },
+          {
+            "id": "plan-amazon-prime-annuale",
+            "nome": "Annuale"
+          },
+          {
+            "id": "plan-amazon-prime-annuale-equivalente-mese",
+            "nome": "Annuale (equivalente/mese)"
+          },
+          {
+            "id": "plan-amazon-prime-mensile",
+            "nome": "Mensile"
+          },
+          {
+            "id": "plan-amazon-prime-prime-student",
+            "nome": "Prime Student"
+          },
+          {
+            "id": "plan-amazon-prime-student",
+            "nome": "Student"
+          },
+          {
+            "id": "plan-amazon-prime-student-mensile",
+            "nome": "Student mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-duolingo",
+        "nome": "Duolingo",
+        "alias": [
+          "Duolingo Plus",
+          "Super Duolingo",
+          "Duolingo Max"
+        ]
+      },
+      {
+        "id": "svc-coursera-plus",
+        "nome": "Coursera Plus"
+      },
+      {
+        "id": "svc-udemy",
+        "nome": "Udemy"
+      },
+      {
+        "id": "svc-skillshare",
+        "nome": "Skillshare"
+      },
+      {
+        "id": "svc-patreon",
+        "nome": "Patreon"
+      },
+      {
+        "id": "svc-medium",
+        "nome": "Medium"
+      },
+      {
+        "id": "svc-piscina",
+        "nome": "Piscina"
+      },
+      {
+        "id": "svc-tennis",
+        "nome": "Tennis"
+      },
+      {
+        "id": "svc-padel",
+        "nome": "Padel"
+      },
+      {
+        "id": "svc-yoga",
+        "nome": "Yoga"
+      },
+      {
+        "id": "svc-crossfit",
+        "nome": "CrossFit"
+      },
+      {
+        "id": "svc-virgin-active",
+        "nome": "Virgin Active"
+      },
+      {
+        "id": "svc-mcfit",
+        "nome": "McFIT"
+      },
+      {
+        "id": "svc-anytime-fitness",
+        "nome": "Anytime Fitness"
+      },
+      {
+        "id": "svc-freeletics",
+        "nome": "Freeletics"
+      },
+      {
+        "id": "svc-google-health-premium",
+        "nome": "Google Health Premium",
+        "alias": [
+          "Fitbit Premium",
+          "Fitbit"
+        ]
+      },
+      {
+        "id": "svc-abbonamento-stadio",
+        "nome": "Abbonamento stadio"
+      },
+      {
+        "id": "svc-juventus",
+        "nome": "Juventus"
+      },
+      {
+        "id": "svc-inter",
+        "nome": "Inter"
+      },
+      {
+        "id": "svc-ac-milan",
+        "nome": "AC Milan"
+      },
+      {
+        "id": "svc-as-roma",
+        "nome": "AS Roma"
+      },
+      {
+        "id": "svc-ssc-napoli",
+        "nome": "SSC Napoli"
+      },
+      {
+        "id": "svc-ss-lazio",
+        "nome": "SS Lazio"
+      },
+      {
+        "id": "svc-fiorentina",
+        "nome": "Fiorentina"
+      },
+      {
+        "id": "svc-atalanta",
+        "nome": "Atalanta"
+      },
+      {
+        "id": "svc-bologna-fc",
+        "nome": "Bologna FC"
+      },
+      {
+        "id": "svc-torino-fc",
+        "nome": "Torino FC"
+      },
+      {
+        "id": "svc-fantacalcio-it",
+        "nome": "Fantacalcio.it"
+      },
+      {
+        "id": "svc-fantagazzetta",
+        "nome": "FantaGazzetta"
+      },
+      {
+        "id": "svc-fantamaster",
+        "nome": "FantaMaster"
+      },
+      {
+        "id": "svc-corriere-della-sera",
+        "nome": "Corriere della Sera"
+      },
+      {
+        "id": "svc-la-repubblica",
+        "nome": "la Repubblica"
+      },
+      {
+        "id": "svc-la-stampa",
+        "nome": "La Stampa"
+      },
+      {
+        "id": "svc-il-sole-24-ore",
+        "nome": "Il Sole 24 Ore"
+      },
+      {
+        "id": "svc-il-fatto-quotidiano",
+        "nome": "Il Fatto Quotidiano"
+      },
+      {
+        "id": "svc-il-messaggero",
+        "nome": "Il Messaggero"
+      },
+      {
+        "id": "svc-la-gazzetta-dello-sport",
+        "nome": "La Gazzetta dello Sport"
+      },
+      {
+        "id": "svc-corriere-dello-sport",
+        "nome": "Corriere dello Sport"
+      },
+      {
+        "id": "svc-tuttosport",
+        "nome": "Tuttosport"
+      },
+      {
+        "id": "svc-il-post",
+        "nome": "Il Post"
+      },
+      {
+        "id": "svc-internazionale",
+        "nome": "Internazionale"
+      },
+      {
+        "id": "svc-domani",
+        "nome": "Domani"
+      },
+      {
+        "id": "svc-the-new-york-times",
+        "nome": "The New York Times"
+      },
+      {
+        "id": "svc-the-guardian",
+        "nome": "The Guardian"
+      },
+      {
+        "id": "svc-financial-times",
+        "nome": "Financial Times"
+      },
+      {
+        "id": "svc-the-economist",
+        "nome": "The Economist"
+      },
+      {
+        "id": "svc-the-washington-post",
+        "nome": "The Washington Post"
+      },
+      {
+        "id": "svc-wired",
+        "nome": "Wired"
+      },
+      {
+        "id": "svc-national-geographic",
+        "nome": "National Geographic"
+      },
+      {
+        "id": "svc-abbonamento-autobus",
+        "nome": "Abbonamento autobus"
+      },
+      {
+        "id": "svc-abbonamento-treno",
+        "nome": "Abbonamento treno"
+      },
+      {
+        "id": "svc-abbonamento-metro",
+        "nome": "Abbonamento metro"
+      },
+      {
+        "id": "svc-atm-milano",
+        "nome": "ATM Milano"
+      },
+      {
+        "id": "svc-atac-roma",
+        "nome": "ATAC Roma"
+      },
+      {
+        "id": "svc-gtt-torino",
+        "nome": "GTT Torino"
+      },
+      {
+        "id": "svc-anm-napoli",
+        "nome": "ANM Napoli"
+      },
+      {
+        "id": "svc-amt-genova",
+        "nome": "AMT Genova"
+      },
+      {
+        "id": "svc-tper-bologna",
+        "nome": "Tper Bologna"
+      },
+      {
+        "id": "svc-trenitalia",
+        "nome": "Trenitalia"
+      },
+      {
+        "id": "svc-trenord",
+        "nome": "Trenord"
+      },
+      {
+        "id": "svc-italo",
+        "nome": "Italo"
+      },
+      {
+        "id": "svc-telepass",
+        "nome": "Telepass",
+        "piani": [
+          {
+            "id": "plan-telepass-base",
+            "nome": "Base"
+          },
+          {
+            "id": "plan-telepass-pay-per-use-telepedaggio",
+            "nome": "Pay Per Use · telepedaggio"
+          },
+          {
+            "id": "plan-telepass-pay-x",
+            "nome": "Pay X"
+          },
+          {
+            "id": "plan-telepass-plus",
+            "nome": "Plus"
+          },
+          {
+            "id": "plan-telepass-sempre",
+            "nome": "Sempre"
+          }
+        ]
+      },
+      {
+        "id": "svc-unipolmove",
+        "nome": "UnipolMove",
+        "piani": [
+          {
+            "id": "plan-unipolmove-base-canone-ordinario",
+            "nome": "Base · canone ordinario"
+          },
+          {
+            "id": "plan-unipolmove-europeo-canone-ordinario",
+            "nome": "Europeo · canone ordinario"
+          },
+          {
+            "id": "plan-unipolmove-pay-per-use",
+            "nome": "Pay per Use"
+          }
+        ]
+      },
+      {
+        "id": "svc-uber-one",
+        "nome": "Uber One",
+        "piani": [
+          {
+            "id": "plan-uber-one-annuale",
+            "nome": "Annuale"
+          },
+          {
+            "id": "plan-uber-one-condivisione-familiare",
+            "nome": "Condivisione familiare"
+          },
+          {
+            "id": "plan-uber-one-mensile",
+            "nome": "Mensile"
+          }
+        ]
+      },
+      {
+        "id": "svc-free-now",
+        "nome": "FREE NOW"
+      },
+      {
+        "id": "svc-bolt",
+        "nome": "Bolt"
+      },
+      {
+        "id": "svc-lime",
+        "nome": "Lime"
+      },
+      {
+        "id": "svc-dott",
+        "nome": "Dott"
+      },
+      {
+        "id": "svc-enjoy",
+        "nome": "Enjoy"
+      },
+      {
+        "id": "svc-blablacar",
+        "nome": "BlaBlaCar"
+      },
+      {
+        "id": "svc-reddit-premium",
+        "nome": "Reddit Premium"
+      },
+      {
+        "id": "svc-bumble-premium",
+        "nome": "Bumble Premium"
+      },
+      {
+        "id": "svc-hinge",
+        "nome": "Hinge+"
+      },
+      {
+        "id": "svc-badoo-premium",
+        "nome": "Badoo Premium"
+      },
+      {
+        "id": "svc-apple-one",
+        "nome": "Apple One",
+        "piani": [
+          {
+            "id": "plan-apple-one-famiglia",
+            "nome": "Famiglia"
+          },
+          {
+            "id": "plan-apple-one-individuale",
+            "nome": "Individuale"
+          },
+          {
+            "id": "plan-apple-one-premium",
+            "nome": "Premium"
+          }
+        ]
+      },
+      {
+        "id": "svc-mubi",
+        "nome": "MUBI"
+      },
+      {
+        "id": "svc-plex-pass",
+        "nome": "Plex Pass"
+      },
+      {
+        "id": "svc-soundcloud-go",
+        "nome": "SoundCloud Go+"
+      },
+      {
+        "id": "svc-nebula",
+        "nome": "Nebula"
+      },
+      {
+        "id": "svc-slack",
+        "nome": "Slack"
+      },
+      {
+        "id": "svc-google-workspace",
+        "nome": "Google Workspace",
+        "piani": [
+          {
+            "id": "plan-google-workspace-business-plus-flessibile",
+            "nome": "Business Plus · flessibile"
+          },
+          {
+            "id": "plan-google-workspace-business-plus-flessibile-utente",
+            "nome": "Business Plus · flessibile / utente"
+          },
+          {
+            "id": "plan-google-workspace-business-plus-impegno-annuale",
+            "nome": "Business Plus · impegno annuale"
+          },
+          {
+            "id": "plan-google-workspace-business-standard-flessibile",
+            "nome": "Business Standard · flessibile"
+          },
+          {
+            "id": "plan-google-workspace-business-standard-flessibile-utente",
+            "nome": "Business Standard · flessibile / utente"
+          },
+          {
+            "id": "plan-google-workspace-business-standard-impegno-annuale",
+            "nome": "Business Standard · impegno annuale"
+          },
+          {
+            "id": "plan-google-workspace-business-starter-flessibile",
+            "nome": "Business Starter · flessibile"
+          },
+          {
+            "id": "plan-google-workspace-business-starter-flessibile-utente",
+            "nome": "Business Starter · flessibile / utente"
+          },
+          {
+            "id": "plan-google-workspace-business-starter-impegno-annuale",
+            "nome": "Business Starter · impegno annuale"
+          }
+        ]
+      },
+      {
+        "id": "svc-jetbrains",
+        "nome": "JetBrains"
+      },
+      {
+        "id": "svc-setapp",
+        "nome": "Setapp"
+      },
+      {
+        "id": "svc-vimeo",
+        "nome": "Vimeo"
+      },
+      {
+        "id": "svc-envato-elements",
+        "nome": "Envato Elements"
+      },
+      {
+        "id": "svc-freepik",
+        "nome": "Freepik"
+      },
+      {
+        "id": "svc-adobe-stock",
+        "nome": "Adobe Stock",
+        "piani": [
+          {
+            "id": "plan-adobe-stock-10-crediti-stock-mese",
+            "nome": "10 crediti Stock/mese"
+          },
+          {
+            "id": "plan-adobe-stock-10-crediti-stock-mese-ai-studio",
+            "nome": "10 crediti Stock/mese + AI Studio"
+          },
+          {
+            "id": "plan-adobe-stock-40-crediti-stock-mese-ai-studio",
+            "nome": "40 crediti Stock/mese + AI Studio"
+          },
+          {
+            "id": "plan-adobe-stock-stock-illimitati-ai-studio",
+            "nome": "Stock illimitati + AI Studio"
+          }
+        ]
+      },
+      {
+        "id": "svc-chess-com",
+        "nome": "Chess.com"
+      },
+      {
+        "id": "svc-roblox-premium",
+        "nome": "Roblox Premium"
+      },
+      {
+        "id": "svc-calm",
+        "nome": "Calm"
+      },
+      {
+        "id": "svc-headspace",
+        "nome": "Headspace"
+      },
+      {
+        "id": "svc-babbel",
+        "nome": "Babbel"
+      },
+      {
+        "id": "svc-busuu",
+        "nome": "Busuu"
+      },
+      {
+        "id": "svc-blinkist",
+        "nome": "Blinkist"
+      },
+      {
+        "id": "svc-kindle-unlimited",
+        "nome": "Kindle Unlimited"
+      },
+      {
+        "id": "svc-storytel",
+        "nome": "Storytel"
+      },
+      {
+        "id": "svc-masterclass",
+        "nome": "MasterClass"
+      },
+      {
+        "id": "svc-linkedin-learning",
+        "nome": "LinkedIn Learning"
+      },
+      {
+        "id": "svc-starlink",
+        "nome": "Starlink"
+      },
+      {
+        "id": "svc-generali",
+        "nome": "Generali"
+      },
+      {
+        "id": "svc-unipolsai",
+        "nome": "UnipolSai"
+      },
+      {
+        "id": "svc-allianz",
+        "nome": "Allianz"
+      },
+      {
+        "id": "svc-allianz-direct",
+        "nome": "Allianz Direct"
+      },
+      {
+        "id": "svc-axa",
+        "nome": "AXA"
+      },
+      {
+        "id": "svc-zurich-connect",
+        "nome": "Zurich Connect"
+      },
+      {
+        "id": "svc-reale-mutua",
+        "nome": "Reale Mutua"
+      },
+      {
+        "id": "svc-groupama",
+        "nome": "Groupama"
+      },
+      {
+        "id": "svc-vittoria-assicurazioni",
+        "nome": "Vittoria Assicurazioni"
+      },
+      {
+        "id": "svc-itas-assicurazioni",
+        "nome": "ITAS Assicurazioni"
+      },
+      {
+        "id": "svc-poste-assicura",
+        "nome": "Poste Assicura"
+      },
+      {
+        "id": "svc-genertel",
+        "nome": "Genertel"
+      },
+      {
+        "id": "svc-sara-assicurazioni",
+        "nome": "Sara Assicurazioni"
+      },
+      {
+        "id": "svc-prima-assicurazioni",
+        "nome": "Prima Assicurazioni"
+      },
+      {
+        "id": "svc-conte-it",
+        "nome": "ConTe.it"
+      },
+      {
+        "id": "svc-verti",
+        "nome": "Verti"
+      },
+      {
+        "id": "svc-quixa",
+        "nome": "Quixa"
+      },
+      {
+        "id": "svc-cattolica-assicurazioni",
+        "nome": "Cattolica Assicurazioni"
+      },
+      {
+        "id": "svc-hdi-assicurazioni",
+        "nome": "HDI Assicurazioni"
+      }
+    ]
+  }
 }
