@@ -422,7 +422,7 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v245";
+const APP_VERSION = "v246";
 const APP_BUILD_DATE = "2026-09-19";
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -433,6 +433,11 @@ const REMOTE_CATALOG_MANIFEST_URL = "https://dod86.github.io/Hubbo/catalog/manif
 const LOCAL_CATALOG_URL = "./offerte.json";
 const CATALOG_STORAGE_KEY = "abbly:offers";
 const CATALOG_PENDING_STORAGE_KEY = "abbly:offers:pending";
+// Versione di compatibilità del client catalogo, distinta dalla versione
+// commerciale dell’app. La futura app Android potrà dichiarare questa stessa
+// capability anche se la sua versione Play Store seguirà una numerazione diversa.
+// Va incrementata solo quando cambia il protocollo/schema che il client sa gestire.
+const CATALOG_CLIENT_CAPABILITY_VERSION = "v245";
 const SUPPORTED_CATALOG_SCHEMA_VERSION = 5;
 function appVersionNumber(version) {
     const match = /^v(\\d+)$/.exec(String(version || ""));
@@ -450,7 +455,7 @@ function isUsableCatalogManifest(manifest) {
 function isCatalogManifestCompatible(manifest) {
     if (!isUsableCatalogManifest(manifest))
         return false;
-    const current = appVersionNumber(APP_VERSION);
+    const current = appVersionNumber(CATALOG_CLIENT_CAPABILITY_VERSION);
     const minimum = appVersionNumber(manifest.minAppVersion);
     return (current !== null && minimum !== null && minimum <= current &&
         manifest.schemaVersion === SUPPORTED_CATALOG_SCHEMA_VERSION);

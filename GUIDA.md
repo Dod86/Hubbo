@@ -10,6 +10,7 @@ sw.js               fa funzionare l'app offline
 offerte.json        fallback locale del catalogo, legato alla release
 catalog/offerte.json catalogo remoto primario, aggiornabile senza release
 catalog/manifest.json versione/schema/hash del catalogo remoto
+catalog/contracts/ contratto dati condiviso PWA/Android
 icons/              l'icona che vedrai sulla schermata home
 ```
 
@@ -144,7 +145,7 @@ barra del browser: indistinguibile da un'app normale.
 
 ---
 
-## Aggiornare il catalogo senza rilasciare l'app — Parti 8A/8B/8C/8D/8E
+## Aggiornare il catalogo senza rilasciare l'app — Parti 8A/8B/8C/8D/8E/8F/8G
 
 Dalla v243 il catalogo remoto usa **snapshot immutabili**. Il file
 `catalog/offerte.json` resta la copia di lavoro, mentre l'app legge
@@ -171,27 +172,22 @@ La catena sicura resta:
 
 ### Nuovo aggiornamento commerciale
 
-1. modifica `catalog/offerte.json`;
+1. modifica `catalog/offerte.json` solo dopo verifica sulle fonti ufficiali;
 2. esegui dalla radice del progetto:
 
    ```bash
-   node build/publish-catalog-version.js
+   node build/publish-catalog-pipeline.js
    ```
 
-   Lo script crea automaticamente la versione successiva, ad esempio
-   `catalog/versions/v000002/`, e rifiuta di sovrascrivere cartelle già
-   pubblicate;
-3. verifica:
+   La pipeline esegue automaticamente audit 8E, tutti i test di regressione,
+   controlli duplicate-key e verifica della build **prima** di creare la nuova
+   cartella versionata. Un controllo critico fallito blocca tutto. Se il
+   candidato è identico al live non crea una versione inutile;
+3. al termine usa la lista `File da caricare su GitHub` stampata dalla pipeline:
+   saranno la nuova `catalog/versions/vNNNNNN/offerte.json`, il relativo
+   `manifest.json` e `catalog/manifest.json`.
 
-   ```bash
-   node build/generate-catalog-manifest.js --check
-   node build/rollback-catalog.js --check
-   node verifiche/checks-catalog-versioning.js
-   node verifiche/checks-catalog-rollback.js
-   ```
-
-4. su GitHub carica **la nuova cartella versionata** e il nuovo
-   `catalog/manifest.json`.
+Per un controllo completo senza creare nulla: `node build/publish-catalog-pipeline.js --dry-run`.
 
 Per un normale aggiornamento dati non serve cambiare `index.html`, `sw.js`,
 versione app o `offerte.json` alla radice finché schema e compatibilità minima
@@ -233,7 +229,15 @@ manifest live. Per applicare il rollback online basta quindi caricare su GitHub
 **solo `catalog/manifest.json`**. Le versioni successive non vengono cancellate.
 
 La v243 parte con `catalogVersion: 1`, schema 5 e `minAppVersion: v240`. Il
-numero del catalogo è indipendente dalla versione Hubbo.
+numero del catalogo è indipendente dalla versione Hubbo. Da v246 anche la
+compatibilità è esplicitamente separata dalla release PWA: `minAppVersion` va
+letto come capability minima del **client catalogo**, mentre la PWA dichiara la
+propria con `CATALOG_CLIENT_CAPABILITY_VERSION`. La futura Android potrà quindi
+avere versionName/versionCode propri e implementare lo stesso livello catalogo.
+
+Il contratto riutilizzabile è pubblicato in `catalog/contracts/`: contiene il
+protocollo v1, lo schema manifest e lo schema catalogo v5. Android deve cambiare
+solo gli adapter di rete/storage/hash, non il formato dati né la sequenza sicura.
 
 Dentro il catalogo restano gli stessi elenchi e le stesse regole della v239:
 **piani**, **offerte** e **opportunita**. Nessun prezzo va inventato o convertito
