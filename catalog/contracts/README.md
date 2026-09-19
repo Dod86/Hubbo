@@ -46,3 +46,17 @@ PWA.
   esplicito dei contratti prima di pubblicare il catalogo.
 - Gli snapshot restano immutabili; rollback e pipeline 8F non cambiano fra PWA e
   Android.
+
+## Parte 8H — identità stabile dei dati utente
+
+Da `catalogVersion 2` il catalogo può esporre `identitaCatalogo` (versione 1).
+Ogni servizio ha un `svc-*` immutabile e ogni piano noto un `plan-*` immutabile.
+Il nome commerciale è un'etichetta: può cambiare, l'ID no. Quando un nome viene
+rinominato, il vecchio nome deve restare tra gli `alias` della stessa identità.
+
+I client salvano nell'abbonamento un oggetto additivo `catalogRef` con gli ID
+stabili e con il nome/piano al momento del collegamento. `catalogRef` non
+sostituisce mai `name`, `plan`, prezzi, date o storico dell'utente. Un client deve
+preferire gli ID per collegare catalogo e dati salvati, ma mantenere il fallback
+nome/alias per backup e snapshot creati prima della Parte 8H. Un rollback verso
+uno snapshot senza `identitaCatalogo` non deve cancellare riferimenti già salvati.

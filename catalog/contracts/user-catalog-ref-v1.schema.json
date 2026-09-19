@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dod86.github.io/Hubbo/catalog/contracts/user-catalog-ref-v1.schema.json",
+  "title": "Hubbo user catalog reference v1",
+  "type": "object",
+  "required": ["version", "serviceId", "serviceNameAtSave"],
+  "properties": {
+    "version": { "const": 1 },
+    "serviceId": { "type": "string", "pattern": "^svc-[a-z0-9-]+$" },
+    "serviceNameAtSave": { "type": "string", "minLength": 1 },
+    "serviceAliasesAtSave": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "planId": {
+      "type": ["string", "null"],
+      "pattern": "^plan-[a-z0-9-]+$"
+    },
+    "planNameAtSave": { "type": ["string", "null"] },
+    "planAliasesAtSave": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "additionalProperties": false
+}
