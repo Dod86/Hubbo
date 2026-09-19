@@ -142,38 +142,58 @@ barra del browser: indistinguibile da un'app normale.
 
 ---
 
-## Aggiornare il catalogo senza rilasciare l'app — Parte 8A
+## Aggiornare il catalogo senza rilasciare l'app — Parti 8A/8B
 
-Dalla v240 Hubbo distingue due copie del catalogo:
+Dalla v241 Hubbo pubblica il catalogo remoto con **due file coordinati**:
 
-- **`catalog/offerte.json`** è la fonte remota primaria. È questa la copia da
-  aggiornare quando cambiano prezzi, piani, promozioni o opportunità. Il suo URL
-  pubblico stabile è `https://dod86.github.io/Hubbo/catalog/offerte.json`.
-- **`offerte.json`** alla radice è il fallback locale della release. Va cambiato
-  solo insieme a una nuova release dell'app, non durante la manutenzione
-  settimanale ordinaria. Il service worker lo precachea per garantire un
-  catalogo di emergenza anche offline.
+- **`catalog/offerte.json`** — dati commerciali veri e propri;
+- **`catalog/manifest.json`** — versione del catalogo, versione schema, data di
+  generazione, app minima, URL del JSON e SHA-256.
 
-All'avvio Hubbo usa questa sequenza: ultima copia valida già salvata → tentativo
-del catalogo remoto → fallback locale soltanto se non esiste ancora nessuna
-copia valida. Se il remoto non risponde, una copia valida già scaricata non viene
-sostituita dal fallback più vecchio. Quando l'app torna in primo piano, ricontrolla
-periodicamente solo il catalogo remoto.
+Il file **`offerte.json` alla radice** resta invece il fallback locale della
+release. Va cambiato solo insieme a una nuova release dell'app, non durante la
+manutenzione settimanale ordinaria.
 
-Quindi, per un normale aggiornamento commerciale, su GitHub devi modificare
-**solo `catalog/offerte.json`**: non cambiare `index.html`, `sw.js`, il numero di
-versione app o `offerte.json` alla radice. Le Parti 8B–8D aggiungeranno manifest,
-versioning formale, SHA-256, storico immutabile e rollback.
+La v241 legge prima l'ultima copia valida già salvata, poi prova il manifest
+remoto e usa il `catalogUrl` dichiarato al suo interno. In questa sola fase 8B,
+se il manifest non è raggiungibile, resta anche il ripiego diretto al catalogo
+remoto della v240. La verifica obbligatoria dello SHA-256 e delle compatibilità
+arriva in 8C.
+
+### Aggiornamento commerciale ordinario
+
+1. Modifica **solo** `catalog/offerte.json`;
+2. dalla radice del progetto esegui:
+
+   ```bash
+   node build/generate-catalog-manifest.js
+   ```
+
+   Il comando incrementa `catalogVersion`, aggiorna `generatedAt`, legge
+   `schemaVersion` dal catalogo e ricalcola lo SHA-256;
+3. verifica prima della pubblicazione:
+
+   ```bash
+   node build/generate-catalog-manifest.js --check
+   node verifiche/checks-catalog-versioning.js
+   ```
+
+4. su GitHub carica **entrambi**:
+   - `catalog/offerte.json`;
+   - `catalog/manifest.json`.
+
+Per questo aggiornamento dati **non** cambiare `index.html`, `sw.js`, il numero
+di versione app o `offerte.json` alla radice, finché non cambia lo schema o la
+compatibilità minima richiesta.
+
+Il manifest iniziale della v241 usa `catalogVersion: 1`, `schemaVersion: 5` e
+`minAppVersion: v240`. `catalogVersion` è indipendente dalla versione Hubbo: può
+aumentare ogni settimana senza pubblicare una nuova app.
 
 Dentro il catalogo restano gli stessi elenchi e le stesse regole della v239:
-
-- **piani** — piani e listini strutturati;
-- **offerte** — promozioni a tempo, sempre con `scade`;
-- **opportunita** — regole multi-servizio del motore Risparmio.
-
-Il campo `verificato` indica quando una voce è stata ricontrollata. I nomi in
-`servizio` devono continuare a corrispondere al catalogo interno/alias supportati:
-i controlli automatici segnalano gli errori.
+**piani**, **offerte** e **opportunita**. Nessun prezzo va inventato o convertito
+arbitrariamente; il campo `verificato` continua a indicare l'ultima verifica
+della singola voce.
 
 ---
 

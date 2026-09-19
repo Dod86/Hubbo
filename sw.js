@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v240";
+const CACHE = "hubbo-v241";
 
 const CORE = [
   "./",
@@ -190,10 +190,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // I cataloghi sono dati, non asset. Sia `catalog/offerte.json` (remoto) sia
-  // `./offerte.json` (fallback locale) devono restare network-first quando la
-  // rete esiste; il precache del fallback garantisce soltanto l'uso offline.
-  if (sameOrigin && url.pathname.endsWith("offerte.json")) {
+  // Catalogo e relativo manifest sono dati, non asset. `catalog/manifest.json`
+  // deve restare network-first: se fosse cache-first il versioning remoto si
+  // bloccherebbe sulla prima copia vista dal dispositivo. Anche entrambe le
+  // copie di `offerte.json` restano network-first; il precache del fallback
+  // locale garantisce soltanto l'uso offline.
+  const isCatalogData = sameOrigin && (
+    url.pathname.endsWith("offerte.json") ||
+    url.pathname.endsWith("/catalog/manifest.json")
+  );
+  if (isCatalogData) {
     event.respondWith(
       fetch(req)
         .then((res) => {

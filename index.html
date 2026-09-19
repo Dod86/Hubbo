@@ -422,20 +422,29 @@ const LANGUAGES = [
 const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v240";
+const APP_VERSION = "v241";
 const APP_BUILD_DATE = "2026-09-19";
-// Parte 8A — il catalogo commerciale non è più un file dell'app. La PWA
-// prova prima l'endpoint remoto stabile, che può essere aggiornato senza una
-// nuova release; \`./offerte.json\` resta una copia locale di fallback legata
-// alla release, utile al primo avvio/offline. La futura app Android potrà usare
-// lo stesso endpoint remoto senza cambiare schema o contenuti.
+// Parte 8A/8B — dati commerciali separati dall'app. Il manifest remoto è il
+// punto di ingresso versionato del catalogo; \`catalogUrl\` indica il JSON dati.
+// \`REMOTE_CATALOG_URL\` resta come ripiego compatibile con la v240 se il manifest
+// non è raggiungibile. \`./offerte.json\` è invece la fotografia locale della
+// release, utile al primo avvio/offline.
+const REMOTE_CATALOG_MANIFEST_URL = "https://dod86.github.io/Hubbo/catalog/manifest.json";
 const REMOTE_CATALOG_URL = "https://dod86.github.io/Hubbo/catalog/offerte.json";
 const LOCAL_CATALOG_URL = "./offerte.json";
 const CATALOG_STORAGE_KEY = "abbly:offers";
-// In 8A la validazione resta volutamente minima e retrocompatibile: il
-// controllo completo di schema/hash/versione appartiene alle Parti 8B/8C.
-// Qui basta impedire che una risposta palesemente non-catalogo sostituisca
-// l'ultima copia funzionante.
+// In 8B il manifest viene controllato strutturalmente e usato per risolvere la
+// versione/URL del catalogo. La verifica SHA-256, la compatibilità obbligatoria
+// di schema/app e l'attivazione atomica appartengono alla Parte 8C.
+function isUsableCatalogManifest(manifest) {
+    return !!(manifest &&
+        Number.isInteger(manifest.catalogVersion) && manifest.catalogVersion > 0 &&
+        Number.isInteger(manifest.schemaVersion) && manifest.schemaVersion > 0 &&
+        typeof manifest.generatedAt === "string" && manifest.generatedAt.length > 0 &&
+        typeof manifest.minAppVersion === "string" && manifest.minAppVersion.length > 0 &&
+        typeof manifest.catalogUrl === "string" && /^https:\\/\\//i.test(manifest.catalogUrl) &&
+        typeof manifest.sha256 === "string" && /^[a-f0-9]{64}$/i.test(manifest.sha256));
+}
 function isUsableCatalogFile(file) {
     return !!(file && Array.isArray(file.piani));
 }
@@ -6416,10 +6425,12 @@ function HubboApp() {
             cancelled = true;
         };
     }, []);
-    // Parte 8A — catalogo remoto con fallback locale. L'ordine è:
+    // Parte 8A/8B — catalogo remoto con fallback locale e manifest versionato.
+    // L'ordine resta retrocompatibile:
     // 1) ultima copia già salvata, per mostrare subito dati validi/offline;
-    // 2) endpoint remoto, fonte primaria e aggiornabile senza release app;
-    // 3) \`./offerte.json\` soltanto se non esiste ancora nessuna copia valida.
+    // 2) manifest remoto -> URL/versione del catalogo;
+    // 3) endpoint remoto v240 come ripiego se il manifest non è disponibile;
+    // 4) \`./offerte.json\` soltanto se non esiste ancora nessuna copia valida.
     // Un errore remoto non sovrascrive mai il catalogo già in uso.
     const [offersFile, setOffersFile] = useState(null);
     const offersFetchRef = useRef(0);
@@ -6441,7 +6452,7 @@ function HubboApp() {
                 return false;
             }
         };
-        const fetchCatalog = async (url, source) => {
+        const fetchCatalog = async (url, source, manifest = null) => {
             try {
                 const res = await fetch(url, { cache: "no-store" });
                 if (!res.ok || cancelled)
@@ -6451,7 +6462,7 @@ function HubboApp() {
                     return false;
                 setOffersFile(file);
                 try {
-                    await window.storage.set(CATALOG_STORAGE_KEY, JSON.stringify({ file, fetchedAt: Date.now(), source }), false);
+                    await window.storage.set(CATALOG_STORAGE_KEY, JSON.stringify({ file, fetchedAt: Date.now(), source, manifest }), false);
                 }
                 catch {
                     // Il catalogo appena scaricato resta utilizzabile in memoria anche
@@ -6463,12 +6474,30 @@ function HubboApp() {
                 return false;
             }
         };
+        const fetchCatalogManifest = async () => {
+            try {
+                const res = await fetch(REMOTE_CATALOG_MANIFEST_URL, { cache: "no-store" });
+                if (!res.ok || cancelled)
+                    return null;
+                const manifest = await res.json();
+                return !cancelled && isUsableCatalogManifest(manifest) ? manifest : null;
+            }
+            catch {
+                return null;
+            }
+        };
         const fetchFreshRemote = async (force) => {
             const now = Date.now();
             if (!force && now - offersFetchRef.current < OFFERS_MIN_REFETCH_MS)
                 return false;
             offersFetchRef.current = now;
-            return fetchCatalog(REMOTE_CATALOG_URL, "remote");
+            const manifest = await fetchCatalogManifest();
+            if (manifest) {
+                return fetchCatalog(manifest.catalogUrl, "remote-manifest", manifest);
+            }
+            // Compatibilità 8A/v240: finché 8C non renderà obbligatoria la verifica
+            // del manifest, un problema del solo manifest non disattiva il remoto.
+            return fetchCatalog(REMOTE_CATALOG_URL, "remote-legacy");
         };
         (async () => {
             const hasCachedCatalog = await loadCachedCatalog();
