@@ -275,45 +275,46 @@ function ringCardStyle(segments, colors, light) {
   return style;
 }
 
-// v250 — gradienti fissi e tenui per le sottosezioni della Scheda Risparmio.
-// Ogni sezione mantiene la propria tinta anche quando cambiano abbonamenti e
-// catalogo: il colore serve a orientarsi nella pagina, non a rappresentare dati.
-const SAVINGS_SECTION_TINTS = {
-  ending: "#C46A4A",
-  offers: "#C99545",
-  duplicates: "#4F7D83",
-  opportunities: "#5C8B68",
-  plans: "#7C70A3",
-  watchlist: "#557DA0"
-};
 
-function savingsSectionCardStyle(tintColor, colors, light) {
+// v251: stesso linguaggio visivo della card dell'anello, ma con un solo
+// accento fisso per ogni sotto-sezione della scheda Risparmio.
+function fixedAccentCardStyle(accentColor, colors, light) {
   const parseHex = (value) => {
-    let hex = String(value || "").replace(/^#/, "");
-    if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
-    return /^[0-9a-f]{6}$/i.test(hex) ? hex.match(/../g).map((c) => parseInt(c, 16)) : null;
+    const hex = String(value || "").replace(/^#/, "");
+    const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
+    return /^[0-9a-f]{6}$/i.test(full) ? full.match(/../g).map((c) => parseInt(c, 16)) : null;
   };
-  const base = parseHex(colors.surface2);
-  const tint = parseHex(tintColor);
+  const base = parseHex(colors.surface2 || colors.surface);
+  const accent = parseHex(accentColor);
   const style = {
-    backgroundColor: colors.surface2,
+    backgroundColor: colors.surface2 || colors.surface,
     backgroundOrigin: "border-box",
     backgroundClip: "border-box",
     backgroundRepeat: "no-repeat",
-    border: \`1px solid \${colors.border}\`
+    border: "2px solid transparent",
+    boxShadow: colors.cardShadow
   };
-  if (!base || !tint) return style;
-
-  // Meno saturo e molto più vicino alla superficie rispetto al colore puro:
-  // in light resta appena percettibile, in dark guadagna solo un po' di corpo.
-  const grey = tint[0] * 0.2126 + tint[1] * 0.7152 + tint[2] * 0.0722;
-  const softened = tint.map((v) => grey + (v - grey) * 0.55);
-  const mix = light ? 0.16 : 0.22;
-  const tone = softened.map((v, i) => Math.round(base[i] + (v - base[i]) * mix));
-  const rgb = tone.join(",");
-  style.backgroundImage = \`radial-gradient(ellipse at 0% 0%, rgba(\${rgb},0.98) 0%, transparent 68%), radial-gradient(ellipse at 100% 100%, rgba(\${rgb},0.38) 0%, transparent 64%)\`;
+  if (!base || !accent) return style;
+  const grey = accent[0] * 0.2126 + accent[1] * 0.7152 + accent[2] * 0.0722;
+  const tone = (strength) => accent.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.32 - base[i]) * strength));
+  const tones = [
+    tone(light ? 0.42 : 0.32),
+    tone(light ? 0.31 : 0.24),
+    tone(light ? 0.23 : 0.18)
+  ];
+  const tint = (index, alpha = 1) => `rgba(${tones[index].join(",")},${alpha})`;
+  style.backgroundImage = `radial-gradient(ellipse at 0% 0%, ${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, ${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, ${tint(2, 0.55)} 0%, transparent 58%)`;
   return style;
 }
+
+const SAVINGS_SECTION_ACCENTS = {
+  decideNow: ACCENT.terracotta,
+  offers: ACCENT.amber,
+  duplicates: "#4F8D93",
+  opportunities: ACCENT.green,
+  plans: "#8A74C6",
+  watchlist: "#6D93C4"
+};
 
 // v194: sfondo tenue delle sole righe Elenco, dal colore del loro anello.
 function serviceCardBackground(ringColor, colors, light) {
@@ -483,7 +484,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v250";
+const APP_VERSION = "v251";
 const APP_BUILD_DATE = "2026-09-20";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -10543,7 +10544,7 @@ function HubboApp() {
 
 
     savingsEndingPromos.length > 0 && /*#__PURE__*/
-    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: savingsSectionCardStyle(SAVINGS_SECTION_TINTS.ending, colors, effectiveTheme === "light") }, /*#__PURE__*/
+    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.decideNow, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2.5 px-1" }, /*#__PURE__*/
     React.createElement("span", { className: "flex-shrink-0", style: { color: legibleOn(ACCENT.terracotta, colors.bg) } }, /*#__PURE__*/
     React.createElement(Icon, { name: "clock", size: 15 })
@@ -10633,7 +10634,7 @@ function HubboApp() {
 
 
     savingsOffers.length > 0 && /*#__PURE__*/
-    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: savingsSectionCardStyle(SAVINGS_SECTION_TINTS.offers, colors, effectiveTheme === "light") }, /*#__PURE__*/
+    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.offers, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2.5 px-1" }, /*#__PURE__*/
     React.createElement("span", { className: "flex-shrink-0", style: { color: legibleOn(ACCENT.amber, colors.bg) } }, /*#__PURE__*/
     React.createElement(Icon, { name: "tag", size: 15 })
@@ -10676,7 +10677,7 @@ function HubboApp() {
 
 
     savingsDuplicates.length > 0 && /*#__PURE__*/
-    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: savingsSectionCardStyle(SAVINGS_SECTION_TINTS.duplicates, colors, effectiveTheme === "light") }, /*#__PURE__*/
+    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.duplicates, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
     React.createElement("span", { className: "flex-shrink-0", style: { color: colors.textSecondary } }, /*#__PURE__*/
     React.createElement(Icon, { name: "layers", size: 15 })
@@ -10733,7 +10734,7 @@ function HubboApp() {
 
 
     savingsOpportunities.length > 0 && /*#__PURE__*/
-    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: savingsSectionCardStyle(SAVINGS_SECTION_TINTS.opportunities, colors, effectiveTheme === "light") }, /*#__PURE__*/
+    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.opportunities, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
     React.createElement("span", { className: "flex-shrink-0", style: { color: ACCENT.green } }, /*#__PURE__*/React.createElement(Icon, { name: "piggyBank", size: 15 })), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 15 } }, t.savingsOpportunity)
@@ -10769,7 +10770,7 @@ function HubboApp() {
 
 
     savingsPlanHints.length > 0 && /*#__PURE__*/
-    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: savingsSectionCardStyle(SAVINGS_SECTION_TINTS.plans, colors, effectiveTheme === "light") }, /*#__PURE__*/
+    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.plans, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
     React.createElement("span", { className: "flex-shrink-0", style: { color: colors.textSecondary } }, /*#__PURE__*/
     React.createElement(Icon, { name: "repeat", size: 15 })
@@ -10844,7 +10845,7 @@ function HubboApp() {
 
 
 
-    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: savingsSectionCardStyle(SAVINGS_SECTION_TINTS.watchlist, colors, effectiveTheme === "light") }, /*#__PURE__*/
+    React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.watchlist, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2.5 px-1" }, /*#__PURE__*/
     React.createElement("span", { className: "flex-shrink-0", style: { color: colors.textSecondary } }, /*#__PURE__*/
     React.createElement(Icon, { name: "bookmark", size: 15 })
