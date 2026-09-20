@@ -491,7 +491,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v262";
+const APP_VERSION = "v263";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7164,6 +7164,44 @@ function HubboApp() {
     const svc = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, name));
     return svc ? svc.domain : null;
   };
+  // Opportunità di risparmio: mostra il marchio del servizio/bundle di
+  // destinazione (TIMVISION, Sky, Apple One...), non quello dei servizi che
+  // verrebbero sostituiti. I bundle commerciali hanno spesso nomi estesi
+  // (es. "TIMVISION M con DAZN Full"), quindi il matching parte dall'inizio
+  // del nome dell'alternativa; per le ridondanze usa invece il servizio che
+  // rimane attivo. Se non c'è una corrispondenza affidabile, non inventiamo
+  // un logo: la card resta semplicemente senza marchio.
+  const savingsOpportunityService = (opportunity) => {
+    if (!opportunity) return null;
+    const keptName = opportunity.keptSub?.name || opportunity.mantieni?.servizio || "";
+    if (keptName) {
+      const kept = COMMON_SERVICES.find((svc) =>
+      matchesCatalogName(svc.name, keptName) ||
+      Array.isArray(svc.aliases) && svc.aliases.some((alias) => matchesCatalogName(alias, keptName))
+      );
+      if (kept) return kept;
+    }
+
+    const alternativeName = String(
+      opportunity.alternativa || opportunity.alternative || opportunity.nome || ""
+    ).trim();
+    const normalized = alternativeName.toLowerCase();
+    if (normalized) {
+      const startingMatches = COMMON_SERVICES.
+      filter((svc) => {
+        const names = [svc.name, ...(svc.aliases || [])].filter(Boolean);
+        return names.some((name) => normalized.startsWith(String(name).trim().toLowerCase()));
+      }).
+      sort((a, b) => b.name.length - a.name.length);
+      if (startingMatches.length) return startingMatches[0];
+    }
+
+    const id = String(opportunity.id || "").toLowerCase();
+    if (id.startsWith("timvision-")) return COMMON_SERVICES.find((svc) => svc.name === "TIMVISION") || null;
+    if (id.startsWith("sky-")) return COMMON_SERVICES.find((svc) => svc.name === "Sky") || null;
+    if (id.startsWith("windtre-")) return COMMON_SERVICES.find((svc) => svc.name === "WINDTRE Super Fibra") || null;
+    return null;
+  };
 
   useEffect(() => {
     (async () => {
@@ -11270,114 +11308,135 @@ function HubboApp() {
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsOpportunity)
     ), /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col gap-2" },
-    savingsOpportunities.map((o) => /*#__PURE__*/
-    React.createElement("div", { key: o.id, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-4" }, /*#__PURE__*/
-    React.createElement("div", { className: "text-sm font-medium" }, o.titolo || o.title || o.alternativa || o.alternative || t.savingsOpportunity), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-2" },
-    o.opportunityKind === "included" ? t.savingsCanRemove : t.savingsReplaces, ": ", (o.replacedSubs || o.subs).map((s) => s.name).join(', ')
-    ),
-    o.nota && /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota),
+    savingsOpportunities.map((o) => {
+      const targetService = savingsOpportunityService(o);
+      const targetCategory = targetService ?
+      CATEGORIES.find((c) => c.id === targetService.category) || CATEGORIES[CATEGORIES.length - 1] :
+      null;
+      return (/*#__PURE__*/
+        React.createElement("div", { key: o.id, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-4" }, /*#__PURE__*/
+        React.createElement("div", { className: "flex items-center gap-2.5" },
+        targetService && /*#__PURE__*/
+        React.createElement("div", { className: "flex-shrink-0" }, /*#__PURE__*/
+        React.createElement(ServiceLogo, {
+          icon: targetService.icon,
+          domain: targetService.domain,
+          category: targetService.category,
+          letter: targetService.name.charAt(0).toUpperCase(),
+          serviceName: targetService.name,
+          color: targetCategory.color,
+          size: 34 }
+        )
+        ), /*#__PURE__*/
 
-    o.commercialBundle && /*#__PURE__*/
-    React.createElement("div", { style: { background: colors.surface2, color: colors.textSecondary }, className: "rounded-xl px-3 py-2.5 mt-2.5 text-xs leading-relaxed" },
-    Array.isArray(o.requisiti) && o.requisiti.length > 0 && /*#__PURE__*/
-    React.createElement("div", null, o.requisiti.join(" · ")),
+        React.createElement("div", { className: "text-sm font-medium min-w-0 flex-1" }, o.titolo || o.title || o.alternativa || o.alternative || t.savingsOpportunity)
+        ), /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-2" },
+        o.opportunityKind === "included" ? t.savingsCanRemove : t.savingsReplaces, ": ", (o.replacedSubs || o.subs).map((s) => s.name).join(', ')
+        ),
+        o.nota && /*#__PURE__*/
+        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota),
 
-    o.eligibilityNeedsCheck && /*#__PURE__*/
-    React.createElement("div", { style: { color: legibleOn(ACCENT.amber, colors.surface2) }, className: "mt-1" }, t.savingsBundleEligibilityCheck),
+        o.commercialBundle && /*#__PURE__*/
+        React.createElement("div", { style: { background: colors.surface2, color: colors.textSecondary }, className: "rounded-xl px-3 py-2.5 mt-2.5 text-xs leading-relaxed" },
+        Array.isArray(o.requisiti) && o.requisiti.length > 0 && /*#__PURE__*/
+        React.createElement("div", null, o.requisiti.join(" · ")),
 
-    (o.planDifferences || []).map((row) => /*#__PURE__*/
-    React.createElement("div", { key: \`plan-diff-\${row.servizio}\`, style: { color: legibleOn(ACCENT.terracotta, colors.surface2) }, className: "mt-1" },
-    t.savingsBundlePlanDifferent(row.servizio, row.attuale, row.incluso)
-    )
-    ),
-    (o.planUnverified || []).map((row) => /*#__PURE__*/
-    React.createElement("div", { key: \`plan-unknown-\${row.servizio}\`, style: { color: colors.textFaint }, className: "mt-1" },
-    t.savingsBundlePlanUnknown(row.servizio, row.incluso)
-    )
-    ),
-    o.migrationCommitmentRisk && /*#__PURE__*/
-    React.createElement("div", { style: { color: legibleOn(ACCENT.terracotta, colors.surface2) }, className: "mt-1" }, t.savingsBundleMigrationRisk),
+        o.eligibilityNeedsCheck && /*#__PURE__*/
+        React.createElement("div", { style: { color: legibleOn(ACCENT.amber, colors.surface2) }, className: "mt-1" }, t.savingsBundleEligibilityCheck),
 
-    (o.migrationWarnings || []).map((row, i) => /*#__PURE__*/
-    React.createElement("div", { key: \`migration-\${row.servizio}-\${i}\`, style: { color: colors.textFaint }, className: "mt-1" }, row.servizio, ": ", row.nota)
-    ),
-    Number(o.vincoloMesi) > 0 && /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleCommitment(Number(o.vincoloMesi))),
+        (o.planDifferences || []).map((row) => /*#__PURE__*/
+        React.createElement("div", { key: \`plan-diff-\${row.servizio}\`, style: { color: legibleOn(ACCENT.terracotta, colors.surface2) }, className: "mt-1" },
+        t.savingsBundlePlanDifferent(row.servizio, row.attuale, row.incluso)
+        )
+        ),
+        (o.planUnverified || []).map((row) => /*#__PURE__*/
+        React.createElement("div", { key: \`plan-unknown-\${row.servizio}\`, style: { color: colors.textFaint }, className: "mt-1" },
+        t.savingsBundlePlanUnknown(row.servizio, row.incluso)
+        )
+        ),
+        o.migrationCommitmentRisk && /*#__PURE__*/
+        React.createElement("div", { style: { color: legibleOn(ACCENT.terracotta, colors.surface2) }, className: "mt-1" }, t.savingsBundleMigrationRisk),
 
-    Number(o.activationAlternativeMax) > Number(o.oneTimeCost || 0) + 0.01 && /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleActivationVaries(money(o.activationAlternativeMax)))
+        (o.migrationWarnings || []).map((row, i) => /*#__PURE__*/
+        React.createElement("div", { key: \`migration-\${row.servizio}-\${i}\`, style: { color: colors.textFaint }, className: "mt-1" }, row.servizio, ": ", row.nota)
+        ),
+        Number(o.vincoloMesi) > 0 && /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleCommitment(Number(o.vincoloMesi))),
 
-    ),
+        Number(o.activationAlternativeMax) > Number(o.oneTimeCost || 0) + 0.01 && /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleActivationVaries(money(o.activationAlternativeMax)))
 
-    o.showDetailedEconomics ? /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "mt-2.5 text-xs leading-relaxed" }, /*#__PURE__*/
-    React.createElement("div", { className: "flex items-center justify-between gap-3" }, /*#__PURE__*/
-    React.createElement("span", null, t.savingsBundleCurrent), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" } }, money(o.currentCost), "/", t.monthShort)
-    ),
-    o.promoApplied && /*#__PURE__*/
-    React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
-    React.createElement("span", null, t.savingsBundlePromo(t.savingsDuration(
-      o.durataPromozionaleMesi,
-      o.durataPromozionaleGiorni,
-      o.promoDurationMonthsEquivalent
-    ))), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.promoMonthly), "/", t.monthShort)
-    ), /*#__PURE__*/
+        ),
 
-    React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
-    React.createElement("span", null, o.promoApplied ? t.savingsBundleAfterPromo : t.savingsBundleRecurring), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.afterPromoMonthly), "/", t.monthShort)
-    ),
-    o.oneTimeCost > 0.01 && /*#__PURE__*/
-    React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
-    React.createElement("span", null, t.savingsBundleUpfront), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" } }, money(o.oneTimeCost))
-    ),
+        o.showDetailedEconomics ? /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textSecondary }, className: "mt-2.5 text-xs leading-relaxed" }, /*#__PURE__*/
+        React.createElement("div", { className: "flex items-center justify-between gap-3" }, /*#__PURE__*/
+        React.createElement("span", null, t.savingsBundleCurrent), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" } }, money(o.currentCost), "/", t.monthShort)
+        ),
+        o.promoApplied && /*#__PURE__*/
+        React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
+        React.createElement("span", null, t.savingsBundlePromo(t.savingsDuration(
+          o.durataPromozionaleMesi,
+          o.durataPromozionaleGiorni,
+          o.promoDurationMonthsEquivalent
+        ))), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.promoMonthly), "/", t.monthShort)
+        ), /*#__PURE__*/
 
-    o.promoApplied && /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1.5" },
-    o.savingPromoMonthly >= 0 ?
-    t.savingsBundlePromoSaving(money(Math.abs(o.savingPromoMonthly))) :
-    t.savingsBundlePromoExtra(money(Math.abs(o.savingPromoMonthly))),
-    ' · ',
-    o.savingAfterPromoMonthly >= 0 ?
-    t.savingsBundleAfterSaving(money(Math.abs(o.savingAfterPromoMonthly))) :
-    t.savingsBundleAfterExtra(money(Math.abs(o.savingAfterPromoMonthly)))
-    ),
+        React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
+        React.createElement("span", null, o.promoApplied ? t.savingsBundleAfterPromo : t.savingsBundleRecurring), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.afterPromoMonthly), "/", t.monthShort)
+        ),
+        o.oneTimeCost > 0.01 && /*#__PURE__*/
+        React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
+        React.createElement("span", null, t.savingsBundleUpfront), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" } }, money(o.oneTimeCost))
+        ),
 
-    o.promoApplied && o.scade && /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleJoinBy(dateFmt(o.scade))), /*#__PURE__*/
+        o.promoApplied && /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1.5" },
+        o.savingPromoMonthly >= 0 ?
+        t.savingsBundlePromoSaving(money(Math.abs(o.savingPromoMonthly))) :
+        t.savingsBundlePromoExtra(money(Math.abs(o.savingPromoMonthly))),
+        ' · ',
+        o.savingAfterPromoMonthly >= 0 ?
+        t.savingsBundleAfterSaving(money(Math.abs(o.savingAfterPromoMonthly))) :
+        t.savingsBundleAfterExtra(money(Math.abs(o.savingAfterPromoMonthly)))
+        ),
 
-    React.createElement("div", { style: { borderTop: \`1px solid \${colors.border}\` }, className: "flex items-center gap-2 mt-2.5 pt-2.5" }, /*#__PURE__*/
-    React.createElement("span", null, t.savingsBundle12Months), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", color: colors.textFaint }, className: "ml-auto" }, money(o.current12Months)), /*#__PURE__*/
-    React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.bundle12Months))
-    ), /*#__PURE__*/
-    React.createElement("div", { style: { color: o.headlineEligible === false ? legibleOn(ACCENT.amber, colors.surface) : ACCENT.green }, className: "text-right font-semibold mt-1" },
-    o.headlineEligible === false ?
-    t.savingsBundleSave12Conditional(money(o.saving12Months)) :
-    t.savingsBundleSave12(money(o.saving12Months))
-    )
-    ) : /*#__PURE__*/
+        o.promoApplied && o.scade && /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleJoinBy(dateFmt(o.scade))), /*#__PURE__*/
 
-    React.createElement("div", { className: "flex items-center gap-2 mt-2 text-xs" }, /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", textDecoration: 'line-through', color: colors.textFaint } }, money(o.currentCost)), /*#__PURE__*/
-    React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.alternativeCost)), /*#__PURE__*/
-    React.createElement("span", { style: { color: ACCENT.green }, className: "ml-auto font-semibold" }, "\\u2212", money(o.saving))
-    ),
+        React.createElement("div", { style: { borderTop: \`1px solid \${colors.border}\` }, className: "flex items-center gap-2 mt-2.5 pt-2.5" }, /*#__PURE__*/
+        React.createElement("span", null, t.savingsBundle12Months), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", color: colors.textFaint }, className: "ml-auto" }, money(o.current12Months)), /*#__PURE__*/
+        React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.bundle12Months))
+        ), /*#__PURE__*/
+        React.createElement("div", { style: { color: o.headlineEligible === false ? legibleOn(ACCENT.amber, colors.surface) : ACCENT.green }, className: "text-right font-semibold mt-1" },
+        o.headlineEligible === false ?
+        t.savingsBundleSave12Conditional(money(o.saving12Months)) :
+        t.savingsBundleSave12(money(o.saving12Months))
+        )
+        ) : /*#__PURE__*/
 
-    (o.link || o.url) && /*#__PURE__*/
-    React.createElement("a", { href: o.link || o.url, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface) }, className: "inline-flex items-center gap-1.5 text-xs font-medium mt-3" }, /*#__PURE__*/
-    React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
-    )
+        React.createElement("div", { className: "flex items-center gap-2 mt-2 text-xs" }, /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", textDecoration: 'line-through', color: colors.textFaint } }, money(o.currentCost)), /*#__PURE__*/
+        React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.alternativeCost)), /*#__PURE__*/
+        React.createElement("span", { style: { color: ACCENT.green }, className: "ml-auto font-semibold" }, "\\u2212", money(o.saving))
+        ),
 
-    )
-    )
+        (o.link || o.url) && /*#__PURE__*/
+        React.createElement("a", { href: o.link || o.url, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface) }, className: "inline-flex items-center gap-1.5 text-xs font-medium mt-3" }, /*#__PURE__*/
+        React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
+        )
+
+        ));
+
+    })
     )
     ),
 
