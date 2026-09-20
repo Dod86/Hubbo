@@ -3856,6 +3856,185 @@
       ]
     },
     {
+      "servizio": "TIMVISION",
+      "annuale": {
+        "disponibile": true,
+        "nota": "Sono disponibili formule con impegno annuale e formule mensili. Le promo temporanee restano separate dal listino ordinario."
+      },
+      "famiglia": {
+        "disponibile": false
+      },
+      "studenti": {
+        "disponibile": false
+      },
+      "nota": "I piani TIMVISION corrispondono ai bundle commerciali ufficiali già censiti. Il selettore usa il prezzo ordinario; eventuali promo vanno registrate nel campo Offerta per non renderle permanenti nello storico.",
+      "link": "https://www.tim.it/offerte-tv",
+      "verificato": "2026-09-20",
+      "fontePrezzi": "https://www.tim.it/offerte-tv",
+      "listino": [
+        {
+          "nome": "TIMVISION S · annuale",
+          "prezzo": 14.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Infinity+. Promo nuovi clienti TIMVISION: 8.00 €/mese per 12 mesi, poi 14.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION M · annuale",
+          "prezzo": 18.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Infinity+. Promo nuovi clienti TIMVISION: 12.00 €/mese per 12 mesi, poi 18.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION L · annuale",
+          "prezzo": 20.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 14.00 €/mese per 12 mesi, poi 20.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION S con DAZN Full · annuale",
+          "prezzo": 46.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 38.00 €/mese per 12 mesi, poi 46.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION M con DAZN Full · annuale",
+          "prezzo": 50.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 42.00 €/mese per 12 mesi, poi 50.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION L con DAZN Full · annuale",
+          "prezzo": 52.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 44.00 €/mese per 12 mesi, poi 52.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION S con DAZN MyClubPass · annuale",
+          "prezzo": 39.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 23.00 €/mese per 12 mesi, poi 39.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION M con DAZN MyClubPass · annuale",
+          "prezzo": 43.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 27.00 €/mese per 12 mesi, poi 43.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION L con DAZN MyClubPass · annuale",
+          "prezzo": 45.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 29.00 €/mese per 12 mesi, poi 45.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION S con DAZN Family · annuale",
+          "prezzo": 71.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (FAMILY), Infinity+. Promo nuovi clienti TIMVISION: 53.00 €/mese per 12 mesi, poi 71.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION M con DAZN Family · annuale",
+          "prezzo": 75.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (FAMILY), Infinity+. Promo nuovi clienti TIMVISION: 57.00 €/mese per 12 mesi, poi 75.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION L con DAZN Family · annuale",
+          "prezzo": 77.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FAMILY), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION con DAZN Full e Prime · annuale",
+          "prezzo": 36.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: DAZN (FULL), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 19.99 €/mese per 3 mesi, poi 36.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION con DAZN MyClubPass e Prime · annuale",
+          "prezzo": 29.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: DAZN (MYCLUBPASS), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 14.99 €/mese per 3 mesi, poi 29.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION con DAZN Family e Prime · annuale",
+          "prezzo": 59.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 12,
+          "nota": "Include: DAZN (FAMILY), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 49.99 €/mese per 6 mesi, poi 59.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+        },
+        {
+          "nome": "TIMVISION S · mensile",
+          "prezzo": 19.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+        },
+        {
+          "nome": "TIMVISION M · mensile",
+          "prezzo": 23.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+        },
+        {
+          "nome": "TIMVISION L · mensile",
+          "prezzo": 25.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+        },
+        {
+          "nome": "TIMVISION L con DAZN Full · mensile",
+          "prezzo": 62.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FULL), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+        },
+        {
+          "nome": "TIMVISION con DAZN Full e Prime · mensile",
+          "prezzo": 46.99,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Include: DAZN (FULL), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+        }
+      ]
+    },
+    {
       "servizio": "Now",
       "annuale": {
         "disponibile": true,
