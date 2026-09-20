@@ -491,7 +491,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v261";
+const APP_VERSION = "v262";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -4152,6 +4152,51 @@ function computeBundleEconomics({
 // usare due volte lo stesso abbonamento. Il numero di candidati è piccolo
 // (deriva dagli abbonamenti dell'utente), perciò il branch-and-bound resta
 // leggero e soprattutto evita headline gonfiate o sottostimate.
+// Parte 9G — quando due bundle diversi coprono esattamente gli stessi
+// abbonamenti dell’utente, mostrarli entrambi sarebbe rumore e potrebbe far
+// sembrare che i risparmi siano cumulabili. Prima preferiamo una proposta
+// pienamente verificata/equivalente; a parità scegliamo il maggior risparmio
+// reale sull’orizzonte già normalizzato dal motore (12 mesi per i bundle
+// commerciali). Le coperture parzialmente sovrapposte restano separate:
+// non sono la stessa decisione e vengono comunque gestite dall’anti-doppio
+// conteggio globale dell’headline.
+function selectBestBundleAlternatives(items) {
+  const source = Array.isArray(items) ? items : [];
+  const passthrough = [];
+  const bestByCoverage = new Map();
+
+  const coverageKey = (item) => {
+    if (!item || item.opportunityKind !== "bundle") return null;
+    const rows = item.replacedSubs || item.subs || [];
+    const ids = rows.map((sub) => sub && sub.id).filter(Boolean).map(String).sort();
+    return ids.length ? ids.join("|") : null;
+  };
+  const wins = (candidate, previous) => {
+    if (!previous) return true;
+    const cRank = candidate.headlineEligible === false ? 0 : 1;
+    const pRank = previous.headlineEligible === false ? 0 : 1;
+    if (cRank !== pRank) return cRank > pRank;
+    const cSaving = Number(candidate.saving) || 0;
+    const pSaving = Number(previous.saving) || 0;
+    if (Math.abs(cSaving - pSaving) > 0.01) return cSaving > pSaving;
+    const cCost = Number.isFinite(Number(candidate.bundle12Months)) ? Number(candidate.bundle12Months) : Number.POSITIVE_INFINITY;
+    const pCost = Number.isFinite(Number(previous.bundle12Months)) ? Number(previous.bundle12Months) : Number.POSITIVE_INFINITY;
+    if (Math.abs(cCost - pCost) > 0.01) return cCost < pCost;
+    const cUpfront = Number(candidate.oneTimeCost) || 0;
+    const pUpfront = Number(previous.oneTimeCost) || 0;
+    if (Math.abs(cUpfront - pUpfront) > 0.01) return cUpfront < pUpfront;
+    return String(candidate.id || "").localeCompare(String(previous.id || "")) < 0;
+  };
+
+  source.forEach((item) => {
+    const key = coverageKey(item);
+    if (!key) {passthrough.push(item);return;}
+    const previous = bestByCoverage.get(key);
+    if (wins(item, previous)) bestByCoverage.set(key, item);
+  });
+  return [...passthrough, ...bestByCoverage.values()];
+}
+
 function bestCompatibleSavings(candidates) {
   const list = (Array.isArray(candidates) ? candidates : []).
   filter((c) => c && Number(c.saving) > 0.01 && c.services && typeof c.services.has === "function").
@@ -9276,7 +9321,7 @@ function HubboApp() {
       const prevRank = prev && prev.headlineEligible === false ? 0 : 1;
       if (!prev || rank > prevRank || rank === prevRank && item.saving > prev.saving + 0.01) bestByGroup.set(key, item);
     });
-    return Array.from(bestByGroup.values()).sort((a, b) => b.saving - a.saving);
+    return selectBestBundleAlternatives(Array.from(bestByGroup.values())).sort((a, b) => b.saving - a.saving);
   }, [offersFile, activeSubs, enriched, todayISO, settings.currency, settings.language, rates, savingsFileCurrency]);
 
   // Pick a compatible set of opportunities for the headline. Overlapping
@@ -11327,7 +11372,7 @@ function HubboApp() {
     ),
 
     (o.link || o.url) && /*#__PURE__*/
-    React.createElement("a", { href: o.link || o.url, target: "_blank", rel: "noopener noreferrer", style: { color: colors.textSecondary }, className: "inline-flex items-center gap-1.5 text-xs mt-3" }, /*#__PURE__*/
+    React.createElement("a", { href: o.link || o.url, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface) }, className: "inline-flex items-center gap-1.5 text-xs font-medium mt-3" }, /*#__PURE__*/
     React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
     )
 
