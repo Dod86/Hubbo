@@ -3,7 +3,7 @@
   "aggiornato": "2026-09-20",
   "paese": "IT",
   "valuta": "EUR",
-  "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente.",
+  "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente. `bundleCommerciali` censisce separatamente le offerte multi-servizio verificate: in Parte 9D restano deliberatamente non attive nel motore fino alle regole di idoneità 9E.",
   "offerte": [
     {
       "id": "spotify-2026-tre-mesi-gratis",
@@ -867,6 +867,1923 @@
       "verificato": "data dell’ultima verifica reale della composizione, prezzo e condizioni"
     }
   },
+  "schemaBundleCommerciali": {
+    "descrizione": "Offerte commerciali multi-servizio verificate e censite in Parte 9D. Sono dati commerciali, non regole attive del motore Risparmio: la trasformazione in opportunità intelligenti avviene dalla Parte 9E dopo verifica di idoneità, piani equivalenti, scadenze e rischi di doppio addebito.",
+    "statoMotore": "non_attivo_9d",
+    "campi": {
+      "id": "identificatore stabile del bundle commerciale",
+      "provider": "operatore che vende il bundle",
+      "nome": "nome commerciale normalizzato",
+      "periodicitaCommerciale": "annuale | mensile",
+      "motoreAttivo": "sempre false in Parte 9D",
+      "prezzoStandard": "canone ordinario mensile",
+      "prezzoPromozionale": "canone promozionale quando esiste",
+      "durataPromozionaleMesi": "durata certa della promo",
+      "prezzoSuccessivo": "canone noto dopo la promo",
+      "fasiPrezzo": "sequenza delle fasi quando il primo anno non ha un unico prezzo",
+      "costoPrimoAnno": "totale ufficiale TIM del primo anno quando pubblicato",
+      "costoAttivazione": "costo effettivo iniziale nello scenario base rappresentato",
+      "costiAttivazione": "varianti di attivazione per canale/linea e contributi rateizzati compensati",
+      "destinatari": "target commerciale",
+      "requisitiStrutturati": "condizioni machine-readable",
+      "vincoloMesi": "durata minima/annuale",
+      "vincoli": "vincoli contrattuali",
+      "serviziInclusi": "servizi e piani realmente inclusi; sostituibile=false identifica componenti che non devono generare risparmio da sole",
+      "scade": "ultimo giorno ufficiale noto per aderire alle condizioni censite",
+      "link": "fonte ufficiale",
+      "verificato": "data di verifica"
+    }
+  },
+  "bundleCommerciali": [
+    {
+      "id": "timvision-s-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION S · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 14.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 8.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 14.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 96,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-netflix",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-m-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION M · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 18.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 12.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 18.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 144,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-disney",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-l-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION L · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 20.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 14.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 20.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 168,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-s-dazn-full-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION S con DAZN Full · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 46.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 38.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 46.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 456,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FULL",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-m-dazn-full-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION M con DAZN Full · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 50.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 42.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 50.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 504,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FULL",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-l-dazn-full-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION L con DAZN Full · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 52.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 44.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 52.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 528,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FULL",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-s-dazn-myclubpass-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION S con DAZN MyClubPass · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 39.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 23.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 39.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 276,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "MYCLUBPASS",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-m-dazn-myclubpass-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION M con DAZN MyClubPass · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 43.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 27.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 43.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 324,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "MYCLUBPASS",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-l-dazn-myclubpass-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION L con DAZN MyClubPass · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 45.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 29.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 45.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 348,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "MYCLUBPASS",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E.",
+      "nota": "La card marketing TIM visualizza 29,99 €/mese, ma il totale ufficiale del primo anno è 348 € e il dettaglio economico ufficiale indica 29,00 €/mese per 12 mesi. Hubbo usa 29,00 € per coerenza con il totale e con le condizioni economiche."
+    },
+    {
+      "id": "timvision-s-dazn-family-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION S con DAZN Family · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 71.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 53.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 71.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 636,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FAMILY",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-m-dazn-family-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION M con DAZN Family · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 75.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 57.0,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 75.99,
+      "frequenzaSuccessiva": "monthly",
+      "costoPrimoAnno": 684,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FAMILY",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-l-dazn-family-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION L con DAZN Family · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 77.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "costoPrimoAnno": 935.88,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FAMILY",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-amazon-prime",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E.",
+      "nota": "TIM usa ancora in alcune pagine la dicitura DAZN Plus: il piano corrente corrispondente è DAZN Family. Nessun prezzo promozionale corrente è stato applicato a questa variante."
+    },
+    {
+      "id": "timvision-dazn-full-prime-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION con DAZN Full e Prime · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 36.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 19.99,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 3,
+      "prezzoSuccessivo": 36.99,
+      "frequenzaSuccessiva": "monthly",
+      "fasiPrezzo": [
+        {
+          "daMese": 1,
+          "aMese": 3,
+          "prezzo": 19.99,
+          "frequenza": "monthly"
+        },
+        {
+          "daMese": 4,
+          "aMese": 12,
+          "prezzo": 36.99,
+          "frequenza": "monthly"
+        }
+      ],
+      "costoPrimoAnno": 392.88,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "online",
+          "importo": 0
+        },
+        {
+          "scenario": "187_119_negozio",
+          "importo": 19.99
+        },
+        {
+          "scenario": "187_119_negozio_con_box_gia_posseduto",
+          "importo": 9.99
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FULL",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-dazn-myclubpass-prime-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION con DAZN MyClubPass e Prime · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 29.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 14.99,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 3,
+      "prezzoSuccessivo": 29.99,
+      "frequenzaSuccessiva": "monthly",
+      "fasiPrezzo": [
+        {
+          "daMese": 1,
+          "aMese": 3,
+          "prezzo": 14.99,
+          "frequenza": "monthly"
+        },
+        {
+          "daMese": 4,
+          "aMese": 12,
+          "prezzo": 29.99,
+          "frequenza": "monthly"
+        }
+      ],
+      "costoPrimoAnno": 314.88,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "online",
+          "importo": 0
+        },
+        {
+          "scenario": "187_119_negozio",
+          "importo": 19.99
+        },
+        {
+          "scenario": "187_119_negozio_con_box_gia_posseduto",
+          "importo": 9.99
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "MYCLUBPASS",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-dazn-family-prime-annuale-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION con DAZN Family e Prime · annuale",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "annuale",
+      "motoreAttivo": false,
+      "prezzoStandard": 59.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "prezzoPromozionale": 49.99,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 6,
+      "prezzoSuccessivo": 59.99,
+      "frequenzaSuccessiva": "monthly",
+      "fasiPrezzo": [
+        {
+          "daMese": 1,
+          "aMese": 6,
+          "prezzo": 49.99,
+          "frequenza": "monthly"
+        },
+        {
+          "daMese": 7,
+          "aMese": 12,
+          "prezzo": 59.99,
+          "frequenza": "monthly"
+        }
+      ],
+      "costoPrimoAnno": 659.88,
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "online",
+          "importo": 0
+        },
+        {
+          "scenario": "187_119_negozio",
+          "importo": 19.99
+        },
+        {
+          "scenario": "187_119_negozio_con_box_gia_posseduto",
+          "importo": 9.99
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 12,
+      "vincoli": [
+        "Durata annuale con pagamento delle rate residue dovuto in caso di recesso/disdetta in corso d’anno; rinnovo annuale salvo disdetta nei termini TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FAMILY",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-s-mensile-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION S · mensile",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": false,
+      "prezzoStandard": 19.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 0,
+      "vincoli": [
+        "Offerta mensile recedibile in qualsiasi momento secondo le condizioni TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-netflix",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-m-mensile-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION M · mensile",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": false,
+      "prezzoStandard": 23.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 0,
+      "vincoli": [
+        "Offerta mensile recedibile in qualsiasi momento secondo le condizioni TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-disney",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-l-mensile-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION L · mensile",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": false,
+      "prezzoStandard": 25.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 0,
+      "vincoli": [
+        "Offerta mensile recedibile in qualsiasi momento secondo le condizioni TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-netflix",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-l-dazn-full-mensile-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION L con DAZN Full · mensile",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": false,
+      "prezzoStandard": 62.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "linea_fissa_TIM",
+          "tipo": "rateizzato_compensato",
+          "totaleNominale": 24,
+          "rataMensile": 1,
+          "mesi": 24,
+          "scontoCompensativoMensile": 1,
+          "costoEffettivoSeOffertaRestaAttiva": 0,
+          "nota": "Il prezzo mensile pubblicato da TIM include rata e sconto compensativo. In caso di recesso/disdetta lo sconto cessa e le rate residue possono diventare dovute."
+        },
+        {
+          "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
+          "tipo": "promo",
+          "importo": 0,
+          "scade": "2026-09-26",
+          "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 0,
+      "vincoli": [
+        "Offerta mensile recedibile in qualsiasi momento secondo le condizioni TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "HBO Max",
+          "pianoIncluso": "Base con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Disney+",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FULL",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    },
+    {
+      "id": "timvision-dazn-full-prime-mensile-2026",
+      "provider": "TIM",
+      "nome": "TIMVISION con DAZN Full e Prime · mensile",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": false,
+      "prezzoStandard": 46.99,
+      "frequenzaStandard": "monthly",
+      "valuta": "EUR",
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "online",
+          "importo": 0
+        },
+        {
+          "scenario": "187_119_negozio",
+          "importo": 19.99
+        },
+        {
+          "scenario": "187_119_negozio_con_box_gia_posseduto",
+          "importo": 9.99
+        }
+      ],
+      "destinatari": [
+        "nuovo_cliente_timvision"
+      ],
+      "requisiti": [
+        "Essere nuovo cliente TIMVISION",
+        "Disporre di un’offerta di connettività"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "stato_cliente",
+          "servizio": "TIMVISION",
+          "valore": "nuovo"
+        },
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 0,
+      "vincoli": [
+        "Offerta mensile recedibile in qualsiasi momento secondo le condizioni TIM."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "TIMVISION Play",
+          "pianoIncluso": "Base",
+          "sostituibile": false
+        },
+        {
+          "servizio": "DAZN",
+          "pianoIncluso": "FULL",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime (Prime Video con pubblicità)",
+          "sostituibile": true,
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+        },
+        {
+          "servizio": "Infinity+",
+          "pianoIncluso": "Incluso",
+          "sostituibile": true
+        }
+      ],
+      "scade": "2026-09-26",
+      "fonte": "TIM (fonte ufficiale italiana)",
+      "link": "https://www.tim.it/offerte-tv/timvision-dazn",
+      "verificato": "2026-09-20",
+      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+    }
+  ],
   "piani": [
     {
       "servizio": "Netflix",
