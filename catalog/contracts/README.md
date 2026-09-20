@@ -60,3 +60,21 @@ sostituisce mai `name`, `plan`, prezzi, date o storico dell'utente. Un client de
 preferire gli ID per collegare catalogo e dati salvati, ma mantenere il fallback
 nome/alias per backup e snapshot creati prima della Parte 8H. Un rollback verso
 uno snapshot senza `identitaCatalogo` non deve cancellare riferimenti già salvati.
+
+
+## Parte 9B — bundle commerciali complessi (v257)
+
+Lo schema catalogo resta **v5**: l’estensione è additiva e i client precedenti
+possono ignorare i nuovi campi senza perdere i bundle legacy. `opportunita` di
+tipo `bundle` può ora descrivere prezzo standard, promo e durata, prezzo
+successivo, attivazione/altri una tantum, destinatari, requisiti leggibili e
+machine-readable, vincoli e scadenza di adesione.
+
+In `serviziInclusi`, `pianiAmmessi`/`pianiEsclusi` descrivono **quali piani
+dell’utente sono sostituibili**; `pianoIncluso`/`pianiInclusi` descrivono invece
+**che cosa fornisce realmente il bundle**. I due concetti non vanno mai
+conflati nel client Android o PWA.
+
+I campi legacy `costoAlternativa` e `frequenzaAlternativa` restano validi. Il
+client v257 usa `prezzoStandard` se presente, ma non interpreta ancora una promo
+come risparmio permanente: il calcolo temporale viene introdotto nella Parte 9C.

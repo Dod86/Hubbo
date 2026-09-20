@@ -459,6 +459,13 @@
         "pianiEsclusi": {
           "$ref": "#/$defs/stringArray"
         },
+        "pianoIncluso": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pianiInclusi": {
+          "$ref": "#/$defs/stringArray"
+        },
         "costoMensileMin": {
           "$ref": "#/$defs/nonNegative"
         },
@@ -515,6 +522,74 @@
         },
         "valuta": {
           "type": "string"
+        },
+        "prezzoStandard": {
+          "$ref": "#/$defs/nonNegative"
+        },
+        "frequenzaStandard": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prezzoPromozionale": {
+          "$ref": "#/$defs/nonNegative"
+        },
+        "frequenzaPromozionale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "durataPromozionaleMesi": {
+          "type": "number",
+          "minimum": 0
+        },
+        "durataPromozionaleGiorni": {
+          "type": "number",
+          "minimum": 0
+        },
+        "prezzoSuccessivo": {
+          "$ref": "#/$defs/nonNegative"
+        },
+        "frequenzaSuccessiva": {
+          "type": "string",
+          "minLength": 1
+        },
+        "costoAttivazione": {
+          "$ref": "#/$defs/nonNegative"
+        },
+        "costiUnaTantum": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/oneTimeCost"
+          }
+        },
+        "destinatari": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "nuovi",
+              "esistenti",
+              "exclienti"
+            ]
+          }
+        },
+        "requisiti": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "requisitiStrutturati": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/eligibilityRequirement"
+          }
+        },
+        "vincoloMesi": {
+          "type": "number",
+          "minimum": 0
+        },
+        "vincoli": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "scade": {
+          "$ref": "#/$defs/date"
         },
         "minServizi": {
           "type": "number",
@@ -617,6 +692,68 @@
         }
       },
       "additionalProperties": false
+    },
+    "oneTimeCost": {
+      "type": "object",
+      "required": [
+        "nome",
+        "importo"
+      ],
+      "properties": {
+        "nome": {
+          "type": "string",
+          "minLength": 1
+        },
+        "importo": {
+          "$ref": "#/$defs/nonNegative"
+        },
+        "obbligatorio": {
+          "type": "boolean"
+        },
+        "nota": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "eligibilityRequirement": {
+      "type": "object",
+      "required": [
+        "tipo"
+      ],
+      "properties": {
+        "tipo": {
+          "enum": [
+            "cliente_operatore",
+            "linea_fissa",
+            "linea_mobile",
+            "fibra",
+            "servizio_attivo",
+            "metodo_pagamento",
+            "altro"
+          ]
+        },
+        "operatore": {
+          "type": "string",
+          "minLength": 1
+        },
+        "servizio": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valore": {
+          "type": "string",
+          "minLength": 1
+        },
+        "obbligatorio": {
+          "type": "boolean"
+        },
+        "descrizione": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
     }
   }
 }
