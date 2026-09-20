@@ -491,7 +491,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v256";
+const APP_VERSION = "v257";
 const APP_BUILD_DATE = "2026-09-20";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -8761,12 +8761,12 @@ function HubboApp() {
           if (sub) {used.add(sub.id);subs.push(sub);}
         });
         if (subs.length < Number(o.minServizi || 1)) return null;
-        const altRaw = o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
+        const altRaw = o.prezzoStandard ?? o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
         if (altRaw == null || !Number.isFinite(Number(altRaw))) return null;
         const currentCost = subs.reduce((sum, sub) => sum + monthlyOf(sub), 0);
         const alternativeCost = monthlyEquivalent(
           convertAmount(Number(altRaw), o.valuta || savingsFileCurrency, settings.currency, rates),
-          o.frequenzaAlternativa || "monthly"
+          o.frequenzaStandard || o.frequenzaAlternativa || "monthly"
         );
         const saving = currentCost - alternativeCost;
         if (!(saving > 0.01)) return null;
@@ -8821,11 +8821,11 @@ function HubboApp() {
       }).filter(Boolean);
       if (subs.length !== names.length) return null;
       const currentCost = subs.reduce((sum, sub) => sum + monthlyOf(sub), 0);
-      const altRaw = o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
+      const altRaw = o.prezzoStandard ?? o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
       if (altRaw == null || !Number.isFinite(Number(altRaw))) return null;
       const alternativeCost = monthlyEquivalent(
         convertAmount(Number(altRaw), o.valuta || savingsFileCurrency, settings.currency, rates),
-        o.frequenzaAlternativa || "monthly"
+        o.frequenzaStandard || o.frequenzaAlternativa || "monthly"
       );
       const saving = currentCost - alternativeCost;
       if (!(saving > 0.01)) return null;
