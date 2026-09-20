@@ -491,7 +491,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v258";
+const APP_VERSION = "v259";
 const APP_BUILD_DATE = "2026-09-20";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -626,6 +626,17 @@ function catalogCommercialServiceNames(file) {
       if (name) out.push(name);
     }
   });
+  // Parte 9E — anche i bundle commerciali attivi partecipano al matching
+  // legacy dei record utente. Serve soprattutto per riconoscere TIMVISION
+  // anche se l'abbonamento era stato salvato manualmente prima del suo ID
+  // stabile nel registro identità.
+  (file.bundleCommerciali || []).forEach((b) => {
+    (b && b.escludiSePossiedi || []).forEach((name) => {if (name) out.push(name);});
+    (b && b.serviziInclusi || []).forEach((spec) => {
+      const name = typeof spec === "string" ? spec : spec && spec.servizio;
+      if (name) out.push(name);
+    });
+  });
   return out;
 }
 function legacyCatalogServiceNameForSubscription(file, sub) {
@@ -715,6 +726,137 @@ function subscriptionMatchesCatalogPlan(file, sub, catalogPlanName) {
 function subscriptionPlanMatchesAny(file, sub, values) {
   if (!sub || !Array.isArray(values) || values.length === 0) return false;
   return values.some((value) => subscriptionMatchesCatalogPlan(file, sub, value) || String(sub.plan || "").trim().toLowerCase().includes(String(value || "").trim().toLowerCase()));
+}
+
+// Parte 9E — i dati commerciali TIMVISION restano separati dalle vecchie
+// \`opportunita\`: questa proiezione li trasforma in regole bundle solo quando
+// il catalogo li dichiara esplicitamente utilizzabili dal motore. In questo
+// modo i client vecchi possono ignorare \`bundleCommerciali\`, mentre PWA e
+// futura app Android condividono la stessa semantica senza duplicare 20 regole.
+function commercialBundleOpportunityRule(bundle) {
+  if (!bundle || bundle.motoreAttivo !== true) return null;
+  const serviziInclusi = (Array.isArray(bundle.serviziInclusi) ? bundle.serviziInclusi : []).
+  filter((spec) => spec && spec.sostituibile !== false);
+  if (serviziInclusi.length < 2) return null;
+  return {
+    ...bundle,
+    tipo: "bundle",
+    gruppo: bundle.gruppoMotore || bundle.gruppo || bundle.id,
+    titolo: bundle.titoloMotore || \`Valuta \${bundle.nome || "bundle"}\`,
+    alternativa: bundle.nome || bundle.alternativa || "",
+    minServizi: Math.max(2, Number(bundle.minServizi || 2)),
+    serviziInclusi,
+    commercialBundle: true,
+    scadenzaBloccaMotore: bundle.scadenzaBloccaMotore !== false
+  };
+}
+
+// Stato cliente rispetto a uno specifico servizio usando TUTTO lo storico,
+// non solo gli abbonamenti attivi. Un abbonamento in pausa è ancora cliente;
+// uno terminato rende l'utente ex cliente. Questo impedisce di spacciare una
+// promo "nuovo cliente TIMVISION" a chi TIMVISION ce l'ha o l'ha già avuto.
+function commercialBundleCustomerState(file, allSubs, serviceName) {
+  const target = catalogServiceKey(file, serviceName);
+  const rows = (Array.isArray(allSubs) ? allSubs : []).filter((sub) => catalogServiceKey(file, sub) === target);
+  if (rows.some((sub) => !sub.isEnded)) return "esistente";
+  if (rows.length > 0) return "excliente";
+  return "nuovo";
+}
+
+// Una voce Telefonia attiva è una prova positiva che l'utente ha almeno una
+// connettività tracciata in Hubbo (fissa o mobile). L'assenza NON significa
+// che non ne abbia una: in quel caso il requisito resta "da verificare" e la
+// card può essere mostrata, ma non entra nel risparmio certo dell'headline.
+function hasTrackedConnectivity(allSubs) {
+  return (Array.isArray(allSubs) ? allSubs : []).some((sub) => sub && !sub.isEnded && sub.category === "telefonia");
+}
+
+function evaluateCommercialBundleEligibility(file, bundle, allSubs, todayISO) {
+  if (!bundle || bundle.commercialBundle !== true) {
+    return { status: "eligible", reasons: [], unknownRequirements: [] };
+  }
+  if (bundle.scadenzaBloccaMotore && bundle.scade && bundle.scade < todayISO) {
+    return { status: "blocked", reasons: ["offerta_scaduta"], unknownRequirements: [] };
+  }
+
+  const reasons = [];
+  const unknownRequirements = [];
+  const reqs = Array.isArray(bundle.requisitiStrutturati) ? bundle.requisitiStrutturati : [];
+  for (const req of reqs) {
+    if (!req || typeof req !== "object") continue;
+    if (req.tipo === "stato_cliente" && req.servizio) {
+      const actual = commercialBundleCustomerState(file, allSubs, req.servizio);
+      const expected = String(req.valore || "").trim().toLowerCase();
+      if (expected === "nuovo" && actual !== "nuovo") {
+        return { status: "blocked", reasons: [\`stato_cliente:\${actual}\`], unknownRequirements: [] };
+      }
+      if (expected === "esistente" && actual !== "esistente") {
+        return { status: "blocked", reasons: [\`stato_cliente:\${actual}\`], unknownRequirements: [] };
+      }
+      if ((expected === "ex" || expected === "excliente") && actual !== "excliente") {
+        return { status: "blocked", reasons: [\`stato_cliente:\${actual}\`], unknownRequirements: [] };
+      }
+      continue;
+    }
+    if (req.tipo === "connettivita" && req.richiesta === true) {
+      if (!hasTrackedConnectivity(allSubs)) unknownRequirements.push("connettivita");
+      continue;
+    }
+    // Un requisito obbligatorio che il client non sa dimostrare non viene mai
+    // dato per soddisfatto: resta esplicitamente da verificare.
+    if (req.richiesta !== false) unknownRequirements.push(req.tipo || "altro");
+  }
+  if (unknownRequirements.length > 0) {
+    return { status: "conditional", reasons, unknownRequirements: [...new Set(unknownRequirements)] };
+  }
+  return { status: "eligible", reasons, unknownRequirements: [] };
+}
+
+// Matching condiviso e testabile per ogni voce \`serviziInclusi\`. È la stessa
+// logica storica del motore bundle: nome/ID stabile prima, piano poi; i limiti
+// di costo servono solo quando il piano non è noto.
+function bundleSpecMatchesSubscription(file, sub, rawSpec, monthlyOf) {
+  if (!sub || !rawSpec) return false;
+  const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec;
+  if (!spec.servizio || catalogServiceKey(file, sub) !== catalogServiceKey(file, spec.servizio)) return false;
+  const hasPlan = !!String(sub.plan || "").trim();
+  if (hasPlan && Array.isArray(spec.pianiEsclusi) && subscriptionPlanMatchesAny(file, sub, spec.pianiEsclusi)) return false;
+  if (hasPlan && Array.isArray(spec.pianiAmmessi) && !subscriptionPlanMatchesAny(file, sub, spec.pianiAmmessi)) return false;
+  const getMonthly = typeof monthlyOf === "function" ? monthlyOf : () => NaN;
+  if (!hasPlan && Array.isArray(spec.pianiAmmessi) && !spec.accettaPianoSconosciuto) {
+    const m = getMonthly(sub);
+    const hasFallback = spec.costoMensileMin != null || spec.costoMensileMax != null;
+    if (!hasFallback) return false;
+    if (spec.costoMensileMin != null && m < Number(spec.costoMensileMin) - 0.01) return false;
+    if (spec.costoMensileMax != null && m > Number(spec.costoMensileMax) + 0.01) return false;
+  } else if (!hasPlan && (spec.costoMensileMin != null || spec.costoMensileMax != null)) {
+    const m = getMonthly(sub);
+    if (spec.costoMensileMin != null && m < Number(spec.costoMensileMin) - 0.01) return false;
+    if (spec.costoMensileMax != null && m > Number(spec.costoMensileMax) + 0.01) return false;
+  }
+  return true;
+}
+
+// Il servizio può essere sostituibile ma con un piano qualitativamente
+// diverso (es. Netflix Premium -> Standard con pubblicità). La proposta resta
+// utile, però non è un risparmio "certo": la differenza viene mostrata e la
+// card non gonfia l'headline finché l'utente non ha un piano equivalente.
+function assessIncludedPlan(file, sub, rawSpec) {
+  const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec || {};
+  if (spec.confrontaPianoIncluso === false || !spec.pianoIncluso) return { status: "not_applicable" };
+  const current = String(sub && sub.plan || "").trim();
+  if (!current) return { status: "unknown", servizio: spec.servizio, incluso: spec.pianoIncluso };
+  if (subscriptionPlanMatchesAny(file, sub, [spec.pianoIncluso])) {
+    return { status: "same", servizio: spec.servizio, attuale: current, incluso: spec.pianoIncluso };
+  }
+  return { status: "different", servizio: spec.servizio, attuale: current, incluso: spec.pianoIncluso };
+}
+
+function bundleMigrationHasCommitmentRisk(sub, rawSpec) {
+  const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec || {};
+  if (!spec.notaMigrazione || !sub) return false;
+  const plan = String(sub.plan || "").toLowerCase();
+  return sub.frequency === "annual" || /annuale|annual|12\\s*rate/.test(plan);
 }
 function ensureSubscriptionCatalogRef(file, sub) {
   if (!sub || typeof sub !== "object") return sub;
@@ -3000,6 +3142,13 @@ const LEDGER_STRINGS = {
     savingsBundleJoinBy: (date) => \`Promo sottoscrivibile entro \${date}\`,
     savingsBundle12Months: "Confronto 12 mesi",
     savingsBundleSave12: (amount) => \`Risparmio reale a 12 mesi: \${amount}\`,
+    savingsBundleSave12Conditional: (amount) => \`Risparmio potenziale a 12 mesi se condizioni e piani sono compatibili: \${amount}\`,
+    savingsBundleEligibilityCheck: "Requisito da verificare: Hubbo non vede una connettività attiva tra gli abbonamenti tracciati.",
+    savingsBundlePlanDifferent: (service, current, included) => \`\${service}: il bundle include \${included}; tu hai \${current}.\`,
+    savingsBundlePlanUnknown: (service, included) => \`\${service}: verifica il piano incluso (\${included}) perché il tuo piano non è specificato.\`,
+    savingsBundleMigrationRisk: "Verifica eventuali rate o periodi già pagati prima del passaggio.",
+    savingsBundleCommitment: (months) => \`Vincolo commerciale: \${months} mesi\`,
+    savingsBundleActivationVaries: (amount) => \`Altri canali di attivazione possono costare fino a \${amount}. Il calcolo usa lo scenario base/online indicato nel catalogo.\`,
     savingsDuration: (months, days, equivalent) => {
       if (Number(months) > 0) return Number(months) === 1 ? "1 mese" : \`\${Number(months)} mesi\`;
       if (Number(days) > 0) return Number(days) === 1 ? "1 giorno" : \`\${Number(days)} giorni\`;
@@ -3134,6 +3283,13 @@ const LEDGER_STRINGS = {
     savingsBundleJoinBy: (date) => \`Promo available to join until \${date}\`,
     savingsBundle12Months: "12-month comparison",
     savingsBundleSave12: (amount) => \`Real 12-month saving: \${amount}\`,
+    savingsBundleSave12Conditional: (amount) => \`Potential 12-month saving if conditions and plans fit: \${amount}\`,
+    savingsBundleEligibilityCheck: "Requirement to verify: Hubbo cannot see an active connectivity subscription among the tracked services.",
+    savingsBundlePlanDifferent: (service, current, included) => \`\${service}: the bundle includes \${included}; you have \${current}.\`,
+    savingsBundlePlanUnknown: (service, included) => \`\${service}: check the included plan (\${included}) because your current plan is not specified.\`,
+    savingsBundleMigrationRisk: "Check any remaining instalments or already-paid periods before switching.",
+    savingsBundleCommitment: (months) => \`Commercial commitment: \${months} months\`,
+    savingsBundleActivationVaries: (amount) => \`Other activation channels may cost up to \${amount}. The calculation uses the catalogued base/online scenario.\`,
     savingsDuration: (months, days, equivalent) => {
       if (Number(months) > 0) return Number(months) === 1 ? "1 month" : \`\${Number(months)} months\`;
       if (Number(days) > 0) return Number(days) === 1 ? "1 day" : \`\${Number(days)} days\`;
@@ -3268,6 +3424,13 @@ const LEDGER_STRINGS = {
     savingsBundleJoinBy: (date) => \`Promoción contratable hasta \${date}\`,
     savingsBundle12Months: "Comparación a 12 meses",
     savingsBundleSave12: (amount) => \`Ahorro real a 12 meses: \${amount}\`,
+    savingsBundleSave12Conditional: (amount) => \`Ahorro potencial a 12 meses si las condiciones y planes son compatibles: \${amount}\`,
+    savingsBundleEligibilityCheck: "Requisito por verificar: Hubbo no ve una conexión activa entre las suscripciones registradas.",
+    savingsBundlePlanDifferent: (service, current, included) => \`\${service}: el paquete incluye \${included}; tú tienes \${current}.\`,
+    savingsBundlePlanUnknown: (service, included) => \`\${service}: comprueba el plan incluido (\${included}) porque tu plan actual no está especificado.\`,
+    savingsBundleMigrationRisk: "Comprueba cuotas pendientes o periodos ya pagados antes del cambio.",
+    savingsBundleCommitment: (months) => \`Compromiso comercial: \${months} meses\`,
+    savingsBundleActivationVaries: (amount) => \`Otros canales de activación pueden costar hasta \${amount}. El cálculo usa el escenario base/online del catálogo.\`,
     savingsDuration: (months, days, equivalent) => {
       if (Number(months) > 0) return Number(months) === 1 ? "1 mes" : \`\${Number(months)} meses\`;
       if (Number(days) > 0) return Number(days) === 1 ? "1 día" : \`\${Number(days)} días\`;
@@ -3402,6 +3565,13 @@ const LEDGER_STRINGS = {
     savingsBundleJoinBy: (date) => \`Promo souscriptible jusqu’au \${date}\`,
     savingsBundle12Months: "Comparaison sur 12 mois",
     savingsBundleSave12: (amount) => \`Économie réelle sur 12 mois : \${amount}\`,
+    savingsBundleSave12Conditional: (amount) => \`Économie potentielle sur 12 mois si les conditions et formules conviennent : \${amount}\`,
+    savingsBundleEligibilityCheck: "Condition à vérifier : Hubbo ne voit pas d’offre de connectivité active parmi les abonnements suivis.",
+    savingsBundlePlanDifferent: (service, current, included) => \`\${service} : le bundle inclut \${included} ; vous avez \${current}.\`,
+    savingsBundlePlanUnknown: (service, included) => \`\${service} : vérifiez la formule incluse (\${included}), car votre formule actuelle n’est pas précisée.\`,
+    savingsBundleMigrationRisk: "Vérifiez les échéances restantes ou les périodes déjà payées avant le changement.",
+    savingsBundleCommitment: (months) => \`Engagement commercial : \${months} mois\`,
+    savingsBundleActivationVaries: (amount) => \`D’autres canaux d’activation peuvent coûter jusqu’à \${amount}. Le calcul utilise le scénario de base/en ligne du catalogue.\`,
     savingsDuration: (months, days, equivalent) => {
       if (Number(months) > 0) return Number(months) === 1 ? "1 mois" : \`\${Number(months)} mois\`;
       if (Number(days) > 0) return Number(days) === 1 ? "1 jour" : \`\${Number(days)} jours\`;
@@ -3536,6 +3706,13 @@ const LEDGER_STRINGS = {
     savingsBundleJoinBy: (date) => \`Aktion buchbar bis \${date}\`,
     savingsBundle12Months: "12-Monats-Vergleich",
     savingsBundleSave12: (amount) => \`Reale Ersparnis über 12 Monate: \${amount}\`,
+    savingsBundleSave12Conditional: (amount) => \`Potenzielle Ersparnis über 12 Monate, wenn Bedingungen und Tarife passen: \${amount}\`,
+    savingsBundleEligibilityCheck: "Voraussetzung prüfen: Hubbo sieht unter den erfassten Abos keinen aktiven Internet-/Mobilfunktarif.",
+    savingsBundlePlanDifferent: (service, current, included) => \`\${service}: Das Bundle enthält \${included}; du hast \${current}.\`,
+    savingsBundlePlanUnknown: (service, included) => \`\${service}: Prüfe den enthaltenen Tarif (\${included}), da dein aktueller Tarif nicht angegeben ist.\`,
+    savingsBundleMigrationRisk: "Prüfe offene Raten oder bereits bezahlte Zeiträume vor dem Wechsel.",
+    savingsBundleCommitment: (months) => \`Vertragsbindung: \${months} Monate\`,
+    savingsBundleActivationVaries: (amount) => \`Andere Aktivierungswege können bis zu \${amount} kosten. Die Berechnung nutzt das im Katalog angegebene Basis-/Online-Szenario.\`,
     savingsDuration: (months, days, equivalent) => {
       if (Number(months) > 0) return Number(months) === 1 ? "1 Monat" : \`\${Number(months)} Monate\`;
       if (Number(days) > 0) return Number(days) === 1 ? "1 Tag" : \`\${Number(days)} Tage\`;
@@ -8865,8 +9042,12 @@ function HubboApp() {
   }, [activeSubs, payments, todayISO, settings.currency, rates]);
 
   const savingsOpportunities = useMemo(() => {
-    const raw = offersFile && (offersFile.opportunita || offersFile.risparmi);
-    if (!Array.isArray(raw)) return [];
+    const published = offersFile && (offersFile.opportunita || offersFile.risparmi);
+    const commercial = offersFile && Array.isArray(offersFile.bundleCommerciali) ?
+    offersFile.bundleCommerciali.map(commercialBundleOpportunityRule).filter(Boolean) :
+    [];
+    const raw = [...(Array.isArray(published) ? published : []), ...commercial];
+    if (raw.length === 0) return [];
 
     // Più di una riga con lo stesso servizio può esistere (es. due account):
     // non collassiamo tutto in una Map semplice. Una regola bundle può coprire
@@ -8892,31 +9073,9 @@ function HubboApp() {
       return values.some((v) => plan.includes(textKey(v)));
     };
 
-    // Una voce di \`serviziInclusi\` può essere una stringa oppure un oggetto
-    // con limiti sul piano. I limiti di costo servono solo come fallback per
-    // gli abbonamenti storici creati prima che Hubbo salvasse il nome piano:
-    // se il piano è noto, il nome è la fonte più affidabile e il prezzo non
-    // deve invalidarlo solo perché l'utente ha uno sconto personale.
-    const matchesSpec = (sub, rawSpec) => {
-      if (!sub || !rawSpec) return false;
-      const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec;
-      if (catalogServiceKey(offersFile, sub) !== catalogServiceKey(offersFile, spec.servizio)) return false;
-      const hasPlan = !!String(sub.plan || "").trim();
-      if (hasPlan && Array.isArray(spec.pianiEsclusi) && subscriptionPlanMatchesAny(offersFile, sub, spec.pianiEsclusi)) return false;
-      if (hasPlan && Array.isArray(spec.pianiAmmessi) && !subscriptionPlanMatchesAny(offersFile, sub, spec.pianiAmmessi)) return false;
-      if (!hasPlan && Array.isArray(spec.pianiAmmessi) && !spec.accettaPianoSconosciuto) {
-        const m = monthlyOf(sub);
-        const hasFallback = spec.costoMensileMin != null || spec.costoMensileMax != null;
-        if (!hasFallback) return false;
-        if (spec.costoMensileMin != null && m < Number(spec.costoMensileMin) - 0.01) return false;
-        if (spec.costoMensileMax != null && m > Number(spec.costoMensileMax) + 0.01) return false;
-      } else if (!hasPlan && (spec.costoMensileMin != null || spec.costoMensileMax != null)) {
-        const m = monthlyOf(sub);
-        if (spec.costoMensileMin != null && m < Number(spec.costoMensileMin) - 0.01) return false;
-        if (spec.costoMensileMax != null && m > Number(spec.costoMensileMax) + 0.01) return false;
-      }
-      return true;
-    };
+    // La logica di matching è condivisa con i test 9E, così le simulazioni
+    // verificano esattamente la stessa regola usata dalla PWA.
+    const matchesSpec = (sub, rawSpec) => bundleSpecMatchesSubscription(offersFile, sub, rawSpec, monthlyOf);
 
     const pickSpec = (rawSpec, excluded = new Set()) => {
       const spec = typeof rawSpec === "string" ? { servizio: rawSpec } : rawSpec;
@@ -8932,16 +9091,19 @@ function HubboApp() {
       if (o.verificato && !catalogFactIsFresh(o.verificato, todayISO)) return null;
 
       if (o.tipo === "bundle") {
+        const eligibility = evaluateCommercialBundleEligibility(offersFile, o, enriched, todayISO);
+        if (eligibility.status === "blocked") return null;
         const blocked = Array.isArray(o.escludiSePossiedi) &&
         o.escludiSePossiedi.some((name) => (byName.get(catalogServiceKey(offersFile, name)) || []).length > 0);
         if (blocked) return null;
         const specs = Array.isArray(o.serviziInclusi) ? o.serviziInclusi : [];
         const used = new Set();
-        const subs = [];
+        const matched = [];
         specs.forEach((spec) => {
           const sub = pickSpec(spec, used);
-          if (sub) {used.add(sub.id);subs.push(sub);}
+          if (sub) {used.add(sub.id);matched.push({ sub, spec: typeof spec === "string" ? { servizio: spec } : spec });}
         });
+        const subs = matched.map((row) => row.sub);
         if (subs.length < Number(o.minServizi || 1)) return null;
         const currentCost = subs.reduce((sum, sub) => sum + monthlyOf(sub), 0);
         const ruleCurrency = o.valuta || savingsFileCurrency;
@@ -8965,6 +9127,10 @@ function HubboApp() {
         ).filter((cost) => cost && cost.obbligatorio !== false && Number.isFinite(Number(cost.importo))).
         reduce((sum, cost) => sum + convertAmount(Number(cost.importo), ruleCurrency, settings.currency, rates), 0);
         const oneTimeCost = activationCost + otherOneTimeCosts;
+        const activationVariantAmounts = (Array.isArray(o.costiAttivazione) ? o.costiAttivazione : []).
+        filter((row) => row && Number.isFinite(Number(row.importo))).
+        map((row) => convertAmount(Number(row.importo), ruleCurrency, settings.currency, rates));
+        const activationAlternativeMax = activationVariantAmounts.length ? Math.max(...activationVariantAmounts) : 0;
         const promoAvailable = !o.scade || o.scade >= todayISO;
         const economics = computeBundleEconomics({
           currentMonthly: currentCost,
@@ -8978,6 +9144,29 @@ function HubboApp() {
           horizonMonths: 12
         });
         if (!economics || !(economics.savingPeriod > 0.01)) return null;
+
+        const planDifferences = [];
+        const planUnverified = [];
+        const migrationWarnings = [];
+        let migrationCommitmentRisk = false;
+        matched.forEach(({ sub, spec }) => {
+          const planCheck = assessIncludedPlan(offersFile, sub, spec);
+          if (planCheck.status === "different") planDifferences.push(planCheck);
+          if (planCheck.status === "unknown") planUnverified.push(planCheck);
+          if (spec && spec.notaMigrazione) {
+            migrationWarnings.push({ servizio: spec.servizio, nota: spec.notaMigrazione });
+            if (bundleMigrationHasCommitmentRisk(sub, spec)) migrationCommitmentRisk = true;
+          }
+        });
+        const eligibilityNeedsCheck = eligibility.status === "conditional";
+        // L'headline deve essere un massimo raggiungibile SENZA assunzioni
+        // nascoste. Un requisito non verificato, un piano qualitativamente
+        // diverso/sconosciuto o un impegno annuale potenzialmente ancora dovuto
+        // lascia la card visibile ma la esclude dal totale certo.
+        const headlineEligible = !eligibilityNeedsCheck &&
+        planDifferences.length === 0 &&
+        planUnverified.length === 0 &&
+        !migrationCommitmentRisk;
         return {
           id: o.id || \`opportunity-\${index}\`,
           ...o,
@@ -8985,6 +9174,15 @@ function HubboApp() {
           subs,
           replacedSubs: subs,
           currentCost,
+          eligibilityStatus: eligibility.status,
+          eligibilityUnknownRequirements: eligibility.unknownRequirements,
+          eligibilityNeedsCheck,
+          planDifferences,
+          planUnverified,
+          migrationWarnings,
+          migrationCommitmentRisk,
+          activationAlternativeMax,
+          headlineEligible,
           // \`alternativeCost\` e \`saving\` restano espressi come equivalenti
           // mensili perché headline, anello e anti-doppio-conteggio lavorano
           // già su quella unità. Per i bundle complessi sono però derivati dal
@@ -9004,7 +9202,7 @@ function HubboApp() {
           savingPromoMonthly: economics.savingPromoMonthly,
           savingPromoPeriod: economics.savingPromoPeriod,
           savingAfterPromoMonthly: economics.savingAfterPromoMonthly,
-          showDetailedEconomics: economics.promoApplied || economics.oneTimeCost > 0.01
+          showDetailedEconomics: o.commercialBundle || economics.promoApplied || economics.oneTimeCost > 0.01
         };
       }
 
@@ -9065,10 +9263,16 @@ function HubboApp() {
     built.forEach((item) => {
       const key = item.gruppo || item.id;
       const prev = bestByGroup.get(key);
-      if (!prev || item.saving > prev.saving + 0.01) bestByGroup.set(key, item);
+      // Prima una proposta pienamente verificata/equivalente, poi il valore
+      // economico. Una variante con più risparmio ma requisito sconosciuto o
+      // downgrade di piano non deve nascondere una proposta leggermente meno
+      // redditizia ma realmente comparabile.
+      const rank = item.headlineEligible === false ? 0 : 1;
+      const prevRank = prev && prev.headlineEligible === false ? 0 : 1;
+      if (!prev || rank > prevRank || rank === prevRank && item.saving > prev.saving + 0.01) bestByGroup.set(key, item);
     });
     return Array.from(bestByGroup.values()).sort((a, b) => b.saving - a.saving);
-  }, [offersFile, activeSubs, todayISO, settings.currency, settings.language, rates, savingsFileCurrency]);
+  }, [offersFile, activeSubs, enriched, todayISO, settings.currency, settings.language, rates, savingsFileCurrency]);
 
   // Pick a compatible set of opportunities for the headline. Overlapping
   // services are counted only once, so the headline cannot inflate the
@@ -9083,7 +9287,9 @@ function HubboApp() {
   // sua scheda) — solo il totale in alto conta entrambe le leve insieme.
   const savingsHeadline = useMemo(() => {
     const candidates = [
-    ...savingsOpportunities.map((o) => ({ ...o, services: new Set(o.subs.map((s) => s.id)) })),
+    ...savingsOpportunities.
+    filter((o) => o.headlineEligible !== false).
+    map((o) => ({ ...o, services: new Set(o.subs.map((s) => s.id)) })),
     ...savingsDuplicates.map((g) => ({ ...g, saving: g.combinedSaving, services: new Set(g.items.map((x) => x.sub.id)) })),
     ...savingsPlanHints.
     filter((h) => h.saving > 0.01).
@@ -11010,7 +11216,7 @@ function HubboApp() {
     savingsOpportunities.length > 0 && /*#__PURE__*/
     React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.opportunities, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
-    React.createElement("span", { className: "flex-shrink-0", style: { color: ACCENT.green } }, /*#__PURE__*/React.createElement(Icon, { name: "piggyBank", size: 15 })), /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.opportunities } }, /*#__PURE__*/React.createElement(Icon, { name: "piggyBank", size: 15 })), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsOpportunity)
     ), /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col gap-2" },
@@ -11022,6 +11228,38 @@ function HubboApp() {
     ),
     o.nota && /*#__PURE__*/
     React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota),
+
+    o.commercialBundle && /*#__PURE__*/
+    React.createElement("div", { style: { background: colors.surface2, color: colors.textSecondary }, className: "rounded-xl px-3 py-2.5 mt-2.5 text-xs leading-relaxed" },
+    Array.isArray(o.requisiti) && o.requisiti.length > 0 && /*#__PURE__*/
+    React.createElement("div", null, o.requisiti.join(" · ")),
+
+    o.eligibilityNeedsCheck && /*#__PURE__*/
+    React.createElement("div", { style: { color: legibleOn(ACCENT.amber, colors.surface2) }, className: "mt-1" }, t.savingsBundleEligibilityCheck),
+
+    (o.planDifferences || []).map((row) => /*#__PURE__*/
+    React.createElement("div", { key: \`plan-diff-\${row.servizio}\`, style: { color: legibleOn(ACCENT.terracotta, colors.surface2) }, className: "mt-1" },
+    t.savingsBundlePlanDifferent(row.servizio, row.attuale, row.incluso)
+    )
+    ),
+    (o.planUnverified || []).map((row) => /*#__PURE__*/
+    React.createElement("div", { key: \`plan-unknown-\${row.servizio}\`, style: { color: colors.textFaint }, className: "mt-1" },
+    t.savingsBundlePlanUnknown(row.servizio, row.incluso)
+    )
+    ),
+    o.migrationCommitmentRisk && /*#__PURE__*/
+    React.createElement("div", { style: { color: legibleOn(ACCENT.terracotta, colors.surface2) }, className: "mt-1" }, t.savingsBundleMigrationRisk),
+
+    (o.migrationWarnings || []).map((row, i) => /*#__PURE__*/
+    React.createElement("div", { key: \`migration-\${row.servizio}-\${i}\`, style: { color: colors.textFaint }, className: "mt-1" }, row.servizio, ": ", row.nota)
+    ),
+    Number(o.vincoloMesi) > 0 && /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleCommitment(Number(o.vincoloMesi))),
+
+    Number(o.activationAlternativeMax) > Number(o.oneTimeCost || 0) + 0.01 && /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleActivationVaries(money(o.activationAlternativeMax)))
+
+    ),
 
     o.showDetailedEconomics ? /*#__PURE__*/
     React.createElement("div", { style: { color: colors.textSecondary }, className: "mt-2.5 text-xs leading-relaxed" }, /*#__PURE__*/
@@ -11069,7 +11307,11 @@ function HubboApp() {
     React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.bundle12Months))
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: ACCENT.green }, className: "text-right font-semibold mt-1" }, t.savingsBundleSave12(money(o.saving12Months)))
+    React.createElement("div", { style: { color: o.headlineEligible === false ? legibleOn(ACCENT.amber, colors.surface) : ACCENT.green }, className: "text-right font-semibold mt-1" },
+    o.headlineEligible === false ?
+    t.savingsBundleSave12Conditional(money(o.saving12Months)) :
+    t.savingsBundleSave12(money(o.saving12Months))
+    )
     ) : /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center gap-2 mt-2 text-xs" }, /*#__PURE__*/

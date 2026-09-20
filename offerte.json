@@ -836,7 +836,7 @@
     }
   },
   "schemaOpportunita": {
-    "descrizione": "Regole multi-servizio verificate. Il modello bundle supporta prezzi standard e promozionali, fasi successive, costi una tantum, requisiti e piani realmente inclusi. I campi storici costoAlternativa/frequenzaAlternativa restano supportati per compatibilità. Il calcolo economico avanzato delle fasi promozionali viene applicato dal client che dichiara la relativa capability; i client precedenti possono ignorare in sicurezza i campi additivi.",
+    "descrizione": "Regole multi-servizio verificate basate sui costi reali dell’utente. Oltre a opportunita[], dalla Parte 9E i client compatibili possono proiettare bundleCommerciali[] con motoreAttivo=true in regole bundle, applicando prima idoneità, scadenza, piani e vincoli. I client precedenti ignorano in sicurezza questa estensione additiva.",
     "campi": {
       "tipo": "bundle | incluso",
       "gruppo": "chiave usata per mostrare una sola proposta migliore fra varianti equivalenti",
@@ -868,14 +868,14 @@
     }
   },
   "schemaBundleCommerciali": {
-    "descrizione": "Offerte commerciali multi-servizio verificate e censite in Parte 9D. Sono dati commerciali, non regole attive del motore Risparmio: la trasformazione in opportunità intelligenti avviene dalla Parte 9E dopo verifica di idoneità, piani equivalenti, scadenze e rischi di doppio addebito.",
-    "statoMotore": "non_attivo_9d",
+    "descrizione": "Offerte commerciali multi-servizio verificate e censite in Parte 9D e rese interrogabili dal motore Risparmio in Parte 9E. Il client deve comunque verificare scadenza, target cliente, requisiti, piani compatibili e rischi di migrazione prima di trasformare il dato commerciale in una proposta utente.",
+    "statoMotore": "attivo_9e",
     "campi": {
       "id": "identificatore stabile del bundle commerciale",
       "provider": "operatore che vende il bundle",
       "nome": "nome commerciale normalizzato",
       "periodicitaCommerciale": "annuale | mensile",
-      "motoreAttivo": "sempre false in Parte 9D",
+      "motoreAttivo": "true solo per bundle che possono essere valutati dal motore opportunità; non equivale a idoneità automatica dell’utente",
       "prezzoStandard": "canone ordinario mensile",
       "prezzoPromozionale": "canone promozionale quando esiste",
       "durataPromozionaleMesi": "durata certa della promo",
@@ -888,10 +888,15 @@
       "requisitiStrutturati": "condizioni machine-readable",
       "vincoloMesi": "durata minima/annuale",
       "vincoli": "vincoli contrattuali",
-      "serviziInclusi": "servizi e piani realmente inclusi; sostituibile=false identifica componenti che non devono generare risparmio da sole",
+      "serviziInclusi": "servizi e piani realmente inclusi; sostituibile=false non genera risparmio. pianiAmmessi limita i piani che possono essere sostituiti senza falsa equivalenza; confrontaPianoIncluso segnala differenze qualitative.",
       "scade": "ultimo giorno ufficiale noto per aderire alle condizioni censite",
       "link": "fonte ufficiale",
-      "verificato": "data di verifica"
+      "verificato": "data di verifica",
+      "minServizi": "numero minimo di abbonamenti separati realmente sostituiti; per TIMVISION 9E almeno 2",
+      "gruppoMotore": "gruppo di alternative commerciali fra cui il client mostra una sola proposta TIMVISION coerente",
+      "escludiSePossiedi": "servizi che bloccano la proposta; per TIMVISION integra anche lo stato cliente derivato dallo storico",
+      "scadenzaBloccaMotore": "se true, dopo scade la regola non è più proponibile finché il catalogo non viene riverificato",
+      "canaleCalcoloAttivazione": "scenario di attivazione usato nel calcolo base; eventuali altri canali restano avvisi e non vengono nascosti"
     }
   },
   "bundleCommerciali": [
@@ -901,7 +906,7 @@
       "nome": "TIMVISION S · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 14.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -958,29 +963,41 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-netflix",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION S · annuale"
     },
     {
       "id": "timvision-m-annuale-2026",
@@ -988,7 +1005,7 @@
       "nome": "TIMVISION M · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 18.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1045,34 +1062,47 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-disney",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION M · annuale"
     },
     {
       "id": "timvision-l-annuale-2026",
@@ -1080,7 +1110,7 @@
       "nome": "TIMVISION L · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 20.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1137,40 +1167,54 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L · annuale"
     },
     {
       "id": "timvision-s-dazn-full-annuale-2026",
@@ -1178,7 +1222,7 @@
       "nome": "TIMVISION S con DAZN Full · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 46.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1235,35 +1279,54 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FULL",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FULL",
+            "FULL · annuale 12 rate",
+            "FULL · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION S con DAZN Full · annuale"
     },
     {
       "id": "timvision-m-dazn-full-annuale-2026",
@@ -1271,7 +1334,7 @@
       "nome": "TIMVISION M con DAZN Full · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 50.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1328,40 +1391,60 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FULL",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FULL",
+            "FULL · annuale 12 rate",
+            "FULL · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION M con DAZN Full · annuale"
     },
     {
       "id": "timvision-l-dazn-full-annuale-2026",
@@ -1369,7 +1452,7 @@
       "nome": "TIMVISION L con DAZN Full · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 52.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1426,46 +1509,67 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FULL",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FULL",
+            "FULL · annuale 12 rate",
+            "FULL · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L con DAZN Full · annuale"
     },
     {
       "id": "timvision-s-dazn-myclubpass-annuale-2026",
@@ -1473,7 +1577,7 @@
       "nome": "TIMVISION S con DAZN MyClubPass · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 39.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1530,35 +1634,54 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "MYCLUBPASS",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "MYCLUBPASS",
+            "MYCLUBPASS · annuale 12 rate",
+            "MYCLUBPASS · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION S con DAZN MyClubPass · annuale"
     },
     {
       "id": "timvision-m-dazn-myclubpass-annuale-2026",
@@ -1566,7 +1689,7 @@
       "nome": "TIMVISION M con DAZN MyClubPass · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 43.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1623,40 +1746,60 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "MYCLUBPASS",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "MYCLUBPASS",
+            "MYCLUBPASS · annuale 12 rate",
+            "MYCLUBPASS · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION M con DAZN MyClubPass · annuale"
     },
     {
       "id": "timvision-l-dazn-myclubpass-annuale-2026",
@@ -1664,7 +1807,7 @@
       "nome": "TIMVISION L con DAZN MyClubPass · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 45.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1721,47 +1864,68 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "MYCLUBPASS",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "MYCLUBPASS",
+            "MYCLUBPASS · annuale 12 rate",
+            "MYCLUBPASS · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E.",
-      "nota": "La card marketing TIM visualizza 29,99 €/mese, ma il totale ufficiale del primo anno è 348 € e il dettaglio economico ufficiale indica 29,00 €/mese per 12 mesi. Hubbo usa 29,00 € per coerenza con il totale e con le condizioni economiche."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "nota": "La card marketing TIM visualizza 29,99 €/mese, ma il totale ufficiale del primo anno è 348 € e il dettaglio economico ufficiale indica 29,00 €/mese per 12 mesi. Hubbo usa 29,00 € per coerenza con il totale e con le condizioni economiche.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L con DAZN MyClubPass · annuale"
     },
     {
       "id": "timvision-s-dazn-family-annuale-2026",
@@ -1769,7 +1933,7 @@
       "nome": "TIMVISION S con DAZN Family · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 71.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1826,35 +1990,54 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FAMILY",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FAMILY",
+            "FAMILY · annuale 12 rate",
+            "FAMILY · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION S con DAZN Family · annuale"
     },
     {
       "id": "timvision-m-dazn-family-annuale-2026",
@@ -1862,7 +2045,7 @@
       "nome": "TIMVISION M con DAZN Family · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 75.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -1919,40 +2102,60 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FAMILY",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FAMILY",
+            "FAMILY · annuale 12 rate",
+            "FAMILY · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION M con DAZN Family · annuale"
     },
     {
       "id": "timvision-l-dazn-family-annuale-2026",
@@ -1960,7 +2163,7 @@
       "nome": "TIMVISION L con DAZN Family · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 77.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2012,47 +2215,68 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FAMILY",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FAMILY",
+            "FAMILY · annuale 12 rate",
+            "FAMILY · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-amazon-prime",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E.",
-      "nota": "TIM usa ancora in alcune pagine la dicitura DAZN Plus: il piano corrente corrispondente è DAZN Family. Nessun prezzo promozionale corrente è stato applicato a questa variante."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "nota": "TIM usa ancora in alcune pagine la dicitura DAZN Plus: il piano corrente corrispondente è DAZN Family. Nessun prezzo promozionale corrente è stato applicato a questa variante.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L con DAZN Family · annuale"
     },
     {
       "id": "timvision-dazn-full-prime-annuale-2026",
@@ -2060,7 +2284,7 @@
       "nome": "TIMVISION con DAZN Full e Prime · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 36.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2126,31 +2350,49 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FULL",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FULL",
+            "FULL · annuale 12 rate",
+            "FULL · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN Full e Prime · annuale"
     },
     {
       "id": "timvision-dazn-myclubpass-prime-annuale-2026",
@@ -2158,7 +2400,7 @@
       "nome": "TIMVISION con DAZN MyClubPass e Prime · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 29.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2224,31 +2466,49 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "MYCLUBPASS",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "MYCLUBPASS",
+            "MYCLUBPASS · annuale 12 rate",
+            "MYCLUBPASS · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN MyClubPass e Prime · annuale"
     },
     {
       "id": "timvision-dazn-family-prime-annuale-2026",
@@ -2256,7 +2516,7 @@
       "nome": "TIMVISION con DAZN Family e Prime · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 59.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2322,31 +2582,49 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FAMILY",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FAMILY",
+            "FAMILY · annuale 12 rate",
+            "FAMILY · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN Family e Prime · annuale"
     },
     {
       "id": "timvision-s-mensile-2026",
@@ -2354,7 +2632,7 @@
       "nome": "TIMVISION S · mensile",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "mensile",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 19.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2405,29 +2683,41 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-netflix",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION S · mensile"
     },
     {
       "id": "timvision-m-mensile-2026",
@@ -2435,7 +2725,7 @@
       "nome": "TIMVISION M · mensile",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "mensile",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 23.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2486,34 +2776,47 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-disney",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION M · mensile"
     },
     {
       "id": "timvision-l-mensile-2026",
@@ -2521,7 +2824,7 @@
       "nome": "TIMVISION L · mensile",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "mensile",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 25.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2572,40 +2875,54 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-netflix",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L · mensile"
     },
     {
       "id": "timvision-l-dazn-full-mensile-2026",
@@ -2613,7 +2930,7 @@
       "nome": "TIMVISION L con DAZN Full · mensile",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "mensile",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 62.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2664,46 +2981,67 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "HBO Max",
           "pianoIncluso": "Base con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Netflix",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Disney+",
           "pianoIncluso": "Standard con pubblicità",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FULL",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FULL",
+            "FULL · annuale 12 rate",
+            "FULL · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L con DAZN Full · mensile"
     },
     {
       "id": "timvision-dazn-full-prime-mensile-2026",
@@ -2711,7 +3049,7 @@
       "nome": "TIMVISION con DAZN Full e Prime · mensile",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "mensile",
-      "motoreAttivo": false,
+      "motoreAttivo": true,
       "prezzoStandard": 46.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2757,31 +3095,49 @@
         {
           "servizio": "TIMVISION Play",
           "pianoIncluso": "Base",
-          "sostituibile": false
+          "sostituibile": false,
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "DAZN",
           "pianoIncluso": "FULL",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato."
+          "notaMigrazione": "Un abbonamento DAZN annuale diretto deve essere cessato prima dell’attivazione TIMVISION; possono restare importi dovuti per recesso anticipato.",
+          "pianiAmmessi": [
+            "FULL",
+            "FULL · annuale 12 rate",
+            "FULL · annuale una soluzione"
+          ],
+          "accettaPianoSconosciuto": false,
+          "confrontaPianoIncluso": true
         },
         {
           "servizio": "Amazon Prime",
           "pianoIncluso": "Prime (Prime Video con pubblicità)",
           "sostituibile": true,
-          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account."
+          "notaMigrazione": "Un abbonamento Prime già attivo non viene sospeso automaticamente: può essere necessario attendere la scadenza o usare un nuovo account.",
+          "confrontaPianoIncluso": false
         },
         {
           "servizio": "Infinity+",
           "pianoIncluso": "Incluso",
-          "sostituibile": true
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
         }
       ],
       "scade": "2026-09-26",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Censito in Parte 9D. Non è ancora usato dal motore opportunità: attivazione intelligente rinviata alla Parte 9E."
+      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "minServizi": 2,
+      "gruppoMotore": "timvision-da-attivare",
+      "escludiSePossiedi": [
+        "TIMVISION"
+      ],
+      "scadenzaBloccaMotore": true,
+      "canaleCalcoloAttivazione": "online_o_scenario_base",
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN Full e Prime · mensile"
     }
   ],
   "piani": [
@@ -8769,6 +9125,13 @@
       {
         "id": "svc-tim",
         "nome": "TIM"
+      },
+      {
+        "id": "svc-timvision",
+        "nome": "TIMVISION",
+        "alias": [
+          "TIM Vision"
+        ]
       },
       {
         "id": "svc-tim-mobile",
