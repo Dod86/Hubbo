@@ -1,6 +1,6 @@
 {
   "versione": 5,
-  "aggiornato": "2026-09-20",
+  "aggiornato": "2026-09-21",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente. `bundleCommerciali` censisce separatamente le offerte multi-servizio verificate: in Parte 9D restano deliberatamente non attive nel motore fino alle regole di idoneità 9E.",
@@ -162,57 +162,6 @@
       "territorio": "IT",
       "valuta": "EUR",
       "link": "https://www.sky.it/offerte/prova-sky",
-      "fonte": "sky.it",
-      "verificato": "2026-09-19"
-    },
-    {
-      "id": "sky-tv-sport-2499-18m-2026",
-      "servizio": "Sky",
-      "titolo": "Sky TV + Sport a 24,99 €/mese",
-      "dettaglio": "24,99 €/mese per 18 mesi invece di 51,90 €; profilo Sky Smart. Attivazione Sky Stream 19 € una tantum.",
-      "tipo": "sconto",
-      "prezzoPromozionale": 24.99,
-      "frequenzaPromozionale": "mensile",
-      "durataPromozionaleMesi": 18,
-      "prezzoListinoRiferimento": 51.9,
-      "vincoloMesi": 18,
-      "costoAttivazione": 19.0,
-      "destinatari": [
-        "nuovi"
-      ],
-      "scade": "2026-09-20",
-      "requisiti": [
-        "Sky Stream con profilo Sky Smart",
-        "Permanenza minima 18 mesi"
-      ],
-      "territorio": "IT",
-      "valuta": "EUR",
-      "link": "https://www.sky.it/offerte/sky-sport-sky-calcio-insieme",
-      "fonte": "sky.it",
-      "verificato": "2026-09-19"
-    },
-    {
-      "id": "sky-tv-sport-calcio-2999-18m-2026",
-      "servizio": "Sky",
-      "titolo": "Sky TV + Sport + Calcio a 29,99 €/mese",
-      "dettaglio": "29,99 €/mese per 18 mesi invece di 59,90 €; profilo Sky Smart. Il prezzo dopo il vincolo non viene fissato da Hubbo: Sky comunica il rinnovo alla scadenza.",
-      "tipo": "sconto",
-      "prezzoPromozionale": 29.99,
-      "frequenzaPromozionale": "mensile",
-      "durataPromozionaleMesi": 18,
-      "prezzoListinoRiferimento": 59.9,
-      "vincoloMesi": 18,
-      "destinatari": [
-        "nuovi"
-      ],
-      "scade": "2026-09-20",
-      "requisiti": [
-        "Sky Stream con profilo Sky Smart",
-        "Permanenza minima 18 mesi"
-      ],
-      "territorio": "IT",
-      "valuta": "EUR",
-      "link": "https://www.sky.it/offerte/sky-sport-sky-calcio-insieme",
       "fonte": "sky.it",
       "verificato": "2026-09-19"
     },
@@ -868,8 +817,8 @@
     }
   },
   "schemaBundleCommerciali": {
-    "descrizione": "Offerte commerciali multi-servizio verificate e censite in Parte 9D e rese interrogabili dal motore Risparmio in Parte 9E. Il client deve comunque verificare scadenza, target cliente, requisiti, piani compatibili e rischi di migrazione prima di trasformare il dato commerciale in una proposta utente.",
-    "statoMotore": "attivo_9e",
+    "descrizione": "Offerte commerciali multi-servizio verificate: TIMVISION (9D/9E) e audit degli altri bundle italiani (9F). Il client verifica scadenza, target, requisiti, piani compatibili e rischi di migrazione prima di trasformare il dato commerciale in una proposta utente.",
+    "statoMotore": "attivo_9f_selettivo",
     "campi": {
       "id": "identificatore stabile del bundle commerciale",
       "provider": "operatore che vende il bundle",
@@ -896,7 +845,11 @@
       "gruppoMotore": "gruppo di alternative commerciali fra cui il client mostra una sola proposta TIMVISION coerente",
       "escludiSePossiedi": "servizi che bloccano la proposta; per TIMVISION integra anche lo stato cliente derivato dallo storico",
       "scadenzaBloccaMotore": "se true, dopo scade la regola non è più proponibile finché il catalogo non viene riverificato",
-      "canaleCalcoloAttivazione": "scenario di attivazione usato nel calcolo base; eventuali altri canali restano avvisi e non vengono nascosti"
+      "canaleCalcoloAttivazione": "scenario di attivazione usato nel calcolo base; eventuali altri canali restano avvisi e non vengono nascosti",
+      "prezzoRiferimentoListino": "prezzo di listino ufficiale corrente usato solo come riferimento informativo quando il prezzo futuro non è contrattualmente fissato",
+      "motoreBloccoMotivo": "spiega perché un bundle verificato resta censito ma non viene proposto automaticamente",
+      "variantiPrezzo": "scenari economici ufficiali alternativi legati a requisiti che Hubbo potrebbe non conoscere",
+      "durataInclusioneMesi": "durata certa di un singolo servizio incluso quando non coincide con tutta la durata del bundle"
     }
   },
   "bundleCommerciali": [
@@ -3138,6 +3091,350 @@
       "scadenzaBloccaMotore": true,
       "canaleCalcoloAttivazione": "online_o_scenario_base",
       "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN Full e Prime · mensile"
+    },
+    {
+      "id": "sky-tv-netflix-smart-2026",
+      "provider": "Sky",
+      "nome": "Sky TV + Netflix · Sky Smart",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": true,
+      "valuta": "EUR",
+      "prezzoPromozionale": 14.99,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 18,
+      "prezzoRiferimentoListino": 31.99,
+      "prezzoSuccessivo": null,
+      "costoAttivazione": 19,
+      "destinatari": [
+        "nuovi",
+        "esistenti"
+      ],
+      "requisiti": [
+        "Abbonamento Sky Stream con profilo Sky Smart",
+        "Pagamento con carta di credito o addebito su conto corrente",
+        "Connessione internet compatibile con Sky Stream"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        },
+        {
+          "tipo": "metodo_pagamento",
+          "valori": [
+            "carta_credito",
+            "addebito_conto"
+          ],
+          "richiesta": true
+        },
+        {
+          "tipo": "piattaforma_sky",
+          "valore": "Sky Stream",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 18,
+      "vincoli": [
+        "Profilo Sky Smart con permanenza minima di 18 mesi; in caso di recesso anticipato può essere richiesta la restituzione degli sconti fruiti.",
+        "Al termine dei 18 mesi si applicano le condizioni e il prezzo Sky Open vigenti in quel momento: Hubbo non inventa oggi quel prezzo futuro."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "Sky",
+          "pianoIncluso": "Sky TV",
+          "sostituibile": true,
+          "confrontaPianoIncluso": false,
+          "pianiAmmessi": [
+            "Sky TV"
+          ],
+          "pianiEsclusi": [
+            "Cinema",
+            "Sport",
+            "Calcio",
+            "Kids",
+            "Multiscreen",
+            "Ultra HD",
+            "Intrattenimento Plus",
+            "Netflix"
+          ],
+          "accettaPianoSconosciuto": false
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
+        }
+      ],
+      "scade": "2026-09-27",
+      "fonte": "Sky (fonte ufficiale italiana)",
+      "link": "https://www.sky.it/tv/sky-tv",
+      "verificato": "2026-09-21",
+      "notaAudit": "Parte 9F: bundle attivo nel motore in modo prudenziale. Il prezzo promozionale copre l'intero orizzonte Hubbo di 12 mesi; il prezzo dopo il 18° mese non è fissato oggi e non viene inventato. Requisiti Sky Stream/metodo di pagamento restano da verificare, quindi la card non gonfia il risparmio certo finché Hubbo non può dimostrarli.",
+      "minServizi": 2,
+      "gruppoMotore": "sky-smart-da-attivare",
+      "scadenzaBloccaMotore": true,
+      "titoloMotore": "Riunisci Sky TV e Netflix con Sky Smart"
+    },
+    {
+      "id": "sky-tv-netflix-cinema-paramount-smart-2026",
+      "provider": "Sky",
+      "nome": "Sky TV + Netflix + Sky Cinema con Paramount+ · Sky Smart",
+      "categoria": "multi-servizio",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": true,
+      "valuta": "EUR",
+      "prezzoPromozionale": 14.99,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 6,
+      "prezzoSuccessivo": 24.99,
+      "frequenzaSuccessiva": "monthly",
+      "prezzoRiferimentoListino": 50.99,
+      "costoAttivazione": 19,
+      "destinatari": [
+        "nuovi",
+        "esistenti"
+      ],
+      "requisiti": [
+        "Abbonamento Sky Stream con profilo Sky Smart",
+        "Pagamento con carta di credito o addebito su conto corrente",
+        "Connessione internet compatibile con Sky Stream"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "connettivita",
+          "operatore": "qualsiasi",
+          "richiesta": true
+        },
+        {
+          "tipo": "metodo_pagamento",
+          "valori": [
+            "carta_credito",
+            "addebito_conto"
+          ],
+          "richiesta": true
+        },
+        {
+          "tipo": "piattaforma_sky",
+          "valore": "Sky Stream",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 18,
+      "vincoli": [
+        "14,99 €/mese per i primi 6 mesi e 24,99 €/mese dal 7° al 18° mese, con permanenza minima Sky Smart di 18 mesi.",
+        "In caso di recesso anticipato può essere richiesta la restituzione degli sconti fruiti; dopo il 18° mese vale il prezzo Sky Open vigente allora."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "Sky",
+          "pianoIncluso": "Sky TV + Sky Cinema",
+          "sostituibile": true,
+          "confrontaPianoIncluso": false,
+          "pianiAmmessi": [
+            "Sky TV",
+            "Sky Cinema",
+            "Sky TV + Cinema"
+          ],
+          "pianiEsclusi": [
+            "Sport",
+            "Calcio",
+            "Kids",
+            "Multiscreen",
+            "Intrattenimento Plus",
+            "Netflix"
+          ],
+          "accettaPianoSconosciuto": false
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
+        },
+        {
+          "servizio": "Paramount+",
+          "pianoIncluso": "Incluso con Sky Cinema",
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
+        }
+      ],
+      "scade": "2026-09-27",
+      "fonte": "Sky (fonte ufficiale italiana)",
+      "link": "https://www.sky.it/tv/sky-cinema",
+      "verificato": "2026-09-21",
+      "notaAudit": "Parte 9F: bundle attivo nel motore. Il confronto a 12 mesi usa 6 mesi a 14,99 € + 6 mesi a 24,99 € + 19 € di attivazione; il prezzo oltre il 18° mese non serve all'orizzonte di 12 mesi e non viene inventato.",
+      "minServizi": 2,
+      "gruppoMotore": "sky-smart-da-attivare",
+      "scadenzaBloccaMotore": true,
+      "titoloMotore": "Riunisci Sky, Netflix e Paramount+ con Sky Cinema"
+    },
+    {
+      "id": "windtre-super-fibra-netflix-standard-prime-2026",
+      "provider": "WINDTRE",
+      "nome": "Super Fibra + Netflix Standard + Prime 12 mesi",
+      "categoria": "fibra-streaming",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": false,
+      "motoreBloccoMotivo": "Hubbo non sostituisce ancora automaticamente una linea fissa di altro operatore con WINDTRE: senza conoscere copertura, tecnologia, stato della linea e reale possibilità di migrazione il suggerimento sarebbe potenzialmente falso.",
+      "valuta": "EUR",
+      "prezzoStandard": 43.49,
+      "frequenzaStandard": "monthly",
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "standard",
+          "tipo": "rateizzato",
+          "rataMensile": 1.99,
+          "mesi": 24,
+          "totaleNominale": 47.76,
+          "nota": "Costo di attivazione ufficiale 1,99 €/mese per 24 mesi, salvo promozioni; eventuale FWA promozionale può avere attivazione a 0 €."
+        }
+      ],
+      "variantiPrezzo": [
+        {
+          "scenario": "cliente_mobile_WINDTRE",
+          "scontoMensile": 4,
+          "condizione": "SIM mobile WINDTRE attiva secondo condizioni ufficiali correnti"
+        }
+      ],
+      "destinatari": [
+        "clienti_fisso_idonei",
+        "clienti_mobile_windtre_idonei"
+      ],
+      "requisiti": [
+        "Copertura/tecnologia WINDTRE disponibile all'indirizzo",
+        "Attivazione o migrazione della linea fissa secondo condizioni WINDTRE"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "copertura_fissa_windtre",
+          "richiesta": true
+        },
+        {
+          "tipo": "migrazione_linea_fissa",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 24,
+      "vincoli": [
+        "Modem incluso nel costo complessivo; in caso di recesso possono restare rate modem e costi di dismissione/trasferimento linea."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "WINDTRE Super Fibra",
+          "pianoIncluso": "Super Fibra",
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard",
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime per 12 mesi",
+          "durataInclusioneMesi": 12,
+          "sostituibile": true,
+          "confrontaPianoIncluso": false,
+          "notaMigrazione": "Per i già clienti Prime l'iscrizione viene prorogata di 12 mesi; dopo il periodo incluso Prime può rinnovarsi alle condizioni Amazon vigenti."
+        }
+      ],
+      "fonte": "WINDTRE (fonte ufficiale italiana)",
+      "link": "https://www.windtre.it/offerte-fibra/super-fibra-netflix",
+      "verificato": "2026-09-21",
+      "notaAudit": "Parte 9F: offerta reale e multi-servizio censita ma non attivata nel motore. Il canone ufficiale è 43,49 €/mese; l'attivazione è 1,99 €/mese per 24 mesi salvo promozioni; Prime è incluso per 12 mesi."
+    },
+    {
+      "id": "windtre-super-fibra-netflix-ads-prime-2026",
+      "provider": "WINDTRE",
+      "nome": "Super Fibra + Netflix Standard con pubblicità + Prime 12 mesi",
+      "categoria": "fibra-streaming",
+      "periodicitaCommerciale": "mensile",
+      "motoreAttivo": false,
+      "motoreBloccoMotivo": "Prezzo e idoneità dipendono dalla presenza di una linea mobile WINDTRE, dalla copertura e dalla migrazione della linea fissa; Hubbo li censisce ma non li trasforma ancora in risparmio certo.",
+      "valuta": "EUR",
+      "prezzoStandard": 36.49,
+      "frequenzaStandard": "monthly",
+      "prezzoPromozionale": 31.49,
+      "frequenzaPromozionale": "monthly",
+      "durataPromozionaleMesi": 12,
+      "prezzoSuccessivo": 36.49,
+      "frequenzaSuccessiva": "monthly",
+      "costoAttivazione": 0,
+      "costiAttivazione": [
+        {
+          "scenario": "standard",
+          "tipo": "rateizzato",
+          "rataMensile": 1.99,
+          "mesi": 24,
+          "totaleNominale": 47.76,
+          "nota": "Costo di attivazione ufficiale 1,99 €/mese per 24 mesi, salvo promozioni."
+        }
+      ],
+      "variantiPrezzo": [
+        {
+          "scenario": "cliente_mobile_WINDTRE",
+          "prezzoMensile": 31.49,
+          "condizione": "beneficio legato al mantenimento di una SIM mobile WINDTRE compatibile"
+        }
+      ],
+      "destinatari": [
+        "clienti_fisso_idonei",
+        "clienti_mobile_windtre_idonei"
+      ],
+      "requisiti": [
+        "Copertura/tecnologia WINDTRE disponibile all'indirizzo",
+        "Condizioni economiche dipendenti dalla presenza di una SIM mobile WINDTRE o dalla Limited Edition web"
+      ],
+      "requisitiStrutturati": [
+        {
+          "tipo": "copertura_fissa_windtre",
+          "richiesta": true
+        },
+        {
+          "tipo": "profilo_mobile_windtre_o_promo_web",
+          "richiesta": true
+        },
+        {
+          "tipo": "migrazione_linea_fissa",
+          "richiesta": true
+        }
+      ],
+      "vincoloMesi": 24,
+      "vincoli": [
+        "Il beneficio mobile si perde se viene disattivata la linea mobile abbinata; Prime si rinnova separatamente dopo i 12 mesi se non disdetto."
+      ],
+      "serviziInclusi": [
+        {
+          "servizio": "WINDTRE Super Fibra",
+          "pianoIncluso": "Super Fibra",
+          "sostituibile": true,
+          "confrontaPianoIncluso": false
+        },
+        {
+          "servizio": "Netflix",
+          "pianoIncluso": "Standard con pubblicità",
+          "sostituibile": true,
+          "confrontaPianoIncluso": true
+        },
+        {
+          "servizio": "Amazon Prime",
+          "pianoIncluso": "Prime per 12 mesi",
+          "durataInclusioneMesi": 12,
+          "sostituibile": true,
+          "confrontaPianoIncluso": false,
+          "notaMigrazione": "Per i già clienti Prime l'iscrizione viene prorogata di 12 mesi; dopo il periodo incluso Prime può rinnovarsi alle condizioni Amazon vigenti."
+        }
+      ],
+      "fonte": "WINDTRE (fonte ufficiale italiana)",
+      "link": "https://www.windtre.it/offerte-fibra/super-fibra-netflix-pubblicita",
+      "verificato": "2026-09-21",
+      "notaAudit": "Parte 9F: offerta reale censita ma non attivata. La pagina ufficiale espone 31,49 €/mese per 12 mesi e poi 36,49 € per il profilo senza mobile in Limited Edition web; per clienti mobile WINDTRE sono previste condizioni dedicate."
     }
   ],
   "piani": [
