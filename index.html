@@ -284,8 +284,10 @@ function fixedAccentCardStyle(accentColor, colors, light) {
     const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
     return /^[0-9a-f]{6}$/i.test(full) ? full.match(/../g).map((c) => parseInt(c, 16)) : null;
   };
+  const mix = (a, b, ratio) => a.map((v, i) => Math.round(v * (1 - ratio) + b[i] * ratio));
   const base = parseHex(colors.surface);
   const accent = parseHex(accentColor);
+  const amber = parseHex(ACCENT.amber);
   const style = {
     backgroundColor: colors.surface,
     backgroundOrigin: "border-box",
@@ -294,16 +296,18 @@ function fixedAccentCardStyle(accentColor, colors, light) {
     border: "2px solid transparent",
     boxShadow: colors.cardShadow
   };
-  if (!base || !accent) return style;
-  const grey = accent[0] * 0.2126 + accent[1] * 0.7152 + accent[2] * 0.0722;
-  const tone = (strength) => accent.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.32 - base[i]) * strength));
+  if (!base || !accent || !amber) return style;
+  const warmed = mix(accent, amber, light ? 0.34 : 0.24);
+  const grey = warmed[0] * 0.2126 + warmed[1] * 0.7152 + warmed[2] * 0.0722;
+  const tone = (strength, chroma = 0.52) => warmed.map((v, i) => Math.round(base[i] + (grey + (v - grey) * chroma - base[i]) * strength));
   const tones = [
-  tone(light ? 0.40 : 0.30),
-  tone(light ? 0.31 : 0.23),
-  tone(light ? 0.22 : 0.16)];
+  tone(light ? 0.48 : 0.36, 0.58),
+  tone(light ? 0.37 : 0.28, 0.54),
+  tone(light ? 0.27 : 0.20, 0.50)];
 
-  const tint = (index, alpha = 1) => \`rgba(\${tones[index].join(",")},\${alpha})\`;
-  style.backgroundImage = \`radial-gradient(ellipse at 0% 0%, \${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, \${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, \${tint(2, 0.48)} 0%, transparent 58%)\`;
+  const amberWash = mix(base, amber, light ? 0.18 : 0.14);
+  const tint = (rgb, alpha = 1) => \`rgba(\${rgb.join(",")},\${alpha})\`;
+  style.backgroundImage = \`linear-gradient(135deg, \${tint(amberWash, light ? 0.16 : 0.11)} 0%, transparent 55%), radial-gradient(ellipse at 0% 0%, \${tint(tones[0])} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, \${tint(tones[1])} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, \${tint(tones[2], 0.56)} 0%, transparent 58%)\`;
   return style;
 }
 
@@ -487,7 +491,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v255";
+const APP_VERSION = "v256";
 const APP_BUILD_DATE = "2026-09-20";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
