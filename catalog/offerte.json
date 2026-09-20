@@ -836,17 +836,35 @@
     }
   },
   "schemaOpportunita": {
-    "descrizione": "Regole multi-servizio verificate. Hubbo non usa un risparmio fisso: confronta sempre i costi reali degli abbonamenti attivi con il costo dell’alternativa, oppure con il costo dell’abbonamento da mantenere quando un servizio è già incluso.",
+    "descrizione": "Regole multi-servizio verificate. Il modello bundle supporta prezzi standard e promozionali, fasi successive, costi una tantum, requisiti e piani realmente inclusi. I campi storici costoAlternativa/frequenzaAlternativa restano supportati per compatibilità. Il calcolo economico avanzato delle fasi promozionali viene applicato dal client che dichiara la relativa capability; i client precedenti possono ignorare in sicurezza i campi additivi.",
     "campi": {
       "tipo": "bundle | incluso",
       "gruppo": "chiave usata per mostrare una sola proposta migliore fra varianti equivalenti",
-      "serviziInclusi": "servizi che il bundle può sostituire; ogni voce può limitare i piani/costi compatibili",
+      "serviziInclusi": "servizi che il bundle può sostituire; ogni voce può limitare piani/costi dell’utente e dichiarare pianoIncluso/pianiInclusi del bundle",
       "minServizi": "numero minimo di servizi effettivamente sostituiti perché il bundle sia proponibile",
       "mantieni": "per tipo incluso: servizio già posseduto che contiene gli altri",
-      "costoAlternativa": "prezzo dell’alternativa; il risparmio viene ricalcolato sui costi reali dell’utente",
-      "frequenzaAlternativa": "cadenza del costoAlternativa",
+      "prezzoStandard": "prezzo ricorrente ordinario del bundle; è il campo canonico per i nuovi bundle a prezzo stabile",
+      "frequenzaStandard": "cadenza del prezzoStandard",
+      "prezzoPromozionale": "prezzo ricorrente valido soltanto durante la fase promozionale",
+      "frequenzaPromozionale": "cadenza del prezzoPromozionale",
+      "durataPromozionaleMesi": "durata in mesi della fase promozionale",
+      "durataPromozionaleGiorni": "durata in giorni quando la promo non è esprimibile correttamente in mesi",
+      "prezzoSuccessivo": "prezzo ricorrente noto dopo la promo",
+      "frequenzaSuccessiva": "cadenza del prezzoSuccessivo",
+      "costoAttivazione": "costo una tantum obbligatorio di attivazione, separato dal canone",
+      "costiUnaTantum": "altri costi una tantum documentati, ciascuno con nome/importo e indicazione di obbligatorietà",
+      "destinatari": "target commerciale: nuovi | esistenti | exclienti",
+      "requisiti": "condizioni di idoneità leggibili dall’utente",
+      "requisitiStrutturati": "condizioni machine-readable per operatore, linea/tecnologia, servizio attivo, pagamento o altri requisiti verificabili",
+      "vincoloMesi": "permanenza minima espressa in mesi quando prevista",
+      "vincoli": "altri vincoli contrattuali/commerciali documentati",
+      "scade": "ultimo giorno noto per aderire alla promo; distinto dalla durata del prezzo promozionale",
+      "costoAlternativa": "campo legacy del prezzo alternativo; resta valido quando prezzoStandard non è presente",
+      "frequenzaAlternativa": "campo legacy della cadenza di costoAlternativa",
       "escludiSePossiedi": "servizi che rendono la regola non applicabile",
-      "verificato": "data dell’ultima verifica reale della composizione/condizione"
+      "fonte": "fonte ufficiale o primaria verificata",
+      "link": "URL HTTPS della fonte",
+      "verificato": "data dell’ultima verifica reale della composizione, prezzo e condizioni"
     }
   },
   "piani": [

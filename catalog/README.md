@@ -20,11 +20,11 @@ Endpoint live:
 - `https://dod86.github.io/Hubbo/catalog/manifest.json`
 
 Lo storico parte da `catalogVersion: 1`, conservata immutabilmente in
-`catalog/versions/v000001/`. Dalla v247 il live è **catalogVersion 2**, in
-`catalog/versions/v000002/`, che aggiunge il registro di identità stabile senza
-modificare i dati commerciali. Il manifest live punta a:
+`catalog/versions/v000001/`. La versione live corrente è **catalogVersion 4**,
+in `catalog/versions/v000004/`. La v4 introduce il modello dati additivo della
+Parte 9B senza aggiungere ancora nuovi bundle commerciali. Il manifest live punta a:
 
-`https://dod86.github.io/Hubbo/catalog/versions/v000002/offerte.json`
+`https://dod86.github.io/Hubbo/catalog/versions/v000004/offerte.json`
 
 ## Pubblicare una nuova versione del catalogo
 
@@ -126,3 +126,16 @@ ha ID, `catalogRef` conserva nomi/alias sufficienti a tentare la riconciliazione
 pipeline 8F esegue `checks-user-data-protection.js` e blocca la pubblicazione se un ID
 già pubblicato sparisce, viene riutilizzato in modo incompatibile o una rinominazione
 perde l'alias storico.
+
+
+## Parte 9B — modello bundle complessi (v257)
+
+Il catalogo v5 supporta ora campi opzionali per prezzi standard/promozionali e
+fasi successive, costi una tantum, target/requisiti/vincoli, scadenza promo e
+piani effettivamente inclusi nel bundle. L’estensione è backward-compatible:
+Apple One e le regole `incluso` esistenti continuano a funzionare con i campi
+legacy. La Parte 9B non aggiunge ancora TIMVISION né altri bundle commerciali.
+
+La distinzione `pianiAmmessi`/`pianiEsclusi` (piano posseduto e sostituibile) vs
+`pianoIncluso`/`pianiInclusi` (piano fornito dal bundle) è parte del contratto
+multipiattaforma e va preservata anche nell’app Android.
