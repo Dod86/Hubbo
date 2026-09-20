@@ -491,7 +491,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v257";
+const APP_VERSION = "v258";
 const APP_BUILD_DATE = "2026-09-20";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -2988,6 +2988,24 @@ const LEDGER_STRINGS = {
     savingsCanRemove: "Puoi eliminare",
     savingsWith: "Con",
     savingsOpportunity: "Opportunità di risparmio",
+    savingsBundleCurrent: "Servizi separati oggi",
+    savingsBundlePromo: (duration) => \`Bundle in promo · \${duration}\`,
+    savingsBundleAfterPromo: "Dopo la promo",
+    savingsBundleRecurring: "Bundle",
+    savingsBundleUpfront: "Costi iniziali inclusi nel calcolo",
+    savingsBundlePromoSaving: (amount) => \`Durante la promo: \${amount}/mese in meno\`,
+    savingsBundlePromoExtra: (amount) => \`Durante la promo: \${amount}/mese in più\`,
+    savingsBundleAfterSaving: (amount) => \`dopo: \${amount}/mese in meno\`,
+    savingsBundleAfterExtra: (amount) => \`dopo: \${amount}/mese in più\`,
+    savingsBundleJoinBy: (date) => \`Promo sottoscrivibile entro \${date}\`,
+    savingsBundle12Months: "Confronto 12 mesi",
+    savingsBundleSave12: (amount) => \`Risparmio reale a 12 mesi: \${amount}\`,
+    savingsDuration: (months, days, equivalent) => {
+      if (Number(months) > 0) return Number(months) === 1 ? "1 mese" : \`\${Number(months)} mesi\`;
+      if (Number(days) > 0) return Number(days) === 1 ? "1 giorno" : \`\${Number(days)} giorni\`;
+      return \`\${Number(equivalent || 0).toFixed(1)} mesi\`;
+    },
+    monthShort: "mese",
     savingsDecideNow: "Da decidere adesso",
     savingsPriceIncreasesTitle: "Cambiamenti di prezzo",
     savingsPriceIncreasesSince: (date) => \`da \${date}\`,
@@ -3104,6 +3122,24 @@ const LEDGER_STRINGS = {
     savingsCanRemove: "You can remove",
     savingsWith: "With",
     savingsOpportunity: "Saving opportunity",
+    savingsBundleCurrent: "Separate services today",
+    savingsBundlePromo: (duration) => \`Bundle promo · \${duration}\`,
+    savingsBundleAfterPromo: "After the promo",
+    savingsBundleRecurring: "Bundle",
+    savingsBundleUpfront: "Upfront costs included in the calculation",
+    savingsBundlePromoSaving: (amount) => \`During the promo: \${amount}/month less\`,
+    savingsBundlePromoExtra: (amount) => \`During the promo: \${amount}/month more\`,
+    savingsBundleAfterSaving: (amount) => \`after: \${amount}/month less\`,
+    savingsBundleAfterExtra: (amount) => \`after: \${amount}/month more\`,
+    savingsBundleJoinBy: (date) => \`Promo available to join until \${date}\`,
+    savingsBundle12Months: "12-month comparison",
+    savingsBundleSave12: (amount) => \`Real 12-month saving: \${amount}\`,
+    savingsDuration: (months, days, equivalent) => {
+      if (Number(months) > 0) return Number(months) === 1 ? "1 month" : \`\${Number(months)} months\`;
+      if (Number(days) > 0) return Number(days) === 1 ? "1 day" : \`\${Number(days)} days\`;
+      return \`\${Number(equivalent || 0).toFixed(1)} months\`;
+    },
+    monthShort: "month",
     savingsDecideNow: "Decide now",
     savingsPriceIncreasesTitle: "Price changes",
     savingsPriceIncreasesSince: (date) => \`since \${date}\`,
@@ -3220,6 +3256,24 @@ const LEDGER_STRINGS = {
     savingsCanRemove: "Puedes eliminar",
     savingsWith: "Con",
     savingsOpportunity: "Oportunidad de ahorro",
+    savingsBundleCurrent: "Servicios separados hoy",
+    savingsBundlePromo: (duration) => \`Bundle en promoción · \${duration}\`,
+    savingsBundleAfterPromo: "Después de la promoción",
+    savingsBundleRecurring: "Bundle",
+    savingsBundleUpfront: "Costes iniciales incluidos en el cálculo",
+    savingsBundlePromoSaving: (amount) => \`Durante la promo: \${amount}/mes menos\`,
+    savingsBundlePromoExtra: (amount) => \`Durante la promo: \${amount}/mes más\`,
+    savingsBundleAfterSaving: (amount) => \`después: \${amount}/mes menos\`,
+    savingsBundleAfterExtra: (amount) => \`después: \${amount}/mes más\`,
+    savingsBundleJoinBy: (date) => \`Promoción contratable hasta \${date}\`,
+    savingsBundle12Months: "Comparación a 12 meses",
+    savingsBundleSave12: (amount) => \`Ahorro real a 12 meses: \${amount}\`,
+    savingsDuration: (months, days, equivalent) => {
+      if (Number(months) > 0) return Number(months) === 1 ? "1 mes" : \`\${Number(months)} meses\`;
+      if (Number(days) > 0) return Number(days) === 1 ? "1 día" : \`\${Number(days)} días\`;
+      return \`\${Number(equivalent || 0).toFixed(1)} meses\`;
+    },
+    monthShort: "mes",
     savingsDecideNow: "Para decidir ahora",
     savingsPriceIncreasesTitle: "Cambios de precio",
     savingsPriceIncreasesSince: (date) => \`desde \${date}\`,
@@ -3336,6 +3390,24 @@ const LEDGER_STRINGS = {
     savingsCanRemove: "Vous pouvez supprimer",
     savingsWith: "Avec",
     savingsOpportunity: "Opportunité d’économie",
+    savingsBundleCurrent: "Services séparés aujourd’hui",
+    savingsBundlePromo: (duration) => \`Bundle en promo · \${duration}\`,
+    savingsBundleAfterPromo: "Après la promo",
+    savingsBundleRecurring: "Bundle",
+    savingsBundleUpfront: "Frais initiaux inclus dans le calcul",
+    savingsBundlePromoSaving: (amount) => \`Pendant la promo : \${amount}/mois en moins\`,
+    savingsBundlePromoExtra: (amount) => \`Pendant la promo : \${amount}/mois en plus\`,
+    savingsBundleAfterSaving: (amount) => \`après : \${amount}/mois en moins\`,
+    savingsBundleAfterExtra: (amount) => \`après : \${amount}/mois en plus\`,
+    savingsBundleJoinBy: (date) => \`Promo souscriptible jusqu’au \${date}\`,
+    savingsBundle12Months: "Comparaison sur 12 mois",
+    savingsBundleSave12: (amount) => \`Économie réelle sur 12 mois : \${amount}\`,
+    savingsDuration: (months, days, equivalent) => {
+      if (Number(months) > 0) return Number(months) === 1 ? "1 mois" : \`\${Number(months)} mois\`;
+      if (Number(days) > 0) return Number(days) === 1 ? "1 jour" : \`\${Number(days)} jours\`;
+      return \`\${Number(equivalent || 0).toFixed(1)} mois\`;
+    },
+    monthShort: "mois",
     savingsDecideNow: "À décider maintenant",
     savingsPriceIncreasesTitle: "Changements de prix",
     savingsPriceIncreasesSince: (date) => \`depuis \${date}\`,
@@ -3452,6 +3524,24 @@ const LEDGER_STRINGS = {
     savingsCanRemove: "Du kannst entfernen",
     savingsWith: "Mit",
     savingsOpportunity: "Sparmöglichkeit",
+    savingsBundleCurrent: "Getrennte Dienste heute",
+    savingsBundlePromo: (duration) => \`Bundle-Aktion · \${duration}\`,
+    savingsBundleAfterPromo: "Nach der Aktion",
+    savingsBundleRecurring: "Bundle",
+    savingsBundleUpfront: "Einmalkosten im Vergleich enthalten",
+    savingsBundlePromoSaving: (amount) => \`Während der Aktion: \${amount}/Monat weniger\`,
+    savingsBundlePromoExtra: (amount) => \`Während der Aktion: \${amount}/Monat mehr\`,
+    savingsBundleAfterSaving: (amount) => \`danach: \${amount}/Monat weniger\`,
+    savingsBundleAfterExtra: (amount) => \`danach: \${amount}/Monat mehr\`,
+    savingsBundleJoinBy: (date) => \`Aktion buchbar bis \${date}\`,
+    savingsBundle12Months: "12-Monats-Vergleich",
+    savingsBundleSave12: (amount) => \`Reale Ersparnis über 12 Monate: \${amount}\`,
+    savingsDuration: (months, days, equivalent) => {
+      if (Number(months) > 0) return Number(months) === 1 ? "1 Monat" : \`\${Number(months)} Monate\`;
+      if (Number(days) > 0) return Number(days) === 1 ? "1 Tag" : \`\${Number(days)} Tage\`;
+      return \`\${Number(equivalent || 0).toFixed(1)} Monate\`;
+    },
+    monthShort: "Monat",
     savingsDecideNow: "Jetzt entscheiden",
     savingsPriceIncreasesTitle: "Preisänderungen",
     savingsPriceIncreasesSince: (date) => \`seit \${date}\`,
@@ -3779,6 +3869,98 @@ function catalogPlansForEntry(entry) {
 // used to be divided by twelve inline in four separate spots.
 function monthlyEquivalent(amount, frequency) {
   return amount * freqOf(frequency).perYear / 12;
+}
+
+// Parte 9C — confronto economico prudenziale dei bundle complessi.
+// Il motore ragiona su un orizzonte standard di 12 mesi: una promo viene
+// utilizzata solo quando sono noti sia la sua durata sia il prezzo che segue.
+// I costi una tantum obbligatori entrano nel totale del periodo, quindi non
+// possono trasformarsi in un falso risparmio mensile. I bundle storici a
+// prezzo stabile passano dalla stessa funzione e restituiscono esattamente lo
+// stesso valore mensile che avevano prima.
+function computeBundleEconomics({
+  currentMonthly,
+  standardMonthly = null,
+  promoMonthly = null,
+  promoDurationMonths = 0,
+  promoDurationDays = 0,
+  afterPromoMonthly = null,
+  oneTimeCost = 0,
+  promoAvailable = false,
+  horizonMonths = 12
+}) {
+  const finiteNonNegative = (value) => {
+    if (value == null || value === "") return null;
+    const n = Number(value);
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  };
+  const current = finiteNonNegative(currentMonthly);
+  const standard = finiteNonNegative(standardMonthly);
+  const promo = finiteNonNegative(promoMonthly);
+  const afterExplicit = finiteNonNegative(afterPromoMonthly);
+  const upfront = finiteNonNegative(oneTimeCost) ?? 0;
+  const horizon = Number(horizonMonths);
+  if (current == null || !(horizon > 0)) return null;
+
+  const monthsRaw = Number(promoDurationMonths);
+  const daysRaw = Number(promoDurationDays);
+  const advertisedPromoMonths = Number.isFinite(monthsRaw) && monthsRaw > 0 ?
+  monthsRaw :
+  Number.isFinite(daysRaw) && daysRaw > 0
+  // 365.2425 giorni è la durata media dell'anno gregoriano: la conversione
+  // serve solo a ripartire un costo ricorrente nel confronto a 12 mesi,
+  // non altera o inventa il prezzo commerciale dichiarato.
+  ? daysRaw * 12 / 365.2425 :
+  0;
+  const after = afterExplicit ?? standard;
+  const promoDeclared = promo != null;
+  const promoApplied = !!promoAvailable && promoDeclared && advertisedPromoMonths > 0 && after != null;
+
+  let recurringTotal = 0;
+  let promoMonthsInHorizon = 0;
+  let recurringAfter = null;
+  if (promoApplied) {
+    promoMonthsInHorizon = Math.min(horizon, advertisedPromoMonths);
+    const afterMonthsInHorizon = Math.max(0, horizon - promoMonthsInHorizon);
+    recurringAfter = after;
+    recurringTotal = promo * promoMonthsInHorizon + after * afterMonthsInHorizon;
+  } else {
+    // Promo scaduta/incompleta: non la usiamo mai nel calcolo. Se esiste un
+    // prezzo successivo noto, è il valore prudenziale da usare; altrimenti
+    // resta il prezzo standard/legacy. Se non conosciamo nessuno dei due, la
+    // convenienza non è calcolabile e la proposta viene scartata.
+    recurringAfter = promoDeclared ? afterExplicit ?? standard : standard ?? afterExplicit;
+    if (recurringAfter == null) return null;
+    recurringTotal = recurringAfter * horizon;
+  }
+
+  const currentPeriodCost = current * horizon;
+  const bundlePeriodCost = recurringTotal + upfront;
+  const savingPeriod = currentPeriodCost - bundlePeriodCost;
+  const averageBundleMonthly = bundlePeriodCost / horizon;
+  const averageSavingMonthly = savingPeriod / horizon;
+  const promoPeriodSaving = promoApplied ?
+  current * advertisedPromoMonths - (promo * advertisedPromoMonths + upfront) :
+  null;
+
+  return {
+    horizonMonths: horizon,
+    currentPeriodCost,
+    bundlePeriodCost,
+    averageBundleMonthly,
+    savingPeriod,
+    averageSavingMonthly,
+    oneTimeCost: upfront,
+    promoDeclared,
+    promoApplied,
+    promoMonthly: promoApplied ? promo : null,
+    promoDurationMonthsEquivalent: promoApplied ? advertisedPromoMonths : 0,
+    promoMonthsInHorizon,
+    afterPromoMonthly: recurringAfter,
+    savingPromoMonthly: promoApplied ? current - promo : null,
+    savingPromoPeriod: promoPeriodSaving,
+    savingAfterPromoMonthly: promoApplied ? current - after : null
+  };
 }
 
 // Se più suggerimenti si sovrappongono, scegliere semplicemente il più grande
@@ -8761,15 +8943,41 @@ function HubboApp() {
           if (sub) {used.add(sub.id);subs.push(sub);}
         });
         if (subs.length < Number(o.minServizi || 1)) return null;
-        const altRaw = o.prezzoStandard ?? o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
-        if (altRaw == null || !Number.isFinite(Number(altRaw))) return null;
         const currentCost = subs.reduce((sum, sub) => sum + monthlyOf(sub), 0);
-        const alternativeCost = monthlyEquivalent(
-          convertAmount(Number(altRaw), o.valuta || savingsFileCurrency, settings.currency, rates),
-          o.frequenzaStandard || o.frequenzaAlternativa || "monthly"
-        );
-        const saving = currentCost - alternativeCost;
-        if (!(saving > 0.01)) return null;
+        const ruleCurrency = o.valuta || savingsFileCurrency;
+        const monthlyRulePrice = (amount, frequency) => {
+          if (amount == null || !Number.isFinite(Number(amount))) return null;
+          return monthlyEquivalent(
+            convertAmount(Number(amount), ruleCurrency, settings.currency, rates),
+            frequency || "monthly"
+          );
+        };
+        const standardRaw = o.prezzoStandard ?? o.costoAlternativa ?? o.alternativeCost ?? o.costo ?? o.prezzo;
+        const standardMonthly = monthlyRulePrice(standardRaw, o.frequenzaStandard || o.frequenzaAlternativa || "monthly");
+        const promoMonthly = monthlyRulePrice(o.prezzoPromozionale, o.frequenzaPromozionale || o.frequenzaStandard || o.frequenzaAlternativa || "monthly");
+        const afterPromoMonthly = monthlyRulePrice(o.prezzoSuccessivo, o.frequenzaSuccessiva || o.frequenzaStandard || o.frequenzaAlternativa || "monthly");
+        const activationCost = Number.isFinite(Number(o.costoAttivazione)) ?
+        convertAmount(Number(o.costoAttivazione), ruleCurrency, settings.currency, rates) :
+        0;
+        const otherOneTimeCosts = (Array.isArray(o.costiUnaTantum) ? o.costiUnaTantum : []
+        // Se l'obbligatorietà non è dichiarata, il comportamento prudenziale
+        // è contarla: solo \`obbligatorio: false\` la esclude dal confronto.
+        ).filter((cost) => cost && cost.obbligatorio !== false && Number.isFinite(Number(cost.importo))).
+        reduce((sum, cost) => sum + convertAmount(Number(cost.importo), ruleCurrency, settings.currency, rates), 0);
+        const oneTimeCost = activationCost + otherOneTimeCosts;
+        const promoAvailable = !o.scade || o.scade >= todayISO;
+        const economics = computeBundleEconomics({
+          currentMonthly: currentCost,
+          standardMonthly,
+          promoMonthly,
+          promoDurationMonths: o.durataPromozionaleMesi,
+          promoDurationDays: o.durataPromozionaleGiorni,
+          afterPromoMonthly,
+          oneTimeCost,
+          promoAvailable,
+          horizonMonths: 12
+        });
+        if (!economics || !(economics.savingPeriod > 0.01)) return null;
         return {
           id: o.id || \`opportunity-\${index}\`,
           ...o,
@@ -8777,8 +8985,26 @@ function HubboApp() {
           subs,
           replacedSubs: subs,
           currentCost,
-          alternativeCost,
-          saving
+          // \`alternativeCost\` e \`saving\` restano espressi come equivalenti
+          // mensili perché headline, anello e anti-doppio-conteggio lavorano
+          // già su quella unità. Per i bundle complessi sono però derivati dal
+          // totale REALE a 12 mesi, costi iniziali inclusi.
+          alternativeCost: economics.averageBundleMonthly,
+          saving: economics.averageSavingMonthly,
+          current12Months: economics.currentPeriodCost,
+          bundle12Months: economics.bundlePeriodCost,
+          saving12Months: economics.savingPeriod,
+          oneTimeCost: economics.oneTimeCost,
+          promoApplied: economics.promoApplied,
+          promoDeclared: economics.promoDeclared,
+          promoMonthly: economics.promoMonthly,
+          promoDurationMonthsEquivalent: economics.promoDurationMonthsEquivalent,
+          promoMonthsInHorizon: economics.promoMonthsInHorizon,
+          afterPromoMonthly: economics.afterPromoMonthly,
+          savingPromoMonthly: economics.savingPromoMonthly,
+          savingPromoPeriod: economics.savingPromoPeriod,
+          savingAfterPromoMonthly: economics.savingAfterPromoMonthly,
+          showDetailedEconomics: economics.promoApplied || economics.oneTimeCost > 0.01
         };
       }
 
@@ -10795,7 +11021,56 @@ function HubboApp() {
     o.opportunityKind === "included" ? t.savingsCanRemove : t.savingsReplaces, ": ", (o.replacedSubs || o.subs).map((s) => s.name).join(', ')
     ),
     o.nota && /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota),
+
+    o.showDetailedEconomics ? /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "mt-2.5 text-xs leading-relaxed" }, /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center justify-between gap-3" }, /*#__PURE__*/
+    React.createElement("span", null, t.savingsBundleCurrent), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" } }, money(o.currentCost), "/", t.monthShort)
+    ),
+    o.promoApplied && /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
+    React.createElement("span", null, t.savingsBundlePromo(t.savingsDuration(
+      o.durataPromozionaleMesi,
+      o.durataPromozionaleGiorni,
+      o.promoDurationMonthsEquivalent
+    ))), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.promoMonthly), "/", t.monthShort)
+    ), /*#__PURE__*/
+
+    React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
+    React.createElement("span", null, o.promoApplied ? t.savingsBundleAfterPromo : t.savingsBundleRecurring), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.afterPromoMonthly), "/", t.monthShort)
+    ),
+    o.oneTimeCost > 0.01 && /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center justify-between gap-3 mt-1" }, /*#__PURE__*/
+    React.createElement("span", null, t.savingsBundleUpfront), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" } }, money(o.oneTimeCost))
+    ),
+
+    o.promoApplied && /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1.5" },
+    o.savingPromoMonthly >= 0 ?
+    t.savingsBundlePromoSaving(money(Math.abs(o.savingPromoMonthly))) :
+    t.savingsBundlePromoExtra(money(Math.abs(o.savingPromoMonthly))),
+    ' · ',
+    o.savingAfterPromoMonthly >= 0 ?
+    t.savingsBundleAfterSaving(money(Math.abs(o.savingAfterPromoMonthly))) :
+    t.savingsBundleAfterExtra(money(Math.abs(o.savingAfterPromoMonthly)))
+    ),
+
+    o.promoApplied && o.scade && /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textFaint }, className: "mt-1" }, t.savingsBundleJoinBy(dateFmt(o.scade))), /*#__PURE__*/
+
+    React.createElement("div", { style: { borderTop: \`1px solid \${colors.border}\` }, className: "flex items-center gap-2 mt-2.5 pt-2.5" }, /*#__PURE__*/
+    React.createElement("span", null, t.savingsBundle12Months), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", color: colors.textFaint }, className: "ml-auto" }, money(o.current12Months)), /*#__PURE__*/
+    React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.bundle12Months))
+    ), /*#__PURE__*/
+    React.createElement("div", { style: { color: ACCENT.green }, className: "text-right font-semibold mt-1" }, t.savingsBundleSave12(money(o.saving12Months)))
+    ) : /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center gap-2 mt-2 text-xs" }, /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", textDecoration: 'line-through', color: colors.textFaint } }, money(o.currentCost)), /*#__PURE__*/
@@ -10803,6 +11078,7 @@ function HubboApp() {
     React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.alternativeCost)), /*#__PURE__*/
     React.createElement("span", { style: { color: ACCENT.green }, className: "ml-auto font-semibold" }, "\\u2212", money(o.saving))
     ),
+
     (o.link || o.url) && /*#__PURE__*/
     React.createElement("a", { href: o.link || o.url, target: "_blank", rel: "noopener noreferrer", style: { color: colors.textSecondary }, className: "inline-flex items-center gap-1.5 text-xs mt-3" }, /*#__PURE__*/
     React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
