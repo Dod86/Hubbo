@@ -491,8 +491,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v259";
-const APP_BUILD_DATE = "2026-09-20";
+const APP_VERSION = "v260";
+const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -506,8 +506,8 @@ const CATALOG_PENDING_STORAGE_KEY = "abbly:offers:pending";
 // Versione di compatibilità del client catalogo, distinta dalla versione
 // commerciale dell’app. La futura app Android potrà dichiarare questa stessa
 // capability anche se la sua versione Play Store seguirà una numerazione diversa.
-// Va incrementata solo quando cambia il protocollo/schema che il client sa gestire.
-const CATALOG_CLIENT_CAPABILITY_VERSION = "v247";
+// Va incrementata quando un catalogo richiede nuove semantiche/protocollo che un client precedente non sa valutare in sicurezza.
+const CATALOG_CLIENT_CAPABILITY_VERSION = "v260";
 const SUPPORTED_CATALOG_SCHEMA_VERSION = 5;
 
 function appVersionNumber(version) {
@@ -4050,7 +4050,9 @@ function monthlyEquivalent(amount, frequency) {
 
 // Parte 9C — confronto economico prudenziale dei bundle complessi.
 // Il motore ragiona su un orizzonte standard di 12 mesi: una promo viene
-// utilizzata solo quando sono noti sia la sua durata sia il prezzo che segue.
+// utilizzata solo quando la durata è certa e, se la promo termina dentro
+// l’orizzonte di confronto, è noto anche il prezzo che segue. Una promo che
+// copre tutti i 12 mesi non richiede di inventare il prezzo del 19° mese.
 // I costi una tantum obbligatori entrano nel totale del periodo, quindi non
 // possono trasformarsi in un falso risparmio mensile. I bundle storici a
 // prezzo stabile passano dalla stessa funzione e restituiscono esattamente lo
@@ -4091,7 +4093,8 @@ function computeBundleEconomics({
   0;
   const after = afterExplicit ?? standard;
   const promoDeclared = promo != null;
-  const promoApplied = !!promoAvailable && promoDeclared && advertisedPromoMonths > 0 && after != null;
+  const promoCoversHorizon = advertisedPromoMonths >= horizon - 0.000001;
+  const promoApplied = !!promoAvailable && promoDeclared && advertisedPromoMonths > 0 && (promoCoversHorizon || after != null);
 
   let recurringTotal = 0;
   let promoMonthsInHorizon = 0;
@@ -4100,7 +4103,8 @@ function computeBundleEconomics({
     promoMonthsInHorizon = Math.min(horizon, advertisedPromoMonths);
     const afterMonthsInHorizon = Math.max(0, horizon - promoMonthsInHorizon);
     recurringAfter = after;
-    recurringTotal = promo * promoMonthsInHorizon + after * afterMonthsInHorizon;
+    recurringTotal = promo * promoMonthsInHorizon + (
+    afterMonthsInHorizon > 0 ? after * afterMonthsInHorizon : 0);
   } else {
     // Promo scaduta/incompleta: non la usiamo mai nel calcolo. Se esiste un
     // prezzo successivo noto, è il valore prudenziale da usare; altrimenti
@@ -4136,7 +4140,7 @@ function computeBundleEconomics({
     afterPromoMonthly: recurringAfter,
     savingPromoMonthly: promoApplied ? current - promo : null,
     savingPromoPeriod: promoPeriodSaving,
-    savingAfterPromoMonthly: promoApplied ? current - after : null
+    savingAfterPromoMonthly: promoApplied && after != null ? current - after : null
   };
 }
 
