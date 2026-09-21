@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v277";
+const APP_VERSION = "v278";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -11230,18 +11230,15 @@ function HubboApp() {
       type: "button",
       onClick: () => {setExtraSectionScope("calendar");setShowExtraPayments(true);},
       style: {
-        backgroundColor: mix(colors.surface, ACCENT.amber, effectiveTheme === "light" ? 0.14 : 0.2),
-        backgroundImage: \`linear-gradient(135deg, \${mix(colors.surface, ACCENT.amber, effectiveTheme === "light" ? 0.08 : 0.14)} 0%, \${mix(colors.surface, ACCENT.amber, effectiveTheme === "light" ? 0.2 : 0.28)} 100%)\`,
-        border: \`1px solid \${mix(colors.border, ACCENT.amber, effectiveTheme === "light" ? 0.36 : 0.42)}\`,
-        boxShadow: colors.cardShadow,
-        minWidth: 182,
-        marginRight: 10
+        ...fixedAccentCardStyle(ACCENT.amber, colors, effectiveTheme === "light"),
+        minWidth: 176,
+        marginRight: -2
       },
       className: "rounded-[18px] px-3 py-2.5 flex items-center gap-2.5 text-left flex-shrink-0 transition-transform active:scale-[0.99]",
       "aria-label": \`\${t.extraSectionTitle} · \${money(calendarMonthStats.extraTotal, settings.currency)}\` }, /*#__PURE__*/
 
     React.createElement("span", {
-      style: { background: colors.surface2, color: ACCENT.amber, width: 30, height: 30 },
+      style: { background: effectiveTheme === "light" ? "rgba(227,168,87,0.14)" : "rgba(227,168,87,0.18)", color: ACCENT.amber, width: 30, height: 30 },
       className: "rounded-full flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
 
     React.createElement(Icon, { name: "tag", size: 15 })
