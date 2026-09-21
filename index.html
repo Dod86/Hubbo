@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v271";
+const APP_VERSION = "v272";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -4534,8 +4534,7 @@ const TOUR_STRINGS = {
       add: { title: "Il pulsante per aggiungere", text: "Da qui puoi aggiungere sia un abbonamento sia un pagamento singolo, come una bolletta o una spesa una tantum. Toccalo adesso." },
       addType: { title: "Cosa vuoi aggiungere", text: "Pagamento singolo serve per una spesa senza rinnovo e può anche essere collegato a un abbonamento. Per completare questa guida scegli Abbonamento." },
       service: { title: "Di che servizio si tratta", text: "Scegli dal catalogo: sono oltre duecento, con il logo già pronto. Se il tuo non c'è, puoi scriverlo a mano. Per alcuni trovi anche il piano da scegliere, prezzo incluso." },
-      cost: { title: "Quanto, ogni quanto e da quando", text: "Inserisci importo, valuta e frequenza. Se sei già abbonato, indica anche «Abbonato dal»: Hubbo usa la data di inizio per ricostruire correttamente lo storico. Il prossimo rinnovo lo impostiamo nel passaggio successivo." },
-      when: { title: "Quando si rinnova", text: "Ora indica la data del prossimo pagamento. È diversa da «Abbonato dal»: questa data guida i prossimi rinnovi, il calendario e i giorni che mancano." },
+      cost: { title: "Importo, frequenza e date", text: "Inserisci importo, valuta e frequenza. Poi controlla le due date: «Abbonato dal» indica quando hai iniziato e serve a ricostruire correttamente lo storico; «Prossimo rinnovo» indica il prossimo pagamento e guida calendario e rinnovi futuri." },
       save: { title: "Salvalo", text: "Tocca il pulsante e il tuo primo abbonamento è dentro." },
       ring: { title: "Ecco a cosa serve l'anello", text: "Mostra come si divide la spesa fra le categorie — tocca una fetta per vedere quanto pesa da sola. Sotto trovi quanto ti costa al giorno." }
     }
@@ -4557,8 +4556,7 @@ const TOUR_STRINGS = {
       add: { title: "The add button", text: "Use this to add either a subscription or a single payment, such as a bill or another one-off expense. Tap it now." },
       addType: { title: "What are you adding", text: "Single payment is for an expense with no renewal and it can also be linked to a subscription. To finish this tour, choose Subscription." },
       service: { title: "Which service is it", text: "Pick from the catalogue: over two hundred, logo included. If yours isn't there, you can type it in. For some you'll also find the plan to pick, price included." },
-      cost: { title: "How much, how often, since when", text: "Enter the amount, currency and frequency. If you already subscribe, also set ‘Subscribed since’: Hubbo uses the start date to rebuild your history correctly. We’ll set the next renewal in the next step." },
-      when: { title: "When it renews", text: "Now set the date of the next payment. It is different from ‘Subscribed since’: this date drives future renewals, the calendar and the days left." },
+      cost: { title: "Amount, frequency and dates", text: "Enter the amount, currency and frequency. Then check both dates: ‘Subscribed since’ is when your subscription started and lets Hubbo rebuild your history correctly; ‘Next renewal’ is the next payment and drives the calendar and future renewals." },
       save: { title: "Save it", text: "Tap the button and your first subscription is in." },
       ring: { title: "What the ring is for", text: "It shows how your spending splits across categories — tap a slice to see it on its own. Underneath is what it costs you per day." }
     }
@@ -4580,8 +4578,7 @@ const TOUR_STRINGS = {
       add: { title: "El botón de añadir", text: "Desde aquí puedes añadir una suscripción o un pago único, como una factura u otro gasto puntual. Tócalo ahora." },
       addType: { title: "Qué quieres añadir", text: "Pago único sirve para un gasto sin renovación y también puede vincularse a una suscripción. Para completar esta guía, elige Suscripción." },
       service: { title: "Qué servicio es", text: "Elige del catálogo: más de doscientos, con el logo incluido. Si el tuyo no está, puedes escribirlo a mano. Para algunos encontrarás también el plan a elegir, con el precio incluido." },
-      cost: { title: "Cuánto, cada cuánto y desde cuándo", text: "Introduce el importe, la moneda y la frecuencia. Si ya estás suscrito, indica también «Suscrito desde»: Hubbo usa la fecha de inicio para reconstruir correctamente el historial. El próximo cobro lo configuramos en el paso siguiente." },
-      when: { title: "Cuándo se renueva", text: "Ahora indica la fecha del próximo pago. Es distinta de «Suscrito desde»: esta fecha determina las próximas renovaciones, el calendario y los días que faltan." },
+      cost: { title: "Importe, frecuencia y fechas", text: "Introduce el importe, la moneda y la frecuencia. Después revisa las dos fechas: «Suscrito desde» indica cuándo empezó la suscripción y permite reconstruir correctamente el historial; «Próxima renovación» indica el próximo pago y guía el calendario y las renovaciones futuras." },
       save: { title: "Guárdala", text: "Toca el botón y tu primera suscripción ya está dentro." },
       ring: { title: "Para qué sirve el anillo", text: "Muestra cómo se reparte tu gasto entre las categorías — toca una porción para verla por separado. Debajo tienes cuánto te cuesta al día." }
     }
@@ -4603,8 +4600,7 @@ const TOUR_STRINGS = {
       add: { title: "Le bouton d'ajout", text: "Ici, vous pouvez ajouter un abonnement ou un paiement unique, comme une facture ou une dépense ponctuelle. Touchez-le maintenant." },
       addType: { title: "Que voulez-vous ajouter", text: "Paiement unique sert à une dépense sans renouvellement et peut aussi être lié à un abonnement. Pour terminer ce guide, choisissez Abonnement." },
       service: { title: "Quel service", text: "Choisissez dans le catalogue : plus de deux cents, logo compris. Si le vôtre n'y est pas, vous pouvez le saisir. Pour certains, vous trouverez aussi la formule à choisir, prix compris." },
-      cost: { title: "Combien, à quelle fréquence et depuis quand", text: "Saisissez le montant, la devise et la fréquence. Si vous êtes déjà abonné, indiquez aussi «Abonné depuis» : Hubbo utilise la date de début pour reconstruire correctement l’historique. Nous réglerons le prochain renouvellement à l’étape suivante." },
-      when: { title: "Quand ça se renouvelle", text: "Indiquez maintenant la date du prochain paiement. Elle est différente de «Abonné depuis» : cette date pilote les prochains renouvellements, le calendrier et les jours restants." },
+      cost: { title: "Montant, fréquence et dates", text: "Saisissez le montant, la devise et la fréquence. Vérifiez ensuite les deux dates : «Abonné depuis» indique le début de l’abonnement et permet de reconstruire correctement l’historique ; «Prochain renouvellement» indique le prochain paiement et pilote le calendrier et les renouvellements futurs." },
       save: { title: "Enregistrez-le", text: "Touchez le bouton et votre premier abonnement est enregistré." },
       ring: { title: "À quoi sert l'anneau", text: "Il montre la répartition de vos dépenses par catégorie — touchez une part pour la voir seule. En dessous, ce que cela vous coûte par jour." }
     }
@@ -4626,8 +4622,7 @@ const TOUR_STRINGS = {
       add: { title: "Die Hinzufügen-Taste", text: "Hier kannst du ein Abo oder eine Einzelzahlung hinzufügen, etwa eine Rechnung oder eine einmalige Ausgabe. Tippe jetzt darauf." },
       addType: { title: "Was möchtest du hinzufügen", text: "Einzelzahlung ist für eine Ausgabe ohne Verlängerung und kann auch mit einem Abo verknüpft werden. Für diese Anleitung wähle Abo." },
       service: { title: "Welcher Dienst", text: "Wähle aus dem Katalog: über zweihundert, Logo inklusive. Fehlt deiner, kannst du ihn von Hand eintragen. Bei manchen findest du auch den Tarif zur Auswahl, Preis inklusive." },
-      cost: { title: "Wie viel, wie oft und seit wann", text: "Trage Betrag, Währung und Häufigkeit ein. Wenn du schon abonniert bist, gib auch „Abonniert seit“ an: Hubbo nutzt das Startdatum, um den Verlauf korrekt zu rekonstruieren. Die nächste Verlängerung stellen wir im nächsten Schritt ein." },
-      when: { title: "Wann es sich verlängert", text: "Gib jetzt das Datum der nächsten Zahlung an. Es ist nicht dasselbe wie „Abonniert seit“: dieses Datum steuert künftige Verlängerungen, Kalender und verbleibende Tage." },
+      cost: { title: "Betrag, Häufigkeit und Daten", text: "Trage Betrag, Währung und Häufigkeit ein. Prüfe dann beide Daten: „Abonniert seit“ zeigt, wann das Abo begonnen hat, und hilft Hubbo, den Verlauf korrekt zu rekonstruieren; „Nächste Verlängerung“ ist die nächste Zahlung und steuert Kalender und künftige Verlängerungen." },
       save: { title: "Speichern", text: "Tippe auf die Taste, und dein erstes Abo ist drin." },
       ring: { title: "Wozu der Ring dient", text: "Er zeigt, wie sich deine Ausgaben auf die Kategorien verteilen — tippe auf ein Segment, um es einzeln zu sehen. Darunter steht, was dich das pro Tag kostet." }
     }
@@ -4651,7 +4646,6 @@ const TOUR_STEPS = [
 { id: "addType", target: "addChoiceOptions", interactiveTarget: "addSubscriptionChoice", waitFor: "form" },
 { id: "service", target: "formService", waitFor: "service" },
 { id: "cost", target: "formBillingBasics", requires: "cost" },
-{ id: "when", target: "formWhen" },
 { id: "save", target: "formSave", waitFor: "saved" },
 { id: "ring", target: "totalCard" }];
 
