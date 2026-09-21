@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v265";
+const APP_VERSION = "v266";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -1898,9 +1898,9 @@ const STRINGS = {
     reportedWord: (r) => \`riferito: \${r}\`,
     ratesChecking: "Controllo i tassi di cambio aggiornati…",
     notifNote: "L'avviso parte quando apri l'app; le notifiche in background richiedono l'app nativa.",
-    noRenewalsDay: "Nessun rinnovo in questo giorno.",
+    noRenewalsDay: "Nessun rinnovo o pagamento singolo in questo giorno.",
     closeDialog: "Chiudi",
-    calendarDayHint: "Tocca un giorno con rinnovi per vederne i dettagli.",
+    calendarDayHint: "Tocca qualsiasi giorno per vedere rinnovi e pagamenti singoli o aggiungerne uno.",
     tapDayHint: "Tocca un giorno per i dettagli",
     noRenewalsMonth: "Nessun rinnovo in questo mese.",
     showWholeMonth: "Tutto il mese",
@@ -2183,9 +2183,9 @@ const STRINGS = {
     reportedWord: (r) => \`reported: \${r}\`,
     ratesChecking: "Checking for up-to-date exchange rates…",
     notifNote: "The alert fires when you open the app; background notifications need the native app.",
-    noRenewalsDay: "No renewals on this day.",
+    noRenewalsDay: "No renewals or single payments on this day.",
     closeDialog: "Close",
-    calendarDayHint: "Tap a day with renewals to see its details.",
+    calendarDayHint: "Tap any day to see renewals and single payments or add one.",
     tapDayHint: "Tap a day for details",
     noRenewalsMonth: "No renewals this month.",
     showWholeMonth: "Whole month",
@@ -2468,9 +2468,9 @@ const STRINGS = {
     reportedWord: (r) => \`informado: \${r}\`,
     ratesChecking: "Comprobando los tipos de cambio actualizados…",
     notifNote: "El aviso salta al abrir la app; las notificaciones en segundo plano requieren la app nativa.",
-    noRenewalsDay: "No hay renovaciones este día.",
+    noRenewalsDay: "No hay renovaciones ni pagos únicos este día.",
     closeDialog: "Cerrar",
-    calendarDayHint: "Toca un día con renovaciones para ver los detalles.",
+    calendarDayHint: "Toca cualquier día para ver renovaciones y pagos únicos o añadir uno.",
     tapDayHint: "Toca un día para ver los detalles",
     noRenewalsMonth: "No hay renovaciones este mes.",
     showWholeMonth: "Todo el mes",
@@ -2753,9 +2753,9 @@ const STRINGS = {
     reportedWord: (r) => \`signalé : \${r}\`,
     ratesChecking: "Vérification des taux de change à jour…",
     notifNote: "L'alerte se déclenche à l'ouverture de l'app ; les notifications en arrière-plan nécessitent l'app native.",
-    noRenewalsDay: "Aucun renouvellement ce jour-là.",
+    noRenewalsDay: "Aucun renouvellement ni paiement unique ce jour-là.",
     closeDialog: "Fermer",
-    calendarDayHint: "Touchez un jour avec des renouvellements pour voir les détails.",
+    calendarDayHint: "Touchez n’importe quel jour pour voir les renouvellements et paiements uniques ou en ajouter un.",
     tapDayHint: "Touchez un jour pour les détails",
     noRenewalsMonth: "Aucun renouvellement ce mois-ci.",
     showWholeMonth: "Tout le mois",
@@ -3038,9 +3038,9 @@ const STRINGS = {
     reportedWord: (r) => \`gemeldet: \${r}\`,
     ratesChecking: "Aktuelle Wechselkurse werden geprüft…",
     notifNote: "Die Erinnerung erscheint beim Öffnen der App; Hintergrund-Benachrichtigungen brauchen die native App.",
-    noRenewalsDay: "An diesem Tag keine Verlängerungen.",
+    noRenewalsDay: "An diesem Tag keine Verlängerungen oder Einzelzahlungen.",
     closeDialog: "Schließen",
-    calendarDayHint: "Tippe auf einen Tag mit Verlängerungen, um Details zu sehen.",
+    calendarDayHint: "Tippe auf einen beliebigen Tag, um Verlängerungen und Einzelzahlungen zu sehen oder eine hinzuzufügen.",
     tapDayHint: "Tippe auf einen Tag für Details",
     noRenewalsMonth: "In diesem Monat keine Verlängerungen.",
     showWholeMonth: "Ganzer Monat",
@@ -3185,6 +3185,7 @@ const LEDGER_STRINGS = {
     addChoiceSingle: "Pagamento singolo",
     addChoiceSingleDesc: "Una bolletta o una spesa che non si ripete",
     singlePaymentTitle: "Nuovo pagamento singolo",
+    singlePaymentEditTitle: "Modifica pagamento singolo",
     singlePaymentModeCategory: "Una spesa a sé",
     singlePaymentModeLinked: "Un abbonamento che ho già",
     singlePaymentChooseSub: "Scegli l'abbonamento",
@@ -3357,6 +3358,7 @@ const LEDGER_STRINGS = {
     addChoiceSingle: "Single payment",
     addChoiceSingleDesc: "A bill or a one-off expense",
     singlePaymentTitle: "New single payment",
+    singlePaymentEditTitle: "Edit single payment",
     singlePaymentModeCategory: "A standalone expense",
     singlePaymentModeLinked: "A subscription I already have",
     singlePaymentChooseSub: "Choose the subscription",
@@ -3529,6 +3531,7 @@ const LEDGER_STRINGS = {
     addChoiceSingle: "Pago único",
     addChoiceSingleDesc: "Una factura o un gasto que no se repite",
     singlePaymentTitle: "Nuevo pago único",
+    singlePaymentEditTitle: "Editar pago único",
     singlePaymentModeCategory: "Un gasto aparte",
     singlePaymentModeLinked: "Una suscripción que ya tengo",
     singlePaymentChooseSub: "Elige la suscripción",
@@ -3701,6 +3704,7 @@ const LEDGER_STRINGS = {
     addChoiceSingle: "Paiement unique",
     addChoiceSingleDesc: "Une facture ou une dépense ponctuelle",
     singlePaymentTitle: "Nouveau paiement unique",
+    singlePaymentEditTitle: "Modifier le paiement unique",
     singlePaymentModeCategory: "Une dépense à part",
     singlePaymentModeLinked: "Un abonnement que j'ai déjà",
     singlePaymentChooseSub: "Choisissez l'abonnement",
@@ -3873,6 +3877,7 @@ const LEDGER_STRINGS = {
     addChoiceSingle: "Einmalzahlung",
     addChoiceSingleDesc: "Eine Rechnung oder eine einmalige Ausgabe",
     singlePaymentTitle: "Neue Einmalzahlung",
+    singlePaymentEditTitle: "Einmalzahlung bearbeiten",
     singlePaymentModeCategory: "Eine eigenständige Ausgabe",
     singlePaymentModeLinked: "Ein Abo, das ich schon habe",
     singlePaymentChooseSub: "Abo auswählen",
@@ -4509,7 +4514,7 @@ function cancelSearchUrl(name, language) {
 // because a coffee genuinely costs a different amount in each of these places.
 
 // The tour is the one place that has to name parts of the interface out loud,
-// so its wording lives apart from the rest: nine steps, each a title and a
+// so its wording lives apart from the rest: ten steps, each a title and a
 // sentence, in a shape that makes a missing translation obvious at a glance.
 const TOUR_STRINGS = {
   it: {
@@ -4526,7 +4531,8 @@ const TOUR_STRINGS = {
       welcome: { title: "Benvenuto in Hubbo", text: "Ti mostro in un minuto com'è fatta l'app, poi aggiungiamo insieme il tuo primo abbonamento. Puoi saltare quando vuoi." },
       views: { title: "Le quattro viste", text: "Elenco per vederli tutti insieme, Calendario per sapere quando si paga, Storico per quello che hai già speso, Risparmio per quanto stai risparmiando." },
       settings: { title: "Le impostazioni", text: "Lingua, valuta, tema, i colori delle categorie e il backup dei tuoi dati: è tutto qui dentro." },
-      add: { title: "Il pulsante per aggiungere", text: "Toccalo per creare un abbonamento. Fallo adesso, ti seguo passo passo." },
+      add: { title: "Il pulsante per aggiungere", text: "Da qui puoi aggiungere sia un abbonamento sia un pagamento singolo, come una bolletta o una spesa una tantum. Toccalo adesso." },
+      addType: { title: "Cosa vuoi aggiungere", text: "Pagamento singolo serve per una spesa senza rinnovo e può anche essere collegato a un abbonamento. Per completare questa guida scegli Abbonamento." },
       service: { title: "Di che servizio si tratta", text: "Scegli dal catalogo: sono oltre duecento, con il logo già pronto. Se il tuo non c'è, puoi scriverlo a mano. Per alcuni trovi anche il piano da scegliere, prezzo incluso." },
       cost: { title: "Quanto e ogni quanto", text: "L'importo, la valuta e la frequenza. Se paghi in una valuta diversa dalla tua, Hubbo la converte ai cambi reali." },
       when: { title: "Quando si rinnova", text: "La data del prossimo pagamento. Da questa Hubbo calcola i rinnovi, il calendario e i giorni che mancano." },
@@ -4548,7 +4554,8 @@ const TOUR_STRINGS = {
       welcome: { title: "Welcome to Hubbo", text: "A quick look at how the app is laid out, then we'll add your first subscription together. You can skip at any point." },
       views: { title: "The four views", text: "List to see them all at once, Calendar for when you pay, History for what you've already spent, Savings for how much you're saving." },
       settings: { title: "Settings", text: "Language, currency, theme, category colours and the backup of your data all live in here." },
-      add: { title: "The add button", text: "Tap it to create a subscription. Go ahead — I'll walk you through it." },
+      add: { title: "The add button", text: "Use this to add either a subscription or a single payment, such as a bill or another one-off expense. Tap it now." },
+      addType: { title: "What are you adding", text: "Single payment is for an expense with no renewal and it can also be linked to a subscription. To finish this tour, choose Subscription." },
       service: { title: "Which service is it", text: "Pick from the catalogue: over two hundred, logo included. If yours isn't there, you can type it in. For some you'll also find the plan to pick, price included." },
       cost: { title: "How much, how often", text: "The amount, the currency and the frequency. Pay in another currency and Hubbo converts it at real rates." },
       when: { title: "When it renews", text: "The date of the next payment. Everything else — renewals, the calendar, the days left — is worked out from it." },
@@ -4570,7 +4577,8 @@ const TOUR_STRINGS = {
       welcome: { title: "Bienvenido a Hubbo", text: "Un vistazo rápido a cómo está organizada la app y luego añadimos juntos tu primera suscripción. Puedes saltarlo cuando quieras." },
       views: { title: "Las cuatro vistas", text: "Lista para verlas todas, Calendario para saber cuándo se paga, Historial para lo ya gastado y Ahorro para cuánto estás ahorrando." },
       settings: { title: "Los ajustes", text: "Idioma, moneda, tema, los colores de las categorías y la copia de seguridad de tus datos están todos aquí." },
-      add: { title: "El botón de añadir", text: "Tócalo para crear una suscripción. Hazlo ahora, te guío paso a paso." },
+      add: { title: "El botón de añadir", text: "Desde aquí puedes añadir una suscripción o un pago único, como una factura u otro gasto puntual. Tócalo ahora." },
+      addType: { title: "Qué quieres añadir", text: "Pago único sirve para un gasto sin renovación y también puede vincularse a una suscripción. Para completar esta guía, elige Suscripción." },
       service: { title: "Qué servicio es", text: "Elige del catálogo: más de doscientos, con el logo incluido. Si el tuyo no está, puedes escribirlo a mano. Para algunos encontrarás también el plan a elegir, con el precio incluido." },
       cost: { title: "Cuánto y cada cuánto", text: "El importe, la moneda y la frecuencia. Si pagas en otra moneda, Hubbo la convierte con los cambios reales." },
       when: { title: "Cuándo se renueva", text: "La fecha del próximo pago. A partir de ella Hubbo calcula las renovaciones, el calendario y los días que faltan." },
@@ -4592,7 +4600,8 @@ const TOUR_STRINGS = {
       welcome: { title: "Bienvenue dans Hubbo", text: "Un tour rapide de l'application, puis nous ajoutons ensemble votre premier abonnement. Vous pouvez passer à tout moment." },
       views: { title: "Les quatre vues", text: "Liste pour tout voir d'un coup, Calendrier pour savoir quand vous payez, Historique pour ce que vous avez déjà dépensé, Économies pour ce que vous économisez." },
       settings: { title: "Les réglages", text: "Langue, devise, thème, couleurs des catégories et sauvegarde de vos données : tout est ici." },
-      add: { title: "Le bouton d'ajout", text: "Touchez-le pour créer un abonnement. Allez-y, je vous accompagne." },
+      add: { title: "Le bouton d'ajout", text: "Ici, vous pouvez ajouter un abonnement ou un paiement unique, comme une facture ou une dépense ponctuelle. Touchez-le maintenant." },
+      addType: { title: "Que voulez-vous ajouter", text: "Paiement unique sert à une dépense sans renouvellement et peut aussi être lié à un abonnement. Pour terminer ce guide, choisissez Abonnement." },
       service: { title: "Quel service", text: "Choisissez dans le catalogue : plus de deux cents, logo compris. Si le vôtre n'y est pas, vous pouvez le saisir. Pour certains, vous trouverez aussi la formule à choisir, prix compris." },
       cost: { title: "Combien et à quelle fréquence", text: "Le montant, la devise et la fréquence. Si vous payez dans une autre devise, Hubbo la convertit aux taux réels." },
       when: { title: "Quand ça se renouvelle", text: "La date du prochain paiement. Tout le reste en découle : renouvellements, calendrier, jours restants." },
@@ -4614,7 +4623,8 @@ const TOUR_STRINGS = {
       welcome: { title: "Willkommen bei Hubbo", text: "Ein kurzer Blick auf den Aufbau der App, dann fügen wir gemeinsam dein erstes Abo hinzu. Du kannst jederzeit überspringen." },
       views: { title: "Die vier Ansichten", text: "Liste für alles auf einen Blick, Kalender für die Zahlungstermine, Verlauf für bereits Ausgegebenes, Ersparnis für das, was du sparst." },
       settings: { title: "Die Einstellungen", text: "Sprache, Währung, Design, die Farben der Kategorien und die Sicherung deiner Daten stecken alle hier drin." },
-      add: { title: "Die Hinzufügen-Taste", text: "Tippe sie an, um ein Abo anzulegen. Mach es gleich, ich führe dich durch." },
+      add: { title: "Die Hinzufügen-Taste", text: "Hier kannst du ein Abo oder eine Einzelzahlung hinzufügen, etwa eine Rechnung oder eine einmalige Ausgabe. Tippe jetzt darauf." },
+      addType: { title: "Was möchtest du hinzufügen", text: "Einzelzahlung ist für eine Ausgabe ohne Verlängerung und kann auch mit einem Abo verknüpft werden. Für diese Anleitung wähle Abo." },
       service: { title: "Welcher Dienst", text: "Wähle aus dem Katalog: über zweihundert, Logo inklusive. Fehlt deiner, kannst du ihn von Hand eintragen. Bei manchen findest du auch den Tarif zur Auswahl, Preis inklusive." },
       cost: { title: "Wie viel und wie oft", text: "Betrag, Währung und Häufigkeit. Zahlst du in einer anderen Währung, rechnet Hubbo sie zu echten Kursen um." },
       when: { title: "Wann es sich verlängert", text: "Das Datum der nächsten Zahlung. Daraus ergibt sich alles Weitere: Verlängerungen, Kalender, verbleibende Tage." },
@@ -4635,7 +4645,8 @@ const TOUR_STEPS = [
 { id: "welcome", target: null },
 { id: "views", target: "nav" },
 { id: "settings", target: "settings" },
-{ id: "add", target: "add", waitFor: "form" },
+{ id: "add", target: "add", waitFor: "choice" },
+{ id: "addType", target: "addSubscriptionChoice", waitFor: "form" },
 { id: "service", target: "formService", waitFor: "service" },
 { id: "cost", target: "formCost", requires: "cost" },
 { id: "when", target: "formWhen" },
@@ -6742,6 +6753,12 @@ class ErrorBoundary extends React.Component {
 // The document owns all content movement. The header follows that same scroll
 // distance; never translate the views or resize their spacer during scrolling.
 function calendarEntryTotal(entry, dateISO, currency, rates) {
+  const standalone = entry._calendarExtraPayment;
+  if (standalone) {
+    return standalone.baseCurrency === currency && typeof standalone.baseAmount === "number" ?
+    standalone.baseAmount :
+    convertAmount(standalone.amount, standalone.currency, currency, rates);
+  }
   const payment = entry._calendarPayment;
   if (payment) {
     if (payment.status === "skipped") return 0;
@@ -7874,6 +7891,11 @@ function HubboApp() {
 
   useEffect(() => {
     if (tourStep < 0) return;
+    if (TOUR_STEPS[tourStep].waitFor === "choice" && addChoiceOpen) setTourStep(tourStep + 1);
+  }, [addChoiceOpen, tourStep]);
+
+  useEffect(() => {
+    if (tourStep < 0) return;
     if (TOUR_STEPS[tourStep].waitFor === "form" && showForm) setTourStep(tourStep + 1);
   }, [showForm, tourStep]);
 
@@ -7961,15 +7983,37 @@ function HubboApp() {
       date: prefillDate || todayISO,
       description: "",
       category: firstCategory,
-      note: ""
+      note: "",
+      editSource: null,
+      editId: null
+    });
+    setSinglePaymentError("");
+  }
+
+  // Riusa lo stesso modulo anche per correggere una spesa già registrata.
+  // \`source\` dice in quale archivio si trova oggi; il tipo può anche essere
+  // cambiato durante la modifica, quindi il salvataggio sa eventualmente
+  // spostare la riga fra \`payments\` ed \`extraPayments\` senza duplicarla.
+  function openEditSinglePayment(source, entry) {
+    if (!entry) return;
+    setSinglePaymentForm({
+      mode: source === "payments" ? "linked" : "category",
+      subId: source === "payments" ? entry.subId || "" : "",
+      amount: String(entry.amount ?? ""),
+      date: entry.date || todayISO,
+      description: entry.description || entry.name || "",
+      category: entry.category || (CATEGORIES[0] ? CATEGORIES[0].id : "altro"),
+      note: entry.note || "",
+      editSource: source,
+      editId: entry.id
     });
     setSinglePaymentError("");
   }
 
   // La parte che scrive davvero il pagamento singolo, in uno dei due elenchi
   // a seconda del collegamento scelto — mai negli stessi dati di un
-  // abbonamento vero. Isolata da openSinglePayment come commitSubscription
-  // lo è da openAdd.
+  // abbonamento vero. In modifica sostituisce la riga esistente e, se cambia
+  // tipo, la sposta fra i due archivi.
   async function saveSinglePayment() {
     if (!singlePaymentForm) return;
     const amount = parseAmount(singlePaymentForm.amount);
@@ -7988,24 +8032,21 @@ function HubboApp() {
     }
 
     const base = settings.currency;
+    const editSource = singlePaymentForm.editSource;
+    const editId = singlePaymentForm.editId;
+    const isEditing = !!(editSource && editId);
+    setSavingSingle(true);
 
     if (singlePaymentForm.mode === "linked") {
       const sub = (subs || []).find((s) => s.id === singlePaymentForm.subId);
       if (!sub) {
+        setSavingSingle(false);
         setSinglePaymentError(t.singlePaymentErrSub);
         return;
       }
-      setSavingSingle(true);
       const currency = sub.currency || base;
-      // Stessa forma di un pagamento normale (vedi l'effetto che registra i
-      // rinnovi passati, più sotto) più due campi in aggiunta: \`extra: true\`
-      // lo distingue da un rinnovo del ciclo, \`description\` è il motivo
-      // scritto dall'utente (es. "Noleggio: Interstellar"), mostrato al
-      // posto della sola data nello Storico. \`estimated\` resta false apposta:
-      // è la stessa condizione che rende immutabile un pagamento vero, così
-      // l'effetto di riconciliazione più sotto non lo tocca mai.
       const entry = {
-        id: \`\${sub.id}::extra::\${Date.now()}::\${Math.random().toString(36).slice(2, 8)}\`,
+        id: isEditing ? editId : \`\${sub.id}::extra::\${Date.now()}::\${Math.random().toString(36).slice(2, 8)}\`,
         subId: sub.id,
         name: sub.name,
         category: sub.category,
@@ -8020,13 +8061,16 @@ function HubboApp() {
         description,
         note: singlePaymentForm.note.trim()
       };
-      await persistPayments([entry, ...payments]);
+      if (editSource === "payments") {
+        await persistPayments(payments.map((p) => p.id === editId ? entry : p));
+      } else {
+        if (editSource === "extra") await persistExtraPayments(extraPayments.filter((p) => p.id !== editId));
+        await persistPayments([entry, ...payments]);
+      }
     } else {
-      setSavingSingle(true);
-      // Sempre nella valuta principale: una bolletta o una spesa "fuori
-      // categoria" non ha una valuta propria come un abbonamento.
+      const previous = editSource === "extra" ? extraPayments.find((p) => p.id === editId) : null;
       const entry = {
-        id: \`xp::\${Date.now()}::\${Math.random().toString(36).slice(2, 8)}\`,
+        id: isEditing ? editId : \`xp::\${Date.now()}::\${Math.random().toString(36).slice(2, 8)}\`,
         amount,
         currency: base,
         baseCurrency: base,
@@ -8035,17 +8079,24 @@ function HubboApp() {
         category: singlePaymentForm.category,
         description,
         note: singlePaymentForm.note.trim(),
-        createdAt: new Date().toISOString()
+        createdAt: previous && previous.createdAt || new Date().toISOString()
       };
-      await persistExtraPayments([entry, ...extraPayments]);
+      if (editSource === "extra") {
+        await persistExtraPayments(extraPayments.map((p) => p.id === editId ? entry : p));
+      } else {
+        if (editSource === "payments") await persistPayments(payments.filter((p) => p.id !== editId));
+        await persistExtraPayments([entry, ...extraPayments]);
+      }
     }
     setSavingSingle(false);
     setSinglePaymentForm(null);
+    setExtraPaymentAction(null);
+    setPaymentAction(null);
   }
 
   // Cancellazione diretta, niente cestino: un pagamento singolo è una riga
   // sola, non un intero abbonamento con rinnovi futuri da conservare — chi
-  // sbaglia importo o descrizione la rifà, non la corregge.
+  // sbaglia importo o descrizione può modificarla oppure eliminarla del tutto.
   async function deleteExtraPaymentEntry(target) {
     if (!target) return;
     if (target.source === "payments") {
@@ -9973,10 +10024,10 @@ function HubboApp() {
   // The filter options are built from the payments themselves, so the pickers
   // only ever offer years, services and categories that actually occur.
   const historyYears = useMemo(() => {
-    const years = new Set(visiblePayments.map((p) => p.date.slice(0, 4)));
+    const years = new Set([...visiblePayments, ...extraPayments].map((p) => p.date.slice(0, 4)));
     years.delete(String(today.getFullYear()));
     return Array.from(years).sort().reverse();
-  }, [visiblePayments, todayISO]);
+  }, [visiblePayments, extraPayments, todayISO]);
 
   const historyServices = useMemo(() => {
     const map = new Map();
@@ -9989,9 +10040,13 @@ function HubboApp() {
   }, [visiblePayments]);
 
   const historyCategories = useMemo(() => {
-    const present = new Set(visiblePayments.map((p) => p.category));
-    return CATEGORIES.filter((c) => present.has(c.id));
-  }, [visiblePayments, settings.language, settings.categoryColors]);
+    const present = new Set([...visiblePayments, ...extraPayments].map((p) => p.category));
+    const known = CATEGORIES.filter((c) => present.has(c.id));
+    if (present.has(EXTRA_CATEGORY_ID)) {
+      known.push({ id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR });
+    }
+    return known;
+  }, [visiblePayments, extraPayments, settings.language, settings.categoryColors]);
 
   const filteredPayments = useMemo(() => {
     const currentYear = String(today.getFullYear());
@@ -10094,29 +10149,47 @@ function HubboApp() {
     sort((a, b) => b.total - a.total);
   }, [filteredPayments, settings.currency, rates, settings.language, settings.categoryColors]);
 
-  // "Spese extra" (21 settembre): i pagamenti singoli NON collegati a un
-  // abbonamento. Un elenco a sé, sempre per intero — niente filtri di
-  // periodo/servizio/categoria come nello Storico sopra — proprio perché
-  // deve restare isolato dal resto e non condividerne i controlli.
+  // "Spese extra": restano fuori dall'anello principale dello Storico, ma
+  // adesso rispettano gli stessi filtri. Periodo e categoria si applicano
+  // normalmente; scegliendo un servizio specifico il totale extra diventa
+  // zero, perché per definizione queste righe non sono collegate a servizi.
   const extraPaymentInBase = (p) =>
   p.baseCurrency === settings.currency && typeof p.baseAmount === "number" ?
   p.baseAmount :
   convertAmount(p.amount, p.currency, settings.currency, rates);
 
+  const filteredExtraPayments = useMemo(() => {
+    const currentYear = String(today.getFullYear());
+    const from12 = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    return extraPayments.filter((p) => {
+      if (historySub !== "all") return false;
+      if (historyCats.length > 0 && !historyCats.includes(p.category)) return false;
+      if (historyPeriod === "custom") {
+        if (historyFrom && p.date < historyFrom) return false;
+        if (historyTo && p.date > historyTo) return false;
+        return true;
+      }
+      if (historyPeriod === "year") return p.date.startsWith(currentYear);
+      if (historyPeriod === "12m") return parseLocalDate(p.date) >= from12;
+      if (/^\\d{4}$/.test(historyPeriod)) return p.date.startsWith(historyPeriod);
+      return true;
+    });
+  }, [extraPayments, historyPeriod, historySub, historyCats, historyFrom, historyTo, todayISO]);
+
   const extraPaymentsTotal = useMemo(
-    () => extraPayments.reduce((sum, p) => sum + extraPaymentInBase(p), 0),
-    [extraPayments, settings.currency, rates]
+    () => filteredExtraPayments.reduce((sum, p) => sum + extraPaymentInBase(p), 0),
+    [filteredExtraPayments, settings.currency, rates]
   );
 
   const extraCategoryTotals = useMemo(() => {
     const map = {};
-    extraPayments.forEach((p) => {
+    filteredExtraPayments.forEach((p) => {
       map[p.category] = (map[p.category] || 0) + extraPaymentInBase(p);
     });
     const known = CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }));
     const outOfScope = { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR, total: map[EXTRA_CATEGORY_ID] || 0 };
     return [...known, outOfScope].filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
-  }, [extraPayments, settings.currency, rates, settings.language, settings.categoryColors]);
+  }, [filteredExtraPayments, settings.currency, rates, settings.language, settings.categoryColors]);
 
   const missingStartCount = useMemo(
     () => (subs || []).filter((s) => !s.startDate && !s.endDate).length,
@@ -10215,7 +10288,7 @@ function HubboApp() {
       const recorded = payments.filter((p) => p.subId === s.id && p.date >= monthStartISO && p.date <= monthEndISO);
       const recordedDates = new Set();
       recorded.forEach((payment) => {
-        recordedDates.add(payment.date);
+        if (!payment.extra) recordedDates.add(payment.date);
         const occDate = parseLocalDate(payment.date);
         const key = occDate.getDate();
         if (!byDay[key]) byDay[key] = [];
@@ -10241,6 +10314,26 @@ function HubboApp() {
       });
     });
 
+    // I pagamenti singoli non collegati non hanno un abbonamento da cui
+    // arrivare, quindi li aggiungiamo esplicitamente al mese. Sono record
+    // reali: compaiono anche se la data è futura, esattamente nel giorno
+    // scelto dall'utente, senza generare alcuna ricorrenza.
+    extraPayments.
+    filter((p) => p.date >= monthStartISO && p.date <= monthEndISO).
+    forEach((p) => {
+      const key = parseLocalDate(p.date).getDate();
+      if (!byDay[key]) byDay[key] = [];
+      byDay[key].push({
+        id: \`calendar-extra::\${p.id}\`,
+        name: p.description,
+        category: p.category,
+        currency: p.currency,
+        _calendarDate: p.date,
+        _calendarPayment: null,
+        _calendarExtraPayment: p
+      });
+    });
+
     let total = 0;
     let count = 0;
     const catMap = {};
@@ -10255,7 +10348,10 @@ function HubboApp() {
         catMap[s.category] = (catMap[s.category] || 0) + value;
       });
     });
-    const byCategory = CATEGORIES.map((c) => ({ ...c, total: catMap[c.id] || 0 })).
+    const byCategory = [
+    ...CATEGORIES.map((c) => ({ ...c, total: catMap[c.id] || 0 })),
+    { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR, total: catMap[EXTRA_CATEGORY_ID] || 0 }].
+
     filter((c) => c.total > 0).
     sort((a, b) => b.total - a.total);
 
@@ -10268,7 +10364,7 @@ function HubboApp() {
       current: buildMonthView(calendarOffset),
       next: buildMonthView(calendarOffset + 1)
     }),
-    [calendarOffset, enriched, payments, rates, settings.currency, todayISO, settings.categoryColors]
+    [calendarOffset, enriched, payments, extraPayments, rates, settings.currency, todayISO, settings.categoryColors, settings.language]
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
@@ -10381,13 +10477,13 @@ function HubboApp() {
           React.createElement("button", {
             key: i,
             type: "button",
-            tabIndex: interactive && hasRenewals ? 0 : -1,
-            "aria-disabled": !interactive || !hasRenewals,
-            "aria-haspopup": hasRenewals ? "dialog" : undefined,
-            "aria-expanded": hasRenewals ? isSelected : undefined,
+            tabIndex: interactive ? 0 : -1,
+            "aria-disabled": !interactive,
+            "aria-haspopup": interactive ? "dialog" : undefined,
+            "aria-expanded": interactive ? isSelected : undefined,
             "aria-label": \`\${dateFmt(toLocalISO(cellDate))} · \${t.monthPayments(dayRenewals.length)}\`,
             onClick: (event) => {
-              if (!interactive || !hasRenewals || slideDirection !== 0) return;
+              if (!interactive || slideDirection !== 0) return;
               if (event.detail > 0 && Date.now() - calendarGestureRef.current.endedAt < 350) return;
               const rect = event.currentTarget.getBoundingClientRect();
               const calendar = calendarCardRef.current.getBoundingClientRect();
@@ -10413,7 +10509,9 @@ function HubboApp() {
           React.createElement("span", { className: "flex items-center justify-center gap-0.5", style: { height: 5 } },
           dayRenewals.slice(0, 3).map((s2) => {
             const icon2 = serviceIcon(s2.name);
-            const cat2 = CATEGORIES.find((c2) => c2.id === s2.category) || CATEGORIES[CATEGORIES.length - 1];
+            const cat2 = s2.category === EXTRA_CATEGORY_ID ?
+            { color: EXTRA_CATEGORY_COLOR } :
+            CATEGORIES.find((c2) => c2.id === s2.category) || CATEGORIES[CATEGORIES.length - 1];
             const dotColor = icon2 && BRAND_COLORS[icon2] || SERVICE_COLORS[s2.name] || cat2.color;
             return /*#__PURE__*/React.createElement("span", { key: s2.id, style: { width: 5, height: 5, borderRadius: 999, background: dotColor } });
           })
@@ -11119,7 +11217,7 @@ function HubboApp() {
     ), /*#__PURE__*/
 
     React.createElement("p", { className: "text-xs text-center px-3 mt-3", style: { color: colors.textFaint } },
-    Object.keys(renewalsByDay).length ? t.calendarDayHint : t.noRenewalsMonth
+    t.calendarDayHint
     )
     )
     ),
@@ -11226,7 +11324,7 @@ function HubboApp() {
 
 
 
-    visiblePayments.length > 0 && /*#__PURE__*/
+    (visiblePayments.length > 0 || extraPayments.length > 0) && /*#__PURE__*/
     React.createElement("div", { className: "mb-4" },
     historyFiltered && /*#__PURE__*/
     React.createElement("div", { className: "flex justify-end mb-1.5" }, /*#__PURE__*/
@@ -12195,22 +12293,46 @@ function HubboApp() {
         entries.length === 0 && /*#__PURE__*/React.createElement("p", { className: "text-sm py-4", style: { color: colors.textSecondary } }, t.noRenewalsDay),
         entries.map((s, index) => {
           const payment = s._calendarPayment;
+          const standalone = s._calendarExtraPayment;
           const skipped = payment && payment.status === "skipped";
-          const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+          const cat = s.category === EXTRA_CATEGORY_ID ?
+          { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR } :
+          CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
+          const title = standalone ? standalone.description : s.name;
+          const subtitle = standalone ?
+          cat.label :
+          payment && payment.extra && payment.description ?
+          payment.description :
+          skipped ? t.historySkipped : "";
           return (/*#__PURE__*/
             React.createElement("button", {
-              key: payment ? payment.id : \`\${s.id}-\${dateISO}-\${index}\`,
+              key: standalone ? standalone.id : payment ? payment.id : \`\${s.id}-\${dateISO}-\${index}\`,
               type: "button",
-              onClick: () => {if (closingSheet !== "calendarDay") setDetailSub(s);},
+              onClick: () => {
+                if (closingSheet === "calendarDay") return;
+                if (standalone) {
+                  closeSheet("calendarDay", () => {setDayPopup(null);setSelectedDay(null);setExtraPaymentAction(standalone);});
+                } else if (payment && payment.extra) {
+                  closeSheet("calendarDay", () => {setDayPopup(null);setSelectedDay(null);setPaymentAction(payment);setPaymentAmount(String(payment.amount));setPaymentScope("one");});
+                } else {
+                  setDetailSub(s);
+                }
+              },
               className: "w-full flex items-center gap-3 py-3 text-left",
-              style: { borderTop: index ? \`1px solid \${colors.border}\` : "none" } }, /*#__PURE__*/
+              style: { borderTop: index ? \`1px solid \${colors.border}\` : "none" } },
+
+            standalone ? /*#__PURE__*/
+            React.createElement("span", { style: { background: cat.color, width: 34, height: 34, borderRadius: 999 }, className: "flex-shrink-0" }) : /*#__PURE__*/
 
             React.createElement(ServiceLogo, { icon: serviceIcon(s.name), domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 34 }), /*#__PURE__*/
+
             React.createElement("span", { className: "flex-1 min-w-0" }, /*#__PURE__*/
-            React.createElement("span", { className: "block text-sm font-medium truncate" }, s.name),
-            skipped && /*#__PURE__*/React.createElement("span", { className: "block text-xs", style: { color: colors.textFaint } }, t.historySkipped)
+            React.createElement("span", { className: "block text-sm font-medium truncate" }, title),
+            subtitle && /*#__PURE__*/React.createElement("span", { className: "block text-xs truncate", style: { color: colors.textFaint } }, subtitle)
             ), /*#__PURE__*/
             React.createElement("span", { className: "text-sm font-semibold whitespace-nowrap", style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", color: skipped ? colors.textFaint : colors.textPrimary, textDecoration: skipped ? "line-through" : "none" } },
+            standalone ?
+            money(standalone.amount, standalone.currency) :
             payment ? money(payment.amount, payment.currency) : money(costOn(s, dateISO), s.currency)
             )
             ));
@@ -13552,6 +13674,16 @@ function HubboApp() {
     })(),
 
     paymentAction.extra && /*#__PURE__*/
+    React.createElement(React.Fragment, null, /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () => closeSheet("payment", () => {setPaymentAction(null);openEditSinglePayment("payments", paymentAction);}),
+      style: { border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
+      className: "rounded-xl px-3.5 py-3 text-sm font-medium text-left flex items-center gap-2" }, /*#__PURE__*/
+
+    React.createElement(Icon, { name: "pencil", size: 16 }),
+    t.edit
+    ), /*#__PURE__*/
     React.createElement("button", {
       type: "button",
       onClick: () =>
@@ -13562,6 +13694,7 @@ function HubboApp() {
 
     React.createElement(Icon, { name: "trash2", size: 16 }),
     t.singlePaymentDelete
+    )
     ),
 
 
@@ -13681,6 +13814,7 @@ function HubboApp() {
     React.createElement("div", { className: "flex flex-col gap-2" }, /*#__PURE__*/
     React.createElement("button", {
       type: "button",
+      "data-tour": "addSubscriptionChoice",
       onClick: () => closeSheet("addChoice", () => {setAddChoiceOpen(false);openAdd();}),
       style: { background: colors.surface2, border: \`1px solid \${colors.border}\` },
       className: "w-full rounded-xl px-4 py-3.5 flex items-center gap-3 text-left" }, /*#__PURE__*/
@@ -13740,7 +13874,7 @@ function HubboApp() {
 
         React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
         React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
-        React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium" }, t.singlePaymentTitle), /*#__PURE__*/
+        React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium" }, singlePaymentForm.editId ? t.singlePaymentEditTitle : t.singlePaymentTitle), /*#__PURE__*/
         React.createElement("button", { type: "button", onClick: () => closeSheet("singlePayment", () => setSinglePaymentForm(null)), style: { color: colors.textSecondary } }, /*#__PURE__*/
         React.createElement(Icon, { name: "x", size: 20 })
         )
@@ -13905,7 +14039,7 @@ function HubboApp() {
           style: { background: ACCENT.amber, color: INK, opacity: !canSave || savingSingle ? 0.5 : 1 },
           className: "w-full rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2" },
 
-        savingSingle ? /*#__PURE__*/React.createElement(Icon, { name: "loader2", className: "animate-spin", size: 16 }) : /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 16 }),
+        savingSingle ? /*#__PURE__*/React.createElement(Icon, { name: "loader2", className: "animate-spin", size: 16 }) : singlePaymentForm.editId ? /*#__PURE__*/React.createElement(Icon, { name: "pencil", size: 16 }) : /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 16 }),
         t.singlePaymentSave
         ), /*#__PURE__*/
 
@@ -13962,6 +14096,16 @@ function HubboApp() {
         )
         ), /*#__PURE__*/
 
+        React.createElement("div", { className: "flex flex-col gap-2" }, /*#__PURE__*/
+        React.createElement("button", {
+          type: "button",
+          onClick: () => closeSheet("extraPaymentAction", () => {setExtraPaymentAction(null);openEditSinglePayment("extra", extraPaymentAction);}),
+          style: { border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
+          className: "w-full rounded-xl px-3.5 py-3 text-sm font-medium text-left flex items-center gap-2" }, /*#__PURE__*/
+
+        React.createElement(Icon, { name: "pencil", size: 16 }),
+        t.edit
+        ), /*#__PURE__*/
         React.createElement("button", {
           type: "button",
           onClick: () =>
@@ -13972,6 +14116,7 @@ function HubboApp() {
 
         React.createElement(Icon, { name: "trash2", size: 16 }),
         t.singlePaymentDelete
+        )
         )
         )
         ));
@@ -14696,11 +14841,11 @@ function HubboApp() {
 
     ),
 
-    extraPayments.length === 0 ? /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm text-center py-8" }, t.extraSectionEmpty) : /*#__PURE__*/
+    filteredExtraPayments.length === 0 ? /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm text-center py-8" }, historyFiltered ? t.historyNoResults : t.extraSectionEmpty) : /*#__PURE__*/
 
     React.createElement("div", { style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-xl overflow-hidden" },
-    extraPayments.
+    filteredExtraPayments.
     slice().
     sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).
     map((p, idx) => {
