@@ -326,9 +326,38 @@ function lightExtraExpensesCardStyle(colors, light) {
   const leftSoft = mix(base, amber, light ? 0.08 : 0.12);
   const tint = (rgb, alpha = 1) => \`rgba(\${rgb.join(",")},\${alpha})\`;
   style.backgroundColor = colors.surface;
-  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.24 : 0.18)} 0%, \${tint(leftSoft, light ? 0.12 : 0.10)} 42%, \${colors.surface} 78%, \${colors.surface} 100%)\`;
+  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.30 : 0.22)} 0%, \${tint(leftSoft, light ? 0.16 : 0.12)} 38%, \${colors.surface} 76%, \${colors.surface} 100%)\`;
   style.border = \`1px solid \${tint(mix(base, amber, light ? 0.18 : 0.22), light ? 0.92 : 0.86)}\`;
   return style;
+}
+
+function ExtraExpensesMiniCard({ total, onClick, colors, label, money, currency, fadedWhenZero = false, cardStyle }) {
+  const amountColor = fadedWhenZero && total <= 0 ? colors.textSecondary : colors.textPrimary;
+  return (/*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: onClick,
+      style: cardStyle,
+      className: "rounded-[18px] px-3 py-2.5 flex items-center gap-2.5 text-left flex-shrink-0 transition-transform active:scale-[0.99]" }, /*#__PURE__*/
+
+    React.createElement("span", { style: { color: ACCENT.amber }, className: "flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
+    React.createElement(Icon, { name: "tag", size: 15 })
+    ), /*#__PURE__*/
+    React.createElement("span", { style: { width: 1, height: 30, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
+    React.createElement("span", { className: "min-w-0 flex-1" }, /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-[10px] leading-tight whitespace-nowrap" }, label), /*#__PURE__*/
+    React.createElement("span", {
+      style: {
+        color: amountColor,
+        fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
+      },
+      className: "block text-sm font-semibold mt-0.5 whitespace-nowrap" },
+
+    money(total, currency)
+    )
+    )
+    ));
+
 }
 
 // v194: sfondo tenue delle sole righe Elenco, dal colore del loro anello.
@@ -521,7 +550,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v281";
+const APP_VERSION = "v282";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -11246,37 +11275,20 @@ function HubboApp() {
     React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" },
     t.monthPayments(calendarMonthStats.count)
     ), /*#__PURE__*/
-    React.createElement("button", {
-      type: "button",
+    React.createElement(ExtraExpensesMiniCard, {
+      total: calendarMonthStats.extraTotal,
       onClick: () => {setExtraSectionScope("calendar");setShowExtraPayments(true);},
-      style: {
+      colors: colors,
+      label: t.extraSectionTotalLabel,
+      money: money,
+      currency: settings.currency,
+      fadedWhenZero: true,
+      cardStyle: {
         ...fixedAccentCardStyle(ACCENT.amber, colors, effectiveTheme === "light"),
         ...lightExtraExpensesCardStyle(colors, effectiveTheme === "light"),
         minWidth: 176,
         marginRight: -2
-      },
-      className: "rounded-[18px] px-3 py-2.5 flex items-center gap-2.5 text-left flex-shrink-0 transition-transform active:scale-[0.99]",
-      "aria-label": \`\${t.extraSectionTitle} · \${money(calendarMonthStats.extraTotal, settings.currency)}\` }, /*#__PURE__*/
-
-    React.createElement("span", {
-      style: { background: effectiveTheme === "light" ? "rgba(227,168,87,0.14)" : "rgba(227,168,87,0.18)", color: ACCENT.amber, width: 30, height: 30 },
-      className: "rounded-full flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
-
-    React.createElement(Icon, { name: "tag", size: 15 })
-    ), /*#__PURE__*/
-    React.createElement("span", { style: { width: 1, height: 30, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
-    React.createElement("span", { className: "min-w-0 flex-1" }, /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-[10px] leading-tight whitespace-nowrap" }, t.extraSectionTotalLabel), /*#__PURE__*/
-    React.createElement("span", {
-      style: {
-        color: calendarMonthStats.extraTotal > 0 ? colors.textPrimary : colors.textSecondary,
-        fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
-      },
-      className: "block text-sm font-semibold mt-0.5 whitespace-nowrap" },
-
-    money(calendarMonthStats.extraTotal, settings.currency)
-    )
-    )
+      } }
     )
     )
     ), /*#__PURE__*/
@@ -11424,33 +11436,19 @@ function HubboApp() {
     React.createElement("div", { className: "flex items-end justify-between gap-3 mt-2" }, /*#__PURE__*/
     React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" }, historyTotals.count, " \\xB7 ", t.historyPaymentsCount),
     extraPayments.length > 0 && /*#__PURE__*/
-    React.createElement("button", {
-      type: "button",
+    React.createElement(ExtraExpensesMiniCard, {
+      total: extraPaymentsTotal,
       onClick: () => {setExtraSectionScope("history");setShowExtraPayments(true);},
-      style: {
+      colors: colors,
+      label: t.extraSectionTotalLabel,
+      money: money,
+      currency: settings.currency,
+      cardStyle: {
         ...fixedAccentCardStyle(ACCENT.amber, colors, effectiveTheme === "light"),
         ...lightExtraExpensesCardStyle(colors, effectiveTheme === "light"),
         minWidth: 176,
         marginRight: -2
-      },
-      className: "rounded-[18px] px-3 py-2.5 flex items-center gap-2.5 text-left flex-shrink-0 transition-transform active:scale-[0.99]" }, /*#__PURE__*/
-
-    React.createElement("span", { style: { color: ACCENT.amber }, className: "flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
-    React.createElement(Icon, { name: "tag", size: 15 })
-    ), /*#__PURE__*/
-    React.createElement("span", { style: { width: 1, height: 30, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
-    React.createElement("span", { className: "min-w-0 flex-1" }, /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-[10px] leading-tight whitespace-nowrap" }, t.extraSectionTotalLabel), /*#__PURE__*/
-    React.createElement("span", {
-      style: {
-        color: colors.textPrimary,
-        fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
-      },
-      className: "block text-sm font-semibold mt-0.5 whitespace-nowrap" },
-
-    money(extraPaymentsTotal, settings.currency)
-    )
-    )
+      } }
     )
 
     )
