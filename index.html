@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v273";
+const APP_VERSION = "v274";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -3290,7 +3290,6 @@ const LEDGER_STRINGS = {
     noStartBadge: "data di inizio mancante",
     startDateLabel: "Abbonato dal",
     addStartDate: "+ Aggiungi data di inizio",
-    startDateHint: "Precompilata con il rinnovo: modificala se l'abbonamento è iniziato prima.",
     startDateAutoFixed: (d) => \`Corretta la data di inizio: \${d}, per allinearla al giorno del ciclo di rinnovo.\`,
     renewalDateAutoFixed: (d) => \`Corretto il prossimo rinnovo: \${d}, la prima occorrenza del ciclo che deve ancora avvenire.\`,
     watchlistTitle: "Da tenere d'occhio",
@@ -3463,7 +3462,6 @@ const LEDGER_STRINGS = {
     noStartBadge: "start date missing",
     startDateLabel: "Subscribed since",
     addStartDate: "+ Add start date",
-    startDateHint: "Pre-filled with the renewal date: change it if the subscription started earlier.",
     startDateAutoFixed: (d) => \`Corrected the start date: \${d}, to line up with the renewal cycle.\`,
     renewalDateAutoFixed: (d) => \`Corrected the next renewal: \${d}, the first occurrence of the cycle still to come.\`,
     watchlistTitle: "Watching",
@@ -3636,7 +3634,6 @@ const LEDGER_STRINGS = {
     noStartBadge: "falta la fecha de inicio",
     startDateLabel: "Suscrito desde",
     addStartDate: "+ Añadir fecha de inicio",
-    startDateHint: "Rellenada con la fecha de renovación: cámbiala si el abono empezó antes.",
     startDateAutoFixed: (d) => \`Corregida la fecha de inicio: \${d}, para alinearla con el ciclo de renovación.\`,
     renewalDateAutoFixed: (d) => \`Corregida la próxima renovación: \${d}, la primera repetición del ciclo que aún debe llegar.\`,
     watchlistTitle: "En el radar",
@@ -3809,7 +3806,6 @@ const LEDGER_STRINGS = {
     noStartBadge: "date de début manquante",
     startDateLabel: "Abonné depuis",
     addStartDate: "+ Ajouter une date de début",
-    startDateHint: "Préremplie avec le renouvellement : modifiez-la si l'abonnement a commencé avant.",
     startDateAutoFixed: (d) => \`Date de début corrigée : \${d}, pour l'aligner sur le cycle de renouvellement.\`,
     renewalDateAutoFixed: (d) => \`Prochain renouvellement corrigé : \${d}, la première échéance du cycle encore à venir.\`,
     watchlistTitle: "À l'œil",
@@ -3982,7 +3978,6 @@ const LEDGER_STRINGS = {
     noStartBadge: "Startdatum fehlt",
     startDateLabel: "Abonniert seit",
     addStartDate: "+ Startdatum hinzufügen",
-    startDateHint: "Mit dem Verlängerungsdatum vorausgefüllt: ändere es, falls das Abo früher begonnen hat.",
     startDateAutoFixed: (d) => \`Startdatum korrigiert: \${d}, um es mit dem Verlängerungszyklus abzugleichen.\`,
     renewalDateAutoFixed: (d) => \`Nächste Verlängerung korrigiert: \${d}, der erste noch bevorstehende Termin des Zyklus.\`,
     watchlistTitle: "Im Blick",
@@ -12936,8 +12931,8 @@ function HubboApp() {
     )
 
     )
-    ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 mb-3.5" }, t.startDateHint)
+    )
+
     ),
 
 
