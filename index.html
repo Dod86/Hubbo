@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v272";
+const APP_VERSION = "v273";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -4524,6 +4524,7 @@ const TOUR_STRINGS = {
     tourStepOf: (i, n) => \`\${i} di \${n}\`,
     tourWaitHint: "Tocca la parte illuminata per continuare",
     tourNeedsCost: "Serve un importo per andare avanti.",
+    tourNeedsStartDate: "«Abbonato dal» non può essere nel futuro. Imposta oggi o una data precedente per continuare.",
     guideTitle: "Guida",
     guideDesc: "Rivedi il giro guidato",
     emptyGuideLink: "Serve una mano? Apri la guida",
@@ -4534,7 +4535,7 @@ const TOUR_STRINGS = {
       add: { title: "Il pulsante per aggiungere", text: "Da qui puoi aggiungere sia un abbonamento sia un pagamento singolo, come una bolletta o una spesa una tantum. Toccalo adesso." },
       addType: { title: "Cosa vuoi aggiungere", text: "Pagamento singolo serve per una spesa senza rinnovo e può anche essere collegato a un abbonamento. Per completare questa guida scegli Abbonamento." },
       service: { title: "Di che servizio si tratta", text: "Scegli dal catalogo: sono oltre duecento, con il logo già pronto. Se il tuo non c'è, puoi scriverlo a mano. Per alcuni trovi anche il piano da scegliere, prezzo incluso." },
-      cost: { title: "Importo, frequenza e date", text: "Inserisci importo, valuta e frequenza. Poi controlla le due date: «Abbonato dal» indica quando hai iniziato e serve a ricostruire correttamente lo storico; «Prossimo rinnovo» indica il prossimo pagamento e guida calendario e rinnovi futuri." },
+      cost: { title: "Importo, frequenza e date", text: "Inserisci importo, valuta e frequenza. Poi controlla le due date: «Abbonato dal» indica quando hai iniziato e serve a ricostruire correttamente lo storico; deve essere oggi o una data precedente. «Prossimo rinnovo» indica il prossimo pagamento e può essere nel futuro." },
       save: { title: "Salvalo", text: "Tocca il pulsante e il tuo primo abbonamento è dentro." },
       ring: { title: "Ecco a cosa serve l'anello", text: "Mostra come si divide la spesa fra le categorie — tocca una fetta per vedere quanto pesa da sola. Sotto trovi quanto ti costa al giorno." }
     }
@@ -4546,6 +4547,7 @@ const TOUR_STRINGS = {
     tourStepOf: (i, n) => \`\${i} of \${n}\`,
     tourWaitHint: "Tap the highlighted part to continue",
     tourNeedsCost: "An amount is needed to move on.",
+    tourNeedsStartDate: "‘Subscribed since’ cannot be in the future. Set today or an earlier date to continue.",
     guideTitle: "Guide",
     guideDesc: "Take the tour again",
     emptyGuideLink: "Need a hand? Open the guide",
@@ -4556,7 +4558,7 @@ const TOUR_STRINGS = {
       add: { title: "The add button", text: "Use this to add either a subscription or a single payment, such as a bill or another one-off expense. Tap it now." },
       addType: { title: "What are you adding", text: "Single payment is for an expense with no renewal and it can also be linked to a subscription. To finish this tour, choose Subscription." },
       service: { title: "Which service is it", text: "Pick from the catalogue: over two hundred, logo included. If yours isn't there, you can type it in. For some you'll also find the plan to pick, price included." },
-      cost: { title: "Amount, frequency and dates", text: "Enter the amount, currency and frequency. Then check both dates: ‘Subscribed since’ is when your subscription started and lets Hubbo rebuild your history correctly; ‘Next renewal’ is the next payment and drives the calendar and future renewals." },
+      cost: { title: "Amount, frequency and dates", text: "Enter the amount, currency and frequency. Then check both dates: ‘Subscribed since’ is when your subscription started and lets Hubbo rebuild your history correctly; it must be today or earlier. ‘Next renewal’ is the next payment and may be in the future." },
       save: { title: "Save it", text: "Tap the button and your first subscription is in." },
       ring: { title: "What the ring is for", text: "It shows how your spending splits across categories — tap a slice to see it on its own. Underneath is what it costs you per day." }
     }
@@ -4568,6 +4570,7 @@ const TOUR_STRINGS = {
     tourStepOf: (i, n) => \`\${i} de \${n}\`,
     tourWaitHint: "Toca la parte iluminada para continuar",
     tourNeedsCost: "Hace falta un importe para continuar.",
+    tourNeedsStartDate: "«Suscrito desde» no puede estar en el futuro. Elige hoy o una fecha anterior para continuar.",
     guideTitle: "Guía",
     guideDesc: "Volver a ver la guía",
     emptyGuideLink: "¿Necesitas ayuda? Abre la guía",
@@ -4578,7 +4581,7 @@ const TOUR_STRINGS = {
       add: { title: "El botón de añadir", text: "Desde aquí puedes añadir una suscripción o un pago único, como una factura u otro gasto puntual. Tócalo ahora." },
       addType: { title: "Qué quieres añadir", text: "Pago único sirve para un gasto sin renovación y también puede vincularse a una suscripción. Para completar esta guía, elige Suscripción." },
       service: { title: "Qué servicio es", text: "Elige del catálogo: más de doscientos, con el logo incluido. Si el tuyo no está, puedes escribirlo a mano. Para algunos encontrarás también el plan a elegir, con el precio incluido." },
-      cost: { title: "Importe, frecuencia y fechas", text: "Introduce el importe, la moneda y la frecuencia. Después revisa las dos fechas: «Suscrito desde» indica cuándo empezó la suscripción y permite reconstruir correctamente el historial; «Próxima renovación» indica el próximo pago y guía el calendario y las renovaciones futuras." },
+      cost: { title: "Importe, frecuencia y fechas", text: "Introduce el importe, la moneda y la frecuencia. Después revisa las dos fechas: «Suscrito desde» indica cuándo empezó la suscripción y permite reconstruir correctamente el historial; debe ser hoy o una fecha anterior. «Próxima renovación» indica el próximo pago y puede estar en el futuro." },
       save: { title: "Guárdala", text: "Toca el botón y tu primera suscripción ya está dentro." },
       ring: { title: "Para qué sirve el anillo", text: "Muestra cómo se reparte tu gasto entre las categorías — toca una porción para verla por separado. Debajo tienes cuánto te cuesta al día." }
     }
@@ -4590,6 +4593,7 @@ const TOUR_STRINGS = {
     tourStepOf: (i, n) => \`\${i} sur \${n}\`,
     tourWaitHint: "Touchez la zone éclairée pour continuer",
     tourNeedsCost: "Un montant est nécessaire pour continuer.",
+    tourNeedsStartDate: "«Abonné depuis» ne peut pas être dans le futur. Choisissez aujourd’hui ou une date antérieure pour continuer.",
     guideTitle: "Guide",
     guideDesc: "Revoir le guide",
     emptyGuideLink: "Besoin d'aide ? Ouvrir le guide",
@@ -4600,7 +4604,7 @@ const TOUR_STRINGS = {
       add: { title: "Le bouton d'ajout", text: "Ici, vous pouvez ajouter un abonnement ou un paiement unique, comme une facture ou une dépense ponctuelle. Touchez-le maintenant." },
       addType: { title: "Que voulez-vous ajouter", text: "Paiement unique sert à une dépense sans renouvellement et peut aussi être lié à un abonnement. Pour terminer ce guide, choisissez Abonnement." },
       service: { title: "Quel service", text: "Choisissez dans le catalogue : plus de deux cents, logo compris. Si le vôtre n'y est pas, vous pouvez le saisir. Pour certains, vous trouverez aussi la formule à choisir, prix compris." },
-      cost: { title: "Montant, fréquence et dates", text: "Saisissez le montant, la devise et la fréquence. Vérifiez ensuite les deux dates : «Abonné depuis» indique le début de l’abonnement et permet de reconstruire correctement l’historique ; «Prochain renouvellement» indique le prochain paiement et pilote le calendrier et les renouvellements futurs." },
+      cost: { title: "Montant, fréquence et dates", text: "Saisissez le montant, la devise et la fréquence. Vérifiez ensuite les deux dates : «Abonné depuis» indique le début de l’abonnement et permet de reconstruire correctement l’historique ; cette date doit être aujourd’hui ou antérieure. «Prochain renouvellement» indique le prochain paiement et peut être dans le futur." },
       save: { title: "Enregistrez-le", text: "Touchez le bouton et votre premier abonnement est enregistré." },
       ring: { title: "À quoi sert l'anneau", text: "Il montre la répartition de vos dépenses par catégorie — touchez une part pour la voir seule. En dessous, ce que cela vous coûte par jour." }
     }
@@ -4612,6 +4616,7 @@ const TOUR_STRINGS = {
     tourStepOf: (i, n) => \`\${i} von \${n}\`,
     tourWaitHint: "Tippe auf den hellen Bereich, um fortzufahren",
     tourNeedsCost: "Ohne Betrag geht es nicht weiter.",
+    tourNeedsStartDate: "„Abonniert seit“ darf nicht in der Zukunft liegen. Wähle heute oder ein früheres Datum, um fortzufahren.",
     guideTitle: "Anleitung",
     guideDesc: "Anleitung erneut ansehen",
     emptyGuideLink: "Brauchst du Hilfe? Anleitung öffnen",
@@ -4622,7 +4627,7 @@ const TOUR_STRINGS = {
       add: { title: "Die Hinzufügen-Taste", text: "Hier kannst du ein Abo oder eine Einzelzahlung hinzufügen, etwa eine Rechnung oder eine einmalige Ausgabe. Tippe jetzt darauf." },
       addType: { title: "Was möchtest du hinzufügen", text: "Einzelzahlung ist für eine Ausgabe ohne Verlängerung und kann auch mit einem Abo verknüpft werden. Für diese Anleitung wähle Abo." },
       service: { title: "Welcher Dienst", text: "Wähle aus dem Katalog: über zweihundert, Logo inklusive. Fehlt deiner, kannst du ihn von Hand eintragen. Bei manchen findest du auch den Tarif zur Auswahl, Preis inklusive." },
-      cost: { title: "Betrag, Häufigkeit und Daten", text: "Trage Betrag, Währung und Häufigkeit ein. Prüfe dann beide Daten: „Abonniert seit“ zeigt, wann das Abo begonnen hat, und hilft Hubbo, den Verlauf korrekt zu rekonstruieren; „Nächste Verlängerung“ ist die nächste Zahlung und steuert Kalender und künftige Verlängerungen." },
+      cost: { title: "Betrag, Häufigkeit und Daten", text: "Trage Betrag, Währung und Häufigkeit ein. Prüfe dann beide Daten: „Abonniert seit“ zeigt, wann das Abo begonnen hat, und hilft Hubbo, den Verlauf korrekt zu rekonstruieren; dieses Datum muss heute oder früher sein. „Nächste Verlängerung“ ist die nächste Zahlung und darf in der Zukunft liegen." },
       save: { title: "Speichern", text: "Tippe auf die Taste, und dein erstes Abo ist drin." },
       ring: { title: "Wozu der Ring dient", text: "Er zeigt, wie sich deine Ausgaben auf die Kategorien verteilen — tippe auf ein Segment, um es einzeln zu sehen. Darunter steht, was dich das pro Tag kostet." }
     }
@@ -4843,7 +4848,7 @@ function useTourInteractionGuard(target, controlsRef, interactiveTarget) {
   }, [target, controlsRef, interactiveTarget]);
 }
 
-function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
+function TourSpotlight({ index, colors, t, blocked, blockReason, onNext, onEnd }) {
   const step = TOUR_STEPS[index];
   const controlsRef = useRef(null);
   const interactiveTarget = step.passive ? null : step.interactiveTarget || step.target;
@@ -4918,7 +4923,7 @@ function TourSpotlight({ index, colors, t, blocked, onNext, onEnd }) {
     ),
     blocked && /*#__PURE__*/
     React.createElement("p", { style: { color: ACCENT.amber }, className: "text-xs mt-2" },
-    t.tourNeedsCost
+    blockReason === "startDate" ? t.tourNeedsStartDate : t.tourNeedsCost
     ), /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center justify-between mt-4" }, /*#__PURE__*/
@@ -5253,6 +5258,14 @@ function reconcileCycleDates(startDateStr, renewalDateStr, frequency, todayISO) 
   let renewalDate = renewalDateStr;
   let startFixed = false;
   let renewalFixed = false;
+
+  // Un nuovo abbonamento può iniziare oggi e avere il primo rinnovo in una
+  // data futura che non cade sullo stesso giorno del mese (prova, prorata,
+  // attivazione a metà ciclo). In questo caso non dobbiamo "allineare"
+  // automaticamente Abbonato dal a una data futura: oltre a inventare uno
+  // storico che l'utente non ha indicato, renderebbe il modulo non salvabile.
+  // Conserviamo quindi oggi come inizio valido e lasciamo intatto il rinnovo.
+  if (startDate === todayISO && renewalDate > todayISO) return null;
 
   const align = cycleAlignment(startDate, renewalDate, frequency);
   if (align && align.suggested) {
@@ -7862,10 +7875,16 @@ function HubboApp() {
   // Without it the cost step could be walked past empty and the saving step
   // would then wait forever for a save the form kept refusing — a dead end
   // whose only exit was abandoning the tour. Same test the form itself uses.
-  const tourBlocked =
+  const tourBlockReason =
   tourActive &&
-  TOUR_STEPS[tourStep].requires === "cost" && (
-  !form.cost || !(parseAmount(form.cost) > 0));
+  TOUR_STEPS[tourStep].requires === "cost" ?
+  !form.cost || !(parseAmount(form.cost) > 0) ?
+  "cost" :
+  form.startDate && form.startDate > todayISO ?
+  "startDate" :
+  null :
+  null;
+  const tourBlocked = !!tourBlockReason;
 
   function endTour() {
     setTourStep(-1);
@@ -12504,6 +12523,7 @@ function HubboApp() {
       colors: colors,
       t: t,
       blocked: tourBlocked,
+      blockReason: tourBlockReason,
       onNext: () => setTourStep((s) => s + 1),
       onEnd: endTour }
     ),
