@@ -550,7 +550,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v284";
+const APP_VERSION = "v285";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -3236,10 +3236,11 @@ const LEDGER_STRINGS = {
     singlePaymentTitle: "Nuovo pagamento singolo",
     singlePaymentEditTitle: "Modifica pagamento singolo",
     singlePaymentModeCategory: "Una spesa a sé",
-    singlePaymentModeLinked: "Un abbonamento che ho già",
+    singlePaymentModeLinked: "Aggiungi ad un abbonamento che ho già",
     singlePaymentChooseSub: "Scegli l'abbonamento",
     singlePaymentDescLabel: "Descrizione",
     singlePaymentDescPlaceholder: "Es. Bolletta luce, noleggio film...",
+    singlePaymentNotePlaceholder: "Es. Dettagli della bolletta, film noleggiato, gioco acquistato...",
     singlePaymentAmountLabel: "Importo",
     singlePaymentDateLabel: "Data",
     singlePaymentOutOfCategory: "Fuori categoria",
@@ -3408,10 +3409,11 @@ const LEDGER_STRINGS = {
     singlePaymentTitle: "New single payment",
     singlePaymentEditTitle: "Edit single payment",
     singlePaymentModeCategory: "A standalone expense",
-    singlePaymentModeLinked: "A subscription I already have",
+    singlePaymentModeLinked: "Add to a subscription I already have",
     singlePaymentChooseSub: "Choose the subscription",
     singlePaymentDescLabel: "Description",
     singlePaymentDescPlaceholder: "E.g. Electricity bill, movie rental...",
+    singlePaymentNotePlaceholder: "E.g. Bill details, rented movie, game purchased...",
     singlePaymentAmountLabel: "Amount",
     singlePaymentDateLabel: "Date",
     singlePaymentOutOfCategory: "Uncategorised",
@@ -3580,10 +3582,11 @@ const LEDGER_STRINGS = {
     singlePaymentTitle: "Nuevo pago único",
     singlePaymentEditTitle: "Editar pago único",
     singlePaymentModeCategory: "Un gasto aparte",
-    singlePaymentModeLinked: "Una suscripción que ya tengo",
+    singlePaymentModeLinked: "Añadir a una suscripción que ya tengo",
     singlePaymentChooseSub: "Elige la suscripción",
     singlePaymentDescLabel: "Descripción",
     singlePaymentDescPlaceholder: "Ej. Factura de luz, alquiler de película...",
+    singlePaymentNotePlaceholder: "Ej. Detalles de la factura, película alquilada, juego comprado...",
     singlePaymentAmountLabel: "Importe",
     singlePaymentDateLabel: "Fecha",
     singlePaymentOutOfCategory: "Sin categoría",
@@ -3752,10 +3755,11 @@ const LEDGER_STRINGS = {
     singlePaymentTitle: "Nouveau paiement unique",
     singlePaymentEditTitle: "Modifier le paiement unique",
     singlePaymentModeCategory: "Une dépense à part",
-    singlePaymentModeLinked: "Un abonnement que j'ai déjà",
+    singlePaymentModeLinked: "Ajouter à un abonnement que j'ai déjà",
     singlePaymentChooseSub: "Choisissez l'abonnement",
     singlePaymentDescLabel: "Description",
     singlePaymentDescPlaceholder: "Ex. Facture d'électricité, location de film...",
+    singlePaymentNotePlaceholder: "Ex. Détails de la facture, film loué, jeu acheté...",
     singlePaymentAmountLabel: "Montant",
     singlePaymentDateLabel: "Date",
     singlePaymentOutOfCategory: "Hors catégorie",
@@ -3924,10 +3928,11 @@ const LEDGER_STRINGS = {
     singlePaymentTitle: "Neue Einmalzahlung",
     singlePaymentEditTitle: "Einmalzahlung bearbeiten",
     singlePaymentModeCategory: "Eine eigenständige Ausgabe",
-    singlePaymentModeLinked: "Ein Abo, das ich schon habe",
+    singlePaymentModeLinked: "Zu einem bestehenden Abo hinzufügen",
     singlePaymentChooseSub: "Abo auswählen",
     singlePaymentDescLabel: "Beschreibung",
     singlePaymentDescPlaceholder: "Z. B. Stromrechnung, Filmleihe...",
+    singlePaymentNotePlaceholder: "Z. B. Rechnungsdetails, geliehener Film, gekauftes Spiel...",
     singlePaymentAmountLabel: "Betrag",
     singlePaymentDateLabel: "Datum",
     singlePaymentOutOfCategory: "Ohne Kategorie",
@@ -14063,6 +14068,10 @@ function HubboApp() {
             ));
 
         })
+        ), /*#__PURE__*/
+
+        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs -mt-1 mb-3.5 px-1 leading-relaxed" },
+        singlePaymentForm.mode === "linked" ? t.singlePaymentHintLinked : t.singlePaymentHintCategory
         ),
 
         singlePaymentForm.mode === "linked" ? /*#__PURE__*/
@@ -14184,7 +14193,7 @@ function HubboApp() {
         React.createElement("textarea", {
           value: singlePaymentForm.note,
           onChange: (e) => setSinglePaymentForm((f) => ({ ...f, note: e.target.value })),
-          placeholder: t.notePlaceholder,
+          placeholder: t.singlePaymentNotePlaceholder,
           rows: 2,
           style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
           className: "w-full rounded-xl px-3.5 py-2.5 text-sm outline-none resize-none" }
@@ -14206,11 +14215,8 @@ function HubboApp() {
 
         savingSingle ? /*#__PURE__*/React.createElement(Icon, { name: "loader2", className: "animate-spin", size: 16 }) : singlePaymentForm.editId ? /*#__PURE__*/React.createElement(Icon, { name: "pencil", size: 16 }) : /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 16 }),
         t.singlePaymentSave
-        ), /*#__PURE__*/
-
-        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-2.5 leading-relaxed" },
-        singlePaymentForm.mode === "linked" ? t.singlePaymentHintLinked : t.singlePaymentHintCategory
         )
+
         )
         ));
 
