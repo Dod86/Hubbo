@@ -322,12 +322,12 @@ function lightExtraExpensesCardStyle(colors, light) {
   const amber = parseHex(ACCENT.amber);
   const style = {};
   if (!base || !amber) return style;
-  const leftStrong = mix(base, amber, light ? 0.16 : 0.20);
-  const leftSoft = mix(base, amber, light ? 0.08 : 0.12);
+  const leftStrong = mix(base, amber, light ? 0.24 : 0.28);
+  const leftSoft = mix(base, amber, light ? 0.14 : 0.18);
   const tint = (rgb, alpha = 1) => \`rgba(\${rgb.join(",")},\${alpha})\`;
   style.backgroundColor = colors.surface;
-  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.30 : 0.22)} 0%, \${tint(leftSoft, light ? 0.16 : 0.12)} 38%, \${colors.surface} 76%, \${colors.surface} 100%)\`;
-  style.border = \`1px solid \${tint(mix(base, amber, light ? 0.18 : 0.22), light ? 0.92 : 0.86)}\`;
+  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.42 : 0.30)} 0%, \${tint(leftSoft, light ? 0.24 : 0.18)} 40%, \${colors.surface} 78%, \${colors.surface} 100%)\`;
+  style.border = \`1px solid \${tint(mix(base, amber, light ? 0.22 : 0.26), light ? 0.94 : 0.88)}\`;
   return style;
 }
 
@@ -550,7 +550,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v282";
+const APP_VERSION = "v283";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
