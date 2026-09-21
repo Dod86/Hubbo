@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v274";
+const APP_VERSION = "v275";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7131,6 +7131,7 @@ function HubboApp() {
   // La sezione "Spese extra" dello Storico, dietro un tasto dedicato — stessa
   // idea di "Cambiamenti di prezzo" (showPriceHistory).
   const [showExtraPayments, setShowExtraPayments] = useState(false);
+  const [extraSectionScope, setExtraSectionScope] = useState("history");
   // Tocco su una riga di "Spese extra" (pagamento singolo NON collegato).
   const [extraPaymentAction, setExtraPaymentAction] = useState(null);
   // Conferma cancellazione di un pagamento singolo, collegato o no —
@@ -10390,6 +10391,70 @@ function HubboApp() {
   );
   const renewalsByDay = monthViews.current.byDay;
   const calendarMonthStats = monthViews.current.stats;
+  const currentCalendarExtraEntries = useMemo(() => {
+    const entries = [];
+    Object.entries(monthViews.current.byDay || {}).forEach(([day, list]) => {
+      list.forEach((entry, index) => {
+        const payment = entry._calendarPayment;
+        const standalone = entry._calendarExtraPayment;
+        if (!standalone && !(payment && payment.extra)) return;
+        const dateISO = standalone?.date || payment?.date || \`\${monthViews.current.monthDate.getFullYear()}-\${String(monthViews.current.monthDate.getMonth() + 1).padStart(2, "0")}-\${String(day).padStart(2, "0")}\`;
+        entries.push({ entry, payment, standalone, dateISO, index });
+      });
+    });
+    return entries.sort((a, b) => a.dateISO < b.dateISO ? 1 : a.dateISO > b.dateISO ? -1 : 0);
+  }, [monthViews, settings.language, settings.categoryColors]);
+
+  const calendarExtraCategoryTotals = useMemo(() => {
+    const map = {};
+    currentCalendarExtraEntries.forEach(({ entry, payment, standalone, dateISO }) => {
+      const value = calendarEntryTotal(entry, dateISO, settings.currency, rates);
+      map[entry.category] = (map[entry.category] || 0) + value;
+    });
+    const known = CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }));
+    const outOfScope = { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR, total: map[EXTRA_CATEGORY_ID] || 0 };
+    return [...known, outOfScope].filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
+  }, [currentCalendarExtraEntries, settings.currency, rates, settings.language, settings.categoryColors]);
+
+  const extraSectionView = useMemo(() => {
+    if (extraSectionScope === "calendar") {
+      const monthLabelRaw = monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" });
+      const monthLabel = monthLabelRaw.charAt(0).toUpperCase() + monthLabelRaw.slice(1);
+      return {
+        title: \`\${t.extraSectionTitle} · \${monthLabel}\`,
+        total: calendarMonthStats.extraTotal,
+        categories: calendarExtraCategoryTotals,
+        entries: currentCalendarExtraEntries,
+        emptyLabel: t.extraSectionEmpty
+      };
+    }
+    return {
+      title: t.extraSectionTitle,
+      total: extraPaymentsTotal,
+      categories: extraCategoryTotals,
+      entries: filteredExtraPayments.map((p) => ({
+        standalone: p,
+        payment: null,
+        entry: { category: p.category },
+        dateISO: p.date,
+        id: p.id
+      })),
+      emptyLabel: historyFiltered ? t.historyNoResults : t.extraSectionEmpty
+    };
+  }, [
+  extraSectionScope,
+  monthViews,
+  locale,
+  t,
+  calendarMonthStats,
+  calendarExtraCategoryTotals,
+  currentCalendarExtraEntries,
+  extraPaymentsTotal,
+  extraCategoryTotals,
+  filteredExtraPayments,
+  historyFiltered]
+  );
+
 
   function resetCalendarDrag() {
     setCalendarTouchStartX(null);
@@ -11157,14 +11222,18 @@ function HubboApp() {
     React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" },
     t.monthPayments(calendarMonthStats.count)
     ), /*#__PURE__*/
-    React.createElement("div", {
+    React.createElement("button", {
+      type: "button",
+      onClick: () => {setExtraSectionScope("calendar");setShowExtraPayments(true);},
       style: {
         background: colors.surface,
         border: \`1px solid \${colors.border}\`,
         boxShadow: colors.cardShadow,
-        minWidth: 138
+        minWidth: 138,
+        marginRight: 8
       },
-      className: "rounded-xl px-3 py-2 text-right" }, /*#__PURE__*/
+      className: "rounded-2xl px-3 py-2 text-right flex-shrink-0 transition-transform active:scale-[0.99]",
+      "aria-label": \`\${t.extraSectionTitle} · \${money(calendarMonthStats.extraTotal, settings.currency)}\` }, /*#__PURE__*/
 
     React.createElement("div", { style: { color: colors.textSecondary }, className: "text-[11px] leading-tight" }, t.extraSectionTotalLabel), /*#__PURE__*/
     React.createElement("div", {
@@ -11352,7 +11421,7 @@ function HubboApp() {
     extraPayments.length > 0 && /*#__PURE__*/
     React.createElement("button", {
       type: "button",
-      onClick: () => setShowExtraPayments(true),
+      onClick: () => {setExtraSectionScope("history");setShowExtraPayments(true);},
       style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow },
       className: "rounded-2xl px-4 py-3.5 flex items-center gap-3 w-full text-left mb-4" }, /*#__PURE__*/
 
@@ -11361,7 +11430,7 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("span", { className: "flex-1 min-w-0" }, /*#__PURE__*/
     React.createElement("span", { className: "block text-sm font-medium" }, t.extraSectionButton), /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-xs mt-0.5 truncate" }, money(extraPaymentsTotal, settings.currency))
+    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-xs mt-0.5 truncate" }, money(extraSectionView.total, settings.currency))
     ), /*#__PURE__*/
     React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
     ),
@@ -14870,7 +14939,7 @@ function HubboApp() {
 
     React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
-    React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium" }, t.extraSectionTitle), /*#__PURE__*/
+    React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium" }, extraSectionView.title), /*#__PURE__*/
     React.createElement("button", { type: "button", onClick: () => closeSheet("extraSection", () => setShowExtraPayments(false)), style: { color: colors.textSecondary } }, /*#__PURE__*/
     React.createElement(Icon, { name: "x", size: 20 })
     )
@@ -14879,11 +14948,11 @@ function HubboApp() {
     React.createElement("div", { style: { background: colors.surface2, border: \`1px solid \${colors.border}\` }, className: "rounded-2xl px-4 py-3.5 mb-4" }, /*#__PURE__*/
     React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mb-1" }, t.extraSectionTotalLabel), /*#__PURE__*/
     React.createElement("div", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-2xl font-semibold mb-3" },
-    money(extraPaymentsTotal, settings.currency)
+    money(extraSectionView.total, settings.currency)
     ),
-    extraCategoryTotals.length > 0 && /*#__PURE__*/
+    extraSectionView.categories.length > 0 && /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col gap-1.5" },
-    extraCategoryTotals.map((c) => /*#__PURE__*/
+    extraSectionView.categories.map((c) => /*#__PURE__*/
     React.createElement("div", { key: c.id, className: "flex items-center gap-2" }, /*#__PURE__*/
     React.createElement("span", { style: { background: c.color, width: 8, height: 8, borderRadius: 999 }, className: "flex-shrink-0" }), /*#__PURE__*/
     React.createElement("span", { className: "text-xs flex-1 min-w-0 truncate" }, c.label), /*#__PURE__*/
@@ -14894,34 +14963,50 @@ function HubboApp() {
 
     ),
 
-    filteredExtraPayments.length === 0 ? /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm text-center py-8" }, historyFiltered ? t.historyNoResults : t.extraSectionEmpty) : /*#__PURE__*/
+    filteredExtraPayments.length === 0 ? null : null,
+    extraSectionView.entries.length === 0 ? /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm text-center py-8" }, extraSectionView.emptyLabel) : /*#__PURE__*/
 
     React.createElement("div", { style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-xl overflow-hidden" },
-    filteredExtraPayments.
-    slice().
-    sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).
-    map((p, idx) => {
-      const cat = p.category === EXTRA_CATEGORY_ID ?
+    extraSectionView.entries.map(({ standalone, payment, entry, dateISO, id }, idx) => {
+      const cat = entry.category === EXTRA_CATEGORY_ID ?
       { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR } :
-      CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
+      CATEGORIES.find((c) => c.id === entry.category) || CATEGORIES[CATEGORIES.length - 1];
+      const title = standalone ? standalone.description : entry.name;
+      const subtitle = standalone ?
+      cat.label :
+      payment && payment.extra && payment.description ?
+      payment.description :
+      cat.label;
       return (/*#__PURE__*/
         React.createElement("button", {
-          key: p.id,
+          key: standalone ? standalone.id : payment ? payment.id : id || \`\${dateISO}-\${idx}\`,
           type: "button",
-          onClick: () => setExtraPaymentAction(p),
+          onClick: () => {
+            if (standalone) {
+              setExtraPaymentAction(standalone);
+            } else if (payment && payment.extra) {
+              setPaymentAction(payment);
+              setPaymentAmount(String(payment.amount));
+              setPaymentScope("one");
+            }
+          },
           style: idx > 0 ? { borderTop: \`1px solid \${colors.border}\` } : undefined,
-          className: "w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-transform active:scale-[0.99]" }, /*#__PURE__*/
+          className: "w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-transform active:scale-[0.99]" },
 
-        React.createElement("span", { style: { background: cat.color, width: 28, height: 28, borderRadius: 999 }, className: "flex-shrink-0" }), /*#__PURE__*/
+        standalone ? /*#__PURE__*/
+        React.createElement("span", { style: { background: cat.color, width: 28, height: 28, borderRadius: 999 }, className: "flex-shrink-0" }) : /*#__PURE__*/
+
+        React.createElement(ServiceLogo, { icon: serviceIcon(entry.name), domain: serviceDomain(entry.name), category: entry.category, letter: entry.name.charAt(0).toUpperCase(), serviceName: entry.name, color: cat.color, size: 28 }), /*#__PURE__*/
+
         React.createElement("div", { className: "flex-1 min-w-0" }, /*#__PURE__*/
-        React.createElement("div", { className: "text-sm font-medium truncate" }, p.description), /*#__PURE__*/
+        React.createElement("div", { className: "text-sm font-medium truncate" }, title), /*#__PURE__*/
         React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs truncate" },
-        parseLocalDate(p.date).toLocaleDateString(locale, { day: "numeric", month: "short" }), " \\xB7 ", cat.label
+        parseLocalDate(dateISO).toLocaleDateString(locale, { day: "numeric", month: "short" }), " \\xB7 ", subtitle
         )
         ), /*#__PURE__*/
         React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-sm font-semibold whitespace-nowrap" },
-        money(p.amount, p.currency)
+        standalone ? money(standalone.amount, standalone.currency) : payment ? money(payment.amount, payment.currency) : money(calendarEntryTotal(entry, dateISO, settings.currency, rates), settings.currency)
         )
         ));
 
