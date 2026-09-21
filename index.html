@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v267";
+const APP_VERSION = "v269";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -4776,11 +4776,19 @@ function useTourInteractionGuard(target, controlsRef) {
     root.style.overflow = "hidden";
     root.style.overscrollBehavior = "none";
     const litElement = () => target ? document.querySelector(\`[data-tour="\${target}"]\`) : null;
+    // Nel passo "Cosa vuoi aggiungere" il riflettore deve mostrare entrambe
+    // le opzioni, ma la guida prosegue soltanto dal percorso Abbonamento.
+    // Quindi il foro visivo resta sul gruppo intero, mentre l'area realmente
+    // interattiva è limitata al solo pulsante Abbonamento.
+    const interactiveElement = () =>
+    target === "addChoiceOptions" ?
+    document.querySelector('[data-tour="addSubscriptionChoice"]') :
+    litElement();
     const allowedRegion = (node) => {
       const controls = controlsRef.current;
       if (controls && controls.contains(node)) return controls;
-      const lit = litElement();
-      return lit && lit.contains(node) ? lit : null;
+      const interactive = interactiveElement();
+      return interactive && interactive.contains(node) ? interactive : null;
     };
     const prevent = (event, stop = true) => {
       if (event.cancelable) event.preventDefault();
@@ -10336,6 +10344,8 @@ function HubboApp() {
 
     let total = 0;
     let count = 0;
+    let extraTotal = 0;
+    let extraCount = 0;
     const catMap = {};
     Object.entries(byDay).forEach(([dayISO, arr]) => {
       arr.forEach((s) => {
@@ -10343,19 +10353,26 @@ function HubboApp() {
         // the month being shown must change the total from that day onwards.
         const dateISO = \`\${year}-\${String(month + 1).padStart(2, "0")}-\${String(dayISO).padStart(2, "0")}\`;
         const value = calendarEntryTotal(s, dateISO, settings.currency, rates);
+        // I pagamenti singoli restano visibili nel giorno del calendario, ma
+        // sono tenuti fuori dall'anello: sia quelli indipendenti sia quelli
+        // collegati a un abbonamento vengono sommati solo nel riquadro extra.
+        const isSinglePayment = !!s._calendarExtraPayment || !!(s._calendarPayment && s._calendarPayment.extra);
+        if (isSinglePayment) {
+          extraTotal += value;
+          extraCount++;
+          return;
+        }
         total += value;
         count++;
         catMap[s.category] = (catMap[s.category] || 0) + value;
       });
     });
-    const byCategory = [
-    ...CATEGORIES.map((c) => ({ ...c, total: catMap[c.id] || 0 })),
-    { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR, total: catMap[EXTRA_CATEGORY_ID] || 0 }].
-
+    const byCategory = CATEGORIES.
+    map((c) => ({ ...c, total: catMap[c.id] || 0 })).
     filter((c) => c.total > 0).
     sort((a, b) => b.total - a.total);
 
-    return { monthDate, days, byDay, stats: { total, count, byCategory } };
+    return { monthDate, days, byDay, stats: { total, count, byCategory, extraTotal, extraCount } };
   }
 
   const monthViews = useMemo(
@@ -11127,7 +11144,31 @@ function HubboApp() {
       onSelect: setRingSelectedCalendar }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`count-\${calendarOffset}\`, style: { color: colors.textSecondary }, className: \`text-xs mt-1.5 \${monthAnim}\` }, t.monthPayments(calendarMonthStats.count))
+    React.createElement("div", { key: \`count-\${calendarOffset}\`, className: \`flex items-end justify-between gap-3 mt-2 \${monthAnim}\` }, /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" },
+    t.monthPayments(calendarMonthStats.count)
+    ), /*#__PURE__*/
+    React.createElement("div", {
+      style: {
+        background: colors.surface,
+        border: \`1px solid \${colors.border}\`,
+        boxShadow: colors.cardShadow,
+        minWidth: 138
+      },
+      className: "rounded-xl px-3 py-2 text-right" }, /*#__PURE__*/
+
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-[11px] leading-tight" }, t.extraSectionTotalLabel), /*#__PURE__*/
+    React.createElement("div", {
+      style: {
+        color: calendarMonthStats.extraTotal > 0 ? colors.textPrimary : colors.textSecondary,
+        fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
+      },
+      className: "text-sm font-semibold mt-0.5 whitespace-nowrap" },
+
+    money(calendarMonthStats.extraTotal, settings.currency)
+    )
+    )
+    )
     ), /*#__PURE__*/
 
 
@@ -13811,7 +13852,7 @@ function HubboApp() {
     React.createElement(Icon, { name: "x", size: 20 })
     )
     ), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2", "data-tour": "addChoiceOptions" }, /*#__PURE__*/
+    React.createElement("div", { className: "flex flex-col gap-2" }, /*#__PURE__*/
     React.createElement("button", {
       type: "button",
       "data-tour": "addSubscriptionChoice",
