@@ -322,13 +322,12 @@ function lightExtraExpensesCardStyle(colors, light) {
   const amber = parseHex(ACCENT.amber);
   const style = {};
   if (!base || !amber) return style;
-  const leftStrong = mix(base, amber, light ? 0.18 : 0.22);
-  const leftSoft = mix(base, amber, light ? 0.10 : 0.14);
-  const rightWhite = base;
+  const leftStrong = mix(base, amber, light ? 0.16 : 0.20);
+  const leftSoft = mix(base, amber, light ? 0.08 : 0.12);
   const tint = (rgb, alpha = 1) => \`rgba(\${rgb.join(",")},\${alpha})\`;
   style.backgroundColor = colors.surface;
-  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.34 : 0.22)} 0%, \${tint(leftSoft, light ? 0.18 : 0.14)} 46%, \${tint(rightWhite, 1)} 100%)\`;
-  style.border = \`1px solid \${tint(mix(base, amber, light ? 0.20 : 0.24), light ? 0.95 : 0.88)}\`;
+  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.24 : 0.18)} 0%, \${tint(leftSoft, light ? 0.12 : 0.10)} 42%, \${colors.surface} 78%, \${colors.surface} 100%)\`;
+  style.border = \`1px solid \${tint(mix(base, amber, light ? 0.18 : 0.22), light ? 0.92 : 0.86)}\`;
   return style;
 }
 
@@ -522,7 +521,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v280";
+const APP_VERSION = "v281";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -11423,7 +11422,37 @@ function HubboApp() {
     )
     ), /*#__PURE__*/
     React.createElement("div", { className: "flex items-end justify-between gap-3 mt-2" }, /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" }, historyTotals.count, " \\xB7 ", t.historyPaymentsCount)
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" }, historyTotals.count, " \\xB7 ", t.historyPaymentsCount),
+    extraPayments.length > 0 && /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () => {setExtraSectionScope("history");setShowExtraPayments(true);},
+      style: {
+        ...fixedAccentCardStyle(ACCENT.amber, colors, effectiveTheme === "light"),
+        ...lightExtraExpensesCardStyle(colors, effectiveTheme === "light"),
+        minWidth: 176,
+        marginRight: -2
+      },
+      className: "rounded-[18px] px-3 py-2.5 flex items-center gap-2.5 text-left flex-shrink-0 transition-transform active:scale-[0.99]" }, /*#__PURE__*/
+
+    React.createElement("span", { style: { color: ACCENT.amber }, className: "flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
+    React.createElement(Icon, { name: "tag", size: 15 })
+    ), /*#__PURE__*/
+    React.createElement("span", { style: { width: 1, height: 30, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
+    React.createElement("span", { className: "min-w-0 flex-1" }, /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-[10px] leading-tight whitespace-nowrap" }, t.extraSectionTotalLabel), /*#__PURE__*/
+    React.createElement("span", {
+      style: {
+        color: colors.textPrimary,
+        fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
+      },
+      className: "block text-sm font-semibold mt-0.5 whitespace-nowrap" },
+
+    money(extraPaymentsTotal, settings.currency)
+    )
+    )
+    )
+
     )
     ),
 
@@ -11444,44 +11473,6 @@ function HubboApp() {
     React.createElement(Icon, { name: "trendingUp", size: 18 })
     ), /*#__PURE__*/
     React.createElement("span", { className: "flex-1 text-sm font-medium" }, t.priceHistoryButton), /*#__PURE__*/
-    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
-    ),
-
-
-
-
-
-
-
-    extraPayments.length > 0 && /*#__PURE__*/
-    React.createElement("button", {
-      type: "button",
-      onClick: () => {setExtraSectionScope("history");setShowExtraPayments(true);},
-      style: {
-        ...fixedAccentCardStyle(ACCENT.amber, colors, effectiveTheme === "light"),
-        ...lightExtraExpensesCardStyle(colors, effectiveTheme === "light")
-      },
-      className: "rounded-[18px] px-4 py-3 flex items-center gap-3 w-full text-left mb-4 transition-transform active:scale-[0.99]" }, /*#__PURE__*/
-
-    React.createElement("span", {
-      style: { background: effectiveTheme === "light" ? "rgba(227,168,87,0.14)" : "rgba(227,168,87,0.18)", color: ACCENT.amber, width: 32, height: 32 },
-      className: "rounded-full flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
-
-    React.createElement(Icon, { name: "tag", size: 15 })
-    ), /*#__PURE__*/
-    React.createElement("span", { style: { width: 1, height: 32, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
-    React.createElement("span", { className: "flex-1 min-w-0" }, /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-[11px] leading-tight whitespace-nowrap" }, t.extraSectionTotalLabel), /*#__PURE__*/
-    React.createElement("span", {
-      style: {
-        color: colors.textPrimary,
-        fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
-      },
-      className: "block text-sm font-semibold mt-0.5 truncate" },
-
-    money(extraPaymentsTotal, settings.currency)
-    )
-    ), /*#__PURE__*/
     React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
     ),
 
