@@ -429,6 +429,16 @@ const CATEGORY_META = [
 { id: "altro", color: "#816F6A" }];
 
 
+// Pseudo-categoria dei Pagamenti Singoli (21 settembre), usata solo dalle
+// spese non collegate a un abbonamento e senza una categoria che le
+// descriva meglio (es. una bolletta). Fuori da CATEGORY_META apposta: non
+// deve comparire nel selettore categoria di un abbonamento normale, né
+// contare per il controllo di distanza colore [6d] — vive solo dentro
+// "Spese extra" nello Storico, una lista isolata che non tocca mai
+// l'anello principale delle categorie.
+const EXTRA_CATEGORY_ID = "fuoricategoria";
+const EXTRA_CATEGORY_COLOR = "#A39B8C";
+
 // Palette offered when recolouring a category. The first colours MUST be
 // the same colours used by CATEGORY_META: otherwise selecting a default
 // category colour would never match the colour already owned by that category
@@ -491,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v264";
+const APP_VERSION = "v265";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -1757,7 +1767,10 @@ const STRINGS = {
     system: "Sistema",
     dataTrustTitle: "I tuoi dati restano sul tuo dispositivo",
     tapSubToEdit: "Tocca un abbonamento per modificarlo",
-    dataTrustBody: "Nel piano gratuito i tuoi abbonamenti sono salvati solo qui, sul tuo telefono: nessun account richiesto, nessun dato condiviso con terzi. Con Premium potrai superare il limite di 10 abbonamenti e sincronizzarli anche su altri dispositivi.",
+    // Convertita in funzione (come freeBadge/paywallBody) il 21 settembre:
+    // il "10" era rimasto scritto qui a mano dopo che FREE_LIMIT è sceso a
+    // 7, unico punto dell'app rimasto scollegato dalla costante vera.
+    dataTrustBody: (limit) => \`Nel piano gratuito i tuoi abbonamenti sono salvati solo qui, sul tuo telefono: nessun account richiesto, nessun dato condiviso con terzi. Con Premium potrai superare il limite di \${limit} abbonamenti e sincronizzarli anche su altri dispositivi.\`,
     privacyPolicy: "Privacy policy",
     deleteAllData: "Elimina tutti i dati",
     deleteAllDataConfirm: "Questa azione elimina definitivamente gli abbonamenti, i pagamenti, il cestino e le impostazioni salvati su questo dispositivo.",
@@ -1920,6 +1933,7 @@ const STRINGS = {
       format: "File non valido: non sembra un backup di Hubbo.",
       subscriptions: "Il file contiene abbonamenti scritti in un formato che l'app non riconosce.",
       payments: "Il file contiene pagamenti scritti in un formato che l'app non riconosce.",
+      extraPayments: "Il file contiene pagamenti singoli scritti in un formato che l'app non riconosce.",
       trash: "Il file contiene un cestino scritto in un formato che l'app non riconosce.",
       settings: "Il file contiene impostazioni scritte in un formato che l'app non riconosce."
     })[reason] || "File non valido: non sembra un backup di Hubbo.",
@@ -2041,7 +2055,7 @@ const STRINGS = {
     system: "System",
     dataTrustTitle: "Your data stays on your device",
     tapSubToEdit: "Tap a subscription to edit it",
-    dataTrustBody: "On the free plan, your subscriptions are stored only here, on your phone: no account needed, nothing shared with third parties. With Premium you can go beyond the 10-subscription limit and sync across other devices too.",
+    dataTrustBody: (limit) => \`On the free plan, your subscriptions are stored only here, on your phone: no account needed, nothing shared with third parties. With Premium you can go beyond the \${limit}-subscription limit and sync across other devices too.\`,
     privacyPolicy: "Privacy policy",
     deleteAllData: "Delete all data",
     deleteAllDataConfirm: "This permanently deletes subscriptions, payments, trash and settings stored on this device.",
@@ -2204,6 +2218,7 @@ const STRINGS = {
       format: "Invalid file: this doesn't look like a Hubbo backup.",
       subscriptions: "The file contains subscriptions in a format the app doesn't recognise.",
       payments: "The file contains payments in a format the app doesn't recognise.",
+      extraPayments: "The file contains single payments in a format the app doesn't recognise.",
       trash: "The file contains a trash list in a format the app doesn't recognise.",
       settings: "The file contains settings in a format the app doesn't recognise."
     })[reason] || "Invalid file: this doesn't look like a Hubbo backup.",
@@ -2325,7 +2340,7 @@ const STRINGS = {
     system: "Sistema",
     dataTrustTitle: "Tus datos se quedan en tu dispositivo",
     tapSubToEdit: "Toca una suscripción para modificarla",
-    dataTrustBody: "En el plan gratuito, tus suscripciones se guardan solo aquí, en tu teléfono: sin cuenta y sin compartir nada con terceros. Con Premium podrás superar el límite de 10 suscripciones y sincronizarlas en otros dispositivos.",
+    dataTrustBody: (limit) => \`En el plan gratuito, tus suscripciones se guardan solo aquí, en tu teléfono: sin cuenta y sin compartir nada con terceros. Con Premium podrás superar el límite de \${limit} suscripciones y sincronizarlas en otros dispositivos.\`,
     privacyPolicy: "Política de privacidad",
     deleteAllData: "Eliminar todos los datos",
     deleteAllDataConfirm: "Esta acción elimina definitivamente las suscripciones, pagos, papelera y ajustes guardados en este dispositivo.",
@@ -2488,6 +2503,7 @@ const STRINGS = {
       format: "Archivo no válido: no parece una copia de Hubbo.",
       subscriptions: "El archivo contiene suscripciones en un formato que la app no reconoce.",
       payments: "El archivo contiene pagos en un formato que la app no reconoce.",
+      extraPayments: "El archivo contiene pagos únicos en un formato que la app no reconoce.",
       trash: "El archivo contiene una papelera en un formato que la app no reconoce.",
       settings: "El archivo contiene ajustes en un formato que la app no reconoce."
     })[reason] || "Archivo no válido: no parece una copia de Hubbo.",
@@ -2609,7 +2625,7 @@ const STRINGS = {
     system: "Système",
     dataTrustTitle: "Vos données restent sur votre appareil",
     tapSubToEdit: "Touchez un abonnement pour le modifier",
-    dataTrustBody: "Avec l'offre gratuite, vos abonnements sont enregistrés uniquement ici, sur votre téléphone : aucun compte requis, rien n'est partagé avec des tiers. Avec Premium, vous pourrez dépasser la limite de 10 abonnements et les synchroniser sur d'autres appareils.",
+    dataTrustBody: (limit) => \`Avec l'offre gratuite, vos abonnements sont enregistrés uniquement ici, sur votre téléphone : aucun compte requis, rien n'est partagé avec des tiers. Avec Premium, vous pourrez dépasser la limite de \${limit} abonnements et les synchroniser sur d'autres appareils.\`,
     privacyPolicy: "Politique de confidentialité",
     deleteAllData: "Supprimer toutes les données",
     deleteAllDataConfirm: "Cette action supprime définitivement les abonnements, paiements, corbeille et réglages enregistrés sur cet appareil.",
@@ -2772,6 +2788,7 @@ const STRINGS = {
       format: "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo.",
       subscriptions: "Le fichier contient des abonnements dans un format que l'app ne reconnaît pas.",
       payments: "Le fichier contient des paiements dans un format que l'app ne reconnaît pas.",
+      extraPayments: "Le fichier contient des paiements uniques dans un format que l'app ne reconnaît pas.",
       trash: "Le fichier contient une corbeille dans un format que l'app ne reconnaît pas.",
       settings: "Le fichier contient des réglages dans un format que l'app ne reconnaît pas."
     })[reason] || "Fichier invalide : cela ne ressemble pas à une sauvegarde Hubbo.",
@@ -2893,7 +2910,7 @@ const STRINGS = {
     system: "System",
     dataTrustTitle: "Deine Daten bleiben auf deinem Gerät",
     tapSubToEdit: "Tippe auf ein Abo, um es zu bearbeiten",
-    dataTrustBody: "Im Gratis-Tarif werden deine Abos nur hier auf deinem Handy gespeichert: kein Konto nötig, nichts wird an Dritte weitergegeben. Mit Premium kannst du das Limit von 10 Abos überschreiten und sie auch auf anderen Geräten synchronisieren.",
+    dataTrustBody: (limit) => \`Im Gratis-Tarif werden deine Abos nur hier auf deinem Handy gespeichert: kein Konto nötig, nichts wird an Dritte weitergegeben. Mit Premium kannst du das Limit von \${limit} Abos überschreiten und sie auch auf anderen Geräten synchronisieren.\`,
     privacyPolicy: "Datenschutzerklärung",
     deleteAllData: "Alle Daten löschen",
     deleteAllDataConfirm: "Dadurch werden Abonnements, Zahlungen, Papierkorb und Einstellungen auf diesem Gerät dauerhaft gelöscht.",
@@ -3056,6 +3073,7 @@ const STRINGS = {
       format: "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus.",
       subscriptions: "Die Datei enthält Abos in einem Format, das die App nicht kennt.",
       payments: "Die Datei enthält Zahlungen in einem Format, das die App nicht kennt.",
+      extraPayments: "Die Datei enthält Einzelzahlungen in einem Format, das die App nicht kennt.",
       trash: "Die Datei enthält einen Papierkorb in einem Format, das die App nicht kennt.",
       settings: "Die Datei enthält Einstellungen in einem Format, das die App nicht kennt."
     })[reason] || "Ungültige Datei: Das sieht nicht nach einem Hubbo-Backup aus.",
@@ -3159,6 +3177,39 @@ const LEDGER_STRINGS = {
     savingsDecideNow: "Da decidere adesso",
     savingsPriceIncreasesTitle: "Cambiamenti di prezzo",
     savingsPriceIncreasesSince: (date) => \`da \${date}\`,
+    // Pagamento Singolo (21 settembre): bollette e altre spese una tantum,
+    // ben diverse da un abbonamento — nessuna ricorrenza, nessun rinnovo.
+    addChoiceTitle: "Cosa vuoi aggiungere?",
+    addChoiceSubscription: "Abbonamento",
+    addChoiceSubscriptionDesc: "Streaming, software, palestra...",
+    addChoiceSingle: "Pagamento singolo",
+    addChoiceSingleDesc: "Una bolletta o una spesa che non si ripete",
+    singlePaymentTitle: "Nuovo pagamento singolo",
+    singlePaymentModeCategory: "Una spesa a sé",
+    singlePaymentModeLinked: "Un abbonamento che ho già",
+    singlePaymentChooseSub: "Scegli l'abbonamento",
+    singlePaymentDescLabel: "Descrizione",
+    singlePaymentDescPlaceholder: "Es. Bolletta luce, noleggio film...",
+    singlePaymentAmountLabel: "Importo",
+    singlePaymentDateLabel: "Data",
+    singlePaymentOutOfCategory: "Fuori categoria",
+    singlePaymentSave: "Salva",
+    singlePaymentDelete: "Elimina questa spesa",
+    singlePaymentErrAmount: "Inserisci un importo valido.",
+    singlePaymentErrDescription: "Aggiungi una breve descrizione.",
+    singlePaymentErrDate: "Scegli una data.",
+    singlePaymentErrSub: "Scegli l'abbonamento a cui collegare la spesa.",
+    singlePaymentHintLinked: "Questa spesa si aggiunge al totale pagato per questo servizio, ma non cambia il suo rinnovo né il suo prezzo.",
+    singlePaymentHintCategory: "Resta fuori dalla spesa mensile stimata e dall'anello dello Storico: la trovi da sola in \\"Spese extra\\".",
+    singlePaymentDeleteConfirmTitle: "Eliminare questa spesa?",
+    singlePaymentDeleteConfirmBody: (label) => \`"\${label}" verrà eliminata. L'operazione non si può annullare.\`,
+    singlePaymentDeleteConfirmYes: "Elimina",
+    singlePaymentDeleteConfirmNo: "Annulla",
+    calendarAddPaymentButton: "Aggiungi un pagamento in questo giorno",
+    extraSectionButton: "Spese extra",
+    extraSectionTitle: "Spese extra",
+    extraSectionTotalLabel: "Totale spese extra",
+    extraSectionEmpty: "Nessuna spesa extra registrata.",
     priceHistoryButton: "Osserva come sono cambiati i prezzi nel tempo",
     priceHistoryEmpty: "Nessun prezzo è ancora cambiato.",
     savingsPromoEnds: (date, days) => \`L'offerta finisce il \${date} · fra \${days} giorni\`,
@@ -3300,6 +3351,37 @@ const LEDGER_STRINGS = {
     savingsDecideNow: "Decide now",
     savingsPriceIncreasesTitle: "Price changes",
     savingsPriceIncreasesSince: (date) => \`since \${date}\`,
+    addChoiceTitle: "What do you want to add?",
+    addChoiceSubscription: "Subscription",
+    addChoiceSubscriptionDesc: "Streaming, software, gym...",
+    addChoiceSingle: "Single payment",
+    addChoiceSingleDesc: "A bill or a one-off expense",
+    singlePaymentTitle: "New single payment",
+    singlePaymentModeCategory: "A standalone expense",
+    singlePaymentModeLinked: "A subscription I already have",
+    singlePaymentChooseSub: "Choose the subscription",
+    singlePaymentDescLabel: "Description",
+    singlePaymentDescPlaceholder: "E.g. Electricity bill, movie rental...",
+    singlePaymentAmountLabel: "Amount",
+    singlePaymentDateLabel: "Date",
+    singlePaymentOutOfCategory: "Uncategorised",
+    singlePaymentSave: "Save",
+    singlePaymentDelete: "Delete this expense",
+    singlePaymentErrAmount: "Enter a valid amount.",
+    singlePaymentErrDescription: "Add a short description.",
+    singlePaymentErrDate: "Choose a date.",
+    singlePaymentErrSub: "Choose the subscription to link this expense to.",
+    singlePaymentHintLinked: "This expense is added to what you've paid for this service in total, but doesn't change its renewal date or price.",
+    singlePaymentHintCategory: "Stays out of the estimated monthly spend and the History ring: you'll find it on its own under \\"Extra expenses\\".",
+    singlePaymentDeleteConfirmTitle: "Delete this expense?",
+    singlePaymentDeleteConfirmBody: (label) => \`"\${label}" will be deleted. This can't be undone.\`,
+    singlePaymentDeleteConfirmYes: "Delete",
+    singlePaymentDeleteConfirmNo: "Cancel",
+    calendarAddPaymentButton: "Add a payment on this day",
+    extraSectionButton: "Extra expenses",
+    extraSectionTitle: "Extra expenses",
+    extraSectionTotalLabel: "Total extra expenses",
+    extraSectionEmpty: "No extra expenses recorded yet.",
     priceHistoryButton: "See how prices have changed over time",
     priceHistoryEmpty: "No price has changed yet.",
     savingsPromoEnds: (date, days) => \`The offer ends on \${date} · in \${days} days\`,
@@ -3441,6 +3523,37 @@ const LEDGER_STRINGS = {
     savingsDecideNow: "Para decidir ahora",
     savingsPriceIncreasesTitle: "Cambios de precio",
     savingsPriceIncreasesSince: (date) => \`desde \${date}\`,
+    addChoiceTitle: "¿Qué quieres añadir?",
+    addChoiceSubscription: "Suscripción",
+    addChoiceSubscriptionDesc: "Streaming, software, gimnasio...",
+    addChoiceSingle: "Pago único",
+    addChoiceSingleDesc: "Una factura o un gasto que no se repite",
+    singlePaymentTitle: "Nuevo pago único",
+    singlePaymentModeCategory: "Un gasto aparte",
+    singlePaymentModeLinked: "Una suscripción que ya tengo",
+    singlePaymentChooseSub: "Elige la suscripción",
+    singlePaymentDescLabel: "Descripción",
+    singlePaymentDescPlaceholder: "Ej. Factura de luz, alquiler de película...",
+    singlePaymentAmountLabel: "Importe",
+    singlePaymentDateLabel: "Fecha",
+    singlePaymentOutOfCategory: "Sin categoría",
+    singlePaymentSave: "Guardar",
+    singlePaymentDelete: "Eliminar este gasto",
+    singlePaymentErrAmount: "Introduce un importe válido.",
+    singlePaymentErrDescription: "Añade una breve descripción.",
+    singlePaymentErrDate: "Elige una fecha.",
+    singlePaymentErrSub: "Elige la suscripción a la que vincular este gasto.",
+    singlePaymentHintLinked: "Este gasto se suma al total pagado por este servicio, pero no cambia su renovación ni su precio.",
+    singlePaymentHintCategory: "Queda fuera del gasto mensual estimado y del anillo del Historial: lo encontrarás aparte en \\"Gastos extra\\".",
+    singlePaymentDeleteConfirmTitle: "¿Eliminar este gasto?",
+    singlePaymentDeleteConfirmBody: (label) => \`Se eliminará "\${label}". Esta acción no se puede deshacer.\`,
+    singlePaymentDeleteConfirmYes: "Eliminar",
+    singlePaymentDeleteConfirmNo: "Cancelar",
+    calendarAddPaymentButton: "Añadir un pago en este día",
+    extraSectionButton: "Gastos extra",
+    extraSectionTitle: "Gastos extra",
+    extraSectionTotalLabel: "Total de gastos extra",
+    extraSectionEmpty: "Aún no hay gastos extra registrados.",
     priceHistoryButton: "Observa cómo han cambiado los precios con el tiempo",
     priceHistoryEmpty: "Ningún precio ha cambiado todavía.",
     savingsPromoEnds: (date, days) => \`La oferta termina el \${date} · en \${days} días\`,
@@ -3582,6 +3695,37 @@ const LEDGER_STRINGS = {
     savingsDecideNow: "À décider maintenant",
     savingsPriceIncreasesTitle: "Changements de prix",
     savingsPriceIncreasesSince: (date) => \`depuis \${date}\`,
+    addChoiceTitle: "Que voulez-vous ajouter ?",
+    addChoiceSubscription: "Abonnement",
+    addChoiceSubscriptionDesc: "Streaming, logiciel, salle de sport...",
+    addChoiceSingle: "Paiement unique",
+    addChoiceSingleDesc: "Une facture ou une dépense ponctuelle",
+    singlePaymentTitle: "Nouveau paiement unique",
+    singlePaymentModeCategory: "Une dépense à part",
+    singlePaymentModeLinked: "Un abonnement que j'ai déjà",
+    singlePaymentChooseSub: "Choisissez l'abonnement",
+    singlePaymentDescLabel: "Description",
+    singlePaymentDescPlaceholder: "Ex. Facture d'électricité, location de film...",
+    singlePaymentAmountLabel: "Montant",
+    singlePaymentDateLabel: "Date",
+    singlePaymentOutOfCategory: "Hors catégorie",
+    singlePaymentSave: "Enregistrer",
+    singlePaymentDelete: "Supprimer cette dépense",
+    singlePaymentErrAmount: "Saisissez un montant valide.",
+    singlePaymentErrDescription: "Ajoutez une courte description.",
+    singlePaymentErrDate: "Choisissez une date.",
+    singlePaymentErrSub: "Choisissez l'abonnement auquel lier cette dépense.",
+    singlePaymentHintLinked: "Cette dépense s'ajoute au total payé pour ce service, mais ne change ni son renouvellement ni son prix.",
+    singlePaymentHintCategory: "Reste en dehors de la dépense mensuelle estimée et de l'anneau de l'Historique : vous la retrouverez à part dans \\"Dépenses extra\\".",
+    singlePaymentDeleteConfirmTitle: "Supprimer cette dépense ?",
+    singlePaymentDeleteConfirmBody: (label) => \`« \${label} » sera supprimée. Cette action est irréversible.\`,
+    singlePaymentDeleteConfirmYes: "Supprimer",
+    singlePaymentDeleteConfirmNo: "Annuler",
+    calendarAddPaymentButton: "Ajouter un paiement ce jour-là",
+    extraSectionButton: "Dépenses extra",
+    extraSectionTitle: "Dépenses extra",
+    extraSectionTotalLabel: "Total des dépenses extra",
+    extraSectionEmpty: "Aucune dépense extra enregistrée pour l'instant.",
     priceHistoryButton: "Observer l'évolution des prix dans le temps",
     priceHistoryEmpty: "Aucun prix n'a encore changé.",
     savingsPromoEnds: (date, days) => \`L'offre se termine le \${date} · dans \${days} jours\`,
@@ -3723,6 +3867,37 @@ const LEDGER_STRINGS = {
     savingsDecideNow: "Jetzt entscheiden",
     savingsPriceIncreasesTitle: "Preisänderungen",
     savingsPriceIncreasesSince: (date) => \`seit \${date}\`,
+    addChoiceTitle: "Was möchtest du hinzufügen?",
+    addChoiceSubscription: "Abo",
+    addChoiceSubscriptionDesc: "Streaming, Software, Fitnessstudio...",
+    addChoiceSingle: "Einmalzahlung",
+    addChoiceSingleDesc: "Eine Rechnung oder eine einmalige Ausgabe",
+    singlePaymentTitle: "Neue Einmalzahlung",
+    singlePaymentModeCategory: "Eine eigenständige Ausgabe",
+    singlePaymentModeLinked: "Ein Abo, das ich schon habe",
+    singlePaymentChooseSub: "Abo auswählen",
+    singlePaymentDescLabel: "Beschreibung",
+    singlePaymentDescPlaceholder: "Z. B. Stromrechnung, Filmleihe...",
+    singlePaymentAmountLabel: "Betrag",
+    singlePaymentDateLabel: "Datum",
+    singlePaymentOutOfCategory: "Ohne Kategorie",
+    singlePaymentSave: "Speichern",
+    singlePaymentDelete: "Diese Ausgabe löschen",
+    singlePaymentErrAmount: "Gib einen gültigen Betrag ein.",
+    singlePaymentErrDescription: "Füge eine kurze Beschreibung hinzu.",
+    singlePaymentErrDate: "Wähle ein Datum.",
+    singlePaymentErrSub: "Wähle das Abo, mit dem diese Ausgabe verknüpft werden soll.",
+    singlePaymentHintLinked: "Diese Ausgabe wird zum Gesamtbetrag für diesen Dienst addiert, ändert aber weder Verlängerung noch Preis.",
+    singlePaymentHintCategory: "Bleibt außerhalb der geschätzten Monatsausgaben und des Verlaufsrings: Du findest sie separat unter \\"Extraausgaben\\".",
+    singlePaymentDeleteConfirmTitle: "Diese Ausgabe löschen?",
+    singlePaymentDeleteConfirmBody: (label) => \`„\${label}“ wird gelöscht. Das kann nicht rückgängig gemacht werden.\`,
+    singlePaymentDeleteConfirmYes: "Löschen",
+    singlePaymentDeleteConfirmNo: "Abbrechen",
+    calendarAddPaymentButton: "Eine Zahlung an diesem Tag hinzufügen",
+    extraSectionButton: "Extraausgaben",
+    extraSectionTitle: "Extraausgaben",
+    extraSectionTotalLabel: "Gesamte Extraausgaben",
+    extraSectionEmpty: "Noch keine Extraausgaben erfasst.",
     priceHistoryButton: "Beobachte, wie sich die Preise verändert haben",
     priceHistoryEmpty: "Noch hat sich kein Preis geändert.",
     savingsPromoEnds: (date, days) => \`Das Angebot endet am \${date} · in \${days} Tagen\`,
@@ -6911,6 +7086,33 @@ function HubboApp() {
   const [paymentAction, setPaymentAction] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentScope, setPaymentScope] = useState("one");
+  // Pagamento Singolo (21 settembre): bollette e altre spese una tantum,
+  // ben diverse da un abbonamento (nessuna ricorrenza, nessun rinnovo).
+  // extraPayments è un elenco a sé — non entra mai in \`payments\`, il
+  // registro che alimenta l'anello dello Storico — proprio perché non deve
+  // mai poterlo dominare. Un pagamento singolo collegato a un abbonamento
+  // esistente (es. un noleggio film su un servizio già pagato) invece va
+  // scritto dentro \`payments\` stesso, con \`extra: true\`: quella spesa è
+  // reale per quel servizio e deve comparire nel suo totale, esattamente
+  // come chiesto da Erny il 21 settembre.
+  const [extraPayments, setExtraPayments] = useState([]);
+  // Il foglio "Abbonamento o Pagamento singolo?" aperto dal tasto "+".
+  const [addChoiceOpen, setAddChoiceOpen] = useState(false);
+  // null = chiuso; un oggetto = il modulo del pagamento singolo è aperto con
+  // questi valori. Stessa idea di \`form\`/\`showForm\`, ma un modulo a sé:
+  // i campi non hanno niente in comune con emptyForm (niente rinnovo,
+  // niente frequenza, niente promo).
+  const [singlePaymentForm, setSinglePaymentForm] = useState(null);
+  const [savingSingle, setSavingSingle] = useState(false);
+  // La sezione "Spese extra" dello Storico, dietro un tasto dedicato — stessa
+  // idea di "Cambiamenti di prezzo" (showPriceHistory).
+  const [showExtraPayments, setShowExtraPayments] = useState(false);
+  // Tocco su una riga di "Spese extra" (pagamento singolo NON collegato).
+  const [extraPaymentAction, setExtraPaymentAction] = useState(null);
+  // Conferma cancellazione di un pagamento singolo, collegato o no —
+  // { source: "payments" | "extra", id, subId, label }.
+  const [confirmDeleteExtra, setConfirmDeleteExtra] = useState(null);
+  const [singlePaymentError, setSinglePaymentError] = useState("");
   const [trash, setTrash] = useState([]);
   // "Da tenere d'occhio": servizi che non possiedi ma segui per vederne le
   // offerte. null finché non è arrivato il primo caricamento, poi sempre un
@@ -7254,6 +7456,14 @@ function HubboApp() {
         // no history yet
       }
       try {
+        const res = await window.storage.get("abbly:extraPayments", false);
+        const loaded = res ? JSON.parse(res.value) : [];
+        setExtraPayments(Array.isArray(loaded) ? loaded : []);
+      } catch {
+        setExtraPayments([]);
+      }
+
+      try {
         const res = await window.storage.get("abbly:watchlist", false);
         const loaded = res ? JSON.parse(res.value) : [];
         setWatchlist(Array.isArray(loaded) ? loaded : []);
@@ -7282,6 +7492,15 @@ function HubboApp() {
       // best effort
     }}
 
+  async function persistExtraPayments(next) {
+    setExtraPayments(next);
+    try {
+      await window.storage.set("abbly:extraPayments", JSON.stringify(next), false);
+    } catch {
+
+      // best effort
+    }}
+
   async function persistTrash(next) {
     setTrash(next);
     try {
@@ -7301,7 +7520,7 @@ function HubboApp() {
     }}
 
   async function handleDeleteAllData() {
-    const keys = ["abbly:subscriptions", "abbly:trash", "abbly:payments", "abbly:settings", "abbly:rates", "abbly:offers", "abbly:lastNotif", "abbly:notificationLog", "abbly:watchlist", "abbly:offerNotifLog"];
+    const keys = ["abbly:subscriptions", "abbly:trash", "abbly:payments", "abbly:extraPayments", "abbly:settings", "abbly:rates", "abbly:offers", "abbly:lastNotif", "abbly:notificationLog", "abbly:watchlist", "abbly:offerNotifLog"];
     try {
       for (const key of keys) await window.storage.delete(key, false);
       window.location.reload();
@@ -7727,6 +7946,118 @@ function HubboApp() {
     setShowForm(true);
   }
 
+  // Pagamento Singolo (21 settembre): non conta mai nel limite gratuito —
+  // niente rinnovo, niente FREE_LIMIT da controllare qui, a differenza di
+  // openAdd sopra.
+  function openSinglePayment(prefillDate) {
+    const firstCategory = CATEGORIES[0] ? CATEGORIES[0].id : "altro";
+    setSinglePaymentForm({
+      // "linked" = collegato a un abbonamento che già esiste (es. un
+      // noleggio film su un servizio già pagato); "category" = una spesa a
+      // sé, con una categoria propria o "fuori categoria".
+      mode: "category",
+      subId: "",
+      amount: "",
+      date: prefillDate || todayISO,
+      description: "",
+      category: firstCategory,
+      note: ""
+    });
+    setSinglePaymentError("");
+  }
+
+  // La parte che scrive davvero il pagamento singolo, in uno dei due elenchi
+  // a seconda del collegamento scelto — mai negli stessi dati di un
+  // abbonamento vero. Isolata da openSinglePayment come commitSubscription
+  // lo è da openAdd.
+  async function saveSinglePayment() {
+    if (!singlePaymentForm) return;
+    const amount = parseAmount(singlePaymentForm.amount);
+    if (!(amount > 0)) {
+      setSinglePaymentError(t.singlePaymentErrAmount);
+      return;
+    }
+    const description = singlePaymentForm.description.trim();
+    if (!description) {
+      setSinglePaymentError(t.singlePaymentErrDescription);
+      return;
+    }
+    if (!singlePaymentForm.date) {
+      setSinglePaymentError(t.singlePaymentErrDate);
+      return;
+    }
+
+    const base = settings.currency;
+
+    if (singlePaymentForm.mode === "linked") {
+      const sub = (subs || []).find((s) => s.id === singlePaymentForm.subId);
+      if (!sub) {
+        setSinglePaymentError(t.singlePaymentErrSub);
+        return;
+      }
+      setSavingSingle(true);
+      const currency = sub.currency || base;
+      // Stessa forma di un pagamento normale (vedi l'effetto che registra i
+      // rinnovi passati, più sotto) più due campi in aggiunta: \`extra: true\`
+      // lo distingue da un rinnovo del ciclo, \`description\` è il motivo
+      // scritto dall'utente (es. "Noleggio: Interstellar"), mostrato al
+      // posto della sola data nello Storico. \`estimated\` resta false apposta:
+      // è la stessa condizione che rende immutabile un pagamento vero, così
+      // l'effetto di riconciliazione più sotto non lo tocca mai.
+      const entry = {
+        id: \`\${sub.id}::extra::\${Date.now()}::\${Math.random().toString(36).slice(2, 8)}\`,
+        subId: sub.id,
+        name: sub.name,
+        category: sub.category,
+        amount,
+        currency,
+        baseCurrency: base,
+        baseAmount: convertAmount(amount, currency, base, rates),
+        date: singlePaymentForm.date,
+        status: "paid",
+        estimated: false,
+        extra: true,
+        description,
+        note: singlePaymentForm.note.trim()
+      };
+      await persistPayments([entry, ...payments]);
+    } else {
+      setSavingSingle(true);
+      // Sempre nella valuta principale: una bolletta o una spesa "fuori
+      // categoria" non ha una valuta propria come un abbonamento.
+      const entry = {
+        id: \`xp::\${Date.now()}::\${Math.random().toString(36).slice(2, 8)}\`,
+        amount,
+        currency: base,
+        baseCurrency: base,
+        baseAmount: amount,
+        date: singlePaymentForm.date,
+        category: singlePaymentForm.category,
+        description,
+        note: singlePaymentForm.note.trim(),
+        createdAt: new Date().toISOString()
+      };
+      await persistExtraPayments([entry, ...extraPayments]);
+    }
+    setSavingSingle(false);
+    setSinglePaymentForm(null);
+  }
+
+  // Cancellazione diretta, niente cestino: un pagamento singolo è una riga
+  // sola, non un intero abbonamento con rinnovi futuri da conservare — chi
+  // sbaglia importo o descrizione la rifà, non la corregge.
+  async function deleteExtraPaymentEntry(target) {
+    if (!target) return;
+    if (target.source === "payments") {
+      await persistPayments(payments.filter((p) => p.id !== target.id));
+    } else {
+      await persistExtraPayments(extraPayments.filter((p) => p.id !== target.id));
+    }
+    setConfirmDeleteExtra(null);
+    setExtraPaymentAction(null);
+    setPaymentAction(null);
+  }
+
   function openEdit(sub) {
     setEditingId(sub.id);
     const isCommon = COMMON_SERVICES.some((s) => s.name === sub.name);
@@ -8043,6 +8374,11 @@ function HubboApp() {
       subscriptions: subs,
       trash,
       payments,
+      // Pagamenti singoli non collegati a un abbonamento (bollette, spese
+      // "fuori categoria"...) — un elenco a sé, indipendente da
+      // \`subscriptions\`: a differenza di \`payments\`, l'import non ha
+      // bisogno di scartarne nessuno per un abbonamento mancante.
+      extraPayments,
       // Non tocca abbonamenti o totali, ma è comunque un dato dell'utente:
       // va nello stesso backup, senza bisogno di un meccanismo a parte.
       watchlist
@@ -8182,6 +8518,17 @@ function HubboApp() {
       if (!trashOk) return { ok: false, reason: "trash" };
     }
 
+    // Pagamenti singoli non collegati: niente subId da controllare contro
+    // gli abbonamenti importati, a differenza di \`payments\` sopra — vivono
+    // per conto proprio.
+    if (data.extraPayments != null) {
+      if (!Array.isArray(data.extraPayments)) return { ok: false, reason: "extraPayments" };
+      const extraOk = data.extraPayments.every(
+        (p) => p && typeof p === "object" && p.id != null && Number.isFinite(Number(p.amount)) && typeof p.date === "string" && isoDate.test(p.date)
+      );
+      if (!extraOk) return { ok: false, reason: "extraPayments" };
+    }
+
     if (data.settings != null && (typeof data.settings !== "object" || Array.isArray(data.settings))) {
       return { ok: false, reason: "settings" };
     }
@@ -8261,6 +8608,15 @@ function HubboApp() {
     // svuotarlo per un'assenza che potrebbe non voler dire nulla.
     if (Array.isArray(pendingImport.trash)) {
       await persistTrash(pendingImport.trash);
+    }
+
+    // I pagamenti singoli non collegati non hanno un subId da controllare
+    // contro \`toImport\` — a differenza di \`payments\` sopra, non possono
+    // restare orfani — quindi si sostituiscono per intero, come il cestino.
+    // Un file senza questa chiave (backup più vecchio di questa funzione)
+    // lascia quelli attuali intatti.
+    if (Array.isArray(pendingImport.extraPayments)) {
+      await persistExtraPayments(pendingImport.extraPayments);
     }
 
     // Le impostazioni restano un'eccezione dichiarata: si sostituiscono solo
@@ -8676,7 +9032,8 @@ function HubboApp() {
 
   const otherModalOpen =
   showForm || showSettings || showPaywall || showTrash || showPriceHistory || showColors || showMonthPicker || watchlistPickerOpen ||
-  !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction || !!colorSwap || !!wipeHistoryPrompt || confirmDeleteAll;
+  !!confirmDelete || !!confirmPurge || !!pendingImport || !!detailSub || !!optionPicker || !!paymentAction || !!colorSwap || !!wipeHistoryPrompt || confirmDeleteAll ||
+  addChoiceOpen || !!singlePaymentForm || showExtraPayments || !!extraPaymentAction || !!confirmDeleteExtra;
 
   const anyModalOpen = !!dayPopup || otherModalOpen;
 
@@ -9737,6 +10094,30 @@ function HubboApp() {
     sort((a, b) => b.total - a.total);
   }, [filteredPayments, settings.currency, rates, settings.language, settings.categoryColors]);
 
+  // "Spese extra" (21 settembre): i pagamenti singoli NON collegati a un
+  // abbonamento. Un elenco a sé, sempre per intero — niente filtri di
+  // periodo/servizio/categoria come nello Storico sopra — proprio perché
+  // deve restare isolato dal resto e non condividerne i controlli.
+  const extraPaymentInBase = (p) =>
+  p.baseCurrency === settings.currency && typeof p.baseAmount === "number" ?
+  p.baseAmount :
+  convertAmount(p.amount, p.currency, settings.currency, rates);
+
+  const extraPaymentsTotal = useMemo(
+    () => extraPayments.reduce((sum, p) => sum + extraPaymentInBase(p), 0),
+    [extraPayments, settings.currency, rates]
+  );
+
+  const extraCategoryTotals = useMemo(() => {
+    const map = {};
+    extraPayments.forEach((p) => {
+      map[p.category] = (map[p.category] || 0) + extraPaymentInBase(p);
+    });
+    const known = CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }));
+    const outOfScope = { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR, total: map[EXTRA_CATEGORY_ID] || 0 };
+    return [...known, outOfScope].filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
+  }, [extraPayments, settings.currency, rates, settings.language, settings.categoryColors]);
+
   const missingStartCount = useMemo(
     () => (subs || []).filter((s) => !s.startDate && !s.endDate).length,
     [subs]
@@ -10141,19 +10522,24 @@ function HubboApp() {
     if (busy) return true;
     const layers = [
     ["option", optionPicker, () => setOptionPicker(null)],
+    ["cdelextra", confirmDeleteExtra, () => setConfirmDeleteExtra(null)],
     ["payment", paymentAction, () => setPaymentAction(null)],
+    ["extraPaymentAction", extraPaymentAction, () => setExtraPaymentAction(null)],
     ["cpurge", confirmPurge, () => setConfirmPurge(null)],
     ["wipehist", wipeHistoryPrompt, () => setWipeHistoryPrompt(null)],
     ["cdelall", confirmDeleteAll, () => setConfirmDeleteAll(false)],
     ["cdel", confirmDelete, () => setConfirmDelete(null)],
     ["import", pendingImport, () => {setPendingImport(null);setImportSelection(null);}],
     ["picker", pickerOpen, () => setPickerOpen(false), true],
+    ["addChoice", addChoiceOpen, () => setAddChoiceOpen(false)],
+    ["singlePayment", singlePaymentForm, () => setSinglePaymentForm(null)],
     ["form", showForm, () => {setShowForm(false);setEditingId(null);}],
     ["month", showMonthPicker, () => setShowMonthPicker(false)],
     ["detail", detailSub, () => setDetailSub(null)],
     ["calendarDay", dayPopup, () => {setDayPopup(null);setSelectedDay(null);}],
     ["trash", showTrash, () => setShowTrash(false)],
     ["priceHistory", showPriceHistory, () => setShowPriceHistory(false)],
+    ["extraSection", showExtraPayments, () => setShowExtraPayments(false)],
     ["watchlist", watchlistPickerOpen, () => setWatchlistPickerOpen(false)],
     ["cswap", colorSwap, () => setColorSwap(null)],
     ["colors", showColors, () => {setShowColors(false);setColorEditing(null);}],
@@ -10815,6 +11201,29 @@ function HubboApp() {
 
 
 
+    extraPayments.length > 0 && /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () => setShowExtraPayments(true),
+      style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow },
+      className: "rounded-2xl px-4 py-3.5 flex items-center gap-3 w-full text-left mb-4" }, /*#__PURE__*/
+
+    React.createElement("span", { className: "flex-shrink-0", style: { color: legibleOn(ACCENT.amber, colors.surface) } }, /*#__PURE__*/
+    React.createElement(Icon, { name: "tag", size: 18 })
+    ), /*#__PURE__*/
+    React.createElement("span", { className: "flex-1 min-w-0" }, /*#__PURE__*/
+    React.createElement("span", { className: "block text-sm font-medium" }, t.extraSectionButton), /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-xs mt-0.5 truncate" }, money(extraPaymentsTotal, settings.currency))
+    ), /*#__PURE__*/
+    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
+    ),
+
+
+
+
+
+
+
 
 
     visiblePayments.length > 0 && /*#__PURE__*/
@@ -10992,8 +11401,10 @@ function HubboApp() {
         React.createElement("div", { className: "text-sm font-medium truncate", style: { textDecoration: skipped ? "line-through" : "none" } },
         p.name
         ), /*#__PURE__*/
-        React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs" },
+        React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs truncate" },
         parseLocalDate(p.date).toLocaleDateString(locale, { day: "numeric", month: "short" }),
+        p.extra && p.description ?
+        \` · \${p.description}\` :
         skipped ? \` · \${t.historySkipped}\` : p.edited ? \` · \${t.historyEdited}\` : p.estimated ? \` · \${t.historyEstimated}\` : ""
         )
         ), /*#__PURE__*/
@@ -11732,7 +12143,7 @@ function HubboApp() {
     React.createElement("button", {
       type: "button",
       "data-tour": "add",
-      onClick: openAdd,
+      onClick: () => setAddChoiceOpen(true),
       style: {
         background: colors.surface,
         width: 60, height: 60, position: "relative", zIndex: 1,
@@ -11804,7 +12215,19 @@ function HubboApp() {
             )
             ));
 
-        })
+        }), /*#__PURE__*/
+
+
+
+        React.createElement("button", {
+          type: "button",
+          onClick: () => closeSheet("calendarDay", () => {setDayPopup(null);setSelectedDay(null);openSinglePayment(dateISO);}),
+          style: { borderTop: entries.length ? \`1px solid \${colors.border}\` : "none", color: ACCENT.amber },
+          className: "w-full flex items-center gap-2 py-3 text-left text-sm font-medium" }, /*#__PURE__*/
+
+        React.createElement(Icon, { name: "plus", size: 16 }),
+        t.calendarAddPaymentButton
+        )
         ));
 
     })(),
@@ -12952,7 +13375,7 @@ function HubboApp() {
     React.createElement(Icon, { name: "lock", size: 12, color: colors.textSecondary }), /*#__PURE__*/
     React.createElement("span", { style: { color: colors.textPrimary }, className: "text-xs font-medium" }, t.dataTrustTitle)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" }, t.dataTrustBody), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" }, t.dataTrustBody(FREE_LIMIT)), /*#__PURE__*/
     React.createElement("a", { href: "privacy.html", target: "_blank", rel: "noopener noreferrer", style: { color: ACCENT.amber }, className: "inline-block text-xs font-medium mt-2" }, t.privacyPolicy)
     ), /*#__PURE__*/
     React.createElement("button", {
@@ -13073,7 +13496,8 @@ function HubboApp() {
     React.createElement("div", { className: "min-w-0 flex-1" }, /*#__PURE__*/
     React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium truncate" }, paymentAction.name), /*#__PURE__*/
     React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-0.5" },
-    parseLocalDate(paymentAction.date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })
+    parseLocalDate(paymentAction.date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" }),
+    paymentAction.extra && paymentAction.description ? \` · \${paymentAction.description}\` : ""
     )
     ), /*#__PURE__*/
     React.createElement("button", { type: "button", onClick: () => closeSheet("payment", () => setPaymentAction(null)), style: { color: colors.textSecondary }, className: "flex-shrink-0" }, /*#__PURE__*/
@@ -13086,8 +13510,12 @@ function HubboApp() {
 
 
 
+
+
+
+
     React.createElement("div", { className: "flex flex-col gap-1.5 mb-4" },
-    (() => {
+    !paymentAction.extra && (() => {
       const markingUnpaid = paymentAction.status !== "skipped";
       return (/*#__PURE__*/
         React.createElement("button", {
@@ -13123,6 +13551,20 @@ function HubboApp() {
 
     })(),
 
+    paymentAction.extra && /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () =>
+      setConfirmDeleteExtra({ source: "payments", id: paymentAction.id, label: paymentAction.description || paymentAction.name }),
+
+      style: { border: \`1px solid \${ACCENT.terracotta}59\`, background: \`\${ACCENT.terracotta}0F\`, color: legibleOn(ACCENT.terracotta, colors.surface) },
+      className: "rounded-xl px-3.5 py-3 text-sm font-medium text-left flex items-center gap-2" }, /*#__PURE__*/
+
+    React.createElement(Icon, { name: "trash2", size: 16 }),
+    t.singlePaymentDelete
+    ),
+
+
     subs && subs.some((x) => x.id === paymentAction.subId) && /*#__PURE__*/
     React.createElement("button", {
       type: "button",
@@ -13154,8 +13596,13 @@ function HubboApp() {
       className: "flex-1 min-w-0 rounded-xl px-3 py-2.5 text-sm outline-none" }
     ), /*#__PURE__*/
     React.createElement("span", { style: { color: colors.textSecondary }, className: "text-sm flex-shrink-0" }, symbolFor(paymentAction.currency))
-    ), /*#__PURE__*/
+    ),
 
+
+
+
+    !paymentAction.extra && /*#__PURE__*/
+    React.createElement(React.Fragment, null, /*#__PURE__*/
     React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, t.paymentApplyTo), /*#__PURE__*/
 
 
@@ -13184,22 +13631,376 @@ function HubboApp() {
         ));
 
     })
+    )
     ), /*#__PURE__*/
+
 
     React.createElement("button", {
       type: "button",
       disabled: !(parseAmount(paymentAmount) > 0),
       onClick: async () => {
-        await savePaymentAmount(paymentAction, paymentAmount, paymentScope);
+        await savePaymentAmount(paymentAction, paymentAmount, paymentAction.extra ? "one" : paymentScope);
         closeSheet("payment", () => setPaymentAction(null));
       },
       style: { background: ACCENT.amber, color: INK, opacity: !(parseAmount(paymentAmount) > 0) ? 0.4 : 1 },
       className: "w-full rounded-xl py-2.5 text-sm font-semibold" },
 
     t.paymentSaveAmount
-    ), /*#__PURE__*/
+    ),
 
+    !paymentAction.extra && /*#__PURE__*/
     React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-2.5 leading-relaxed" }, t.paymentSheetHint)
+
+    )
+    )
+    ),
+
+
+
+
+
+
+    addChoiceOpen && /*#__PURE__*/
+    React.createElement("div", {
+      style: { background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" },
+      className: \`fixed inset-0 flex items-end z-[70] \${closingSheet === "addChoice" ? "rb-overlay-out" : "rb-overlay"}\`,
+      onClick: () => closeSheet("addChoice", () => setAddChoiceOpen(false)) }, /*#__PURE__*/
+
+    React.createElement("div", {
+      onClick: (e) => e.stopPropagation(),
+      style: { background: colors.surface, border: \`1px solid \${colors.border}\` },
+      className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 \${closingSheet === "addChoice" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+
+    React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
+    React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium" }, t.addChoiceTitle), /*#__PURE__*/
+    React.createElement("button", { type: "button", onClick: () => closeSheet("addChoice", () => setAddChoiceOpen(false)), style: { color: colors.textSecondary } }, /*#__PURE__*/
+    React.createElement(Icon, { name: "x", size: 20 })
+    )
+    ), /*#__PURE__*/
+    React.createElement("div", { className: "flex flex-col gap-2" }, /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () => closeSheet("addChoice", () => {setAddChoiceOpen(false);openAdd();}),
+      style: { background: colors.surface2, border: \`1px solid \${colors.border}\` },
+      className: "w-full rounded-xl px-4 py-3.5 flex items-center gap-3 text-left" }, /*#__PURE__*/
+
+    React.createElement("span", { className: "flex-shrink-0", style: { color: ACCENT.amber } }, /*#__PURE__*/React.createElement(Icon, { name: "repeat", size: 20 })), /*#__PURE__*/
+    React.createElement("span", { className: "flex-1 min-w-0" }, /*#__PURE__*/
+    React.createElement("span", { className: "block text-sm font-medium" }, t.addChoiceSubscription), /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-xs mt-0.5" }, t.addChoiceSubscriptionDesc)
+    ), /*#__PURE__*/
+    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
+    ), /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () => closeSheet("addChoice", () => {setAddChoiceOpen(false);openSinglePayment();}),
+      style: { background: colors.surface2, border: \`1px solid \${colors.border}\` },
+      className: "w-full rounded-xl px-4 py-3.5 flex items-center gap-3 text-left" }, /*#__PURE__*/
+
+    React.createElement("span", { className: "flex-shrink-0", style: { color: ACCENT.amber } }, /*#__PURE__*/React.createElement(Icon, { name: "tag", size: 20 })), /*#__PURE__*/
+    React.createElement("span", { className: "flex-1 min-w-0" }, /*#__PURE__*/
+    React.createElement("span", { className: "block text-sm font-medium" }, t.addChoiceSingle), /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-xs mt-0.5" }, t.addChoiceSingleDesc)
+    ), /*#__PURE__*/
+    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
+    )
+    )
+    )
+    ),
+
+
+
+
+
+
+
+
+    singlePaymentForm && (() => {
+      const chosenCategory =
+      singlePaymentForm.category === EXTRA_CATEGORY_ID ?
+      { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR } :
+      CATEGORIES.find((c) => c.id === singlePaymentForm.category) || CATEGORIES[CATEGORIES.length - 1];
+      const chosenSub = singlePaymentForm.mode === "linked" ? (subs || []).find((s) => s.id === singlePaymentForm.subId) : null;
+      const canSave =
+      parseAmount(singlePaymentForm.amount) > 0 &&
+      singlePaymentForm.description.trim() !== "" &&
+      !!singlePaymentForm.date && (
+      singlePaymentForm.mode !== "linked" || !!singlePaymentForm.subId);
+      return (/*#__PURE__*/
+        React.createElement("div", {
+          style: { background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" },
+          className: \`fixed inset-0 flex items-end z-[70] \${closingSheet === "singlePayment" ? "rb-overlay-out" : "rb-overlay"}\`,
+          onClick: () => closeSheet("singlePayment", () => setSinglePaymentForm(null)) }, /*#__PURE__*/
+
+        React.createElement("div", {
+          onClick: (e) => e.stopPropagation(),
+          style: { background: colors.surface, border: \`1px solid \${colors.border}\` },
+          className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto \${closingSheet === "singlePayment" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+
+        React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
+        React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
+        React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium" }, t.singlePaymentTitle), /*#__PURE__*/
+        React.createElement("button", { type: "button", onClick: () => closeSheet("singlePayment", () => setSinglePaymentForm(null)), style: { color: colors.textSecondary } }, /*#__PURE__*/
+        React.createElement(Icon, { name: "x", size: 20 })
+        )
+        ), /*#__PURE__*/
+
+        React.createElement("div", { style: { background: colors.surface2, border: \`1px solid \${colors.border}\` }, className: "flex rounded-xl p-1 mb-4 gap-1" },
+        [
+        { value: "category", label: t.singlePaymentModeCategory },
+        { value: "linked", label: t.singlePaymentModeLinked }].
+        map((opt) => {
+          const active = singlePaymentForm.mode === opt.value;
+          return (/*#__PURE__*/
+            React.createElement("button", {
+              key: opt.value,
+              type: "button",
+              onClick: () => setSinglePaymentForm((f) => ({ ...f, mode: opt.value })),
+              style: { background: active ? ACCENT.terracotta : "transparent", color: active ? "#FFFDF8" : colors.textSecondary },
+              className: "flex-1 rounded-lg py-2.5 text-xs font-medium text-center" },
+
+            opt.label
+            ));
+
+        })
+        ),
+
+        singlePaymentForm.mode === "linked" ? /*#__PURE__*/
+        React.createElement("div", { className: "mb-3.5" }, /*#__PURE__*/
+        React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, t.singlePaymentChooseSub), /*#__PURE__*/
+        React.createElement("button", {
+          type: "button",
+          onClick: () =>
+          setOptionPicker({
+            title: t.singlePaymentChooseSub,
+            value: singlePaymentForm.subId,
+            searchable: true,
+            searchPlaceholder: t.searchService,
+            options: (subs || []).
+            slice().
+            sort((a, b) => a.name.localeCompare(b.name, "it", { sensitivity: "base" })).
+            map((s) => ({
+              value: s.id,
+              label: s.name,
+              logo: s.name,
+              logoCategory: s.category,
+              color: (CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1]).color
+            })),
+            onSelect: (v) => setSinglePaymentForm((f) => ({ ...f, subId: v }))
+          }),
+
+          style: { background: colors.surface2, border: \`1px solid \${colors.border}\` },
+          className: "w-full rounded-xl px-3 py-2.5 flex items-center gap-2 text-left" },
+
+        chosenSub ? /*#__PURE__*/
+        React.createElement(React.Fragment, null, /*#__PURE__*/
+        React.createElement(ServiceLogo, {
+          icon: serviceIcon(chosenSub.name),
+          domain: serviceDomain(chosenSub.name),
+          category: chosenSub.category,
+          letter: chosenSub.name.charAt(0).toUpperCase(),
+          serviceName: chosenSub.name,
+          color: (CATEGORIES.find((c) => c.id === chosenSub.category) || CATEGORIES[CATEGORIES.length - 1]).color,
+          size: 26 }
+        ), /*#__PURE__*/
+        React.createElement("span", { style: { color: colors.textPrimary }, className: "text-sm truncate min-w-0 flex-1" }, chosenSub.name)
+        ) : /*#__PURE__*/
+
+        React.createElement("span", { style: { color: colors.textFaint }, className: "text-sm truncate flex-1" }, t.chooseService), /*#__PURE__*/
+
+        React.createElement("span", { style: { color: colors.textFaint, fontSize: 10 }, className: "flex-shrink-0" }, "\\u25BE")
+        )
+        ) : /*#__PURE__*/
+
+        React.createElement("div", { className: "mb-3.5" }, /*#__PURE__*/
+        React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, t.category), /*#__PURE__*/
+        React.createElement("button", {
+          type: "button",
+          onClick: () =>
+          setOptionPicker({
+            title: t.category,
+            value: singlePaymentForm.category,
+            options: [
+            ...CATEGORIES.map((cc) => ({ value: cc.id, label: cc.label, color: cc.color })),
+            { value: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR }],
+
+            onSelect: (v) => setSinglePaymentForm((f) => ({ ...f, category: v }))
+          }),
+
+          style: { background: colors.surface2, border: \`1px solid \${colors.border}\` },
+          className: "w-full rounded-xl px-3 py-2.5 flex items-center gap-2 text-left" }, /*#__PURE__*/
+
+        React.createElement("span", { style: { background: chosenCategory.color, width: 10, height: 10, borderRadius: 999 }, className: "flex-shrink-0" }), /*#__PURE__*/
+        React.createElement("span", { style: { color: colors.textPrimary }, className: "text-sm truncate min-w-0 flex-1" }, chosenCategory.label), /*#__PURE__*/
+        React.createElement("span", { style: { color: colors.textFaint, fontSize: 10 }, className: "flex-shrink-0" }, "\\u25BE")
+        )
+        ), /*#__PURE__*/
+
+
+        React.createElement("div", { className: "mb-3.5" }, /*#__PURE__*/
+        React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, t.singlePaymentDescLabel), /*#__PURE__*/
+        React.createElement("input", {
+          value: singlePaymentForm.description,
+          onChange: (e) => setSinglePaymentForm((f) => ({ ...f, description: e.target.value })),
+          onKeyDown: (e) => {if (e.key === "Enter") e.currentTarget.blur();},
+          type: "text",
+          placeholder: t.singlePaymentDescPlaceholder,
+          style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
+          className: "w-full rounded-xl px-3.5 py-2.5 text-sm outline-none" }
+        )
+        ), /*#__PURE__*/
+
+        React.createElement("div", { className: "flex items-start gap-2 mb-3.5" }, /*#__PURE__*/
+        React.createElement("div", { className: "flex-1 min-w-0" }, /*#__PURE__*/
+        React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, t.singlePaymentAmountLabel), /*#__PURE__*/
+        React.createElement("div", { style: { background: colors.surface2, border: \`1px solid \${colors.border}\` }, className: "w-full rounded-xl pl-3 pr-1.5 py-1.5 flex items-center gap-1.5" }, /*#__PURE__*/
+        React.createElement("input", {
+          value: singlePaymentForm.amount,
+          onChange: (e) => setSinglePaymentForm((f) => ({ ...f, amount: e.target.value.replace(/[^0-9.,]/g, "") })),
+          onKeyDown: (e) => {if (e.key === "Enter") e.currentTarget.blur();},
+          type: "text", inputMode: "decimal", placeholder: "9,99",
+          style: { background: "transparent", color: colors.textPrimary, fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", border: "none", outline: "none" },
+          className: "flex-1 min-w-0 text-sm py-1" }
+        ), /*#__PURE__*/
+        React.createElement("span", { style: { color: colors.textSecondary }, className: "text-xs flex-shrink-0 pr-1" },
+        symbolFor(singlePaymentForm.mode === "linked" && chosenSub ? chosenSub.currency || settings.currency : settings.currency)
+        )
+        )
+        ), /*#__PURE__*/
+        React.createElement("div", { className: "flex-1 min-w-0" }, /*#__PURE__*/
+        React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, t.singlePaymentDateLabel), /*#__PURE__*/
+        React.createElement("input", {
+          value: singlePaymentForm.date,
+          onChange: (e) => setSinglePaymentForm((f) => ({ ...f, date: e.target.value })),
+          type: "date",
+          style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
+          className: "w-full rounded-xl px-3 py-[11px] text-sm outline-none" }
+        )
+        )
+        ), /*#__PURE__*/
+
+        React.createElement("div", { className: "mb-4" }, /*#__PURE__*/
+        React.createElement("label", { style: { color: colors.textSecondary }, className: "text-xs block mb-1.5" }, t.noteLabel), /*#__PURE__*/
+        React.createElement("textarea", {
+          value: singlePaymentForm.note,
+          onChange: (e) => setSinglePaymentForm((f) => ({ ...f, note: e.target.value })),
+          placeholder: t.notePlaceholder,
+          rows: 2,
+          style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
+          className: "w-full rounded-xl px-3.5 py-2.5 text-sm outline-none resize-none" }
+        )
+        ),
+
+        singlePaymentError && /*#__PURE__*/
+        React.createElement("div", { style: { color: ACCENT.danger, background: "rgba(224,85,69,0.1)", border: \`1px solid rgba(224,85,69,0.3)\` }, className: "rounded-xl px-3.5 py-2.5 text-xs mb-3.5" },
+        singlePaymentError
+        ), /*#__PURE__*/
+
+
+        React.createElement("button", {
+          type: "button",
+          onClick: saveSinglePayment,
+          disabled: !canSave || savingSingle,
+          style: { background: ACCENT.amber, color: INK, opacity: !canSave || savingSingle ? 0.5 : 1 },
+          className: "w-full rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2" },
+
+        savingSingle ? /*#__PURE__*/React.createElement(Icon, { name: "loader2", className: "animate-spin", size: 16 }) : /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 16 }),
+        t.singlePaymentSave
+        ), /*#__PURE__*/
+
+        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-2.5 leading-relaxed" },
+        singlePaymentForm.mode === "linked" ? t.singlePaymentHintLinked : t.singlePaymentHintCategory
+        )
+        )
+        ));
+
+    })(),
+
+
+
+
+
+    extraPaymentAction && (() => {
+      const cat =
+      extraPaymentAction.category === EXTRA_CATEGORY_ID ?
+      { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR } :
+      CATEGORIES.find((c) => c.id === extraPaymentAction.category) || CATEGORIES[CATEGORIES.length - 1];
+      return (/*#__PURE__*/
+        React.createElement("div", {
+          style: { background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" },
+          className: \`fixed inset-0 flex items-end z-[70] \${closingSheet === "extraPaymentAction" ? "rb-overlay-out" : "rb-overlay"}\`,
+          onClick: () => closeSheet("extraPaymentAction", () => setExtraPaymentAction(null)) }, /*#__PURE__*/
+
+        React.createElement("div", {
+          onClick: (e) => e.stopPropagation(),
+          style: { background: colors.surface, border: \`1px solid \${colors.border}\` },
+          className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[80vh] overflow-y-auto \${closingSheet === "extraPaymentAction" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+
+        React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
+        React.createElement("div", { className: "flex items-start gap-3 mb-4" }, /*#__PURE__*/
+        React.createElement("span", { style: { background: cat.color, width: 38, height: 38, borderRadius: 999 }, className: "flex-shrink-0" }), /*#__PURE__*/
+        React.createElement("div", { className: "min-w-0 flex-1" }, /*#__PURE__*/
+        React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium truncate" }, extraPaymentAction.description), /*#__PURE__*/
+        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-0.5" },
+        parseLocalDate(extraPaymentAction.date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" }), " \\xB7 ", cat.label
+        )
+        ), /*#__PURE__*/
+        React.createElement("button", { type: "button", onClick: () => closeSheet("extraPaymentAction", () => setExtraPaymentAction(null)), style: { color: colors.textSecondary }, className: "flex-shrink-0" }, /*#__PURE__*/
+        React.createElement(Icon, { name: "x", size: 20 })
+        )
+        ),
+
+        extraPaymentAction.note && /*#__PURE__*/
+        React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm mb-4 leading-relaxed" }, extraPaymentAction.note), /*#__PURE__*/
+
+
+        React.createElement("div", { style: { borderTop: \`1px solid \${colors.border}\` }, className: "pt-4 mb-4" }, /*#__PURE__*/
+        React.createElement("span", { style: { color: colors.textSecondary }, className: "text-xs block mb-1" }, t.singlePaymentAmountLabel), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-2xl font-semibold" },
+        money(extraPaymentAction.amount, extraPaymentAction.currency)
+        )
+        ), /*#__PURE__*/
+
+        React.createElement("button", {
+          type: "button",
+          onClick: () =>
+          setConfirmDeleteExtra({ source: "extra", id: extraPaymentAction.id, label: extraPaymentAction.description }),
+
+          style: { border: \`1px solid \${ACCENT.terracotta}59\`, background: \`\${ACCENT.terracotta}0F\`, color: legibleOn(ACCENT.terracotta, colors.surface) },
+          className: "w-full rounded-xl px-3.5 py-3 text-sm font-medium text-left flex items-center gap-2" }, /*#__PURE__*/
+
+        React.createElement(Icon, { name: "trash2", size: 16 }),
+        t.singlePaymentDelete
+        )
+        )
+        ));
+
+    })(),
+
+
+
+
+    confirmDeleteExtra && /*#__PURE__*/
+    React.createElement("div", { style: { background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }, className: \`fixed inset-0 flex items-end z-[80] \${closingSheet === "cdelextra" ? "rb-overlay-out" : "rb-overlay"}\`, onClick: () => closeSheet("cdelextra", () => setConfirmDeleteExtra(null)) }, /*#__PURE__*/
+    React.createElement("div", { onClick: (e) => e.stopPropagation(), style: { background: colors.surface, border: \`1px solid \${colors.border}\` }, className: \`w-full rounded-t-3xl p-5 pb-8 \${closingSheet === "cdelextra" ? "rb-dialog-out" : "rb-dialog"}\` }, /*#__PURE__*/
+    React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium mb-2" }, t.singlePaymentDeleteConfirmTitle), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm mb-5" }, t.singlePaymentDeleteConfirmBody(confirmDeleteExtra.label)), /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () => deleteExtraPaymentEntry(confirmDeleteExtra),
+      style: { background: ACCENT.danger, color: "#1A0F0B" },
+      className: "w-full rounded-xl py-3 text-sm font-semibold mb-2.5" },
+
+    t.singlePaymentDeleteConfirmYes
+    ), /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: () => closeSheet("cdelextra", () => setConfirmDeleteExtra(null)),
+      style: { color: colors.textSecondary },
+      className: "w-full rounded-xl py-2.5 text-sm" },
+
+    t.singlePaymentDeleteConfirmNo
     )
     )
     ),
@@ -13849,6 +14650,81 @@ function HubboApp() {
 
         ), /*#__PURE__*/
         React.createElement(PriceSparkline, { points: p.points, color: trendColor, id: s.id })
+        ));
+
+    })
+    )
+
+    )
+    ),
+
+
+
+
+
+
+    showExtraPayments && /*#__PURE__*/
+    React.createElement("div", { style: { background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }, className: \`fixed inset-0 flex items-end z-50 \${closingSheet === "extraSection" ? "rb-overlay-out" : "rb-overlay"}\`, onClick: () => closeSheet("extraSection", () => setShowExtraPayments(false)) }, /*#__PURE__*/
+    React.createElement("div", {
+      onClick: (e) => e.stopPropagation(),
+      style: { background: colors.surface, border: \`1px solid \${colors.border}\`, overscrollBehavior: "contain" },
+      className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto \${closingSheet === "extraSection" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+
+    React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
+    React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium" }, t.extraSectionTitle), /*#__PURE__*/
+    React.createElement("button", { type: "button", onClick: () => closeSheet("extraSection", () => setShowExtraPayments(false)), style: { color: colors.textSecondary } }, /*#__PURE__*/
+    React.createElement(Icon, { name: "x", size: 20 })
+    )
+    ), /*#__PURE__*/
+
+    React.createElement("div", { style: { background: colors.surface2, border: \`1px solid \${colors.border}\` }, className: "rounded-2xl px-4 py-3.5 mb-4" }, /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mb-1" }, t.extraSectionTotalLabel), /*#__PURE__*/
+    React.createElement("div", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-2xl font-semibold mb-3" },
+    money(extraPaymentsTotal, settings.currency)
+    ),
+    extraCategoryTotals.length > 0 && /*#__PURE__*/
+    React.createElement("div", { className: "flex flex-col gap-1.5" },
+    extraCategoryTotals.map((c) => /*#__PURE__*/
+    React.createElement("div", { key: c.id, className: "flex items-center gap-2" }, /*#__PURE__*/
+    React.createElement("span", { style: { background: c.color, width: 8, height: 8, borderRadius: 999 }, className: "flex-shrink-0" }), /*#__PURE__*/
+    React.createElement("span", { className: "text-xs flex-1 min-w-0 truncate" }, c.label), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-xs font-medium flex-shrink-0" }, money(c.total, settings.currency))
+    )
+    )
+    )
+
+    ),
+
+    extraPayments.length === 0 ? /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm text-center py-8" }, t.extraSectionEmpty) : /*#__PURE__*/
+
+    React.createElement("div", { style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-xl overflow-hidden" },
+    extraPayments.
+    slice().
+    sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).
+    map((p, idx) => {
+      const cat = p.category === EXTRA_CATEGORY_ID ?
+      { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR } :
+      CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
+      return (/*#__PURE__*/
+        React.createElement("button", {
+          key: p.id,
+          type: "button",
+          onClick: () => setExtraPaymentAction(p),
+          style: idx > 0 ? { borderTop: \`1px solid \${colors.border}\` } : undefined,
+          className: "w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-transform active:scale-[0.99]" }, /*#__PURE__*/
+
+        React.createElement("span", { style: { background: cat.color, width: 28, height: 28, borderRadius: 999 }, className: "flex-shrink-0" }), /*#__PURE__*/
+        React.createElement("div", { className: "flex-1 min-w-0" }, /*#__PURE__*/
+        React.createElement("div", { className: "text-sm font-medium truncate" }, p.description), /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs truncate" },
+        parseLocalDate(p.date).toLocaleDateString(locale, { day: "numeric", month: "short" }), " \\xB7 ", cat.label
+        )
+        ), /*#__PURE__*/
+        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-sm font-semibold whitespace-nowrap" },
+        money(p.amount, p.currency)
+        )
         ));
 
     })
