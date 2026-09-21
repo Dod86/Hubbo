@@ -30,32 +30,40 @@
 // Salvato per primo, prima di qualsiasi altra riga qui sotto: se l'app è
 // stata aperta da una notifica, l'indirizzo di partenza porta i suoi
 // parametri (`#notifOffer=...&servizio=...` oppure `#notif=...&sub=...`).
-// Il codice appena sotto sovrascrive subito l'indirizzo con "#v", più
-// volte, per riempire la cronologia che serve al tasto Indietro fisico —
-// quei parametri sparirebbero prima ancora che React monti e possa
-// leggerli. React legge questo valore, non l'indirizzo corrente, la prima
-// volta che gli serve sapere da dove è arrivato.
+// Il valore iniziale viene comunque salvato prima della gestione del tasto
+// Indietro: quando Hubbo apre un livello interno, il guard usa temporaneamente
+// "#v". React legge questo valore salvato la prima volta che deve capire da
+// quale notifica è stata avviata l'app.
 window.__hubboStartHash = window.location.hash || "";
-window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0 };
+window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active: false, setActive: null };
 (function () {
   var GUARD = "#v";
-  var TARGET = 4;      // spare history entries kept in reserve
-  var depth = 0;       // how many we believe are still on the stack
+  var TARGET = 4;      // reserve used only while an internal Hubbo layer is open
+  var depth = 0;       // how many Hubbo guard entries are currently behind us
+  var active = false;  // false on the clean List screen: Android Back must stay native
+  var suppressNavigation = false;
   var lastAt = 0;
 
+  function publishState() {
+    window.__hubboBack.depth = depth;
+    window.__hubboBack.active = active;
+  }
+
   function pushGuard() {
+    if (!active) return;
     try {
       window.history.pushState({ rb: Date.now() }, "", GUARD);
       depth++;
-      window.__hubboBack.depth = depth;
+      publishState();
     } catch (e) {
       /* history unavailable */
     }
   }
 
   function topUp() {
-    // A single hardware Back can consume more than one entry on some Android
-    // builds, so a small buffer is kept rather than a single guard.
+    if (!active) return;
+    // Keep the old Android safety buffer, but only while there is actually
+    // something inside Hubbo that Back is supposed to dismiss.
     var tries = 0;
     while (depth < TARGET && tries < TARGET + 2) {
       pushGuard();
@@ -63,16 +71,56 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0 };
     }
   }
 
+  function clearGuards() {
+    if (!depth) {
+      publishState();
+      return;
+    }
+    var steps = depth;
+    depth = 0;
+    publishState();
+    suppressNavigation = true;
+    try {
+      // Return to Hubbo's real entry. Once there, the next physical Back is
+      // no longer intercepted and Android/Chrome can leave the PWA normally.
+      window.history.go(-steps);
+    } catch (e) {
+      suppressNavigation = false;
+    }
+  }
+
+  function setActive(next) {
+    var wanted = !!next;
+    if (wanted === active) {
+      if (wanted) topUp();
+      return;
+    }
+    active = wanted;
+    publishState();
+    if (active) topUp();
+    else clearGuards();
+  }
+
   function onBack(evt) {
-    // One physical Back fires both popstate and hashchange; treat them as one.
+    // One physical Back can report both popstate and hashchange; count it once.
     var now = Date.now();
     if (now - lastAt < 350) return;
     lastAt = now;
 
+    if (suppressNavigation) {
+      suppressNavigation = false;
+      publishState();
+      return;
+    }
+
+    // If Hubbo is not handling an internal layer, do not rebuild history:
+    // this navigation belongs to Android/the browser.
+    if (!active) return;
+
     depth = Math.max(0, depth - 1);
     window.__hubboBack.count++;
     window.__hubboBack.lastEvent = evt && evt.type ? evt.type : "?";
-    window.__hubboBack.depth = depth;
+    publishState();
 
     try {
       if (window.__hubboBack.handler) window.__hubboBack.handler();
@@ -80,15 +128,20 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0 };
       /* ignore */
     }
 
-    // Refill once the browser has finished the navigation.
-    setTimeout(topUp, 0);
+    // React decides whether another internal layer remains. If it does, its
+    // next render leaves `active` true and the reserve is restored; if the
+    // app has returned to the clean List screen, setActive(false) removes it.
+    setTimeout(function () {
+      if (active) topUp();
+    }, 0);
   }
 
-  topUp();
+  window.__hubboBack.setActive = setActive;
+  publishState();
   window.addEventListener("popstate", onBack);
   window.addEventListener("hashchange", onBack);
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") setTimeout(topUp, 0);
+    if (document.visibilityState === "visible" && active) setTimeout(topUp, 0);
   });
 })();
 </script>
@@ -551,8 +604,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v286";
-const APP_BUILD_DATE = "2026-09-21";
+const APP_VERSION = "v287";
+const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -10786,6 +10839,11 @@ function HubboApp() {
     const busy = closingRef.current;
     if (busy) return true;
     const layers = [
+    // Dialogs at z-[85] really are the topmost layer. They must be closed
+    // before touching the form or tab underneath them.
+    ["duplicate", duplicateConfirm, () => setDuplicateConfirm(null), true],
+    ["resume", resumePrompt, () => setResumePrompt(null), true],
+    ["cancelPrompt", cancelPrompt, () => setCancelPrompt(null), true],
     ["option", optionPicker, () => setOptionPicker(null)],
     ["cdelextra", confirmDeleteExtra, () => setConfirmDeleteExtra(null)],
     ["payment", paymentAction, () => setPaymentAction(null)],
@@ -10829,9 +10887,19 @@ function HubboApp() {
     return false;
   }
 
+  // Keep artificial history only while Back has something inside Hubbo to do.
+  // On the clean List screen there are no Hubbo guard entries, so Android's
+  // physical Back remains native and can leave/minimise the installed PWA.
+  const backActive =
+  tourActive || anyModalOpen || !!resumePrompt || !!cancelPrompt || !!duplicateConfirm ||
+  !!selectedDay || view !== "list";
+
   useEffect(() => {
     if (typeof window === "undefined" || !window.__hubboBack) return;
     window.__hubboBack.handler = dismissTopLayer;
+    if (typeof window.__hubboBack.setActive === "function") {
+      window.__hubboBack.setActive(backActive);
+    }
     return () => {
       if (window.__hubboBack) window.__hubboBack.handler = null;
     };
