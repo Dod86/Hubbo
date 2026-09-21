@@ -501,7 +501,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v275";
+const APP_VERSION = "v276";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7235,6 +7235,10 @@ function HubboApp() {
   const colorsDrag = useSheetDrag((ms) => closeSheet("colors", () => {setShowColors(false);setColorEditing(null);}, ms));
   const optionDrag = useSheetDrag((ms) => closeSheet("option", () => setOptionPicker(null), ms));
   const paymentDrag = useSheetDrag((ms) => closeSheet("payment", () => setPaymentAction(null), ms));
+  const addChoiceDrag = useSheetDrag((ms) => closeSheet("addChoice", () => setAddChoiceOpen(false), ms));
+  const singlePaymentDrag = useSheetDrag((ms) => closeSheet("singlePayment", () => setSinglePaymentForm(null), ms));
+  const extraPaymentActionDrag = useSheetDrag((ms) => closeSheet("extraPaymentAction", () => setExtraPaymentAction(null), ms));
+  const extraSectionDrag = useSheetDrag((ms) => closeSheet("extraSection", () => setShowExtraPayments(false), ms));
   const [ratesDate, setRatesDate] = useState(null);
   // Distinguishes "still asking" from "asked and failed". Without it the
   // pessimistic note showed for a moment at every start, and for good when
@@ -11229,21 +11233,30 @@ function HubboApp() {
         background: colors.surface,
         border: \`1px solid \${colors.border}\`,
         boxShadow: colors.cardShadow,
-        minWidth: 138,
-        marginRight: 8
+        minWidth: 164,
+        marginRight: 10
       },
-      className: "rounded-2xl px-3 py-2 text-right flex-shrink-0 transition-transform active:scale-[0.99]",
+      className: "rounded-[18px] px-3 py-2.5 flex items-center gap-2.5 text-left flex-shrink-0 transition-transform active:scale-[0.99]",
       "aria-label": \`\${t.extraSectionTitle} · \${money(calendarMonthStats.extraTotal, settings.currency)}\` }, /*#__PURE__*/
 
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-[11px] leading-tight" }, t.extraSectionTotalLabel), /*#__PURE__*/
-    React.createElement("div", {
+    React.createElement("span", {
+      style: { background: colors.surface2, color: ACCENT.amber, width: 30, height: 30 },
+      className: "rounded-full flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
+
+    React.createElement(Icon, { name: "tag", size: 15 })
+    ), /*#__PURE__*/
+    React.createElement("span", { style: { width: 1, height: 30, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
+    React.createElement("span", { className: "min-w-0 flex-1" }, /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-[10px] leading-tight whitespace-nowrap" }, t.extraSectionTotalLabel), /*#__PURE__*/
+    React.createElement("span", {
       style: {
         color: calendarMonthStats.extraTotal > 0 ? colors.textPrimary : colors.textSecondary,
         fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
       },
-      className: "text-sm font-semibold mt-0.5 whitespace-nowrap" },
+      className: "block text-sm font-semibold mt-0.5 whitespace-nowrap" },
 
     money(calendarMonthStats.extraTotal, settings.currency)
+    )
     )
     )
     )
@@ -13921,10 +13934,12 @@ function HubboApp() {
       className: \`fixed inset-0 flex items-end z-[70] \${closingSheet === "addChoice" ? "rb-overlay-out" : "rb-overlay"}\`,
       onClick: () => closeSheet("addChoice", () => setAddChoiceOpen(false)) }, /*#__PURE__*/
 
-    React.createElement("div", {
-      onClick: (e) => e.stopPropagation(),
-      style: { background: colors.surface, border: \`1px solid \${colors.border}\` },
-      className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 \${closingSheet === "addChoice" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+    React.createElement("div", _extends({
+      onClick: (e) => e.stopPropagation() },
+    addChoiceDrag.handlers, {
+      ref: addChoiceDrag.ref,
+      style: { background: colors.surface, border: \`1px solid \${colors.border}\`, ...addChoiceDrag.style },
+      className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 \${closingSheet === "addChoice" ? "rb-sheet-out" : "rb-sheet"}\` }), /*#__PURE__*/
 
     React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
@@ -13989,10 +14004,12 @@ function HubboApp() {
           className: \`fixed inset-0 flex items-end z-[70] \${closingSheet === "singlePayment" ? "rb-overlay-out" : "rb-overlay"}\`,
           onClick: () => closeSheet("singlePayment", () => setSinglePaymentForm(null)) }, /*#__PURE__*/
 
-        React.createElement("div", {
-          onClick: (e) => e.stopPropagation(),
-          style: { background: colors.surface, border: \`1px solid \${colors.border}\` },
-          className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto \${closingSheet === "singlePayment" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+        React.createElement("div", _extends({
+          onClick: (e) => e.stopPropagation() },
+        singlePaymentDrag.handlers, {
+          ref: singlePaymentDrag.ref,
+          style: { background: colors.surface, border: \`1px solid \${colors.border}\`, overscrollBehavior: "contain", ...singlePaymentDrag.style },
+          className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto \${closingSheet === "singlePayment" ? "rb-sheet-out" : "rb-sheet"}\` }), /*#__PURE__*/
 
         React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
         React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
@@ -14188,10 +14205,12 @@ function HubboApp() {
           className: \`fixed inset-0 flex items-end z-[70] \${closingSheet === "extraPaymentAction" ? "rb-overlay-out" : "rb-overlay"}\`,
           onClick: () => closeSheet("extraPaymentAction", () => setExtraPaymentAction(null)) }, /*#__PURE__*/
 
-        React.createElement("div", {
-          onClick: (e) => e.stopPropagation(),
-          style: { background: colors.surface, border: \`1px solid \${colors.border}\` },
-          className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[80vh] overflow-y-auto \${closingSheet === "extraPaymentAction" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+        React.createElement("div", _extends({
+          onClick: (e) => e.stopPropagation() },
+        extraPaymentActionDrag.handlers, {
+          ref: extraPaymentActionDrag.ref,
+          style: { background: colors.surface, border: \`1px solid \${colors.border}\`, overscrollBehavior: "contain", ...extraPaymentActionDrag.style },
+          className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[80vh] overflow-y-auto \${closingSheet === "extraPaymentAction" ? "rb-sheet-out" : "rb-sheet"}\` }), /*#__PURE__*/
 
         React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
         React.createElement("div", { className: "flex items-start gap-3 mb-4" }, /*#__PURE__*/
@@ -14932,10 +14951,12 @@ function HubboApp() {
 
     showExtraPayments && /*#__PURE__*/
     React.createElement("div", { style: { background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }, className: \`fixed inset-0 flex items-end z-50 \${closingSheet === "extraSection" ? "rb-overlay-out" : "rb-overlay"}\`, onClick: () => closeSheet("extraSection", () => setShowExtraPayments(false)) }, /*#__PURE__*/
-    React.createElement("div", {
-      onClick: (e) => e.stopPropagation(),
-      style: { background: colors.surface, border: \`1px solid \${colors.border}\`, overscrollBehavior: "contain" },
-      className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto \${closingSheet === "extraSection" ? "rb-sheet-out" : "rb-sheet"}\` }, /*#__PURE__*/
+    React.createElement("div", _extends({
+      onClick: (e) => e.stopPropagation() },
+    extraSectionDrag.handlers, {
+      ref: extraSectionDrag.ref,
+      style: { background: colors.surface, border: \`1px solid \${colors.border}\`, overscrollBehavior: "contain", ...extraSectionDrag.style },
+      className: \`w-full rounded-t-3xl px-5 pt-2 pb-8 max-h-[85vh] overflow-y-auto \${closingSheet === "extraSection" ? "rb-sheet-out" : "rb-sheet"}\` }), /*#__PURE__*/
 
     React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between mb-4" }, /*#__PURE__*/
