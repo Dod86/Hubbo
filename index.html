@@ -478,15 +478,16 @@ const CATEGORY_META = [
 { id: "altro", color: "#816F6A" }];
 
 
-// Pseudo-categoria dei Pagamenti Singoli (21 settembre), usata solo dalle
-// spese non collegate a un abbonamento e senza una categoria che le
-// descriva meglio (es. una bolletta). Fuori da CATEGORY_META apposta: non
-// deve comparire nel selettore categoria di un abbonamento normale, né
-// contare per il controllo di distanza colore [6d] — vive solo dentro
-// "Spese extra" nello Storico, una lista isolata che non tocca mai
-// l'anello principale delle categorie.
+// ID storico usato dalle prime versioni dei Pagamenti Singoli per la voce
+// "Fuori categoria". Dalla v286 non viene più proposto all'utente: era
+// indistinguibile da "Altro" e rendeva il selettore ambiguo. Lo conserviamo
+// solo per riconoscere e migrare automaticamente i dati già salvati o
+// importati da backup precedenti.
 const EXTRA_CATEGORY_ID = "fuoricategoria";
 const EXTRA_CATEGORY_COLOR = "#A39B8C";
+function normalizeStandaloneCategory(category) {
+  return category === EXTRA_CATEGORY_ID ? "altro" : category;
+}
 
 // Palette offered when recolouring a category. The first colours MUST be
 // the same colours used by CATEGORY_META: otherwise selecting a default
@@ -550,7 +551,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v285";
+const APP_VERSION = "v286";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -3243,7 +3244,7 @@ const LEDGER_STRINGS = {
     singlePaymentNotePlaceholder: "Es. Dettagli della bolletta, film noleggiato, gioco acquistato...",
     singlePaymentAmountLabel: "Importo",
     singlePaymentDateLabel: "Data",
-    singlePaymentOutOfCategory: "Fuori categoria",
+    singlePaymentOutOfCategory: "Altro",
     singlePaymentSave: "Salva",
     singlePaymentDelete: "Elimina questa spesa",
     singlePaymentErrAmount: "Inserisci un importo valido.",
@@ -3416,7 +3417,7 @@ const LEDGER_STRINGS = {
     singlePaymentNotePlaceholder: "E.g. Bill details, rented movie, game purchased...",
     singlePaymentAmountLabel: "Amount",
     singlePaymentDateLabel: "Date",
-    singlePaymentOutOfCategory: "Uncategorised",
+    singlePaymentOutOfCategory: "Other",
     singlePaymentSave: "Save",
     singlePaymentDelete: "Delete this expense",
     singlePaymentErrAmount: "Enter a valid amount.",
@@ -3589,7 +3590,7 @@ const LEDGER_STRINGS = {
     singlePaymentNotePlaceholder: "Ej. Detalles de la factura, película alquilada, juego comprado...",
     singlePaymentAmountLabel: "Importe",
     singlePaymentDateLabel: "Fecha",
-    singlePaymentOutOfCategory: "Sin categoría",
+    singlePaymentOutOfCategory: "Otros",
     singlePaymentSave: "Guardar",
     singlePaymentDelete: "Eliminar este gasto",
     singlePaymentErrAmount: "Introduce un importe válido.",
@@ -3762,7 +3763,7 @@ const LEDGER_STRINGS = {
     singlePaymentNotePlaceholder: "Ex. Détails de la facture, film loué, jeu acheté...",
     singlePaymentAmountLabel: "Montant",
     singlePaymentDateLabel: "Date",
-    singlePaymentOutOfCategory: "Hors catégorie",
+    singlePaymentOutOfCategory: "Autre",
     singlePaymentSave: "Enregistrer",
     singlePaymentDelete: "Supprimer cette dépense",
     singlePaymentErrAmount: "Saisissez un montant valide.",
@@ -3935,7 +3936,7 @@ const LEDGER_STRINGS = {
     singlePaymentNotePlaceholder: "Z. B. Rechnungsdetails, geliehener Film, gekauftes Spiel...",
     singlePaymentAmountLabel: "Betrag",
     singlePaymentDateLabel: "Datum",
-    singlePaymentOutOfCategory: "Ohne Kategorie",
+    singlePaymentOutOfCategory: "Sonstiges",
     singlePaymentSave: "Speichern",
     singlePaymentDelete: "Diese Ausgabe löschen",
     singlePaymentErrAmount: "Gib einen gültigen Betrag ein.",
@@ -4111,7 +4112,11 @@ function buildPriceSeries(sub, payments, todayISO) {
     });
   }
   (payments || []).forEach((p) => {
-    if (p.subId === sub.id && p.status !== "skipped") {
+    // I pagamenti singoli collegati vivono nello stesso registro dei rinnovi
+    // per contribuire al totale realmente speso dal servizio, ma \`extra:true\`
+    // li distingue da un rinnovo. Non sono un cambio di prezzo
+    // dell'abbonamento e quindi non devono mai entrare nello Storico prezzi.
+    if (p.subId === sub.id && p.status !== "skipped" && !p.extra) {
       points.push({ cost: p.amount, currency: p.currency || sub.currency, date: p.date });
     }
   });
@@ -7541,7 +7546,19 @@ function HubboApp() {
       try {
         const res = await window.storage.get("abbly:extraPayments", false);
         const loaded = res ? JSON.parse(res.value) : [];
-        setExtraPayments(Array.isArray(loaded) ? loaded : []);
+        const raw = Array.isArray(loaded) ? loaded : [];
+        const normalized = raw.map((p) => ({ ...p, category: normalizeStandaloneCategory(p.category) }));
+        setExtraPayments(normalized);
+        // Migrazione trasparente v286: i vecchi "fuoricategoria" diventano
+        // definitivamente "altro", così filtri e riepiloghi non mostrano due
+        // categorie equivalenti.
+        if (normalized.some((p, i) => p.category !== raw[i]?.category)) {
+          try {
+            await window.storage.set("abbly:extraPayments", JSON.stringify(normalized), false);
+          } catch {
+
+            // best effort
+          }}
       } catch {
         setExtraPayments([]);
       }
@@ -7576,9 +7593,10 @@ function HubboApp() {
     }}
 
   async function persistExtraPayments(next) {
-    setExtraPayments(next);
+    const normalized = (next || []).map((p) => ({ ...p, category: normalizeStandaloneCategory(p.category) }));
+    setExtraPayments(normalized);
     try {
-      await window.storage.set("abbly:extraPayments", JSON.stringify(next), false);
+      await window.storage.set("abbly:extraPayments", JSON.stringify(normalized), false);
     } catch {
 
       // best effort
@@ -8048,7 +8066,7 @@ function HubboApp() {
     setSinglePaymentForm({
       // "linked" = collegato a un abbonamento che già esiste (es. un
       // noleggio film su un servizio già pagato); "category" = una spesa a
-      // sé, con una categoria propria o "fuori categoria".
+      // sé, con una categoria propria; per i casi generici basta "Altro".
       mode: "category",
       subId: "",
       amount: "",
@@ -8074,7 +8092,7 @@ function HubboApp() {
       amount: String(entry.amount ?? ""),
       date: entry.date || todayISO,
       description: entry.description || entry.name || "",
-      category: entry.category || (CATEGORIES[0] ? CATEGORIES[0].id : "altro"),
+      category: normalizeStandaloneCategory(entry.category) || (CATEGORIES[0] ? CATEGORIES[0].id : "altro"),
       note: entry.note || "",
       editSource: source,
       editId: entry.id
@@ -8148,7 +8166,7 @@ function HubboApp() {
         baseCurrency: base,
         baseAmount: amount,
         date: singlePaymentForm.date,
-        category: singlePaymentForm.category,
+        category: normalizeStandaloneCategory(singlePaymentForm.category),
         description,
         note: singlePaymentForm.note.trim(),
         createdAt: previous && previous.createdAt || new Date().toISOString()
@@ -14129,10 +14147,7 @@ function HubboApp() {
           setOptionPicker({
             title: t.category,
             value: singlePaymentForm.category,
-            options: [
-            ...CATEGORIES.map((cc) => ({ value: cc.id, label: cc.label, color: cc.color })),
-            { value: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR }],
-
+            options: CATEGORIES.map((cc) => ({ value: cc.id, label: cc.label, color: cc.color })),
             onSelect: (v) => setSinglePaymentForm((f) => ({ ...f, category: v }))
           }),
 
