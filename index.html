@@ -322,13 +322,13 @@ function lightExtraExpensesCardStyle(colors, light) {
   const amber = parseHex(ACCENT.amber);
   const style = {};
   if (!base || !amber) return style;
-  const wash = mix(base, amber, light ? 0.12 : 0.16);
-  const glowA = mix(base, amber, light ? 0.17 : 0.21);
-  const glowB = mix(base, amber, light ? 0.09 : 0.13);
+  const leftStrong = mix(base, amber, light ? 0.18 : 0.22);
+  const leftSoft = mix(base, amber, light ? 0.10 : 0.14);
+  const rightWhite = base;
   const tint = (rgb, alpha = 1) => \`rgba(\${rgb.join(",")},\${alpha})\`;
-  style.backgroundColor = tint(wash, 1);
-  style.backgroundImage = \`linear-gradient(135deg, \${tint(glowA, light ? 0.20 : 0.16)} 0%, \${tint(glowB, light ? 0.32 : 0.24)} 100%)\`;
-  style.border = \`1px solid \${tint(mix(base, amber, light ? 0.22 : 0.28), light ? 0.95 : 0.88)}\`;
+  style.backgroundColor = colors.surface;
+  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.34 : 0.22)} 0%, \${tint(leftSoft, light ? 0.18 : 0.14)} 46%, \${tint(rightWhite, 1)} 100%)\`;
+  style.border = \`1px solid \${tint(mix(base, amber, light ? 0.20 : 0.24), light ? 0.95 : 0.88)}\`;
   return style;
 }
 
@@ -522,7 +522,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v279";
+const APP_VERSION = "v280";
 const APP_BUILD_DATE = "2026-09-21";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -11422,7 +11422,9 @@ function HubboApp() {
       onSelect: setRingSelectedHistory }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-1.5" }, historyTotals.count, " \\xB7 ", t.historyPaymentsCount)
+    React.createElement("div", { className: "flex items-end justify-between gap-3 mt-2" }, /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" }, historyTotals.count, " \\xB7 ", t.historyPaymentsCount)
+    )
     ),
 
 
@@ -11465,7 +11467,7 @@ function HubboApp() {
       style: { background: effectiveTheme === "light" ? "rgba(227,168,87,0.14)" : "rgba(227,168,87,0.18)", color: ACCENT.amber, width: 32, height: 32 },
       className: "rounded-full flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
 
-    React.createElement(Icon, { name: "tag", size: 16 })
+    React.createElement(Icon, { name: "tag", size: 15 })
     ), /*#__PURE__*/
     React.createElement("span", { style: { width: 1, height: 32, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
     React.createElement("span", { className: "flex-1 min-w-0" }, /*#__PURE__*/
