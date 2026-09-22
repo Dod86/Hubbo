@@ -580,7 +580,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v292";
+const APP_VERSION = "v293";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -9387,8 +9387,11 @@ function HubboApp() {
       list = list.filter((s) => s.name.toLowerCase().includes(q));
     }
     return [...list].sort((a, b) => {
-      const aDone = a.isEnded || a.paused;
-      const bDone = b.isEnded || b.paused;
+      // I record mai sospesi possono non avere \`paused\`; quelli riattivati
+      // hanno \`paused: false\`. Normalizziamo prima del confronto, altrimenti
+      // undefined !== false scavalca il criterio scelto anche fra due attivi.
+      const aDone = Boolean(a.isEnded || a.paused);
+      const bDone = Boolean(b.isEnded || b.paused);
       if (aDone !== bDone) return aDone ? 1 : -1;
       if (sortBy === "name") return a.name.localeCompare(b.name);
       // Costs are compared as monthly amounts in the main currency, so a yearly
