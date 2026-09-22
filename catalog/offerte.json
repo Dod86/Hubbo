@@ -1,6 +1,6 @@
 {
   "versione": 5,
-  "aggiornato": "2026-09-21",
+  "aggiornato": "2026-09-22",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente. `bundleCommerciali` censisce separatamente le offerte multi-servizio verificate: in Parte 9D restano deliberatamente non attive nel motore fino alle regole di idoneità 9E.",
@@ -630,7 +630,7 @@
         }
       ],
       "minServizi": 1,
-      "nota": "Se possiedi Amazon Prime e anche un abbonamento Prime Video separato, Hubbo tratta il secondo come ridondante e non modifica il costo del Prime che già stai pagando.",
+      "nota": "Prime Video è incluso in Amazon Prime. Hubbo non lo propone più come nuovo abbonamento autonomo; se trova un vecchio record Prime Video separato lo segnala come ridondante senza modificare i dati salvati.",
       "link": "https://www.amazon.it/gp/primecentral",
       "fonte": "amazon.it",
       "verificato": "2026-09-19"
@@ -4193,7 +4193,14 @@
         "nota": "Puoi invitare un altro adulto del tuo nucleo familiare e condividere molti benefici Prime senza costi aggiuntivi, mantenendo account separati. Sono inclusi consegne Prime, Prime Video con pubblicità, Amazon Music Prime, offerte Prime e Amazon Luna.",
         "link": "https://www.amazon.it/prime/familyhub",
         "verificato": "2026-09-20"
-      }
+      },
+      "serviziInclusi": [
+        {
+          "servizio": "Amazon Prime Video",
+          "tipo": "beneficio_incluso"
+        }
+      ],
+      "nota": "Amazon Prime è il servizio principale: in Hubbo Italia Prime Video viene trattato come beneficio incluso e non come secondo abbonamento autonomo."
     },
     {
       "servizio": "Apple Music",
@@ -5340,7 +5347,7 @@
       "servizio": "Amazon Prime Video",
       "annuale": {
         "disponibile": false,
-        "nota": "Non viene equiparato all’annuale di Amazon Prime: Prime è un bundle distinto che include Prime Video. Nessun annuale standalone di Prime Video viene suggerito senza fonte ufficiale verificabile."
+        "nota": "Prime Video non viene proposto come piano autonomo in Hubbo Italia: il servizio è modellato come incluso in Amazon Prime."
       },
       "famiglia": {
         "disponibile": false
@@ -5348,9 +5355,11 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Esiste anche da solo, senza il resto di Prime.",
+      "nota": "In Hubbo Italia Prime Video è trattato come beneficio incluso in Amazon Prime e non viene proposto come nuovo abbonamento autonomo. La voce resta nel catalogo per compatibilità con dati storici già salvati.",
       "link": "https://www.amazon.it/gp/primecentral",
-      "verificato": "2026-09-09"
+      "verificato": "2026-09-09",
+      "inclusoIn": "Amazon Prime",
+      "selezionabileComeAbbonamento": false
     },
     {
       "servizio": "Sky",

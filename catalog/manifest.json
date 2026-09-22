@@ -1,8 +1,8 @@
 {
-  "catalogVersion": 8,
+  "catalogVersion": 9,
   "schemaVersion": 5,
-  "generatedAt": "2026-09-20T22:44:24.884Z",
+  "generatedAt": "2026-09-22T14:30:56.890Z",
   "minAppVersion": "v260",
-  "catalogUrl": "https://dod86.github.io/Hubbo/catalog/versions/v000008/offerte.json",
-  "sha256": "1e0a4b5e14eaa159e9747c2b846a4aa70c7e0ac396c0633e618cb1666f6e23cd"
+  "catalogUrl": "https://dod86.github.io/Hubbo/catalog/versions/v000009/offerte.json",
+  "sha256": "e3a2425a7e849672c3ec0813e152aa8f1c4cfc36b7261f72e2f3b2220983b024"
 }

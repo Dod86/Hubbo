@@ -1,5 +1,22 @@
 # Catalogo remoto Hubbo — Parti 8A/8B/8C/8D/8E/8F/8G/8H
 
+## Stato corrente — Parte 9D TIMVISION
+
+APP_VERSION resta **v258**; il catalogo remoto corrente è **catalogVersion 5**, schema v5, snapshot immutabile `catalog/versions/v000005/`. La Parte 9D aggiunge `schemaBundleCommerciali` e 20 record `bundleCommerciali` TIMVISION verificati. Tutti hanno `motoreAttivo: false`: diventano suggerimenti soltanto dalla Parte 9E, dopo i controlli di idoneità.
+
+Il manifest live punta a:
+
+`https://dod86.github.io/Hubbo/catalog/versions/v000005/offerte.json`
+
+
+## Nota storica Parte 9C — client v258, catalogVersion allora 4
+
+La Parte 9C modifica esclusivamente il client PWA: i campi bundle introdotti con
+`catalogVersion 4` vengono ora valutati su 12 mesi, con promo, prezzo successivo e
+costi iniziali distinti. Poiché `offerte.json` non cambia, **catalogVersion resta
+4** e non viene creata alcuna nuova cartella `versions/`.
+
+
 Questa cartella contiene i dati commerciali aggiornabili senza una nuova release
 dell'app. Dalla v243 il manifest pubblico è un **puntatore live** a snapshot
 immutabili del catalogo.
@@ -20,11 +37,9 @@ Endpoint live:
 - `https://dod86.github.io/Hubbo/catalog/manifest.json`
 
 Lo storico parte da `catalogVersion: 1`, conservata immutabilmente in
-`catalog/versions/v000001/`. La versione live corrente è **catalogVersion 4**,
-in `catalog/versions/v000004/`. La v4 introduce il modello dati additivo della
-Parte 9B senza aggiungere ancora nuovi bundle commerciali. Il manifest live punta a:
+`catalog/versions/v000001/`. La versione live corrente è **catalogVersion 5**, in `catalog/versions/v000005/`. La v5 aggiunge il censimento commerciale TIMVISION della Parte 9D senza attivarlo nel motore Risparmio. Il manifest live punta a:
 
-`https://dod86.github.io/Hubbo/catalog/versions/v000004/offerte.json`
+`https://dod86.github.io/Hubbo/catalog/versions/v000005/offerte.json`
 
 ## Pubblicare una nuova versione del catalogo
 
