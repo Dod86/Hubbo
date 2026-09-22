@@ -364,51 +364,27 @@ function fixedAccentCardStyle(accentColor, colors, light) {
   return style;
 }
 
-function lightExtraExpensesCardStyle(colors, light) {
-  const parseHex = (value) => {
-    const hex = String(value || "").replace(/^#/, "");
-    const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
-    return /^[0-9a-f]{6}$/i.test(full) ? full.match(/../g).map((c) => parseInt(c, 16)) : null;
-  };
-  const mix = (a, b, ratio) => a.map((v, i) => Math.round(v * (1 - ratio) + b[i] * ratio));
-  const base = parseHex(colors.surface);
-  const amber = parseHex(ACCENT.amber);
-  const style = {};
-  if (!base || !amber) return style;
-  const leftStrong = mix(base, amber, light ? 0.24 : 0.28);
-  const leftSoft = mix(base, amber, light ? 0.14 : 0.18);
-  const tint = (rgb, alpha = 1) => \`rgba(\${rgb.join(",")},\${alpha})\`;
-  style.backgroundColor = colors.surface;
-  style.backgroundImage = \`linear-gradient(90deg, \${tint(leftStrong, light ? 0.42 : 0.30)} 0%, \${tint(leftSoft, light ? 0.24 : 0.18)} 40%, \${colors.surface} 78%, \${colors.surface} 100%)\`;
-  style.border = \`1px solid \${tint(mix(base, amber, light ? 0.22 : 0.26), light ? 0.94 : 0.88)}\`;
-  return style;
-}
-
-function ExtraExpensesMiniCard({ total, onClick, colors, label, money, currency, fadedWhenZero = false, cardStyle }) {
-  const amountColor = fadedWhenZero && total <= 0 ? colors.textSecondary : colors.textPrimary;
+function RingModeSwitch({ value, onChange, options, colors }) {
   return (/*#__PURE__*/
-    React.createElement("button", {
-      type: "button",
-      onClick: onClick,
-      style: cardStyle,
-      className: "rounded-[18px] px-3 py-2.5 flex items-center gap-2.5 text-left flex-shrink-0 transition-transform active:scale-[0.99]" }, /*#__PURE__*/
+    React.createElement("div", { style: { background: colors.surface2 }, className: "flex rounded-full p-0.5 flex-shrink-0" },
+    options.map((option) => {
+      const active = value === option.id;
+      return (/*#__PURE__*/
+        React.createElement("button", {
+          key: option.id,
+          type: "button",
+          onClick: () => onChange(option.id),
+          style: {
+            background: active ? colors.surface : "transparent",
+            color: active ? colors.textPrimary : colors.textSecondary,
+            fontSize: 11
+          },
+          className: "rounded-full px-2.5 py-1 font-medium" },
 
-    React.createElement("span", { style: { color: ACCENT.amber }, className: "flex items-center justify-center flex-shrink-0" }, /*#__PURE__*/
-    React.createElement(Icon, { name: "tag", size: 15 })
-    ), /*#__PURE__*/
-    React.createElement("span", { style: { width: 1, height: 30, background: colors.border }, className: "flex-shrink-0" }), /*#__PURE__*/
-    React.createElement("span", { className: "min-w-0 flex-1" }, /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textSecondary }, className: "block text-[10px] leading-tight whitespace-nowrap" }, label), /*#__PURE__*/
-    React.createElement("span", {
-      style: {
-        color: amountColor,
-        fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace"
-      },
-      className: "block text-sm font-semibold mt-0.5 whitespace-nowrap" },
+        option.label
+        ));
 
-    money(total, currency)
-    )
-    )
+    })
     ));
 
 }
@@ -604,7 +580,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v287";
+const APP_VERSION = "v288";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -3311,6 +3287,8 @@ const LEDGER_STRINGS = {
     singlePaymentDeleteConfirmYes: "Elimina",
     singlePaymentDeleteConfirmNo: "Annulla",
     calendarAddPaymentButton: "Aggiungi un pagamento in questo giorno",
+    ringSubscriptions: "Abbonamenti",
+    ringExtra: "Extra",
     extraSectionButton: "Spese extra",
     extraSectionTitle: "Spese extra",
     extraSectionTotalLabel: "Totale spese extra",
@@ -3484,6 +3462,8 @@ const LEDGER_STRINGS = {
     singlePaymentDeleteConfirmYes: "Delete",
     singlePaymentDeleteConfirmNo: "Cancel",
     calendarAddPaymentButton: "Add a payment on this day",
+    ringSubscriptions: "Subscriptions",
+    ringExtra: "Extra",
     extraSectionButton: "Extra expenses",
     extraSectionTitle: "Extra expenses",
     extraSectionTotalLabel: "Total extra expenses",
@@ -3657,6 +3637,8 @@ const LEDGER_STRINGS = {
     singlePaymentDeleteConfirmYes: "Eliminar",
     singlePaymentDeleteConfirmNo: "Cancelar",
     calendarAddPaymentButton: "Añadir un pago en este día",
+    ringSubscriptions: "Suscripciones",
+    ringExtra: "Extra",
     extraSectionButton: "Gastos extra",
     extraSectionTitle: "Gastos extra",
     extraSectionTotalLabel: "Total de gastos extra",
@@ -3830,6 +3812,8 @@ const LEDGER_STRINGS = {
     singlePaymentDeleteConfirmYes: "Supprimer",
     singlePaymentDeleteConfirmNo: "Annuler",
     calendarAddPaymentButton: "Ajouter un paiement ce jour-là",
+    ringSubscriptions: "Abonnements",
+    ringExtra: "Extra",
     extraSectionButton: "Dépenses extra",
     extraSectionTitle: "Dépenses extra",
     extraSectionTotalLabel: "Total des dépenses extra",
@@ -4003,6 +3987,8 @@ const LEDGER_STRINGS = {
     singlePaymentDeleteConfirmYes: "Löschen",
     singlePaymentDeleteConfirmNo: "Abbrechen",
     calendarAddPaymentButton: "Eine Zahlung an diesem Tag hinzufügen",
+    ringSubscriptions: "Abos",
+    ringExtra: "Extra",
     extraSectionButton: "Extraausgaben",
     extraSectionTitle: "Extraausgaben",
     extraSectionTotalLabel: "Gesamte Extraausgaben",
@@ -7363,6 +7349,8 @@ function HubboApp() {
   // way — the proportions between categories do not change with the span — so
   // switching moves only the numbers.
   const [totalPeriod, setTotalPeriod] = useState("month");
+  const [calendarSpendMode, setCalendarSpendMode] = useState("subscriptions");
+  const [historySpendMode, setHistorySpendMode] = useState("subscriptions");
   // Which way the new figures should come in from. Null on the first draw, so
   // the card does not animate itself into existence.
   const [periodDirection, setPeriodDirection] = useState(null);
@@ -7387,6 +7375,17 @@ function HubboApp() {
     setRingSelectedHistory(null);
     setRingSelectedSavings(null);
   }, [view]);
+
+  useEffect(() => {
+    setRingSelectedCalendar(null);
+    setSelectedDay(null);
+    setDayPopup(null);
+  }, [calendarSpendMode]);
+
+  useEffect(() => {
+    setRingSelectedHistory(null);
+    setHistoryShownYears(1);
+  }, [historySpendMode]);
   // L'animazione di apertura dell'anello deve suonare una volta sola per
   // sessione, solo nella scheda Elenco — non ogni volta che ci si torna
   // navigando. Il ref vive qui perché HubboApp monta una volta sola per
@@ -8623,11 +8622,13 @@ function HubboApp() {
       return /[",\\n]/.test(str) ? \`"\${str.replace(/"/g, '""')}"\` : str;
     };
     const header = [t.csvColDate, t.csvColService, t.csvColCategory, t.csvColAmount, t.csvColCurrency, t.csvColStatus];
-    const rows = filteredPayments.
+    const rows = historyExportPayments.
     slice().
     sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).
     map((p) => {
-      const cat = CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
+      const cat = p.category === EXTRA_CATEGORY_ID ?
+      { label: t.singlePaymentOutOfCategory } :
+      CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
       return [
       p.date,
       p.name,
@@ -10195,6 +10196,26 @@ function HubboApp() {
     const currentYear = String(today.getFullYear());
     const from12 = new Date(today.getFullYear(), today.getMonth() - 11, 1);
     return visiblePayments.filter((p) => {
+      if (p.extra) return false;
+      if (historySub !== "all" && p.subId !== historySub) return false;
+      if (historyCats.length > 0 && !historyCats.includes(p.category)) return false;
+      if (historyPeriod === "custom") {
+        if (historyFrom && p.date < historyFrom) return false;
+        if (historyTo && p.date > historyTo) return false;
+        return true;
+      }
+      if (historyPeriod === "year") return p.date.startsWith(currentYear);
+      if (historyPeriod === "12m") return parseLocalDate(p.date) >= from12;
+      if (/^\\d{4}$/.test(historyPeriod)) return p.date.startsWith(historyPeriod);
+      return true;
+    });
+  }, [visiblePayments, historyPeriod, historySub, historyCats, historyFrom, historyTo, todayISO]);
+
+  const filteredLinkedExtraPayments = useMemo(() => {
+    const currentYear = String(today.getFullYear());
+    const from12 = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    return visiblePayments.filter((p) => {
+      if (!p.extra) return false;
       if (historySub !== "all" && p.subId !== historySub) return false;
       if (historyCats.length > 0 && !historyCats.includes(p.category)) return false;
       if (historyPeriod === "custom") {
@@ -10260,8 +10281,8 @@ function HubboApp() {
   // gaps are called out one notice each, so a two-year jump reads as two
   // distinct skips rather than one vague message.
   function revealOlderYear() {
-    const oldestShown = historyYearList[historyShownYears - 1];
-    const next = historyYearList[historyShownYears];
+    const oldestShown = historyActiveYearList[historyShownYears - 1];
+    const next = historyActiveYearList[historyShownYears];
     if (!next) return;
     for (let y = Number(oldestShown) - 1; y > Number(next); y--) {
       pushToast(t.historyYearSkipped(String(y)));
@@ -10333,6 +10354,73 @@ function HubboApp() {
     const outOfScope = { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR, total: map[EXTRA_CATEGORY_ID] || 0 };
     return [...known, outOfScope].filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
   }, [filteredExtraPayments, settings.currency, rates, settings.language, settings.categoryColors]);
+
+  const historyExtraPayments = useMemo(() => {
+    const linked = filteredLinkedExtraPayments.map((p) => ({ ...p, _extraSource: "linked" }));
+    const standalone = filteredExtraPayments.map((p) => ({
+      ...p,
+      name: p.description,
+      description: p.description,
+      status: "paid",
+      _extraSource: "standalone",
+      _extraOriginal: p
+    }));
+    return [...linked, ...standalone].sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+  }, [filteredLinkedExtraPayments, filteredExtraPayments]);
+
+  const extraHistoryMonths = useMemo(() => {
+    const map = new Map();
+    historyExtraPayments.forEach((p) => {
+      const key = p.date.slice(0, 7);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(p);
+    });
+    return Array.from(map.entries()).
+    sort((a, b) => a[0] < b[0] ? 1 : -1).
+    map(([key, items]) => ({
+      key,
+      monthDate: parseLocalDate(\`\${key}-01\`),
+      items: items.slice().sort((a, b) => a.date < b.date ? 1 : -1),
+      total: items.reduce((sum, p) => sum + (p.status === "skipped" ? 0 : paymentInBase(p)), 0)
+    }));
+  }, [historyExtraPayments, settings.currency, rates]);
+
+  const extraHistoryTotals = useMemo(() => {
+    let total = 0;
+    let count = 0;
+    historyExtraPayments.forEach((p) => {
+      if (p.status === "skipped") return;
+      total += paymentInBase(p);
+      count++;
+    });
+    return { total, count };
+  }, [historyExtraPayments, settings.currency, rates]);
+
+  const extraHistoryCategoryTotals = useMemo(() => {
+    const map = {};
+    historyExtraPayments.forEach((p) => {
+      if (p.status === "skipped") return;
+      map[p.category] = (map[p.category] || 0) + paymentInBase(p);
+    });
+    const known = CATEGORIES.map((c) => ({ ...c, total: map[c.id] || 0 }));
+    const outOfScope = { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR, total: map[EXTRA_CATEGORY_ID] || 0 };
+    return [...known, outOfScope].filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
+  }, [historyExtraPayments, settings.currency, rates, settings.language, settings.categoryColors]);
+
+  const historyShowingExtra = historySpendMode === "extra";
+  const historyActiveMonths = historyShowingExtra ? extraHistoryMonths : historyMonths;
+  const historyActiveTotals = historyShowingExtra ? extraHistoryTotals : historyTotals;
+  const historyActiveCategoryTotals = historyShowingExtra ? extraHistoryCategoryTotals : historyCategoryTotals;
+  const historyExportPayments = historyShowingExtra ? historyExtraPayments : filteredPayments;
+  const historyActiveYearList = useMemo(
+    () => Array.from(new Set(historyActiveMonths.map((m) => m.key.slice(0, 4)))).sort().reverse(),
+    [historyActiveMonths]
+  );
+  const visibleHistoryActiveMonths = useMemo(() => {
+    const shown = new Set(historyActiveYearList.slice(0, historyShownYears));
+    return historyActiveMonths.filter((m) => shown.has(m.key.slice(0, 4)));
+  }, [historyActiveMonths, historyActiveYearList, historyShownYears]);
+  const historyNextOlderYear = historyActiveYearList[historyShownYears];
 
   const missingStartCount = useMemo(
     () => (subs || []).filter((s) => !s.startDate && !s.endDate).length,
@@ -10545,6 +10633,14 @@ function HubboApp() {
     return [...known, outOfScope].filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
   }, [currentCalendarExtraEntries, settings.currency, rates, settings.language, settings.categoryColors]);
 
+  const calendarShowingExtra = calendarSpendMode === "extra";
+  const calendarDisplayedTotal = calendarShowingExtra ? calendarMonthStats.extraTotal : calendarMonthStats.total;
+  const calendarDisplayedCount = calendarShowingExtra ? calendarMonthStats.extraCount : calendarMonthStats.count;
+  const calendarDisplayedCategories = calendarShowingExtra ? calendarExtraCategoryTotals : calendarMonthStats.byCategory;
+
+  const isCalendarExtraEntry = (entry) => !!entry._calendarExtraPayment || !!(entry._calendarPayment && entry._calendarPayment.extra);
+  const calendarEntriesForMode = (entries) => (entries || []).filter((entry) => calendarShowingExtra ? isCalendarExtraEntry(entry) : !isCalendarExtraEntry(entry));
+
   const extraSectionView = useMemo(() => {
     if (extraSectionScope === "calendar") {
       const monthLabelRaw = monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" });
@@ -10678,7 +10774,7 @@ function HubboApp() {
       React.createElement("div", { className: "grid grid-cols-7 gap-0.5" },
       monthView.days.map((day, i) => {
         if (!day) return /*#__PURE__*/React.createElement("div", { key: i });
-        const dayRenewals = monthView.byDay[day] || [];
+        const dayRenewals = calendarEntriesForMode(monthView.byDay[day] || []);
         const cellDate = new Date(monthView.monthDate.getFullYear(), monthView.monthDate.getMonth(), day);
         const isToday = cellDate.toDateString() === today.toDateString();
         const isSelected = interactive && selectedDay === day;
@@ -10986,28 +11082,14 @@ function HubboApp() {
 
 
 
-    React.createElement("div", { style: { background: colors.surface2 }, className: "flex rounded-full p-0.5 flex-shrink-0" },
-    [
-    { id: "month", label: t.periodMonth },
-    { id: "year", label: t.periodYear }].
-    map((option) => {
-      const active = totalPeriod === option.id;
-      return (/*#__PURE__*/
-        React.createElement("button", {
-          key: option.id,
-          type: "button",
-          onClick: () => changePeriod(option.id),
-          style: {
-            background: active ? colors.surface : "transparent",
-            color: active ? colors.textPrimary : colors.textSecondary,
-            fontSize: 11
-          },
-          className: "rounded-full px-2.5 py-1 font-medium" },
+    React.createElement(RingModeSwitch, {
+      value: totalPeriod,
+      onChange: changePeriod,
+      options: [
+      { id: "month", label: t.periodMonth },
+      { id: "year", label: t.periodYear }],
 
-        option.label
-        ));
-
-    })
+      colors: colors }
     )
     ), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-3" }, /*#__PURE__*/
@@ -11314,23 +11396,34 @@ function HubboApp() {
     React.createElement("div", { key: "view-calendar", className: viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right" }, /*#__PURE__*/
     React.createElement("div", { className: "px-5 pt-3" }, /*#__PURE__*/
     React.createElement("div", {
-      style: ringCardStyle(calendarMonthStats.byCategory, colors, effectiveTheme === "light"),
+      style: ringCardStyle(calendarDisplayedCategories, colors, effectiveTheme === "light"),
       className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }, /*#__PURE__*/
 
-    React.createElement("div", { key: \`label-\${calendarOffset}\`, style: { color: colors.textSecondary }, className: \`text-xs mb-0.5 capitalize \${monthAnim}\` },
+    React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
+    React.createElement("div", { key: \`label-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs capitalize min-w-0 truncate \${monthAnim}\` },
     t.monthTotalLabel, " \\xB7 ", monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })
+    ), /*#__PURE__*/
+    React.createElement(RingModeSwitch, {
+      value: calendarSpendMode,
+      onChange: setCalendarSpendMode,
+      options: [
+      { id: "subscriptions", label: t.ringSubscriptions },
+      { id: "extra", label: t.ringExtra }],
+
+      colors: colors }
+    )
     ), /*#__PURE__*/
     React.createElement("div", { key: \`stats-\${calendarOffset}\`, className: \`flex items-center gap-2 \${monthAnim}\` }, /*#__PURE__*/
     React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0" }, /*#__PURE__*/
     React.createElement(RingCenterBox, null,
     (() => {
-      const segs = calendarMonthStats.byCategory || [];
+      const segs = calendarDisplayedCategories || [];
       const selectedSeg = ringSelectedCalendar ? segs.find((s) => s.id === ringSelectedCalendar) : null;
       return selectedSeg ? /*#__PURE__*/
-      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: calendarMonthStats.total, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
+      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: calendarDisplayedTotal, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
 
       React.createElement(TotalFigure, {
-        value: calendarMonthStats.total,
+        value: calendarDisplayedTotal,
         lead: (segs[0] || {}).color || colors.textPrimary,
         colors: colors,
         moneyParts: moneyParts }
@@ -11340,8 +11433,8 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP } }, /*#__PURE__*/
     React.createElement(CategoryRing, {
-      segments: calendarMonthStats.byCategory || [],
-      total: calendarMonthStats.total,
+      segments: calendarDisplayedCategories || [],
+      total: calendarDisplayedTotal,
       colors: colors,
       size: RING_DIAMETER,
       stroke: RING_STROKE,
@@ -11353,8 +11446,8 @@ function HubboApp() {
     )
     ), /*#__PURE__*/
     React.createElement(CategoryLegend, {
-      segments: calendarMonthStats.byCategory || [],
-      total: calendarMonthStats.total,
+      segments: calendarDisplayedCategories || [],
+      total: calendarDisplayedTotal,
       colors: colors,
       money: moneyRound,
       light: effectiveTheme === "light",
@@ -11362,25 +11455,8 @@ function HubboApp() {
       onSelect: setRingSelectedCalendar }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`count-\${calendarOffset}\`, className: \`flex items-end justify-between gap-3 mt-2 \${monthAnim}\` }, /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" },
-    t.monthPayments(calendarMonthStats.count)
-    ), /*#__PURE__*/
-    React.createElement(ExtraExpensesMiniCard, {
-      total: calendarMonthStats.extraTotal,
-      onClick: () => {setExtraSectionScope("calendar");setShowExtraPayments(true);},
-      colors: colors,
-      label: t.extraSectionTotalLabel,
-      money: money,
-      currency: settings.currency,
-      fadedWhenZero: true,
-      cardStyle: {
-        ...fixedAccentCardStyle(ACCENT.amber, colors, effectiveTheme === "light"),
-        ...lightExtraExpensesCardStyle(colors, effectiveTheme === "light"),
-        minWidth: 176,
-        marginRight: -2
-      } }
-    )
+    React.createElement("div", { key: \`count-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs mt-2 \${monthAnim}\` },
+    t.monthPayments(calendarDisplayedCount)
     )
     ), /*#__PURE__*/
 
@@ -11481,19 +11557,30 @@ function HubboApp() {
     view === "history" && /*#__PURE__*/
     React.createElement("div", { key: "view-history", className: viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right" }, /*#__PURE__*/
     React.createElement("div", { className: "px-5 pt-3 pb-28" }, /*#__PURE__*/
-    React.createElement("div", { style: ringCardStyle(historyCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }, /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mb-0.5 truncate" }, historyPeriodLabel), /*#__PURE__*/
+    React.createElement("div", { style: ringCardStyle(historyActiveCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }, /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs truncate" }, historyPeriodLabel), /*#__PURE__*/
+    React.createElement(RingModeSwitch, {
+      value: historySpendMode,
+      onChange: setHistorySpendMode,
+      options: [
+      { id: "subscriptions", label: t.ringSubscriptions },
+      { id: "extra", label: t.ringExtra }],
+
+      colors: colors }
+    )
+    ), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2" }, /*#__PURE__*/
     React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0" }, /*#__PURE__*/
     React.createElement(RingCenterBox, null,
     (() => {
-      const selectedSeg = ringSelectedHistory ? historyCategoryTotals.find((s) => s.id === ringSelectedHistory) : null;
+      const selectedSeg = ringSelectedHistory ? historyActiveCategoryTotals.find((s) => s.id === ringSelectedHistory) : null;
       return selectedSeg ? /*#__PURE__*/
-      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: historyTotals.total, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
+      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: historyActiveTotals.total, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
 
       React.createElement(TotalFigure, {
-        value: historyTotals.total,
-        lead: (historyCategoryTotals[0] || {}).color || colors.textPrimary,
+        value: historyActiveTotals.total,
+        lead: (historyActiveCategoryTotals[0] || {}).color || colors.textPrimary,
         colors: colors,
         moneyParts: moneyParts }
       );
@@ -11502,8 +11589,8 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP } }, /*#__PURE__*/
     React.createElement(CategoryRing, {
-      segments: historyCategoryTotals,
-      total: historyTotals.total,
+      segments: historyActiveCategoryTotals,
+      total: historyActiveTotals.total,
       colors: colors,
       size: RING_DIAMETER,
       stroke: RING_STROKE,
@@ -11515,8 +11602,8 @@ function HubboApp() {
     )
     ), /*#__PURE__*/
     React.createElement(CategoryLegend, {
-      segments: historyCategoryTotals,
-      total: historyTotals.total,
+      segments: historyActiveCategoryTotals,
+      total: historyActiveTotals.total,
       colors: colors,
       money: moneyRound,
       light: effectiveTheme === "light",
@@ -11524,25 +11611,7 @@ function HubboApp() {
       onSelect: setRingSelectedHistory }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { className: "flex items-end justify-between gap-3 mt-2" }, /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs flex-1 min-w-0" }, historyTotals.count, " \\xB7 ", t.historyPaymentsCount),
-    extraPayments.length > 0 && /*#__PURE__*/
-    React.createElement(ExtraExpensesMiniCard, {
-      total: extraPaymentsTotal,
-      onClick: () => {setExtraSectionScope("history");setShowExtraPayments(true);},
-      colors: colors,
-      label: t.extraSectionTotalLabel,
-      money: money,
-      currency: settings.currency,
-      cardStyle: {
-        ...fixedAccentCardStyle(ACCENT.amber, colors, effectiveTheme === "light"),
-        ...lightExtraExpensesCardStyle(colors, effectiveTheme === "light"),
-        minWidth: 176,
-        marginRight: -2
-      } }
-    )
-
-    )
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-2" }, historyActiveTotals.count, " \\xB7 ", t.historyPaymentsCount)
     ),
 
 
@@ -11657,7 +11726,7 @@ function HubboApp() {
 
     React.createElement(Icon, { name: "slidersHorizontal", size: 15 })
     ),
-    filteredPayments.length > 0 && /*#__PURE__*/
+    historyExportPayments.length > 0 && /*#__PURE__*/
     React.createElement("button", {
       type: "button",
       onClick: handleExportCSV,
@@ -11700,27 +11769,27 @@ function HubboApp() {
     ),
 
 
-    missingStartCount > 0 && /*#__PURE__*/
+    !historyShowingExtra && missingStartCount > 0 && /*#__PURE__*/
     React.createElement("div", { style: { background: "rgba(227,168,87,0.10)", border: \`1px solid rgba(227,168,87,0.30)\` }, className: "rounded-xl px-3.5 py-3 mb-4" }, /*#__PURE__*/
     React.createElement("div", { style: { color: ACCENT.amber }, className: "text-xs font-semibold mb-1" }, t.missingStart(missingStartCount)), /*#__PURE__*/
     React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" }, t.missingStartHint)
     ),
 
 
-    historyMonths.length === 0 ? /*#__PURE__*/
+    historyActiveMonths.length === 0 ? /*#__PURE__*/
     React.createElement("div", { className: "text-center py-12" },
     historyFiltered ? /*#__PURE__*/
     React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm" }, t.historyNoResults) : /*#__PURE__*/
 
     React.createElement(React.Fragment, null, /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm mb-1.5" }, t.historyEmpty), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed" }, t.historyEmptyHint)
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm mb-1.5" }, historyShowingExtra ? t.extraSectionEmpty : t.historyEmpty),
+    !historyShowingExtra && /*#__PURE__*/React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed" }, t.historyEmptyHint)
     )
 
     ) : /*#__PURE__*/
 
     React.createElement("div", { className: "flex flex-col gap-5" },
-    visibleHistoryMonths.map(({ key, monthDate, items, total }) => /*#__PURE__*/
+    visibleHistoryActiveMonths.map(({ key, monthDate, items, total }) => /*#__PURE__*/
     React.createElement("div", { key: key }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between mb-2 px-1" }, /*#__PURE__*/
     React.createElement("span", { style: { color: colors.textSecondary }, className: "text-xs font-medium capitalize" },
@@ -11732,28 +11801,42 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("div", { style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-xl overflow-hidden" },
     items.map((p, idx) => {
-      const cat = CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
+      const standaloneExtra = p._extraSource === "standalone";
+      const cat = p.category === EXTRA_CATEGORY_ID ?
+      { id: EXTRA_CATEGORY_ID, label: t.singlePaymentOutOfCategory, color: EXTRA_CATEGORY_COLOR } :
+      CATEGORIES.find((c) => c.id === p.category) || CATEGORIES[CATEGORIES.length - 1];
       const skipped = p.status === "skipped";
+      const rowTitle = standaloneExtra ? p.description : p.name;
+      const rowSubtitle = standaloneExtra ?
+      \`\${parseLocalDate(p.date).toLocaleDateString(locale, { day: "numeric", month: "short" })} · \${cat.label}\` :
+      \`\${parseLocalDate(p.date).toLocaleDateString(locale, { day: "numeric", month: "short" })}\${p.extra && p.description ? \` · \${p.description}\` : skipped ? \` · \${t.historySkipped}\` : p.edited ? \` · \${t.historyEdited}\` : p.estimated ? \` · \${t.historyEstimated}\` : ""}\`;
       return (/*#__PURE__*/
         React.createElement("button", {
-          key: p.id,
-          onClick: () => {setPaymentAction(p);setPaymentAmount(String(p.amount));setPaymentScope("one");},
+          key: \`\${p._extraSource || "subscription"}-\${p.id}\`,
+          onClick: () => {
+            if (standaloneExtra) {
+              setExtraPaymentAction(p._extraOriginal || p);
+            } else {
+              setPaymentAction(p);
+              setPaymentAmount(String(p.amount));
+              setPaymentScope("one");
+            }
+          },
           style: idx > 0 ? { borderTop: \`1px solid \${colors.border}\` } : undefined,
-          className: "w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-transform active:scale-[0.99]" }, /*#__PURE__*/
+          className: "w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-transform active:scale-[0.99]" },
+
+        standaloneExtra ? /*#__PURE__*/
+        React.createElement("span", { style: { background: cat.color, width: 28, height: 28, borderRadius: 999 }, className: "flex-shrink-0" }) : /*#__PURE__*/
 
         React.createElement("div", { style: { opacity: skipped ? 0.45 : 1 } }, /*#__PURE__*/
         React.createElement(ServiceLogo, { icon: serviceIcon(p.name), domain: serviceDomain(p.name), category: p.category, letter: p.name.charAt(0).toUpperCase(), serviceName: p.name, color: cat.color, size: 28 })
         ), /*#__PURE__*/
+
         React.createElement("div", { className: "flex-1 min-w-0", style: { opacity: skipped ? 0.45 : 1 } }, /*#__PURE__*/
         React.createElement("div", { className: "text-sm font-medium truncate", style: { textDecoration: skipped ? "line-through" : "none" } },
-        p.name
+        rowTitle
         ), /*#__PURE__*/
-        React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs truncate" },
-        parseLocalDate(p.date).toLocaleDateString(locale, { day: "numeric", month: "short" }),
-        p.extra && p.description ?
-        \` · \${p.description}\` :
-        skipped ? \` · \${t.historySkipped}\` : p.edited ? \` · \${t.historyEdited}\` : p.estimated ? \` · \${t.historyEstimated}\` : ""
-        )
+        React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs truncate" }, rowSubtitle)
         ), /*#__PURE__*/
         React.createElement("span", {
           style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", opacity: skipped ? 0.45 : 1, textDecoration: skipped ? "line-through" : "none" },
@@ -11768,13 +11851,13 @@ function HubboApp() {
     )
     ),
 
-    nextOlderYear && /*#__PURE__*/
+    historyNextOlderYear && /*#__PURE__*/
     React.createElement("button", {
       onClick: revealOlderYear,
       style: { background: colors.surface, border: \`1px solid \${colors.border}\`, color: colors.textSecondary },
       className: "w-full rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-1.5" },
 
-    t.historyShowYear(nextOlderYear), /*#__PURE__*/
+    t.historyShowYear(historyNextOlderYear), /*#__PURE__*/
     React.createElement("span", { style: { fontSize: 10 } }, "\\u25BE")
     )
 
@@ -12523,7 +12606,7 @@ function HubboApp() {
     ),
 
     dayPopup && view === "calendar" && (() => {
-      const entries = renewalsByDay[dayPopup.day] || [];
+      const entries = calendarEntriesForMode(renewalsByDay[dayPopup.day] || []);
       const date = new Date(monthViews.current.monthDate.getFullYear(), monthViews.current.monthDate.getMonth(), dayPopup.day);
       const dateISO = toLocalISO(date);
       const total = entries.reduce((sum, entry) => sum + calendarEntryTotal(entry, dateISO, settings.currency, rates), 0);
@@ -12536,7 +12619,7 @@ function HubboApp() {
           colors: colors,
           title: date.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
           formattedTotal: money(total),
-          totalLabel: t.monthTotalLabel,
+          totalLabel: calendarShowingExtra ? t.extraSectionTotalLabel : t.monthTotalLabel,
           closeLabel: t.closeDialog },
 
         entries.length === 0 && /*#__PURE__*/React.createElement("p", { className: "text-sm py-4", style: { color: colors.textSecondary } }, t.noRenewalsDay),
