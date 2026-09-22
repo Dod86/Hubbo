@@ -580,7 +580,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v291";
+const APP_VERSION = "v292";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -1447,7 +1447,7 @@ const COMMON_SERVICES = [
 { name: "Netflix", category: "streaming", icon: "netflix", domain: "netflix.com" },
 { name: "Disney+", category: "streaming", icon: null, domain: "disneyplus.com" },
 { name: "TIMVISION", category: "streaming", icon: null, domain: "tim.it", aliases: ["TIM Vision"] },
-{ name: "Amazon Prime Video", category: "streaming", icon: null, domain: "primevideo.com" },
+{ name: "Amazon Prime Video", category: "streaming", icon: null, domain: "primevideo.com", selectable: false, includedWith: "Amazon Prime" },
 { name: "Now", category: "streaming", icon: "now", domain: "nowtv.it" },
 { name: "Sky", category: "streaming", icon: "sky", domain: "sky.it" },
 { name: "DAZN", category: "streaming", icon: "dazn", domain: "dazn.com" },
@@ -1589,7 +1589,7 @@ const COMMON_SERVICES = [
 { name: "Peloton", category: "sport", icon: "peloton", domain: "onepeloton.com" },
 { name: "Apple Fitness+", category: "sport", icon: null, domain: "apple.com", aliases: ["Apple Fitness", "Fitness+"] },
 { name: "Strava", category: "sport", icon: "strava", domain: "strava.com" },
-{ name: "Amazon Prime", category: "altro", icon: null, domain: "amazon.it" },
+{ name: "Amazon Prime", category: "business", icon: null, domain: "amazon.it" },
 { name: "Duolingo", category: "altro", icon: "duolingo", domain: "duolingo.com", aliases: ["Duolingo Plus", "Super Duolingo", "Duolingo Max"] },
 { name: "Coursera Plus", category: "altro", icon: "coursera", domain: "coursera.org" },
 { name: "Udemy", category: "altro", icon: "udemy", domain: "udemy.com" },
@@ -1741,6 +1741,14 @@ COMMON_SERVICES.forEach((service) => {
     if (key && !SERVICE_NAME_ALIASES[key]) SERVICE_NAME_ALIASES[key] = canonical;
   });
 });
+
+// Alcuni servizi restano nel catalogo locale per riconoscere dati storici,
+// loghi e relazioni di bundle, ma non devono più essere proposti come un
+// nuovo abbonamento autonomo. È il caso di Prime Video, che Hubbo Italia
+// modella come beneficio incluso in Amazon Prime.
+function isSelectableCatalogService(service) {
+  return !!service && service.selectable !== false;
+}
 
 const STRINGS = {
   it: {
@@ -7957,6 +7965,50 @@ function HubboApp() {
     return () => {cancelled = true;};
   }, [offersFile, subs, trash]);
 
+  // v292 — Amazon Prime appartiene a Business & Shop. Correggiamo anche i
+  // record già salvati quando provenivano dalla vecchia categoria "Altro",
+  // compresi cestino e pagamenti collegati. È una migrazione di sola categoria:
+  // nome, piano, prezzo, date e importi restano invariati. Prime Video legacy
+  // resta invece leggibile così com'è, ma non viene più proposto ai nuovi utenti.
+  useEffect(() => {
+    if (!Array.isArray(subs)) return;
+    const allSubs = [...subs, ...(Array.isArray(trash) ? trash : [])];
+    const primeIds = new Set(
+      allSubs.filter((sub) => matchesCatalogName("Amazon Prime", sub && sub.name)).map((sub) => sub.id)
+    );
+    const fixPrimeCategory = (sub) =>
+    sub && matchesCatalogName("Amazon Prime", sub.name) && sub.category !== "business" ?
+    { ...sub, category: "business" } :
+    sub;
+
+
+    const nextSubs = subs.map(fixPrimeCategory);
+    if (nextSubs.some((sub, i) => sub !== subs[i])) {
+      setSubs(nextSubs);
+      window.storage.set("abbly:subscriptions", JSON.stringify(nextSubs), false).catch(() => {});
+    }
+
+    if (Array.isArray(trash)) {
+      const nextTrash = trash.map(fixPrimeCategory);
+      if (nextTrash.some((sub, i) => sub !== trash[i])) {
+        setTrash(nextTrash);
+        window.storage.set("abbly:trash", JSON.stringify(nextTrash), false).catch(() => {});
+      }
+    }
+
+    if (Array.isArray(payments) && primeIds.size) {
+      const nextPayments = payments.map((payment) =>
+      payment && primeIds.has(payment.subId) && payment.category !== "business" ?
+      { ...payment, category: "business" } :
+      payment
+      );
+      if (nextPayments.some((payment, i) => payment !== payments[i])) {
+        setPayments(nextPayments);
+        window.storage.set("abbly:payments", JSON.stringify(nextPayments), false).catch(() => {});
+      }
+    }
+  }, [subs, trash, payments]);
+
   // Piani selezionabili nel modulo. Da v237 il modulo usa prima \`listino\`,
   // perché è l'unica fonte che sa distinguere davvero 99 €/anno da 99 €/mese
   // e i piani mensili con vincolo annuale; \`opzioni\` resta il fallback per le
@@ -10093,7 +10145,7 @@ function HubboApp() {
     if (!Array.isArray(watchlist)) return [];
     const query = watchlistSearch.trim().toLowerCase();
     const owned = new Set(activeSubs.map((s) => catalogServiceKey(offersFile, s)));
-    return COMMON_SERVICES.filter((s) => serviceMatchesQuery(s, query)).
+    return COMMON_SERVICES.filter((s) => isSelectableCatalogService(s) && serviceMatchesQuery(s, query)).
     filter((s) => !owned.has(catalogServiceKey(offersFile, s.name))).
     sort((a, b) => a.name.localeCompare(b.name, "it", { sensitivity: "base" }));
   }, [watchlist, activeSubs, watchlistSearch]);
@@ -12930,7 +12982,7 @@ function HubboApp() {
     )
     ), /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col gap-1 mb-2" },
-    COMMON_SERVICES.filter((s) => serviceMatchesQuery(s, serviceSearch)).
+    COMMON_SERVICES.filter((s) => isSelectableCatalogService(s) && serviceMatchesQuery(s, serviceSearch)).
     sort((a, b) => a.name.localeCompare(b.name, "it", { sensitivity: "base" })).
     map((s) => {
       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
