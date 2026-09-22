@@ -313,7 +313,7 @@ const THEMES = {
     border: "#332D25",
     textPrimary: "#F2EEE7",
     textSecondary: "#948C7F",
-    // v302: switch delle card anello più leggibile in dark mode; fix header invariato.
+    // v303: switch delle card anello più leggibile anche in light mode; fix header invariato.
     navActive: "#E18A67",
     navActiveSurface: "rgba(196,100,60,0.20)",
     // v296: testo di supporto leggibile sulle card con gradiente.
@@ -424,7 +424,8 @@ function RingModeSwitch({ value, onChange, options, colors, dark = false }) {
     background: "rgba(18,16,13,0.42)",
     boxShadow: "inset 0 0 0 1px rgba(255,244,233,0.10)"
   } : {
-    background: colors.surface2
+    background: "#E5DCCD",
+    boxShadow: "inset 0 0 0 1px rgba(110,82,58,0.10)"
   };
   return (/*#__PURE__*/
     React.createElement("div", { style: trackStyle, className: "flex rounded-full p-0.5 flex-shrink-0" },
@@ -436,8 +437,8 @@ function RingModeSwitch({ value, onChange, options, colors, dark = false }) {
           type: "button",
           onClick: () => onChange(option.id),
           style: {
-            background: active ? dark ? "rgba(196,100,60,0.38)" : colors.surface : "transparent",
-            color: active ? dark ? "#FFF4EC" : colors.textPrimary : dark ? "rgba(242,238,231,0.82)" : colors.textOnGradient,
+            background: active ? dark ? "rgba(196,100,60,0.38)" : "rgba(196,100,60,0.22)" : "transparent",
+            color: active ? dark ? "#FFF4EC" : "#7E3F29" : dark ? "rgba(242,238,231,0.82)" : "#625A4F",
             fontSize: 11,
             transition: "background-color 180ms ease, color 180ms ease"
           },
@@ -643,7 +644,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v302";
+const APP_VERSION = "v303";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
