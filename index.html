@@ -580,7 +580,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v289";
+const APP_VERSION = "v290";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -9369,6 +9369,8 @@ function HubboApp() {
   // not run again.
   const periodAnim = periodDirection === null ? "" : periodDirection === "left" ? "rb-view-left" : "rb-view-right";
   const totalSwipe = useCardSwipe((direction) => changePeriod(direction === "left" ? "year" : "month"));
+  const calendarModeSwipe = useCardSwipe((direction) => setCalendarSpendMode(direction === "left" ? "extra" : "subscriptions"));
+  const historyModeSwipe = useCardSwipe((direction) => setHistorySpendMode(direction === "left" ? "extra" : "subscriptions"));
   const headlineTotal = showYear ? annualTotal : monthlyTotal;
   const dailyEquivalence = dailyEquivalent(dailyTotal, settings.currency, settings.language);
 
@@ -11395,9 +11397,10 @@ function HubboApp() {
     view === "calendar" && /*#__PURE__*/
     React.createElement("div", { key: "view-calendar", className: viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right" }, /*#__PURE__*/
     React.createElement("div", { className: "px-5 pt-3" }, /*#__PURE__*/
-    React.createElement("div", {
+    React.createElement("div", _extends({},
+    calendarModeSwipe.handlers, {
       style: ringCardStyle(calendarDisplayedCategories, colors, effectiveTheme === "light"),
-      className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }, /*#__PURE__*/
+      className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
     React.createElement("div", { key: \`label-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs capitalize min-w-0 truncate \${monthAnim}\` },
@@ -11557,7 +11560,7 @@ function HubboApp() {
     view === "history" && /*#__PURE__*/
     React.createElement("div", { key: "view-history", className: viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right" }, /*#__PURE__*/
     React.createElement("div", { className: "px-5 pt-3 pb-28" }, /*#__PURE__*/
-    React.createElement("div", { style: ringCardStyle(historyActiveCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }, /*#__PURE__*/
+    React.createElement("div", _extends({}, historyModeSwipe.handlers, { style: ringCardStyle(historyActiveCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
     React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs truncate" }, historyPeriodLabel), /*#__PURE__*/
     React.createElement(RingModeSwitch, {
