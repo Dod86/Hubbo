@@ -580,7 +580,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v290";
+const APP_VERSION = "v291";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7354,6 +7354,12 @@ function HubboApp() {
   // Which way the new figures should come in from. Null on the first draw, so
   // the card does not animate itself into existence.
   const [periodDirection, setPeriodDirection] = useState(null);
+  // Calendario e Storico usano lo stesso linguaggio di movimento dell'Elenco:
+  // passando da Abbonamenti a Extra i contenuti entrano da destra, tornando
+  // indietro entrano da sinistra. Queste direzioni pilotano anche l'anello,
+  // che qui cambia davvero proporzioni insieme ai dati.
+  const [calendarModeDirection, setCalendarModeDirection] = useState(null);
+  const [historyModeDirection, setHistoryModeDirection] = useState(null);
   // Quale fetta è scelta nell'anello toccabile, una per scheda — non una
   // sola condivisa: passare da una scheda all'altra non deve far "sopravvivere"
   // una scelta fatta altrove, e ciascuna scheda ha dati diversi comunque.
@@ -7386,6 +7392,21 @@ function HubboApp() {
     setRingSelectedHistory(null);
     setHistoryShownYears(1);
   }, [historySpendMode]);
+
+  // Le classi rb-view-* servono solo durante il cambio di modalità. Dopo la
+  // transizione le azzeriamo, così un successivo cambio mese o un ritorno alla
+  // scheda non eredita per errore l'ultima direzione dello switch.
+  useEffect(() => {
+    if (calendarModeDirection === null) return undefined;
+    const timer = setTimeout(() => setCalendarModeDirection(null), 320);
+    return () => clearTimeout(timer);
+  }, [calendarModeDirection]);
+
+  useEffect(() => {
+    if (historyModeDirection === null) return undefined;
+    const timer = setTimeout(() => setHistoryModeDirection(null), 320);
+    return () => clearTimeout(timer);
+  }, [historyModeDirection]);
   // L'animazione di apertura dell'anello deve suonare una volta sola per
   // sessione, solo nella scheda Elenco — non ogni volta che ci si torna
   // navigando. Il ref vive qui perché HubboApp monta una volta sola per
@@ -9364,13 +9385,27 @@ function HubboApp() {
     setTotalPeriod(next);
   }
 
+  function changeCalendarSpendMode(next) {
+    if (next === calendarSpendMode) return;
+    setCalendarModeDirection(next === "extra" ? "left" : "right");
+    setCalendarSpendMode(next);
+  }
+
+  function changeHistorySpendMode(next) {
+    if (next === historySpendMode) return;
+    setHistoryModeDirection(next === "extra" ? "left" : "right");
+    setHistorySpendMode(next);
+  }
+
   // The class replays only because the key changes with it: without the key
   // React keeps the same element and an animation that has already run does
   // not run again.
   const periodAnim = periodDirection === null ? "" : periodDirection === "left" ? "rb-view-left" : "rb-view-right";
+  const calendarModeAnim = calendarModeDirection === null ? "" : calendarModeDirection === "left" ? "rb-view-left" : "rb-view-right";
+  const historyModeAnim = historyModeDirection === null ? "" : historyModeDirection === "left" ? "rb-view-left" : "rb-view-right";
   const totalSwipe = useCardSwipe((direction) => changePeriod(direction === "left" ? "year" : "month"));
-  const calendarModeSwipe = useCardSwipe((direction) => setCalendarSpendMode(direction === "left" ? "extra" : "subscriptions"));
-  const historyModeSwipe = useCardSwipe((direction) => setHistorySpendMode(direction === "left" ? "extra" : "subscriptions"));
+  const calendarModeSwipe = useCardSwipe((direction) => changeCalendarSpendMode(direction === "left" ? "extra" : "subscriptions"));
+  const historyModeSwipe = useCardSwipe((direction) => changeHistorySpendMode(direction === "left" ? "extra" : "subscriptions"));
   const headlineTotal = showYear ? annualTotal : monthlyTotal;
   const dailyEquivalence = dailyEquivalent(dailyTotal, settings.currency, settings.language);
 
@@ -11403,12 +11438,12 @@ function HubboApp() {
       className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
-    React.createElement("div", { key: \`label-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs capitalize min-w-0 truncate \${monthAnim}\` },
+    React.createElement("div", { key: \`label-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs capitalize min-w-0 truncate \${calendarModeAnim || monthAnim}\` },
     t.monthTotalLabel, " \\xB7 ", monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })
     ), /*#__PURE__*/
     React.createElement(RingModeSwitch, {
       value: calendarSpendMode,
-      onChange: setCalendarSpendMode,
+      onChange: changeCalendarSpendMode,
       options: [
       { id: "subscriptions", label: t.ringSubscriptions },
       { id: "extra", label: t.ringExtra }],
@@ -11416,7 +11451,7 @@ function HubboApp() {
       colors: colors }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`stats-\${calendarOffset}\`, className: \`flex items-center gap-2 \${monthAnim}\` }, /*#__PURE__*/
+    React.createElement("div", { key: \`stats-\${calendarOffset}-\${calendarSpendMode}\`, className: \`flex items-center gap-2 \${calendarModeAnim || monthAnim}\` }, /*#__PURE__*/
     React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0" }, /*#__PURE__*/
     React.createElement(RingCenterBox, null,
     (() => {
@@ -11458,7 +11493,7 @@ function HubboApp() {
       onSelect: setRingSelectedCalendar }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`count-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs mt-2 \${monthAnim}\` },
+    React.createElement("div", { key: \`count-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs mt-2 \${calendarModeAnim || monthAnim}\` },
     t.monthPayments(calendarDisplayedCount)
     )
     ), /*#__PURE__*/
@@ -11562,10 +11597,10 @@ function HubboApp() {
     React.createElement("div", { className: "px-5 pt-3 pb-28" }, /*#__PURE__*/
     React.createElement("div", _extends({}, historyModeSwipe.handlers, { style: ringCardStyle(historyActiveCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs truncate" }, historyPeriodLabel), /*#__PURE__*/
+    React.createElement("div", { key: \`history-label-\${historySpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs truncate \${historyModeAnim}\` }, historyPeriodLabel), /*#__PURE__*/
     React.createElement(RingModeSwitch, {
       value: historySpendMode,
-      onChange: setHistorySpendMode,
+      onChange: changeHistorySpendMode,
       options: [
       { id: "subscriptions", label: t.ringSubscriptions },
       { id: "extra", label: t.ringExtra }],
@@ -11573,7 +11608,7 @@ function HubboApp() {
       colors: colors }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { className: "flex items-center gap-2" }, /*#__PURE__*/
+    React.createElement("div", { key: \`history-stats-\${historySpendMode}\`, className: \`flex items-center gap-2 \${historyModeAnim}\` }, /*#__PURE__*/
     React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0" }, /*#__PURE__*/
     React.createElement(RingCenterBox, null,
     (() => {
@@ -11614,7 +11649,7 @@ function HubboApp() {
       onSelect: setRingSelectedHistory }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-2" }, historyActiveTotals.count, " \\xB7 ", t.historyPaymentsCount)
+    React.createElement("div", { key: \`history-count-\${historySpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs mt-2 \${historyModeAnim}\` }, historyActiveTotals.count, " \\xB7 ", t.historyPaymentsCount)
     ),
 
 
