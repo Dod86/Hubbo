@@ -580,7 +580,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v288";
+const APP_VERSION = "v289";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -3280,7 +3280,7 @@ const LEDGER_STRINGS = {
     singlePaymentErrDescription: "Aggiungi una breve descrizione.",
     singlePaymentErrDate: "Scegli una data.",
     singlePaymentErrSub: "Scegli l'abbonamento a cui collegare la spesa.",
-    singlePaymentHintLinked: "Questa spesa si aggiunge al totale pagato per questo servizio, ma non cambia il suo rinnovo né il suo prezzo.",
+    singlePaymentHintLinked: "Questa spesa resta collegata al servizio, ma viene conteggiata tra le Spese extra. Non modifica il prezzo né il prossimo rinnovo dell’abbonamento.",
     singlePaymentHintCategory: "Resta fuori dalla spesa mensile stimata e dall'anello dello Storico: la trovi da sola in \\"Spese extra\\".",
     singlePaymentDeleteConfirmTitle: "Eliminare questa spesa?",
     singlePaymentDeleteConfirmBody: (label) => \`"\${label}" verrà eliminata. L'operazione non si può annullare.\`,
@@ -3455,7 +3455,7 @@ const LEDGER_STRINGS = {
     singlePaymentErrDescription: "Add a short description.",
     singlePaymentErrDate: "Choose a date.",
     singlePaymentErrSub: "Choose the subscription to link this expense to.",
-    singlePaymentHintLinked: "This expense is added to what you've paid for this service in total, but doesn't change its renewal date or price.",
+    singlePaymentHintLinked: "This expense stays linked to the service, but is counted under Extra expenses. It does not change the subscription price or its next renewal.",
     singlePaymentHintCategory: "Stays out of the estimated monthly spend and the History ring: you'll find it on its own under \\"Extra expenses\\".",
     singlePaymentDeleteConfirmTitle: "Delete this expense?",
     singlePaymentDeleteConfirmBody: (label) => \`"\${label}" will be deleted. This can't be undone.\`,
@@ -3630,7 +3630,7 @@ const LEDGER_STRINGS = {
     singlePaymentErrDescription: "Añade una breve descripción.",
     singlePaymentErrDate: "Elige una fecha.",
     singlePaymentErrSub: "Elige la suscripción a la que vincular este gasto.",
-    singlePaymentHintLinked: "Este gasto se suma al total pagado por este servicio, pero no cambia su renovación ni su precio.",
+    singlePaymentHintLinked: "Este gasto permanece vinculado al servicio, pero se contabiliza entre los Gastos extra. No modifica el precio ni la próxima renovación de la suscripción.",
     singlePaymentHintCategory: "Queda fuera del gasto mensual estimado y del anillo del Historial: lo encontrarás aparte en \\"Gastos extra\\".",
     singlePaymentDeleteConfirmTitle: "¿Eliminar este gasto?",
     singlePaymentDeleteConfirmBody: (label) => \`Se eliminará "\${label}". Esta acción no se puede deshacer.\`,
@@ -3805,7 +3805,7 @@ const LEDGER_STRINGS = {
     singlePaymentErrDescription: "Ajoutez une courte description.",
     singlePaymentErrDate: "Choisissez une date.",
     singlePaymentErrSub: "Choisissez l'abonnement auquel lier cette dépense.",
-    singlePaymentHintLinked: "Cette dépense s'ajoute au total payé pour ce service, mais ne change ni son renouvellement ni son prix.",
+    singlePaymentHintLinked: "Cette dépense reste liée au service, mais elle est comptabilisée dans les Dépenses extra. Elle ne modifie ni le prix ni le prochain renouvellement de l’abonnement.",
     singlePaymentHintCategory: "Reste en dehors de la dépense mensuelle estimée et de l'anneau de l'Historique : vous la retrouverez à part dans \\"Dépenses extra\\".",
     singlePaymentDeleteConfirmTitle: "Supprimer cette dépense ?",
     singlePaymentDeleteConfirmBody: (label) => \`« \${label} » sera supprimée. Cette action est irréversible.\`,
@@ -3980,7 +3980,7 @@ const LEDGER_STRINGS = {
     singlePaymentErrDescription: "Füge eine kurze Beschreibung hinzu.",
     singlePaymentErrDate: "Wähle ein Datum.",
     singlePaymentErrSub: "Wähle das Abo, mit dem diese Ausgabe verknüpft werden soll.",
-    singlePaymentHintLinked: "Diese Ausgabe wird zum Gesamtbetrag für diesen Dienst addiert, ändert aber weder Verlängerung noch Preis.",
+    singlePaymentHintLinked: "Diese Ausgabe bleibt mit dem Dienst verknüpft, wird aber unter Extra-Ausgaben gezählt. Sie ändert weder den Preis noch die nächste Verlängerung des Abonnements.",
     singlePaymentHintCategory: "Bleibt außerhalb der geschätzten Monatsausgaben und des Verlaufsrings: Du findest sie separat unter \\"Extraausgaben\\".",
     singlePaymentDeleteConfirmTitle: "Diese Ausgabe löschen?",
     singlePaymentDeleteConfirmBody: (label) => \`„\${label}“ wird gelöscht. Das kann nicht rückgängig gemacht werden.\`,
