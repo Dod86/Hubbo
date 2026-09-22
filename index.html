@@ -296,7 +296,7 @@ const THEMES = {
   }
 };
 
-// v187 — proposta B: colori dell'anello desaturati agli angoli.
+// v294 — prova: colori dell'anello più presenti e meno desaturati agli angoli.
 // Usa le categorie effettivamente visibili; nessun colore inventato a dati vuoti.
 function ringCardStyle(segments, colors, light) {
   const parseHex = (value) => {
@@ -321,7 +321,7 @@ function ringCardStyle(segments, colors, light) {
   if (!base || !palette.length) return style;
   const tones = palette.map((rgb) => {
     const grey = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
-    return rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.32 - base[i]) * (light ? 0.35 : 0.27)));
+    return rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.42 - base[i]) * (light ? 0.40 : 0.31)));
   });
   const tint = (index, alpha = 1) => \`rgba(\${tones[index % tones.length].join(",")},\${alpha})\`;
   style.backgroundImage = \`radial-gradient(ellipse at 0% 0%, \${tint(0)} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, \${tint(1)} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, \${tint(2, 0.5)} 0%, transparent 58%)\`;
@@ -389,7 +389,7 @@ function RingModeSwitch({ value, onChange, options, colors }) {
 
 }
 
-// v194: sfondo tenue delle sole righe Elenco, dal colore del loro anello.
+// v294 — prova: gradiente delle righe Elenco più intenso, dal colore del loro anello.
 function serviceCardBackground(ringColor, colors, light) {
   const parse = (value) => {
     let hex = String(value || "").replace(/^#/, "");
@@ -403,7 +403,7 @@ function serviceCardBackground(ringColor, colors, light) {
   };
   if (!base || !rgb) return style;
   const grey = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
-  const tint = rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.4 - base[i]) * (light ? 0.14 : 0.16)));
+  const tint = rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.50 - base[i]) * (light ? 0.19 : 0.21)));
   style.backgroundImage = \`linear-gradient(90deg, rgb(\${tint.join(",")}) 0%, \${colors.surface} 78%)\`;
   return style;
 }
@@ -580,7 +580,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v293";
+const APP_VERSION = "v294";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
