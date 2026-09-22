@@ -266,6 +266,8 @@ const THEMES = {
     border: "#332D25",
     textPrimary: "#F2EEE7",
     textSecondary: "#948C7F",
+    // v296: testo di supporto leggibile sulle card con gradiente.
+    textOnGradient: "#D6CEC2",
     // Alzato da #635B4F: sotto ~2.6:1 su surface/surface2, troppo poco per
     // testo leggibile (grigio su grigio segnalato da Erny il 18 settembre).
     // #847C6D porta il contrasto a ~3.9-4.6:1 restando comunque più
@@ -290,6 +292,7 @@ const THEMES = {
     border: "#E2DACB",
     textPrimary: "#1E1A14",
     textSecondary: "#6B6459",
+    textOnGradient: "#51483C",
     textFaint: "#A39B8C",
     overlay: "rgba(30,26,20,0.45)",
     cardShadow: "0 1px 2px rgba(30,26,20,0.06), 0 6px 16px rgba(30,26,20,0.08)"
@@ -376,7 +379,7 @@ function RingModeSwitch({ value, onChange, options, colors }) {
           onClick: () => onChange(option.id),
           style: {
             background: active ? colors.surface : "transparent",
-            color: active ? colors.textPrimary : colors.textSecondary,
+            color: active ? colors.textPrimary : colors.textOnGradient,
             fontSize: 11
           },
           className: "rounded-full px-2.5 py-1 font-medium" },
@@ -581,7 +584,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v295";
+const APP_VERSION = "v296";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -6040,7 +6043,7 @@ function SelectedCategoryFigure({ seg, total, colors, moneyParts, light, t }) {
     React.createElement("span", null, parts.number),
     !parts.symbolFirst && mark
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textFaint, fontSize: captionSize }, className: "leading-tight mt-1" },
+    React.createElement("div", { style: { color: colors.textOnGradient, fontSize: captionSize }, className: "leading-tight mt-1" },
     t.ringPctOfSpend(pct)
     )
     ));
@@ -6087,7 +6090,7 @@ function CategoryLegend({ segments, total, colors, money, light, selected = null
           className: "flex items-center gap-2 min-w-0 -mx-1 px-1 py-0.5 rounded-lg" }, /*#__PURE__*/
 
         React.createElement("span", { style: { background: seg.color, width: 9, height: 9, borderRadius: 999 }, className: "flex-shrink-0" }), /*#__PURE__*/
-        React.createElement("span", { style: { color: colors.textSecondary }, className: "text-xs truncate flex-1" }, seg.label), /*#__PURE__*/
+        React.createElement("span", { style: { color: colors.textOnGradient }, className: "text-xs truncate flex-1" }, seg.label), /*#__PURE__*/
 
 
 
@@ -11169,7 +11172,7 @@ function HubboApp() {
       , className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center justify-between mb-1" }, /*#__PURE__*/
-    React.createElement("div", { key: totalPeriod, style: { color: colors.textSecondary }, className: \`text-xs \${periodAnim}\` },
+    React.createElement("div", { key: totalPeriod, style: { color: colors.textOnGradient }, className: \`text-xs \${periodAnim}\` },
     showYear ? t.yearlySpend : t.monthlySpend
     ), /*#__PURE__*/
 
@@ -11251,7 +11254,7 @@ function HubboApp() {
     React.createElement("div", { key: totalPeriod, style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700, color: colors.textPrimary, fontSize: "clamp(10.5px, 3.7vw, 15px)" }, className: \`leading-tight truncate \${periodAnim}\` },
     showYear ? money(monthlyTotal) : money(annualTotal)
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-[11px] leading-snug mt-0.5" },
+    React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-[11px] leading-snug mt-0.5" },
     showYear ? t.estimatedPerMonthShort : t.estimatedPerYearShort
     )
     ), /*#__PURE__*/
@@ -11260,7 +11263,7 @@ function HubboApp() {
     React.createElement("div", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700, color: colors.textPrimary, fontSize: "clamp(10.5px, 3.7vw, 15px)" }, className: "leading-tight truncate" },
     money(dailyTotal)
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-[11px] leading-snug mt-0.5" },
+    React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-[11px] leading-snug mt-0.5" },
     t.perDay,
     dailyEquivalence && /*#__PURE__*/
     React.createElement(React.Fragment, null, /*#__PURE__*/
@@ -11277,7 +11280,7 @@ function HubboApp() {
     React.createElement("div", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700, color: colors.textPrimary, fontSize: "clamp(10.5px, 3.7vw, 15px)" }, className: "leading-tight truncate" },
     totalsBase.length
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-[11px] leading-snug mt-0.5" },
+    React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-[11px] leading-snug mt-0.5" },
     t.activeCountCaption
     )
     )
@@ -11299,10 +11302,10 @@ function HubboApp() {
       className: "w-full mt-3 rounded-xl px-4 py-2 flex items-center gap-2.5 text-left" }, /*#__PURE__*/
 
     React.createElement(Icon, { name: "crown", size: 18, color: ACCENT.amber, className: "flex-shrink-0" }), /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textSecondary }, className: "flex-1 min-w-0 text-xs leading-snug" },
-    t.freeBadge(subs.length, FREE_LIMIT), " ", /*#__PURE__*/React.createElement("span", { style: { color: colors.textFaint } }, "\\xB7"), " ", t.freeBadgeShort
+    React.createElement("span", { style: { color: colors.textOnGradient }, className: "flex-1 min-w-0 text-xs leading-snug" },
+    t.freeBadge(subs.length, FREE_LIMIT), " ", /*#__PURE__*/React.createElement("span", { style: { color: colors.textOnGradient } }, "\\xB7"), " ", t.freeBadgeShort
     ), /*#__PURE__*/
-    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
+    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textOnGradient, className: "flex-shrink-0" })
     )
 
     )
@@ -11494,7 +11497,7 @@ function HubboApp() {
       className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
-    React.createElement("div", { key: \`label-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs capitalize min-w-0 truncate \${calendarModeAnim || monthAnim}\` },
+    React.createElement("div", { key: \`label-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs capitalize min-w-0 truncate \${calendarModeAnim || monthAnim}\` },
     t.monthTotalLabel, " \\xB7 ", monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })
     ), /*#__PURE__*/
     React.createElement(RingModeSwitch, {
@@ -11549,7 +11552,7 @@ function HubboApp() {
       onSelect: setRingSelectedCalendar }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`count-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs mt-2 \${calendarModeAnim || monthAnim}\` },
+    React.createElement("div", { key: \`count-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs mt-2 \${calendarModeAnim || monthAnim}\` },
     t.monthPayments(calendarDisplayedCount)
     )
     ), /*#__PURE__*/
@@ -11653,7 +11656,7 @@ function HubboApp() {
     React.createElement("div", { className: "px-5 pt-3 pb-28" }, /*#__PURE__*/
     React.createElement("div", _extends({}, historyModeSwipe.handlers, { style: ringCardStyle(historyActiveCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
-    React.createElement("div", { key: \`history-label-\${historySpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs truncate \${historyModeAnim}\` }, historyPeriodLabel), /*#__PURE__*/
+    React.createElement("div", { key: \`history-label-\${historySpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs truncate \${historyModeAnim}\` }, historyPeriodLabel), /*#__PURE__*/
     React.createElement(RingModeSwitch, {
       value: historySpendMode,
       onChange: changeHistorySpendMode,
@@ -11705,7 +11708,7 @@ function HubboApp() {
       onSelect: setRingSelectedHistory }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`history-count-\${historySpendMode}\`, style: { color: colors.textSecondary }, className: \`text-xs mt-2 \${historyModeAnim}\` }, historyActiveTotals.count, " \\xB7 ", t.historyPaymentsCount)
+    React.createElement("div", { key: \`history-count-\${historySpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs mt-2 \${historyModeAnim}\` }, historyActiveTotals.count, " \\xB7 ", t.historyPaymentsCount)
     ),
 
 
@@ -11975,7 +11978,7 @@ function HubboApp() {
       const annualCategoryTotals = savingsCategoryTotals.map((c) => ({ ...c, total: c.total * 12 }));
       return (/*#__PURE__*/
         React.createElement("div", { style: ringCardStyle(annualCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-4 overflow-hidden" }, /*#__PURE__*/
-        React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mb-1" }, t.savingsPotentialLabel), /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-xs mb-1" }, t.savingsPotentialLabel), /*#__PURE__*/
         React.createElement("div", { className: "flex items-center gap-3" }, /*#__PURE__*/
         React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0" }, /*#__PURE__*/
         React.createElement(RingCenterBox, null,
@@ -12018,8 +12021,8 @@ function HubboApp() {
         )
         ), /*#__PURE__*/
         React.createElement("div", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg leading-tight mt-1" }, t.savingsPotentialHeadline(money(annualAmount))), /*#__PURE__*/
-        React.createElement("div", { style: { color: colors.textFaint, fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-xs mt-1" }, t.savingsPotentialMonthly(money(savingsHeadline.amount))), /*#__PURE__*/
-        React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs mt-1 leading-relaxed" }, t.savingsPotentialHint)
+        React.createElement("div", { style: { color: colors.textOnGradient, fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-xs mt-1" }, t.savingsPotentialMonthly(money(savingsHeadline.amount))), /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-xs mt-1 leading-relaxed" }, t.savingsPotentialHint)
         ));
 
     })(),
@@ -12029,7 +12032,7 @@ function HubboApp() {
 
 
     offersFile && offersFile.aggiornato && /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mb-4 px-1 leading-relaxed" },
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mb-4 px-1 leading-relaxed" },
     t.savingsCatalogChecked(dateFmt(offersFile.aggiornato))
     ),
 
@@ -12039,7 +12042,7 @@ function HubboApp() {
     React.createElement(Icon, { name: "piggyBank", size: 34, strokeWidth: 1.5 })
     ), /*#__PURE__*/
     React.createElement("p", { className: "text-sm font-medium mb-1.5" }, t.savingsSoon), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed max-w-xs mx-auto" }, t.savingsSoonHint)
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed max-w-xs mx-auto" }, t.savingsSoonHint)
     ) : /*#__PURE__*/
 
     React.createElement(React.Fragment, null,
@@ -12187,7 +12190,7 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsDuplicates)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsDuplicatesHint), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsDuplicatesHint), /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col gap-2" },
     savingsDuplicates.map((group) => /*#__PURE__*/
     React.createElement("div", { key: group.id, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-4" }, /*#__PURE__*/
@@ -12226,7 +12229,7 @@ function HubboApp() {
 
     })
     ), /*#__PURE__*/
-    React.createElement("div", { style: { color: colors.textFaint, borderTop: \`1px solid \${colors.border}\` }, className: "text-xs mt-3 pt-2.5 leading-relaxed" },
+    React.createElement("div", { style: { color: colors.textOnGradient, borderTop: \`1px solid \${colors.border}\` }, className: "text-xs mt-3 pt-2.5 leading-relaxed" },
     group.keepOne ? t.savingsOnlyOneHint : t.savingsRotateHint,
     group.id === "antivirus" && /*#__PURE__*/React.createElement("span", null, " ", t.savingsAntivirusNote)
     )
@@ -12270,7 +12273,7 @@ function HubboApp() {
         o.opportunityKind === "included" ? t.savingsCanRemove : t.savingsReplaces, ": ", (o.replacedSubs || o.subs).map((s) => s.name).join(', ')
         ),
         o.nota && /*#__PURE__*/
-        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota),
+        React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota),
 
         o.commercialBundle && /*#__PURE__*/
         React.createElement("div", { style: { background: colors.surface2, color: colors.textSecondary }, className: "rounded-xl px-3 py-2.5 mt-2.5 text-xs leading-relaxed" },
@@ -12382,7 +12385,7 @@ function HubboApp() {
     React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.benefits } }, /*#__PURE__*/React.createElement(Icon, { name: "users", size: 15 })), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsIncludedBenefits)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsIncludedBenefitsHint), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsIncludedBenefitsHint), /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col gap-2" },
     savingsIncludedBenefits.map((row) => {
       const s = row.sub;
@@ -12429,7 +12432,7 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsPlans)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsPlansHint), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsPlansHint), /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col gap-2" },
     savingsPlanHints.map((row) => {
       const s = row.sub;
@@ -12465,12 +12468,12 @@ function HubboApp() {
         React.createElement("span", { className: "text-xs" }, hint.text)
         ),
         hint.note && /*#__PURE__*/
-        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-0.5 leading-relaxed" }, hint.note)
+        React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-0.5 leading-relaxed" }, hint.note)
 
         )
         ),
         row.note && /*#__PURE__*/
-        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" }, row.note),
+        React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-1.5 leading-relaxed" }, row.note),
 
 
 
@@ -12504,7 +12507,7 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.watchlistTitle)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.watchlistHint), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.watchlistHint), /*#__PURE__*/
 
 
 
@@ -12522,7 +12525,7 @@ function HubboApp() {
     ),
 
     watchlistEntries.length === 0 ? /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs px-1" }, t.watchlistEmpty) : /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs px-1" }, t.watchlistEmpty) : /*#__PURE__*/
 
     React.createElement("div", { className: "flex flex-col gap-2" },
     watchlistEntries.map((entry) => {
@@ -12559,11 +12562,11 @@ function HubboApp() {
         ),
 
         entry.offers.length === 0 && !entry.trial && !entry.trialStale && /*#__PURE__*/
-        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-3 leading-relaxed" }, t.watchlistNoOffers),
+        React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-3 leading-relaxed" }, t.watchlistNoOffers),
 
 
         entry.offers.length === 0 && !entry.trial && entry.trialStale && /*#__PURE__*/
-        React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-3 leading-relaxed" }, t.watchlistNeedsRecheck),
+        React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-3 leading-relaxed" }, t.watchlistNeedsRecheck),
 
 
         entry.trial && /*#__PURE__*/
@@ -12585,7 +12588,7 @@ function HubboApp() {
             React.createElement("div", { key: offerId(o), style: { borderTop: \`1px solid \${colors.border}\` }, className: "mt-3 pt-3" }, /*#__PURE__*/
             React.createElement("div", { className: "text-sm font-medium" }, o.titolo || entry.name),
             o.dettaglio && /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs mt-1 leading-relaxed" }, o.dettaglio), /*#__PURE__*/
-            React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs mt-1.5 leading-relaxed" },
+            React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-xs mt-1.5 leading-relaxed" },
             t.watchlistFor(codes.map((c) => t.offerAudienceLabel(c)).join(", ")),
             " · ", t.savingsOfferUntil(dateFmt(o.scade))
             ),
