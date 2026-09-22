@@ -584,7 +584,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v296";
+const APP_VERSION = "v297";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -11497,7 +11497,7 @@ function HubboApp() {
       className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
 
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
-    React.createElement("div", { key: \`label-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs capitalize min-w-0 truncate \${calendarModeAnim || monthAnim}\` },
+    React.createElement("div", { key: \`label-\${calendarOffset}\`, style: { color: colors.textOnGradient }, className: \`text-xs capitalize min-w-0 truncate \${monthAnim}\` },
     t.monthTotalLabel, " \\xB7 ", monthViews.current.monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" })
     ), /*#__PURE__*/
     React.createElement(RingModeSwitch, {
@@ -11656,7 +11656,7 @@ function HubboApp() {
     React.createElement("div", { className: "px-5 pt-3 pb-28" }, /*#__PURE__*/
     React.createElement("div", _extends({}, historyModeSwipe.handlers, { style: ringCardStyle(historyActiveCategoryTotals, colors, effectiveTheme === "light"), className: "rounded-2xl px-4 py-3.5 mb-2.5 overflow-hidden" }), /*#__PURE__*/
     React.createElement("div", { className: "flex items-center justify-between gap-3 mb-1" }, /*#__PURE__*/
-    React.createElement("div", { key: \`history-label-\${historySpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs truncate \${historyModeAnim}\` }, historyPeriodLabel), /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-xs truncate" }, historyPeriodLabel), /*#__PURE__*/
     React.createElement(RingModeSwitch, {
       value: historySpendMode,
       onChange: changeHistorySpendMode,
