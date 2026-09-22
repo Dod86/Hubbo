@@ -340,7 +340,6 @@ function fixedAccentCardStyle(accentColor, colors, light) {
   const mix = (a, b, ratio) => a.map((v, i) => Math.round(v * (1 - ratio) + b[i] * ratio));
   const base = parseHex(colors.surface);
   const accent = parseHex(accentColor);
-  const amber = parseHex(ACCENT.amber);
   const style = {
     backgroundColor: colors.surface,
     backgroundOrigin: "border-box",
@@ -349,18 +348,19 @@ function fixedAccentCardStyle(accentColor, colors, light) {
     border: "2px solid transparent",
     boxShadow: colors.cardShadow
   };
-  if (!base || !accent || !amber) return style;
-  const warmed = mix(accent, amber, light ? 0.34 : 0.24);
-  const grey = warmed[0] * 0.2126 + warmed[1] * 0.7152 + warmed[2] * 0.0722;
-  const tone = (strength, chroma = 0.52) => warmed.map((v, i) => Math.round(base[i] + (grey + (v - grey) * chroma - base[i]) * strength));
+  if (!base || !accent) return style;
+  // v295: conserviamo la tinta propria, senza una velatura ambra comune
+  // che renderebbe simili anche sezioni di colori differenti.
+  const grey = accent[0] * 0.2126 + accent[1] * 0.7152 + accent[2] * 0.0722;
+  const tone = (strength, chroma = 0.70) => accent.map((v, i) => Math.round(base[i] + (grey + (v - grey) * chroma - base[i]) * strength));
   const tones = [
-  tone(light ? 0.48 : 0.36, 0.58),
-  tone(light ? 0.37 : 0.28, 0.54),
-  tone(light ? 0.27 : 0.20, 0.50)];
+  tone(light ? 0.48 : 0.36, 0.74),
+  tone(light ? 0.37 : 0.28, 0.70),
+  tone(light ? 0.27 : 0.20, 0.66)];
 
-  const amberWash = mix(base, amber, light ? 0.18 : 0.14);
+  const accentWash = mix(base, accent, light ? 0.18 : 0.14);
   const tint = (rgb, alpha = 1) => \`rgba(\${rgb.join(",")},\${alpha})\`;
-  style.backgroundImage = \`linear-gradient(135deg, \${tint(amberWash, light ? 0.16 : 0.11)} 0%, transparent 55%), radial-gradient(ellipse at 0% 0%, \${tint(tones[0])} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, \${tint(tones[1])} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, \${tint(tones[2], 0.56)} 0%, transparent 58%)\`;
+  style.backgroundImage = \`linear-gradient(135deg, \${tint(accentWash, light ? 0.16 : 0.11)} 0%, transparent 55%), radial-gradient(ellipse at 0% 0%, \${tint(tones[0])} 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, \${tint(tones[1])} 0%, transparent 66%), radial-gradient(ellipse at 100% 0%, \${tint(tones[2], 0.56)} 0%, transparent 58%)\`;
   return style;
 }
 
@@ -413,14 +413,15 @@ function serviceCardBackground(ringColor, colors, light) {
 // read as the same colour, so the alarm has been pushed properly red.
 const ACCENT = { amber: "#E3A857", terracotta: "#C4643C", danger: "#E05545", green: "#4CAF7D" };
 
+// v295: sette famiglie di colore distinte per riconoscere le sottosezioni.
 const SAVINGS_SECTION_ACCENTS = {
-  decideNow: "#C66A48",
-  offers: "#D9A14A",
-  duplicates: "#B58A57",
-  opportunities: "#CA8761",
-  benefits: "#A9785D",
-  plans: "#B48187",
-  watchlist: "#C29A6E"
+  decideNow: "#D67660", // corallo
+  offers: "#D6A13F", // ambra
+  duplicates: "#6096C6", // azzurro
+  opportunities: "#69A17A", // verde salvia
+  benefits: "#A38AC4", // lavanda
+  plans: "#C77D9B", // rosa
+  watchlist: "#52A5A0" // turchese
 };
 
 
@@ -580,7 +581,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v294";
+const APP_VERSION = "v295";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
