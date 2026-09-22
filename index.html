@@ -35,7 +35,7 @@
 // "#v". React legge questo valore salvato la prima volta che deve capire da
 // quale notifica è stata avviata l'app.
 window.__hubboStartHash = window.location.hash || "";
-window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active: false, setActive: null };
+window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active: false, clearing: false, setActive: null };
 (function () {
   var GUARD = "#v";
   var TARGET = 4;      // reserve used only while an internal Hubbo layer is open
@@ -43,6 +43,13 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active
   var active = false;  // false on the clean List screen: Android Back must stay native
   var suppressNavigation = false;
   var lastAt = 0;
+  // v301: clearing Hubbo's synthetic Back entries is itself a history
+  // traversal. Chromium may otherwise restore the scroll position saved on
+  // the old entry after React has already restored the destination tab, which
+  // is exactly what made the collapsing header reopen when returning to List.
+  var cleanupScrollY = null;
+  var previousScrollRestoration = null;
+  var cleanupFrame = 0;
 
   function publishState() {
     window.__hubboBack.depth = depth;
@@ -71,6 +78,34 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active
     }
   }
 
+  function finishGuardCleanup() {
+    var y = cleanupScrollY;
+    cleanupScrollY = null;
+    // Keep the synthetic traversal invisible to the app. The immediate write
+    // catches browsers that restore before popstate; the next frame catches a
+    // late persisted-scroll restoration. While `clearing` is true the header
+    // controller deliberately ignores both programmatic scroll events.
+    if (typeof y === "number") window.scrollTo(0, y);
+    if (cleanupFrame) window.cancelAnimationFrame(cleanupFrame);
+    var done = function () {
+      if (typeof y === "number") window.scrollTo(0, y);
+      window.__hubboBack.clearing = false;
+      if (previousScrollRestoration !== null && "scrollRestoration" in window.history) {
+        window.history.scrollRestoration = previousScrollRestoration;
+      }
+      previousScrollRestoration = null;
+      cleanupFrame = 0;
+      publishState();
+    };
+    if (window.requestAnimationFrame) {
+      cleanupFrame = window.requestAnimationFrame(function () {
+        cleanupFrame = window.requestAnimationFrame(done);
+      });
+    } else {
+      setTimeout(done, 0);
+    }
+  }
+
   function clearGuards() {
     if (!depth) {
       publishState();
@@ -78,14 +113,23 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active
     }
     var steps = depth;
     depth = 0;
+    cleanupScrollY = window.scrollY || window.pageYOffset || 0;
+    window.__hubboBack.clearing = true;
+    if ("scrollRestoration" in window.history) {
+      previousScrollRestoration = window.history.scrollRestoration;
+      window.history.scrollRestoration = "manual";
+    }
     publishState();
     suppressNavigation = true;
     try {
       // Return to Hubbo's real entry. Once there, the next physical Back is
       // no longer intercepted and Android/Chrome can leave the PWA normally.
+      // Scroll restoration is temporarily manual: changing history must never
+      // be allowed to alter the visual state of the current Hubbo screen.
       window.history.go(-steps);
     } catch (e) {
       suppressNavigation = false;
+      finishGuardCleanup();
     }
   }
 
@@ -102,16 +146,19 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active
   }
 
   function onBack(evt) {
+    // A traversal started by clearGuards() must be consumed even when it lands
+    // within the 350 ms duplicate-event window of the physical Back that just
+    // returned the app to List. Otherwise cleanup would remain armed forever.
+    if (suppressNavigation) {
+      suppressNavigation = false;
+      finishGuardCleanup();
+      return;
+    }
+
     // One physical Back can report both popstate and hashchange; count it once.
     var now = Date.now();
     if (now - lastAt < 350) return;
     lastAt = now;
-
-    if (suppressNavigation) {
-      suppressNavigation = false;
-      publishState();
-      return;
-    }
 
     // If Hubbo is not handling an internal layer, do not rebuild history:
     // this navigation belongs to Android/the browser.
@@ -266,7 +313,7 @@ const THEMES = {
     border: "#332D25",
     textPrimary: "#F2EEE7",
     textSecondary: "#948C7F",
-    // v300: fix header stabile al cambio scheda; bottom navigation mantiene il pill piatto della v299.
+    // v301: fix rientro in Elenco neutralizzando lo scroll della cronologia Back; pill piatto invariato.
     navActive: "#E18A67",
     navActiveSurface: "rgba(196,100,60,0.20)",
     // v296: testo di supporto leggibile sulle card con gradiente.
@@ -589,7 +636,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v300";
+const APP_VERSION = "v301";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7109,6 +7156,22 @@ function useCollapsingHeader(ready, blocked) {
     const onScroll = () => {
       if (paused || blockedRef.current) return;
       const y = scrollPosition();
+      // v301: returning to the clean List view removes Hubbo's temporary
+      // Android-Back history entries. That history traversal can emit a
+      // programmatic scroll event even though the user did not move the page.
+      // Never let such an internal event change the shared header offset.
+      if (window.__hubboBack && window.__hubboBack.clearing) {
+        // If Chromium still emits a persisted-position scroll despite manual
+        // restoration, detach the compositor timeline immediately as well:
+        // the inline fallback keeps the exact shared offset on screen.
+        if (nativeTimeline) {
+          timelineHeld = true;
+          enableTimeline(false);
+          fallbackPosition();
+        }
+        lastScroll = y;
+        return;
+      }
       const delta = y - lastScroll;
       if (!delta) return;
       // v300: dopo un cambio scheda la Scroll Timeline nativa resta sganciata
