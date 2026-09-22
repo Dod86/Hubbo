@@ -266,7 +266,7 @@ const THEMES = {
     border: "#332D25",
     textPrimary: "#F2EEE7",
     textSecondary: "#948C7F",
-    // v299: stato attivo della bottom navigation più leggibile, con pill piatto senza bordo né ombra.
+    // v300: fix header stabile al cambio scheda; bottom navigation mantiene il pill piatto della v299.
     navActive: "#E18A67",
     navActiveSurface: "rgba(196,100,60,0.20)",
     // v296: testo di supporto leggibile sulle card con gradiente.
@@ -589,7 +589,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v299";
+const APP_VERSION = "v300";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7063,7 +7063,7 @@ function useCollapsingHeader(ready, blocked) {
     const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
     let travel = 0,offset = 0,anchor = 0,direction = 0;
     let lastScroll = 0,paused = false,touching = false,disposed = false;
-    let idleTimer = 0,resumeFrame = 0,brandHidden = null;
+    let idleTimer = 0,resumeFrame = 0,brandHidden = null,timelineHeld = false;
     const clamp = (value) => Math.max(0, Math.min(travel, value));
     // Ignore rubber-band overscroll at either end of the document.
     const scrollPosition = () => Math.max(0, Math.min(window.scrollY,
@@ -7111,6 +7111,16 @@ function useCollapsingHeader(ready, blocked) {
       const y = scrollPosition();
       const delta = y - lastScroll;
       if (!delta) return;
+      // v300: dopo un cambio scheda la Scroll Timeline nativa resta sganciata
+      // finché non arriva un nuovo scroll reale dell'utente. Quando il primo
+      // delta arriva (wheel/tastiera/scrollbar), la riagganciamo usando come
+      // ancora la posizione precedente: il transform dell'header rimane così
+      // continuo e Chrome non può riaprirlo mentre ricalcola il nuovo documento.
+      if (timelineHeld) {
+        setAnchor(lastScroll - offset);
+        timelineHeld = false;
+        enableTimeline(true);
+      }
       const nextDirection = Math.sign(delta);
       // Re-anchor only on reversal. Within a gesture, the browser samples the
       // scroll timeline directly, including native inertia, at display speed.
@@ -7139,6 +7149,7 @@ function useCollapsingHeader(ready, blocked) {
       cancelAnimationFrame(resumeFrame);
       paused = true;
       touching = false;
+      timelineHeld = false;
       // Freeze before a tab restoration or the modal's fixed-body scroll lock.
       offset = direction > 0 ? travel : direction < 0 ? 0 : offset >= travel / 2 ? travel : 0;
       fallbackPosition();
@@ -7161,6 +7172,7 @@ function useCollapsingHeader(ready, blocked) {
       window.scrollTo({ top: target, behavior: "instant" });
       lastScroll = scrollPosition();
       setAnchor(lastScroll - offset);
+      if (timelineHeld || paused) fallbackPosition();
     };
     const resume = () => {
       cancelAnimationFrame(resumeFrame);
@@ -7170,11 +7182,39 @@ function useCollapsingHeader(ready, blocked) {
         restore(scrollPosition());
         direction = 0;
         paused = false;
+        timelineHeld = false;
         enableTimeline(true);
       });
     };
-    controllerRef.current = { pause, resume, restore, currentOffset: () => offset };
-    const onTouchStart = () => {touching = true;clearTimeout(idleTimer);};
+    const resumeAfterViewSwitch = () => {
+      cancelAnimationFrame(resumeFrame);
+      resumeFrame = requestAnimationFrame(() => {
+        if (blockedRef.current || disposed) return;
+        // v300: durante il cambio scheda NON riattiviamo subito la Scroll
+        // Timeline di Chrome. Il nuovo DOM può avere altezza/layout diversi e
+        // Chromium ricalcola il range in modo asincrono: in quel passaggio la
+        // timeline può mostrare il fotogramma iniziale e far ridiscendere
+        // l'header. Manteniamo invece il transform JS congelato all'offset
+        // condiviso; la timeline viene riagganciata al primo gesto successivo.
+        restore(scrollPosition());
+        direction = 0;
+        paused = false;
+        timelineHeld = nativeTimeline;
+        enableTimeline(false);
+        fallbackPosition();
+      });
+    };
+    controllerRef.current = { pause, resume, resumeAfterViewSwitch, restore, currentOffset: () => offset };
+    const onTouchStart = () => {
+      touching = true;
+      clearTimeout(idleTimer);
+      if (!paused && timelineHeld) {
+        lastScroll = scrollPosition();
+        setAnchor(lastScroll - offset);
+        timelineHeld = false;
+        enableTimeline(true);
+      }
+    };
     const onTouchEnd = (event) => {
       touching = !!(event.touches && event.touches.length);
       if (!touching) scheduleSettle();
@@ -7752,7 +7792,7 @@ function HubboApp() {
 
   const closingRef = useRef(null);
   const viewScrollRef = useRef({ list: 0, calendar: 0, history: 0, savings: 0 });
-  // v299: il ripristino dello scroll della scheda di destinazione viene
+  // v300: il ripristino dello scroll della scheda di destinazione viene
   // eseguito dopo che React ha montato quella scheda. Farlo dal click con un
   // requestAnimationFrame poteva anticipare il commit su Android: entrando
   // soprattutto in Elenco il browser ricalcolava poi l'altezza del documento
@@ -9352,7 +9392,7 @@ function HubboApp() {
 
   const headerMotion = useCollapsingHeader(subs !== null, anyModalOpen || tourActive || !!resumePrompt || !!cancelPrompt || !!duplicateConfirm);
 
-  // v299: completa il cambio scheda dopo il commit del nuovo DOM, prima del
+  // v300: completa il cambio scheda dopo il commit del nuovo DOM, prima del
   // paint. In questo modo scroll e quantità di header raccolto vengono
   // ripristinati contro l'altezza reale della scheda appena aperta e non
   // possono essere corretti dal browser un frame più tardi.
@@ -9363,7 +9403,7 @@ function HubboApp() {
     const controller = headerMotion.controllerRef.current;
     if (controller) {
       controller.restore(pending.target);
-      controller.resume();
+      controller.resumeAfterViewSwitch();
     } else {
       window.scrollTo({ top: pending.target, behavior: "instant" });
     }
