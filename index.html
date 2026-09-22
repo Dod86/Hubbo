@@ -266,10 +266,9 @@ const THEMES = {
     border: "#332D25",
     textPrimary: "#F2EEE7",
     textSecondary: "#948C7F",
-    // v298: stato attivo della bottom navigation più leggibile e riconoscibile.
+    // v299: stato attivo della bottom navigation più leggibile, con pill piatto senza bordo né ombra.
     navActive: "#E18A67",
     navActiveSurface: "rgba(196,100,60,0.20)",
-    navActiveBorder: "rgba(225,138,103,0.34)",
     // v296: testo di supporto leggibile sulle card con gradiente.
     textOnGradient: "#D6CEC2",
     // Alzato da #635B4F: sotto ~2.6:1 su surface/surface2, troppo poco per
@@ -292,7 +291,6 @@ const THEMES = {
     navInactive: "#857D70",
     navActive: "#A64E34",
     navActiveSurface: "rgba(196,100,60,0.12)",
-    navActiveBorder: "rgba(166,78,52,0.22)",
     textAccent: "#AD5B40",
     surface: "#FFFDF8",
     surface2: "#EFEADF",
@@ -591,7 +589,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v298";
+const APP_VERSION = "v299";
 const APP_BUILD_DATE = "2026-09-22";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -1134,9 +1132,9 @@ const ANIMATIONS = \`
 .rb-notif-thumb { transition: transform 180ms ease; }
 @media (prefers-reduced-motion: reduce) { .rb-notif-thumb { transition: none; } }
 
-/* v298: bottom navigation. La scheda selezionata usa un piccolo pill
-   dietro l'icona e un pop elastico una sola volta quando diventa attiva,
-   nello stesso spirito delle micro-animazioni della navigation di YouTube. */
+/* v299: bottom navigation. La scheda selezionata usa un piccolo pill piatto
+   dietro l'icona, senza bordo né ombra, e un pop elastico una sola volta
+   quando diventa attiva, nello spirito delle micro-animazioni di YouTube. */
 .rb-nav-tab { -webkit-tap-highlight-color: transparent; }
 .rb-nav-icon-shell {
   width: 42px;
@@ -1145,8 +1143,7 @@ const ANIMATIONS = \`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
-  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  transition: background-color 180ms ease;
 }
 .rb-nav-icon {
   transform-origin: center;
@@ -7755,6 +7752,12 @@ function HubboApp() {
 
   const closingRef = useRef(null);
   const viewScrollRef = useRef({ list: 0, calendar: 0, history: 0, savings: 0 });
+  // v299: il ripristino dello scroll della scheda di destinazione viene
+  // eseguito dopo che React ha montato quella scheda. Farlo dal click con un
+  // requestAnimationFrame poteva anticipare il commit su Android: entrando
+  // soprattutto in Elenco il browser ricalcolava poi l'altezza del documento
+  // e l'header tornava visibilmente verso il basso.
+  const pendingViewRestoreRef = useRef(null);
   // Live exchange rates, refreshed once a day and cached so the app keeps
   // converting correctly offline. Falls back to the built-in reference rates.
   useEffect(() => {
@@ -9348,6 +9351,23 @@ function HubboApp() {
   const anyModalOpen = !!dayPopup || otherModalOpen;
 
   const headerMotion = useCollapsingHeader(subs !== null, anyModalOpen || tourActive || !!resumePrompt || !!cancelPrompt || !!duplicateConfirm);
+
+  // v299: completa il cambio scheda dopo il commit del nuovo DOM, prima del
+  // paint. In questo modo scroll e quantità di header raccolto vengono
+  // ripristinati contro l'altezza reale della scheda appena aperta e non
+  // possono essere corretti dal browser un frame più tardi.
+  useLayoutEffect(() => {
+    const pending = pendingViewRestoreRef.current;
+    if (!pending || pending.view !== view) return;
+    pendingViewRestoreRef.current = null;
+    const controller = headerMotion.controllerRef.current;
+    if (controller) {
+      controller.restore(pending.target);
+      controller.resume();
+    } else {
+      window.scrollTo({ top: pending.target, behavior: "instant" });
+    }
+  }, [view]);
 
   useEffect(() => {
     if (!anyModalOpen) return;
@@ -11048,15 +11068,14 @@ function HubboApp() {
     const sharedOffset = controller ? controller.currentOffset() : 0;
     const rawY = window.scrollY || window.pageYOffset || 0;
     viewScrollRef.current[view] = Math.max(0, rawY - sharedOffset);
+    const target = (viewScrollRef.current[next] || 0) + sharedOffset;
+    // Salva il ripristino prima del cambio vista. Verrà applicato da un
+    // useLayoutEffect solo quando il DOM della scheda nuova è già quello
+    // definitivo, evitando il salto tardivo dell'header segnalato su Elenco.
+    pendingViewRestoreRef.current = { view: next, target };
     // The slide follows the tab order, so moving right always slides left.
     setViewDirection(VIEW_ORDER.indexOf(next) > VIEW_ORDER.indexOf(view) ? "left" : "right");
     setView(next);
-    const target = (viewScrollRef.current[next] || 0) + sharedOffset;
-    requestAnimationFrame(() => {
-      const controller = headerMotion.controllerRef.current;
-      if (controller) {controller.restore(target);controller.resume();} else
-      window.scrollTo(0, target);
-    });
   }
 
   // The page-level Back shim asks this which layer is on top. Returning true
@@ -12693,7 +12712,7 @@ function HubboApp() {
 
     React.createElement("span", {
       className: "rb-nav-icon-shell",
-      style: view === "list" ? { background: colors.navActiveSurface, borderColor: colors.navActiveBorder, boxShadow: \`0 2px 8px \${effectiveTheme === "light" ? "rgba(91,45,28,0.08)" : "rgba(0,0,0,0.22)"}\` } : undefined }, /*#__PURE__*/
+      style: view === "list" ? { background: colors.navActiveSurface } : undefined }, /*#__PURE__*/
 
     React.createElement(Icon, { name: "list", size: 20, strokeWidth: view === "list" ? 2.7 : 2, className: \`rb-nav-icon \${view === "list" ? "rb-nav-icon-active" : ""}\` })
     ), /*#__PURE__*/
@@ -12708,7 +12727,7 @@ function HubboApp() {
 
     React.createElement("span", {
       className: "rb-nav-icon-shell",
-      style: view === "calendar" ? { background: colors.navActiveSurface, borderColor: colors.navActiveBorder, boxShadow: \`0 2px 8px \${effectiveTheme === "light" ? "rgba(91,45,28,0.08)" : "rgba(0,0,0,0.22)"}\` } : undefined }, /*#__PURE__*/
+      style: view === "calendar" ? { background: colors.navActiveSurface } : undefined }, /*#__PURE__*/
 
     React.createElement(Icon, { name: "calendarIcon", size: 20, strokeWidth: view === "calendar" ? 2.7 : 2, className: \`rb-nav-icon \${view === "calendar" ? "rb-nav-icon-active" : ""}\` })
     ), /*#__PURE__*/
@@ -12741,7 +12760,7 @@ function HubboApp() {
 
     React.createElement("span", {
       className: "rb-nav-icon-shell",
-      style: view === "history" ? { background: colors.navActiveSurface, borderColor: colors.navActiveBorder, boxShadow: \`0 2px 8px \${effectiveTheme === "light" ? "rgba(91,45,28,0.08)" : "rgba(0,0,0,0.22)"}\` } : undefined }, /*#__PURE__*/
+      style: view === "history" ? { background: colors.navActiveSurface } : undefined }, /*#__PURE__*/
 
     React.createElement(Icon, { name: "clock", size: 20, strokeWidth: view === "history" ? 2.7 : 2, className: \`rb-nav-icon \${view === "history" ? "rb-nav-icon-active" : ""}\` })
     ), /*#__PURE__*/
@@ -12756,7 +12775,7 @@ function HubboApp() {
 
     React.createElement("span", {
       className: "rb-nav-icon-shell",
-      style: view === "savings" ? { background: colors.navActiveSurface, borderColor: colors.navActiveBorder, boxShadow: \`0 2px 8px \${effectiveTheme === "light" ? "rgba(91,45,28,0.08)" : "rgba(0,0,0,0.22)"}\` } : undefined }, /*#__PURE__*/
+      style: view === "savings" ? { background: colors.navActiveSurface } : undefined }, /*#__PURE__*/
 
     React.createElement(Icon, { name: "piggyBank", size: 20, strokeWidth: view === "savings" ? 2.7 : 2, className: \`rb-nav-icon \${view === "savings" ? "rb-nav-icon-active" : ""}\` })
     ), /*#__PURE__*/
