@@ -78,3 +78,10 @@ conflati nel client Android o PWA.
 I campi legacy `costoAlternativa` e `frequenzaAlternativa` restano validi. Il
 client v257 usa `prezzoStandard` se presente, ma non interpreta ancora una promo
 come risparmio permanente: il calcolo temporale viene introdotto nella Parte 9C.
+
+
+## v313 — valuta e prezzi condizionati
+
+Il catalogo 11 richiede capability v313. Ogni nuova riga `listino` dichiara `valuta`, `fonte`, `verificato` e `confrontoAutomatico`. Il prezzo è l'importo per il periodo di addebito, non l'equivalente mensile. In assenza del campo valuta nei cataloghi storici si usa EUR. I client nativi devono rispettare questa semantica prima di dichiarare capability v313.
+
+`confrontoAutomatico: false` non rende la riga inutilizzabile: permette selezione e modifica nella verifica, ma esclude le promesse numeriche automatiche basate su quantità, canali o condizioni non ancora confermati. `listinoVerificato` mantiene la verifica del prezzo separata da quella degli altri benefici. `statoPrezzi` documenta la copertura e le lacune ancora aperte. `provaGratuita.piano`, quando presente, collega il prezzo alla prova già descritta.

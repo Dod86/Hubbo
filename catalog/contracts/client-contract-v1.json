@@ -70,5 +70,21 @@
     "storedReferenceField": "catalogRef",
     "storedReferenceVersion": 1,
     "referenceSchema": "https://dod86.github.io/Hubbo/catalog/contracts/user-catalog-ref-v1.schema.json"
+  },
+  "structuredPriceV313": {
+    "minimumCapability": "v313",
+    "currencyField": "piani[].listino[].valuta",
+    "defaultCurrency": "EUR",
+    "supportedCurrencies": [
+      "EUR",
+      "USD",
+      "GBP",
+      "CHF"
+    ],
+    "amountSemantics": "Amount actually billed for frequenza; not monthly equivalent. addebito must match.",
+    "conditionalPriceField": "confrontoAutomatico",
+    "falseSemantics": "Selectable reference amount; quantity, channel, renewal eligibility, taxes and extras must be confirmed before applying. Do not automatically advertise a numeric saving.",
+    "priceVerificationField": "piani[].listinoVerificato",
+    "trialPlanField": "piani[].provaGratuita.piano"
   }
 }

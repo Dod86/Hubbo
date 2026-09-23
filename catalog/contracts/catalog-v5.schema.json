@@ -219,6 +219,27 @@
         },
         "nota": {
           "type": "string"
+        },
+        "valuta": {
+          "type": "string",
+          "enum": [
+            "EUR",
+            "USD",
+            "GBP",
+            "CHF"
+          ]
+        },
+        "fonte": {
+          "type": "string"
+        },
+        "verificato": {
+          "type": "string"
+        },
+        "confrontoAutomatico": {
+          "type": "boolean"
+        },
+        "provenienza": {
+          "type": "string"
         }
       },
       "additionalProperties": true
