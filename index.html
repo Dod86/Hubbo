@@ -645,7 +645,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v308";
+const APP_VERSION = "v309";
 const APP_BUILD_DATE = "2026-09-23";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7523,10 +7523,12 @@ function SavingsActions({ link, onApply, colors, dark, siteLabel, applyLabel }) 
   );
 }
 
-function SavingsApplyDialog({ draft, onChange, review, onReview, onEdit, onConfirm, onClose, busy, error, labels: l, colors, money, dateFmt, t }) {
+function SavingsApplyDialog({ draft, onChange, review, onReview, onEdit, onConfirm, onClose, busy, closing = false, error, labels: l, colors, money, dateFmt, t }) {
   const [accepted, setAccepted] = useState(false);
   const dialogRef = useRef(null);
-  useEffect(() => {setAccepted(false);}, [review]);
+  const scrollRef = useRef(null);
+  const sheetDrag = useSheetDrag((ms) => {if (!busy && !closing) onClose(ms);}, scrollRef);
+  useEffect(() => {setAccepted(false);if (scrollRef.current) scrollRef.current.scrollTop = 0;}, [review]);
   useEffect(() => {
     const oldFocus = document.activeElement;
     dialogRef.current?.focus();
@@ -7536,16 +7538,23 @@ function SavingsApplyDialog({ draft, onChange, review, onReview, onEdit, onConfi
   const input = { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary, width: "100%", borderRadius: 10, padding: "10px 12px", minHeight: 44, marginTop: 5, fontSize: 14, colorScheme: colors.bg === THEMES.dark.bg ? "dark" : "light" };
   const field = (key, label, type = "text") => /*#__PURE__*/React.createElement("label", { style: { display: "block", fontSize: 12, color: colors.textOnGradient } }, label, /*#__PURE__*/React.createElement("input", { style: input, type: type, inputMode: type === "text" && ["cost", "promoCost", "upfront"].includes(key) ? "decimal" : undefined, min: type === "date" ? draft.date : undefined, value: draft[key], onChange: (e) => change(key, e.target.value) }));
   const handleKey = (event) => {
-    if (event.key === "Escape") {event.preventDefault();if (!busy) onClose();}
+    if (event.key === "Escape") {event.preventDefault();if (!busy && !closing) onClose();}
     if (event.key !== "Tab") return;
     const focusable = [...dialogRef.current.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href]')];
     const first = focusable[0],last = focusable[focusable.length - 1];
     if (event.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) {event.preventDefault();last?.focus();} else
     if (!event.shiftKey && document.activeElement === last) {event.preventDefault();first?.focus();}
   };
-  return /*#__PURE__*/React.createElement("div", { style: { position: "fixed", inset: 0, zIndex: 95, background: colors.overlay, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "12px 12px 0" } }, /*#__PURE__*/
-  React.createElement("section", { ref: dialogRef, role: "dialog", "aria-modal": "true", "aria-labelledby": "savings-apply-title", tabIndex: -1, onKeyDown: handleKey, style: { width: "100%", maxWidth: 600, maxHeight: "90dvh", overflowY: "auto", overscrollBehavior: "contain", background: colors.surface, color: colors.textPrimary, border: \`1px solid \${colors.border}\`, borderRadius: "24px 24px 0 0", padding: "20px 18px calc(20px + env(safe-area-inset-bottom))" } }, /*#__PURE__*/
-  React.createElement("h2", { id: "savings-apply-title", style: { fontSize: 20, fontWeight: 650 } }, review ? l.review : l.title), /*#__PURE__*/
+  return /*#__PURE__*/React.createElement("div", { className: closing ? "rb-overlay-out" : "rb-overlay", style: { position: "fixed", inset: 0, zIndex: 95, background: colors.overlay, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "12px 12px 0" } }, /*#__PURE__*/
+  React.createElement("section", _extends({ ref: (el) => {dialogRef.current = el;sheetDrag.ref.current = el;} }, busy || closing ? {} : sheetDrag.handlers, { className: closing ? "rb-sheet-out" : "rb-sheet", role: "dialog", "aria-modal": "true", "aria-labelledby": "savings-apply-title", tabIndex: -1, onKeyDown: handleKey, style: { width: "100%", maxWidth: 600, maxHeight: "90dvh", display: "flex", flexDirection: "column", overflow: "hidden", overscrollBehavior: "contain", background: colors.surface, color: colors.textPrimary, border: \`1px solid \${colors.border}\`, borderRadius: "24px 24px 0 0", paddingTop: 12, pointerEvents: closing ? "none" : undefined, ...sheetDrag.style } }), /*#__PURE__*/
+  React.createElement("div", { style: { flexShrink: 0, background: colors.surface } }, /*#__PURE__*/
+  React.createElement(SheetHandle, { colors: colors }), /*#__PURE__*/
+  React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12, padding: "0 12px 12px 18px" } }, /*#__PURE__*/
+  React.createElement("h2", { id: "savings-apply-title", style: { flex: 1, minWidth: 0, margin: 0, fontSize: 20, fontWeight: 650, lineHeight: 1.3 } }, review ? l.review : l.title), /*#__PURE__*/
+  React.createElement("button", { type: "button", onClick: () => onClose(), disabled: busy || closing, "aria-label": l.cancel, style: { display: "flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: colors.surface2, color: colors.textPrimary, opacity: busy ? 0.45 : 1 } }, /*#__PURE__*/React.createElement(Icon, { name: "x", size: 20 }))
+  )
+  ), /*#__PURE__*/
+  React.createElement("div", { ref: scrollRef, style: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", overscrollBehavior: "contain", padding: "0 18px calc(20px + env(safe-area-inset-bottom))" } }, /*#__PURE__*/
   React.createElement("p", { style: { color: colors.textOnGradient, fontSize: 13, marginTop: 6 } }, draft.title), /*#__PURE__*/
   React.createElement("p", { style: { background: colors.surface2, borderRadius: 12, padding: 12, fontSize: 12, lineHeight: 1.6, marginTop: 14 } }, l.note),
   !review ? /*#__PURE__*/React.createElement("div", { style: { display: "grid", gap: 12, marginTop: 16 } },
@@ -7579,12 +7588,13 @@ function SavingsApplyDialog({ draft, onChange, review, onReview, onEdit, onConfi
   React.createElement("p", { style: { color: colors.textOnGradient, fontSize: 12, marginTop: 10 } }, l.preserved)
   ),
   draft.terms.length > 0 && /*#__PURE__*/React.createElement("div", { style: { marginTop: 14, fontSize: 12, lineHeight: 1.5 } }, /*#__PURE__*/React.createElement("strong", null, l.terms), /*#__PURE__*/React.createElement("ul", { style: { paddingLeft: 18, listStyleType: "disc" } }, draft.terms.map((term, i) => /*#__PURE__*/React.createElement("li", { key: i, style: { marginTop: 5 } }, term)))),
-  review && /*#__PURE__*/React.createElement("label", { style: { display: "flex", alignItems: "flex-start", gap: 10, marginTop: 18, fontSize: 13, lineHeight: 1.5 } }, /*#__PURE__*/React.createElement("input", { type: "checkbox", checked: accepted, disabled: busy, onChange: (e) => setAccepted(e.target.checked), style: { width: 20, height: 20, flexShrink: 0, marginTop: 2 } }), l.ack),
+  review && /*#__PURE__*/React.createElement("label", { style: { display: "flex", alignItems: "flex-start", gap: 10, marginTop: 18, fontSize: 13, lineHeight: 1.5 } }, /*#__PURE__*/React.createElement("input", { type: "checkbox", checked: accepted, disabled: busy || closing, onChange: (e) => setAccepted(e.target.checked), style: { width: 20, height: 20, flexShrink: 0, marginTop: 2 } }), l.ack),
   error && /*#__PURE__*/React.createElement("p", { role: "alert", style: { marginTop: 12, color: legibleOn(ACCENT.danger, colors.surface), fontSize: 13 } }, error), /*#__PURE__*/
   React.createElement("div", { style: { display: "grid", gap: 8, marginTop: 18 } }, /*#__PURE__*/
-  React.createElement("button", { type: "button", disabled: busy || !!review && !accepted, onClick: review ? () => {if (accepted && !busy) onConfirm();} : onReview, style: { ...input, background: ACCENT.amber, color: INK, fontWeight: 700, opacity: busy || review && !accepted ? 0.45 : 1 } }, busy ? "…" : review ? l.confirm : l.review),
-  review && /*#__PURE__*/React.createElement("button", { type: "button", disabled: busy, onClick: onEdit, style: input }, l.back), /*#__PURE__*/
-  React.createElement("button", { type: "button", disabled: busy, onClick: onClose, style: input }, l.cancel)
+  React.createElement("button", { type: "button", disabled: busy || closing || !!review && !accepted, onClick: review ? () => {if (accepted && !busy && !closing) onConfirm();} : onReview, style: { ...input, background: ACCENT.amber, color: INK, fontWeight: 700, opacity: busy || review && !accepted ? 0.45 : 1 } }, busy ? "…" : review ? l.confirm : l.review),
+  review && /*#__PURE__*/React.createElement("button", { type: "button", disabled: busy || closing, onClick: onEdit, style: input }, l.back), /*#__PURE__*/
+  React.createElement("button", { type: "button", disabled: busy || closing, onClick: onClose, style: input }, l.cancel)
+  )
   )
   )
   );
@@ -10581,7 +10591,7 @@ function HubboApp() {
     } catch (error) {setSavingsApplyError(applyLabels[error.message] || applyLabels.invalid);}
   }
   async function confirmSavingsApplication() {
-    if (!savingsReview || applyingSavingsRef.current) return;
+    if (!savingsReview || applyingSavingsRef.current || closingRef.current === "savingsApply") return;
     applyingSavingsRef.current = true;setApplyingSavings(true);setSavingsApplyError("");
     try {
       const commit = async () => {
@@ -10596,7 +10606,10 @@ function HubboApp() {
     } catch (error) {setSavingsApplyError(error.message === "changed" ? applyLabels.changed : applyLabels.writeError);} finally
     {applyingSavingsRef.current = false;setApplyingSavings(false);}
   }
-  function closeSavingsApplication() {if (!applyingSavingsRef.current) {setSavingsDraft(null);setSavingsReview(null);setSavingsApplyError("");}}
+  function closeSavingsApplication(ms) {
+    if (applyingSavingsRef.current) return;
+    closeSheet("savingsApply", () => {setSavingsDraft(null);setSavingsReview(null);setSavingsApplyError("");}, typeof ms === "number" ? ms : undefined);
+  }
 
   const appliedSavings = useMemo(() => savingsRecords([...(subs || []), ...trash]).map((record) => ({ ...record,
     accrued: convertAmount(savingsEstimate(record, todayISO), record.currency, settings.currency, rates),
@@ -15360,7 +15373,7 @@ function HubboApp() {
 
 
 
-    savingsDraft && /*#__PURE__*/React.createElement(SavingsApplyDialog, { draft: savingsDraft, onChange: (next) => {setSavingsDraft(next);setSavingsReview(null);setSavingsApplyError("");}, review: savingsReview, onReview: reviewSavingsApplication, onEdit: () => setSavingsReview(null), onConfirm: confirmSavingsApplication, onClose: closeSavingsApplication, busy: applyingSavings, error: savingsApplyError, labels: applyLabels, colors: colors, money: money, dateFmt: dateFmt, t: t }),
+    savingsDraft && /*#__PURE__*/React.createElement(SavingsApplyDialog, { draft: savingsDraft, onChange: (next) => {setSavingsDraft(next);setSavingsReview(null);setSavingsApplyError("");}, review: savingsReview, onReview: reviewSavingsApplication, onEdit: () => setSavingsReview(null), onConfirm: confirmSavingsApplication, onClose: closeSavingsApplication, busy: applyingSavings, closing: closingSheet === "savingsApply", error: savingsApplyError, labels: applyLabels, colors: colors, money: money, dateFmt: dateFmt, t: t }),
 
     pendingImport && (() => {
       // Il backup sostituisce, non si somma: il tetto è il limite pieno,
