@@ -645,7 +645,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v311";
+const APP_VERSION = "v312";
 const APP_BUILD_DATE = "2026-09-23";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -12025,9 +12025,13 @@ function HubboApp() {
 
     React.createElement(Icon, { name: "crown", size: 18, color: ACCENT.amber, className: "flex-shrink-0" }), /*#__PURE__*/
     React.createElement("span", { style: { color: colors.textOnGradient }, className: "flex-1 min-w-0 text-xs leading-snug" },
-    t.freeBadge(subs.length, FREE_LIMIT), " ", /*#__PURE__*/React.createElement("span", { style: { color: colors.textOnGradient } }, "\\xB7"), " ", t.freeBadgeShort
+
+
+
+
+    t.freeBadge(subs.length, FREE_LIMIT), " ", /*#__PURE__*/React.createElement("span", { style: { color: colors.textFaint } }, "\\xB7"), " ", t.freeBadgeShort
     ), /*#__PURE__*/
-    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textOnGradient, className: "flex-shrink-0" })
+    React.createElement(Icon, { name: "chevronRight", size: 16, color: colors.textFaint, className: "flex-shrink-0" })
     )
 
     )
