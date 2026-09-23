@@ -645,7 +645,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v310";
+const APP_VERSION = "v311";
 const APP_BUILD_DATE = "2026-09-23";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -3485,6 +3485,7 @@ const LEDGER_STRINGS = {
     watchlistNoOffers: "Nessuna offerta disponibile al momento.",
     watchlistNeedsRecheck: "C'era una prova gratuita, ma l'ultima verifica risale a più di 120 giorni fa: da riconfermare prima di fidarsene.",
     watchlistUnfollow: "Smetti di seguire",
+    watchlistActivate: "Attiva abbonamento",
     watchlistTrial: (giorni) => \`Prova gratuita di \${giorni} giorni\`,
     watchlistTrialThen: (poi) => \`Poi \${poi}\`,
     watchlistFor: (list) => \`Per: \${list}\`,
@@ -3660,6 +3661,7 @@ const LEDGER_STRINGS = {
     watchlistNoOffers: "No offer available right now.",
     watchlistNeedsRecheck: "There was a free trial, but it was last checked more than 120 days ago: needs reconfirming before you rely on it.",
     watchlistUnfollow: "Stop watching",
+    watchlistActivate: "Activate subscription",
     watchlistTrial: (days) => \`\${days}-day free trial\`,
     watchlistTrialThen: (then) => \`Then \${then}\`,
     watchlistFor: (list) => \`For: \${list}\`,
@@ -3835,6 +3837,7 @@ const LEDGER_STRINGS = {
     watchlistNoOffers: "No hay ninguna oferta disponible por ahora.",
     watchlistNeedsRecheck: "Había una prueba gratuita, pero la última verificación tiene más de 120 días: hay que confirmarla antes de fiarse.",
     watchlistUnfollow: "Dejar de seguir",
+    watchlistActivate: "Activar suscripción",
     watchlistTrial: (dias) => \`Prueba gratuita de \${dias} días\`,
     watchlistTrialThen: (then) => \`Luego \${then}\`,
     watchlistFor: (list) => \`Para: \${list}\`,
@@ -4010,6 +4013,7 @@ const LEDGER_STRINGS = {
     watchlistNoOffers: "Aucune offre disponible pour le moment.",
     watchlistNeedsRecheck: "Il y avait un essai gratuit, mais la dernière vérification remonte à plus de 120 jours : à reconfirmer avant de s'y fier.",
     watchlistUnfollow: "Ne plus suivre",
+    watchlistActivate: "Activer l'abonnement",
     watchlistTrial: (jours) => \`Essai gratuit de \${jours} jours\`,
     watchlistTrialThen: (then) => \`Puis \${then}\`,
     watchlistFor: (list) => \`Pour : \${list}\`,
@@ -4185,6 +4189,7 @@ const LEDGER_STRINGS = {
     watchlistNoOffers: "Momentan kein Angebot verfügbar.",
     watchlistNeedsRecheck: "Es gab eine Testphase, aber die letzte Prüfung liegt mehr als 120 Tage zurück: vor dem Verlassen erneut bestätigen.",
     watchlistUnfollow: "Nicht mehr verfolgen",
+    watchlistActivate: "Abo aktivieren",
     watchlistTrial: (tage) => \`\${tage} Tage kostenlose Testphase\`,
     watchlistTrialThen: (then) => \`Danach \${then}\`,
     watchlistFor: (list) => \`Für: \${list}\`,
@@ -4242,6 +4247,21 @@ function inPromo(sub, iso) {
 function matchesCatalogName(catalogName, subName) {
   const norm = (s) => String(s || "").trim().toLowerCase().replace(/\\s+\\d+$/, "");
   return norm(catalogName) === norm(subName);
+}
+
+// v311 — spostate qui da dentro HubboApp: non dipendono da nessuno stato del
+// componente (solo dal catalogo COMMON_SERVICES, già globale), quindi possono
+// stare a livello di modulo e restare così utilizzabili anche dai componenti
+// di primo livello del riquadro "Applica risparmio" (SavingsServiceName,
+// SavingsApplyDialog), che vivono fuori da HubboApp e non vedevano le
+// versioni locali — mandavano in crash quella schermata (ReferenceError).
+function serviceIcon(name) {
+  const svc = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, name));
+  return svc ? svc.icon : null;
+}
+function serviceDomain(name) {
+  const svc = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, name));
+  return svc ? svc.domain : null;
 }
 
 function buildPriceSeries(sub, payments, todayISO) {
@@ -7983,14 +8003,9 @@ function HubboApp() {
   // Amount converted into the user's main currency, for totals
   const inMainCurrency = (sub) => convertAmount(costOn(sub, todayISO), sub.currency || settings.currency, settings.currency, rates);
   const dateFmt = (d) => formatDate(d, locale);
-  const serviceIcon = (name) => {
-    const svc = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, name));
-    return svc ? svc.icon : null;
-  };
-  const serviceDomain = (name) => {
-    const svc = COMMON_SERVICES.find((s) => matchesCatalogName(s.name, name));
-    return svc ? svc.domain : null;
-  };
+  // v311 — serviceIcon/serviceDomain sono ora funzioni globali (vedi sopra,
+  // accanto a matchesCatalogName): restano usabili qui esattamente come
+  // prima, senza bisogno di una copia locale.
   // Opportunità di risparmio: mostra il marchio del servizio/bundle di
   // destinazione (TIMVISION, Sky, Apple One...), non quello dei servizi che
   // verrebbero sostituiti. I bundle commerciali hanno spesso nomi estesi
@@ -8639,6 +8654,98 @@ function HubboApp() {
     // può esistere senza data di inizio — richiesto da Erny l'11
     // settembre. Resta comunque modificabile a mano.
     setForm({ ...emptyForm, currency: settings.currency, renewalDate: todayISO, startDate: todayISO, notifications: normalizeSubscriptionNotifications({ days: settings.notifDays, hour: settings.notifHour }) });
+    setFormError("");
+    setDateAutoFixNote(null);
+    setPickerOpen(false);
+    setServiceSearch("");
+    setShowForm(true);
+  }
+
+  // v311 — "Attiva abbonamento" in Da tenere d'occhio: apre lo stesso modulo
+  // di "Nuovo abbonamento" (openAdd sopra), ma precompilato con prezzo,
+  // piano/frequenza e — quando c'è una promo o una prova gratuita — anche
+  // sconto e scadenza, letti dalla sottosezione da cui si è partiti (un
+  // singolo servizio non ancora posseduto), invece di lasciare tutto vuoto.
+  // A differenza di "Applica risparmio" (openSavingsApplication sotto), qui
+  // non c'è nessun abbonamento esistente da sostituire o affiancare — il
+  // servizio non è ancora nell'elenco — quindi si passa dal modulo normale
+  // di aggiunta, che resta comunque modificabile prima di salvare.
+  function openActivateFromWatchlist(entry, kind, offer) {
+    if (subs.length >= FREE_LIMIT) {
+      setShowPaywall(true);
+      return;
+    }
+    const isCommon = COMMON_SERVICES.some((s) => matchesCatalogName(s.name, entry.name));
+    const currency = settings.currency;
+    const convert = (amount, sourceCurrency) =>
+    amount == null ? "" : String(Math.round(convertAmount(Number(amount), sourceCurrency || savingsFileCurrency, currency, rates) * 100) / 100);
+    const date = todayISO;
+    const next = {
+      ...emptyForm,
+      name: isCommon ? entry.name : "__custom__",
+      customName: isCommon ? "" : entry.name,
+      category: entry.category,
+      currency,
+      startDate: date,
+      notifications: normalizeSubscriptionNotifications({ days: settings.notifDays, hour: settings.notifHour })
+    };
+    if (kind === "offer" && offer) {
+      // Stessa lettura dell'offerta già verificata in openSavingsApplication
+      // (ramo "offer") qui sotto: "Costo" resta sempre il prezzo pieno dopo
+      // la promo, mai quello scontato — coerente col resto del modulo.
+      const frequency = catalogFrequencyId(offer.frequenzaSuccessiva) || (FREQUENCIES.some((f) => f.id === offer.frequenzaSuccessiva) ? offer.frequenzaSuccessiva : "monthly");
+      next.frequency = frequency;
+      next.plan = offer.titolo || null;
+      next.cost = convert(offer.prezzoSuccessivo ?? offer.prezzoStandard, offer.valuta);
+      next.renewalDate = toLocalISO(addPeriods(parseLocalDate(date), frequency, 1));
+      next.note = [offer.dettaglio, ...(offer.requisiti || [])].filter(Boolean).join(" ");
+      if (offer.prezzoPromozionale != null) {
+        next.hasPromo = true;
+        next.promoDiscount = convert(offer.prezzoPromozionale, offer.valuta);
+        const months = Number(offer.durataPromozionaleMesi);
+        const days = Number(offer.durataPromozionaleGiorni);
+        if (Number.isInteger(months) && months > 0) {
+          const d = parseLocalDate(date);
+          const day = d.getDate();
+          d.setDate(1);
+          d.setMonth(d.getMonth() + months);
+          d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
+          next.promoUntil = toLocalISO(d);
+        } else if (days > 0) {
+          const d = parseLocalDate(date);
+          d.setDate(d.getDate() + days);
+          next.promoUntil = toLocalISO(d);
+        }
+      }
+    } else {
+      // Prova gratuita: il prezzo pieno è quello del piano corrispondente nel
+      // listino, quando il catalogo lo conosce — non zero, che varrebbe solo
+      // per la durata della prova. Se il piano non è nel catalogo, i campi
+      // restano vuoti: nessun prezzo viene inventato.
+      const key = catalogServiceKey(offersFile, entry.name);
+      const plan = savingsPlansByService.get(key);
+      const options = catalogPlansForEntry(plan) || [];
+      const primary = options[0] || null;
+      const frequency = primary ? primary.frequencyId : "monthly";
+      next.frequency = frequency;
+      next.plan = primary ? primary.nome : null;
+      next.cost = primary ? convert(primary.prezzo) : "";
+      next.renewalDate = toLocalISO(addPeriods(parseLocalDate(date), frequency, 1));
+      const trial = entry.trial;
+      if (trial) {
+        next.hasPromo = true;
+        next.promoDiscount = "0";
+        const days = Number(trial.giorni);
+        if (Number.isFinite(days) && days > 0) {
+          const d = parseLocalDate(date);
+          d.setDate(d.getDate() + days);
+          next.promoUntil = toLocalISO(d);
+        }
+        next.note = [trial.nota, trial.poi ? t.watchlistTrialThen(trial.poi) : ""].filter(Boolean).join(" ");
+      }
+    }
+    setEditingId(null);
+    setForm(next);
     setFormError("");
     setDateAutoFixNote(null);
     setPickerOpen(false);
@@ -10542,7 +10649,7 @@ function HubboApp() {
     sort((a, b) => b.total - a.total);
   }, [savingsHeadline, todayISO, settings.currency, settings.language, settings.categoryColors, rates]);
 
-  const renderSavingsActions = (link, onApply = null) => /*#__PURE__*/React.createElement(SavingsActions, { link: link, onApply: onApply, colors: colors, dark: effectiveTheme === "dark", siteLabel: t.savingsOpenSite, applyLabel: applyLabels.apply });
+  const renderSavingsActions = (link, onApply = null, applyLabel = applyLabels.apply) => /*#__PURE__*/React.createElement(SavingsActions, { link: link, onApply: onApply, colors: colors, dark: effectiveTheme === "dark", siteLabel: t.savingsOpenSite, applyLabel: applyLabel });
   function openSavingsApplication(kind, row) {
     if (!subs || applyingSavingsRef.current) return;
     const rawSources = kind === "rotation" ? row.items.map((item) => item.sub) : kind === "opportunity" ? row.subs : [row.sub];
@@ -10774,6 +10881,20 @@ function HubboApp() {
     const currentSubIds = new Set(subs.map((s) => s.id));
     let changed = false;
 
+    // v311 — voci registrate da versioni molto precedenti dell'app, prima che
+    // un pagamento salvasse anche nome e categoria del servizio, restavano
+    // altrimenti senza nome: lo Storico ne va comunque in crash quando prova
+    // ad ordinare l'elenco dei servizi per nome. Le sana qui, sul posto,
+    // riusando l'abbonamento corrispondente se esiste ancora — nello spirito
+    // dello stesso ripulimento poco più sotto per le voci "stimate" superate.
+    byId.forEach((p, id) => {
+      if (p.name != null && p.category != null) return;
+      const sub = subs.find((s) => s.id === p.subId);
+      if (!sub) return;
+      byId.set(id, { ...p, name: p.name ?? sub.name, category: p.category ?? sub.category });
+      changed = true;
+    });
+
     subs.forEach((sub) => {
       pastOccurrences(sub, today).forEach((d) => {
         const iso = toLocalISO(d);
@@ -10871,8 +10992,11 @@ function HubboApp() {
     visiblePayments.forEach((p) => {
       if (!map.has(p.subId)) map.set(p.subId, { label: p.name, category: p.category });
     });
+    // v311 — una voce senza nome (dati vecchi non ancora sanati dall'effetto
+    // sopra, o comunque incompleti) non deve mai far crashare il confronto:
+    // finisce semplicemente in fondo alla lista invece del suo nome.
     return Array.from(map.entries()).
-    map(([value, v]) => ({ value, label: v.label, category: v.category })).
+    map(([value, v]) => ({ value, label: v.label || "", category: v.category })).
     sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
   }, [visiblePayments]);
 
@@ -13185,7 +13309,7 @@ function HubboApp() {
           followup: entry.trial.poi ? t.watchlistTrialThen(entry.trial.poi) : null,
           colors: colors, detailsLabel: savingsLabels.more },
 
-        (entry.trial.link || entry.planLink) && renderSavingsActions(entry.trial.link || entry.planLink)
+        renderSavingsActions(entry.trial.link || entry.planLink, () => openActivateFromWatchlist(entry, "trial", null), t.watchlistActivate)
         ),
 
 
@@ -13197,7 +13321,7 @@ function HubboApp() {
               description: o.dettaglio, colors: colors, detailsLabel: savingsLabels.more,
               meta: /*#__PURE__*/React.createElement(React.Fragment, null, t.watchlistFor(codes.map((c) => t.offerAudienceLabel(c)).join(", ")), " · ", t.savingsOfferUntil(dateFmt(o.scade))) },
 
-            o.link && renderSavingsActions(o.link)
+            renderSavingsActions(o.link, () => openActivateFromWatchlist(entry, "offer", o), t.watchlistActivate)
             ));
 
         })
