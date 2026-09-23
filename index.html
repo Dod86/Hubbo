@@ -645,8 +645,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v312";
-const APP_BUILD_DATE = "2026-09-23";
+const APP_VERSION = "v313";
+const APP_BUILD_DATE = "2026-09-24";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -661,7 +661,7 @@ const CATALOG_PENDING_STORAGE_KEY = "abbly:offers:pending";
 // commerciale dell’app. La futura app Android potrà dichiarare questa stessa
 // capability anche se la sua versione Play Store seguirà una numerazione diversa.
 // Va incrementata quando un catalogo richiede nuove semantiche/protocollo che un client precedente non sa valutare in sicurezza.
-const CATALOG_CLIENT_CAPABILITY_VERSION = "v260";
+const CATALOG_CLIENT_CAPABILITY_VERSION = "v313";
 const SUPPORTED_CATALOG_SCHEMA_VERSION = 5;
 
 function appVersionNumber(version) {
@@ -1085,9 +1085,15 @@ function samePlanName(subPlan, catalogName) {
 // confronto invece di limitarsi a dire che il piano esiste. Segnalato
 // da Erny il 18 settembre: "dove l'app prevede dei piani deve farmi il
 // confronto e non dirmi che lo posso fare solo io".
-function findOpzionePrezzo(plan, nome) {
-  if (!nome || !plan || !Array.isArray(plan.opzioni)) return null;
-  const match = plan.opzioni.find((o) => samePlanName(o.nome, nome));
+function findOpzionePrezzo(plan, nome, frequencyId = null) {
+  if (!nome || !plan) return null;
+  if (Array.isArray(plan.listino)) {
+    const matches = (catalogPlansForEntry(plan) || []).filter((o) => samePlanName(o.nome, nome) && (
+    !frequencyId || o.frequencyId === frequencyId));
+    const match = matches.length === 1 ? matches[0] : null;
+    return match && match.valuta === "EUR" && match.confrontoAutomatico ? match.prezzo : null;
+  }
+  const match = (plan.opzioni || []).find((o) => samePlanName(o.nome, nome));
   return match && match.prezzo != null ? match.prezzo : null;
 }
 
@@ -4403,11 +4409,15 @@ function catalogPlansForEntry(entry) {
     // esplicita e coerente con il periodo del prezzo. "variabile" e
     // "a consumo" restano nel catalogo informativo, ma non diventano
     // per errore un rinnovo mensile selezionabile nel modulo.
-    return !!frequencyId && billingFrequencyId === frequencyId && Number.isFinite(price) && price > 0;
+    return !!frequencyId && billingFrequencyId === frequencyId && Number.isFinite(price) && price > 0 &&
+    ["EUR", "USD", "GBP", "CHF"].includes(o.valuta || entry.valuta || "EUR");
   }).
   map((o) => ({
     nome: o.nome,
     prezzo: Number(o.prezzo),
+    valuta: o.valuta || entry.valuta || "EUR",
+    fonte: o.fonte || entry.fontePrezzi || "",
+    confrontoAutomatico: o.confrontoAutomatico !== false,
     frequencyId: catalogFrequencyId(o.frequenza),
     vincoloMesi: Number(o.vincoloMesi) > 0 ? Number(o.vincoloMesi) : 0,
     nota: o.nota || "",
@@ -4430,6 +4440,9 @@ function catalogPlansForEntry(entry) {
   map((o) => ({
     nome: o.nome,
     prezzo: Number(o.prezzo),
+    valuta: o.valuta || entry.valuta || "EUR",
+    fonte: o.fonte || entry.fontePrezzi || "",
+    confrontoAutomatico: o.confrontoAutomatico !== false,
     frequencyId: "monthly",
     vincoloMesi: 0,
     nota: "",
@@ -8725,11 +8738,14 @@ function HubboApp() {
       const key = catalogServiceKey(offersFile, entry.name);
       const plan = savingsPlansByService.get(key);
       const options = catalogPlansForEntry(plan) || [];
-      const primary = options[0] || null;
+      // A service-wide trial does not prove that the first priced SKU is eligible.
+      const primary = options.find((o) => entry.trial?.piano && samePlanName(o.nome, entry.trial.piano)) || (
+      !plan?.statoPrezzi ? options[0] : null) || null;
       const frequency = primary ? primary.frequencyId : "monthly";
       next.frequency = frequency;
       next.plan = primary ? primary.nome : null;
-      next.cost = primary ? convert(primary.prezzo) : "";
+      next.cost = primary ? String(primary.prezzo) : "";
+      if (primary) {next.currency = primary.valuta || savingsFileCurrency;next.note = primary.nota || "";}
       next.renewalDate = toLocalISO(addPeriods(parseLocalDate(date), frequency, 1));
       const trial = entry.trial;
       if (trial) {
@@ -8741,7 +8757,7 @@ function HubboApp() {
           d.setDate(d.getDate() + days);
           next.promoUntil = toLocalISO(d);
         }
-        next.note = [trial.nota, trial.poi ? t.watchlistTrialThen(trial.poi) : ""].filter(Boolean).join(" ");
+        next.note = [next.note, trial.nota, trial.poi ? t.watchlistTrialThen(trial.poi) : ""].filter(Boolean).join(" ");
       }
     }
     setEditingId(null);
@@ -10132,7 +10148,9 @@ function HubboApp() {
       // catalogFactIsFresh): un piano verificato troppo tempo fa smette
       // di essere proposto come un fatto attuale, finché non viene
       // riverificato — prima non c'era nessuna protezione qui.
-      if (!catalogFactIsFresh(plan.verificato, todayISO)) return;
+      const factsFresh = catalogFactIsFresh(plan.verificato, todayISO);
+      const pricesFresh = catalogFactIsFresh(plan.listinoVerificato || plan.verificato, todayISO);
+      if (!factsFresh && !pricesFresh) return;
       const monthly = monthlyEquivalent(
         convertAmount(costOn(s, todayISO), s.currency || settings.currency, settings.currency, rates),
         s.frequency
@@ -10140,13 +10158,13 @@ function HubboApp() {
       const hints = [];
       // Proporre l'annuale a chi paga già una volta l'anno o meno spesso
       // sarebbe un consiglio già seguito.
-      if (plan.annuale && plan.annuale.disponibile && freqOf(s.frequency).perYear > 1 && !subscriptionMatchesCatalogPlan(offersFile, s, plan.annuale.nome)) {
+      if (factsFresh && plan.annuale && plan.annuale.disponibile && freqOf(s.frequency).perYear > 1 && !subscriptionMatchesCatalogPlan(offersFile, s, plan.annuale.nome)) {
         // Se il prezzo dell'annuale è nel listino (plan.opzioni), il
         // confronto lo fa l'app — altrimenti resta la sola conferma che
         // il piano esiste, come prima. Segnalato da Erny il 18
         // settembre: "dove l'app prevede dei piani deve farmi il
         // confronto e non dirmi che lo posso fare solo io".
-        const yearlyPrice = findOpzionePrezzo(plan, plan.annuale.nome);
+        const yearlyPrice = findOpzionePrezzo(plan, plan.annuale.nome, "annual");
         const yearlyMonthly = yearlyPrice != null ? convertAmount(yearlyPrice, savingsFileCurrency, settings.currency, rates) / 12 : null;
         const text = yearlyMonthly != null && yearlyMonthly < monthly - 0.01 ?
         t.savingsYearlySaves(money((monthly - yearlyMonthly) * 12)) :
@@ -10155,14 +10173,14 @@ function HubboApp() {
       }
       // Niente consiglio famiglia per chi ha già scelto — nel modulo
       // abbonamento — esattamente quel piano.
-      if (plan.famiglia && plan.famiglia.disponibile && !s.sharedPeople && !subscriptionMatchesCatalogPlan(offersFile, s, plan.famiglia.nome)) {
+      if (factsFresh && plan.famiglia && plan.famiglia.disponibile && !s.sharedPeople && !subscriptionMatchesCatalogPlan(offersFile, s, plan.famiglia.nome)) {
         // Qui il confronto non è "risparmi X": non sappiamo con quante
         // persone lo divideresti davvero, quindi affermarlo sarebbe
         // inventato. Il prezzo vero del piano, quando c'è, è comunque un
         // fatto in più rispetto a "esiste" — il confronto con il proprio
         // prezzo (già mostrato in cima alla card) resta a chi legge, ma
         // almeno con un numero vero da confrontare, non solo un nome.
-        const familyPrice = findOpzionePrezzo(plan, plan.famiglia.nome);
+        const familyPrice = findOpzionePrezzo(plan, plan.famiglia.nome, "monthly");
         const familyMoney = familyPrice != null ? money(convertAmount(familyPrice, savingsFileCurrency, settings.currency, rates)) : null;
         const text = familyMoney != null ?
         plan.famiglia.persone ? t.savingsFamilyPriceN(familyMoney, plan.famiglia.persone) : t.savingsFamilyPrice(familyMoney) :
@@ -10172,7 +10190,7 @@ function HubboApp() {
       let planSaving = 0;
       // Stesso motivo: se il piano scelto è già quello con pubblicità, non
       // ha senso proporlo come risparmio possibile.
-      if (plan.pubblicita && plan.pubblicita.disponibile && plan.pubblicita.prezzo != null && !subscriptionMatchesCatalogPlan(offersFile, s, plan.pubblicita.nome)) {
+      if (factsFresh && plan.pubblicita && plan.pubblicita.disponibile && plan.pubblicita.prezzo != null && !subscriptionMatchesCatalogPlan(offersFile, s, plan.pubblicita.nome)) {
         const adPrice = convertAmount(plan.pubblicita.prezzo, savingsFileCurrency, settings.currency, rates);
         // Solo se costa davvero meno di quello che paghi: su un piano già
         // economico il suggerimento sarebbe un invito a spendere di più.
@@ -10186,15 +10204,18 @@ function HubboApp() {
           });
         }
       }
-      if (plan.studenti && plan.studenti.disponibile && !subscriptionMatchesCatalogPlan(offersFile, s, plan.studenti.nome)) {
+      if (factsFresh && plan.studenti && plan.studenti.disponibile && !subscriptionMatchesCatalogPlan(offersFile, s, plan.studenti.nome)) {
         // Stesso principio della famiglia: un prezzo vero, non una stima
         // di risparmio (dipende da requisiti di idoneità che l'app non
         // controlla).
-        const studentPrice = findOpzionePrezzo(plan, plan.studenti.nome);
+        const studentPrice = findOpzionePrezzo(plan, plan.studenti.nome, "monthly");
         const text = studentPrice != null ?
         t.savingsStudentPrice(money(convertAmount(studentPrice, savingsFileCurrency, settings.currency, rates))) :
         t.savingsStudent;
         hints.push({ id: "student", icon: "sparkles", text, note: plan.studenti.nota || "" });
+      }
+      if (pricesFresh && hints.length === 0 && (catalogPlansForEntry(plan) || []).some((option) => !subscriptionMatchesCatalogPlan(offersFile, s, option.nome))) {
+        hints.push({ id: "catalog", icon: "tag", text: (SAVINGS_VISUAL_TEXT[settings.language] || SAVINGS_VISUAL_TEXT.it).options, note: plan.notaPrezzi || plan.nota || "" });
       }
       if (hints.length === 0) return;
       out.push({
@@ -10207,7 +10228,7 @@ function HubboApp() {
         hints: hints.slice(0, 3),
         link: plan.link || "",
         checked: plan.verificato || "",
-        note: plan.nota || ""
+        note: plan.notaPrezzi || plan.nota || ""
       });
     });
     return out.sort((a, b) => b.monthly - a.monthly);
@@ -10691,11 +10712,19 @@ function HubboApp() {
       }
     } else if (kind === "plan") {
       const plan = savingsPlansByService.get(catalogServiceKey(offersFile, row.sub));
-      const options = catalogPlansForEntry(plan) || [];
-      base.choices = options.filter((option) => !subscriptionMatchesCatalogPlan(offersFile, row.sub, option.nome)).map((option, i) => ({ id: String(i), plan: option.nome, name: row.sub.name, cost: convert(option.prezzo), frequency: option.frequencyId, renewalDate: toLocalISO(addPeriods(parseLocalDate(date), option.frequencyId, 1)) }));
+      const options = catalogFactIsFresh(plan?.listinoVerificato || plan?.verificato, todayISO) ? catalogPlansForEntry(plan) || [] : [];
+      base.choices = options.filter((option) => !subscriptionMatchesCatalogPlan(offersFile, row.sub, option.nome)).map((option, i) => ({
+        id: String(i), plan: option.nome, name: row.sub.name,
+        cost: String(Math.round(convertAmount(option.prezzo, option.valuta || savingsFileCurrency, currency, rates) * 100) / 100),
+        frequency: option.frequencyId, renewalDate: toLocalISO(addPeriods(parseLocalDate(date), option.frequencyId, 1)),
+        terms: [row.note, ...row.hints.map((h) => h.note || h.text), option.nota,
+        \`\${money(option.prezzo, option.valuta || savingsFileCurrency)}\${t.freqShort[option.frequencyId] || ""}\`,
+        option.valuta && option.valuta !== currency ? t.ratesNote : "",
+        option.vincoloMesi ? t.planCommitment(option.vincoloMesi) : ""].filter(Boolean)
+      }));
       const primary = base.choices.find((choice) => row.saving > 0 ? /pubblicit|ads/i.test(choice.plan) : choice.frequency === "annual") || base.choices[0];
       if (primary) {const applicationId = base.id;Object.assign(base, primary, { id: applicationId, choiceId: primary.id });}
-      base.terms = [row.note, ...row.hints.map((h) => h.note || h.text)].filter(Boolean);
+      if (!primary) base.terms = [row.note, ...row.hints.map((h) => h.note || h.text)].filter(Boolean);
     } else if (kind === "offer") {
       const offer = row.offer;
       base.title = offer.titolo || row.sub.name;
@@ -13860,7 +13889,7 @@ function HubboApp() {
         options: servicePlans.map((o) => ({
           value: o.nome,
           label: o.nome,
-          detail: \`\${money(o.prezzo, offersFile.valuta || "EUR")}\${t.freqShort[o.frequencyId] || ""}\${o.vincoloMesi ? \` · \${t.planCommitment(o.vincoloMesi)}\` : ""}\`
+          detail: \`\${money(o.prezzo, o.valuta || offersFile.valuta || "EUR")}\${t.freqShort[o.frequencyId] || ""}\${o.vincoloMesi ? \` · \${t.planCommitment(o.vincoloMesi)}\` : ""}\`
         })),
         onSelect: (v) => {
           const chosen = servicePlans.find((o) => o.nome === v);
@@ -13869,7 +13898,7 @@ function HubboApp() {
             ...f,
             plan: chosen.nome,
             cost: String(chosen.prezzo).replace(".", ","),
-            currency: offersFile.valuta || f.currency,
+            currency: chosen.valuta || offersFile.valuta || f.currency,
             frequency: chosen.frequencyId || f.frequency
           }));
         }
@@ -13889,7 +13918,7 @@ function HubboApp() {
     selectedServicePlan && /*#__PURE__*/
     React.createElement("div", { className: "px-1 mb-3.5" }, /*#__PURE__*/
     React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" },
-    money(selectedServicePlan.prezzo, offersFile.valuta || form.currency || "EUR"),
+    money(selectedServicePlan.prezzo, selectedServicePlan.valuta || offersFile.valuta || form.currency || "EUR"),
     t.freqShort[selectedServicePlan.frequencyId] || "",
     selectedServicePlan.vincoloMesi ? \` · \${t.planCommitment(selectedServicePlan.vincoloMesi)}\` : ""
     ),
