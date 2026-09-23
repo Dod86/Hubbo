@@ -43,7 +43,7 @@ window.__hubboBack = { handler: null, count: 0, lastEvent: "-", depth: 0, active
   var active = false;  // false on the clean List screen: Android Back must stay native
   var suppressNavigation = false;
   var lastAt = 0;
-  // v302: clearing Hubbo's synthetic Back entries is itself a history
+  // v301: clearing Hubbo's synthetic Back entries is itself a history
   // traversal. Chromium may otherwise restore the scroll position saved on
   // the old entry after React has already restored the destination tab, which
   // is exactly what made the collapsing header reopen when returning to List.
@@ -644,8 +644,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v303";
-const APP_BUILD_DATE = "2026-09-22";
+const APP_VERSION = "v304";
+const APP_BUILD_DATE = "2026-09-23";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -7164,7 +7164,7 @@ function useCollapsingHeader(ready, blocked) {
     const onScroll = () => {
       if (paused || blockedRef.current) return;
       const y = scrollPosition();
-      // v301: returning to the clean List view removes Hubbo's temporary
+      // v302: returning to the clean List view removes Hubbo's temporary
       // Android-Back history entries. That history traversal can emit a
       // programmatic scroll event even though the user did not move the page.
       // Never let such an internal event change the shared header offset.
@@ -7324,6 +7324,45 @@ function useCollapsingHeader(ready, blocked) {
   }, [blocked, ready]);
 
   return { headerRef, contentRef, brandRef, controllerRef };
+}
+
+// v304: presentazione compatta; i valori arrivano dal motore esistente.
+const SAVINGS_VISUAL_TEXT = {
+  it: { estimated: "Risparmio stimato", conditional: "Risparmio da verificare", month: "/ mese", average: "/ mese in media", year: "/ anno", firstYear: "nei primi 12 mesi", details: "Confronto e condizioni", services: "Dettaglio dei servizi", more: "Scopri i dettagli", check: "Verifica requisiti e piani inclusi", rotate: "Un servizio alla volta", keep: "Mantieni un solo servizio", yearly: "Passa all’annuale", ads: "Scegli il piano con pubblicità", options: "Confronta i piani disponibili", alternatives: "Alternative, non cumulabili", unknown: "Risparmio da valutare", extra: "Costo in più", included: "Già incluso" },
+  en: { estimated: "Estimated saving", conditional: "Saving to verify", month: "/ month", average: "/ month on average", year: "/ year", firstYear: "in the first 12 months", details: "Comparison and terms", services: "Service details", more: "See details", check: "Check eligibility and included plans", rotate: "One service at a time", keep: "Keep just one service", yearly: "Switch to annual", ads: "Choose the ad-supported plan", options: "Compare available plans", alternatives: "Alternatives, not cumulative", unknown: "Saving to assess", extra: "Extra cost", included: "Already included" },
+  es: { estimated: "Ahorro estimado", conditional: "Ahorro por verificar", month: "/ mes", average: "/ mes de media", year: "/ año", firstYear: "en los primeros 12 meses", details: "Comparación y condiciones", services: "Detalle de servicios", more: "Ver detalles", check: "Comprueba requisitos y planes incluidos", rotate: "Un servicio a la vez", keep: "Mantén un solo servicio", yearly: "Pasa al plan anual", ads: "Elige el plan con anuncios", options: "Compara los planes disponibles", alternatives: "Alternativas, no acumulables", unknown: "Ahorro por evaluar", extra: "Coste adicional", included: "Ya incluido" },
+  fr: { estimated: "Économie estimée", conditional: "Économie à vérifier", month: "/ mois", average: "/ mois en moyenne", year: "/ an", firstYear: "sur les 12 premiers mois", details: "Comparaison et conditions", services: "Détail des services", more: "Voir les détails", check: "Vérifiez les conditions et les offres incluses", rotate: "Un service à la fois", keep: "Gardez un seul service", yearly: "Passez à l’annuel", ads: "Choisissez l’offre avec publicité", options: "Comparez les offres disponibles", alternatives: "Alternatives non cumulables", unknown: "Économie à évaluer", extra: "Coût supplémentaire", included: "Déjà inclus" },
+  de: { estimated: "Geschätzte Ersparnis", conditional: "Ersparnis prüfen", month: "/ Monat", average: "/ Monat im Schnitt", year: "/ Jahr", firstYear: "in den ersten 12 Monaten", details: "Vergleich und Bedingungen", services: "Dienstedetails", more: "Details ansehen", check: "Voraussetzungen und enthaltene Tarife prüfen", rotate: "Ein Dienst nach dem anderen", keep: "Nur einen Dienst behalten", yearly: "Zum Jahrestarif wechseln", ads: "Tarif mit Werbung wählen", options: "Verfügbare Tarife vergleichen", alternatives: "Alternativen, nicht kombinierbar", unknown: "Ersparnis noch offen", extra: "Mehrkosten", included: "Bereits enthalten" }
+};
+
+function SavingsValue({ monthly, annual, money, colors, labels, conditional = false, firstYear = false, extra = false }) {
+  if (!Number.isFinite(monthly) || monthly <= 0.01) return null;
+  const accent = legibleOn(extra ? ACCENT.terracotta : ACCENT.amber, colors.surface);
+  return (/*#__PURE__*/
+    React.createElement("div", { className: "savings-value", style: { marginTop: 14, padding: "13px 14px", borderRadius: 16, background: \`linear-gradient(120deg, \${ACCENT.amber}20, \${ACCENT.terracotta}0a)\`, border: \`1px solid \${ACCENT.amber}30\` } }, /*#__PURE__*/
+    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, color: colors.textOnGradient, fontSize: 11, marginBottom: 8 } },
+    extra ? /*#__PURE__*/React.createElement(Icon, { name: "trendingUp", size: 14 }) : /*#__PURE__*/React.createElement(Icon, { name: "piggyBank", size: 14 }),
+    extra ? labels.extra : conditional ? labels.conditional : labels.estimated
+    ), /*#__PURE__*/
+    React.createElement("div", { style: { display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: "12px 14px" } }, /*#__PURE__*/
+    React.createElement("div", { style: { flex: "1 1 112px", minWidth: 0 } }, /*#__PURE__*/
+    React.createElement("div", { style: { fontSize: "clamp(25px, 7vw, 32px)", letterSpacing: "-1px", lineHeight: 1.1, fontWeight: 750, fontVariantNumeric: "tabular-nums", color: accent, overflowWrap: "anywhere" } }, money(monthly)), /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textOnGradient, fontSize: 11, marginTop: 4 } }, firstYear ? labels.average : labels.month)
+    ), /*#__PURE__*/
+    React.createElement("div", { style: { flex: "1 1 90px", minWidth: 0 } }, /*#__PURE__*/
+    React.createElement("div", { style: { fontSize: 22, lineHeight: 1.2, fontWeight: 650, fontVariantNumeric: "tabular-nums", color: colors.textPrimary, overflowWrap: "anywhere" } }, money(Number.isFinite(annual) ? annual : monthly * 12)), /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textOnGradient, fontSize: 11, marginTop: 4 } }, firstYear ? labels.firstYear : labels.year)
+    )
+    )
+    ));
+
+}
+
+function SavingsDetails({ label, colors, children }) {
+  return /*#__PURE__*/React.createElement("details", { className: "savings-details", style: { marginTop: 12, borderTop: \`1px solid \${colors.border}\`, paddingTop: 2 } }, /*#__PURE__*/
+  React.createElement("summary", { style: { cursor: "pointer", padding: "11px 0", color: colors.textOnGradient, fontSize: 12, fontWeight: 600 } }, label), /*#__PURE__*/
+  React.createElement("div", { style: { paddingBottom: 4 } }, children)
+  );
 }
 
 function HubboApp() {
@@ -7648,6 +7687,7 @@ function HubboApp() {
   // il 12 settembre. Il ripiego sull'italiano rende l'app sempre
   // utilizzabile, qualunque cosa contenga la lingua salvata.
   const langKey = STRINGS[settings.language] ? settings.language : "it";
+  const savingsLabels = SAVINGS_VISUAL_TEXT[langKey];
   const t = { ...STRINGS[langKey], ...LEDGER_STRINGS[langKey], ...TOUR_STRINGS[langKey] };
   const systemPrefersDark = useSystemPrefersDark();
   const effectiveTheme = settings.theme === "system" ? systemPrefersDark ? "dark" : "light" : settings.theme;
@@ -9729,7 +9769,7 @@ function HubboApp() {
         const text = yearlyMonthly != null && yearlyMonthly < monthly - 0.01 ?
         t.savingsYearlySaves(money((monthly - yearlyMonthly) * 12)) :
         t.savingsYearly;
-        hints.push({ id: "yearly", icon: "calendarIcon", text, note: plan.annuale.nota || "" });
+        hints.push({ id: "yearly", icon: "calendarIcon", text, saving: yearlyMonthly != null ? Math.max(0, monthly - yearlyMonthly) : 0, note: plan.annuale.nota || "" });
       }
       // Niente consiglio famiglia per chi ha già scelto — nel modulo
       // abbonamento — esattamente quel piano.
@@ -12137,7 +12177,12 @@ function HubboApp() {
 
 
     view === "savings" && /*#__PURE__*/
-    React.createElement("div", { key: "view-savings", className: viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right" }, /*#__PURE__*/
+    React.createElement("div", { "data-savings-view": "true", key: "view-savings", className: viewDirection === null ? "" : viewDirection === "left" ? "rb-view-left" : "rb-view-right" }, /*#__PURE__*/
+    React.createElement("style", null, \`
+          [data-savings-view] .savings-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:12px; align-items:start; }
+          [data-savings-view] .savings-cta { display:flex; width:100%; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 14px; border-radius:12px; margin-top:12px; font-size:13px; font-weight:600; background:\${effectiveTheme === "light" ? "#F1DDC8" : "#52351F"}; color:\${effectiveTheme === "light" ? "#713A21" : "#FFDBA8"}; }
+          [data-savings-view] summary:focus-visible, [data-savings-view] a:focus-visible { outline:2px solid \${ACCENT.amber}; outline-offset:3px; }
+        \`), /*#__PURE__*/
     React.createElement("div", { className: "px-5 pt-3 pb-28" },
     savingsHeadline.amount > 0.01 && (() => {
       // In cima si mostra l'annuale: lo stesso risparmio ha più peso
@@ -12193,7 +12238,7 @@ function HubboApp() {
         ), /*#__PURE__*/
         React.createElement("div", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg leading-tight mt-1" }, t.savingsPotentialHeadline(money(annualAmount))), /*#__PURE__*/
         React.createElement("div", { style: { color: colors.textOnGradient, fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-xs mt-1" }, t.savingsPotentialMonthly(money(savingsHeadline.amount))), /*#__PURE__*/
-        React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-xs mt-1 leading-relaxed" }, t.savingsPotentialHint)
+        React.createElement(SavingsDetails, { label: savingsLabels.more, colors: colors }, /*#__PURE__*/React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed" }, t.savingsPotentialHint))
         ));
 
     })(),
@@ -12210,7 +12255,7 @@ function HubboApp() {
     savingsEmpty && savingsHeadline.amount <= 0.01 ? /*#__PURE__*/
     React.createElement("div", { className: "text-center py-16" }, /*#__PURE__*/
     React.createElement("div", { className: "flex justify-center mb-3", style: { color: colors.textFaint } }, /*#__PURE__*/
-    React.createElement(Icon, { name: "piggyBank", size: 34, strokeWidth: 1.5 })
+    React.createElement(Icon, { name: "piggyBank", size: 44, strokeWidth: 1.5 })
     ), /*#__PURE__*/
     React.createElement("p", { className: "text-sm font-medium mb-1.5" }, t.savingsSoon), /*#__PURE__*/
     React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed max-w-xs mx-auto" }, t.savingsSoonHint)
@@ -12223,12 +12268,12 @@ function HubboApp() {
     savingsEndingPromos.length > 0 && /*#__PURE__*/
     React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.decideNow, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2.5 px-1" }, /*#__PURE__*/
-    React.createElement("span", { className: "flex-shrink-0", style: { color: legibleOn(ACCENT.terracotta, colors.bg) } }, /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: legibleOn(SAVINGS_SECTION_ACCENTS.decideNow, colors.bg) } }, /*#__PURE__*/
     React.createElement(Icon, { name: "clock", size: 15 })
     ), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsDecideNow)
     ), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2" },
+    React.createElement("div", { className: "savings-grid" },
     savingsEndingPromos.map((p) => {
       const s = p.sub;
       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
@@ -12267,9 +12312,7 @@ function HubboApp() {
         money(p.full)
         )
         ), /*#__PURE__*/
-        React.createElement("div", { style: { background: colors.surface2, color: colors.textSecondary }, className: "rounded-xl px-3 py-2 mt-3 text-xs leading-relaxed" },
-        t.savingsExtraPerYear(money(p.extraPerYear))
-        ), /*#__PURE__*/
+        React.createElement(SavingsValue, { monthly: p.extraPerYear / 12, annual: p.extraPerYear, extra: true, money: money, colors: colors, labels: savingsLabels }), /*#__PURE__*/
         React.createElement("div", { className: "flex gap-2 mt-3" },
         (() => {
           // Il listino può avere un link più preciso della
@@ -12313,12 +12356,12 @@ function HubboApp() {
     savingsOffers.length > 0 && /*#__PURE__*/
     React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.offers, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2.5 px-1" }, /*#__PURE__*/
-    React.createElement("span", { className: "flex-shrink-0", style: { color: legibleOn(ACCENT.amber, colors.bg) } }, /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: legibleOn(SAVINGS_SECTION_ACCENTS.offers, colors.bg) } }, /*#__PURE__*/
     React.createElement(Icon, { name: "tag", size: 15 })
     ), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsOffers)
     ), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2" },
+    React.createElement("div", { className: "savings-grid" },
     savingsOffers.map((x) => {
       const s = x.sub;
       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
@@ -12327,12 +12370,12 @@ function HubboApp() {
       return (/*#__PURE__*/
         React.createElement("div", { key: offerId(x.offer), style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl px-4 py-3.5 flex items-start gap-3" }, /*#__PURE__*/
         React.createElement("div", { className: "flex-shrink-0 mt-0.5" }, /*#__PURE__*/
-        React.createElement(ServiceLogo, { icon: icon, domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 34 })
+        React.createElement(ServiceLogo, { icon: icon, domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 44 })
         ), /*#__PURE__*/
         React.createElement("div", { className: "min-w-0 flex-1" }, /*#__PURE__*/
         React.createElement("div", { className: "text-sm font-medium truncate" }, x.offer.titolo || s.name),
         x.offer.dettaglio && /*#__PURE__*/
-        React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs mt-1 leading-relaxed" }, x.offer.dettaglio), /*#__PURE__*/
+        React.createElement(SavingsDetails, { label: savingsLabels.more, colors: colors }, /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" }, x.offer.dettaglio)), /*#__PURE__*/
 
         React.createElement("div", { style: { color: colors.textFaint }, className: "text-xs mt-1.5" },
         t.watchlistFor(audience),
@@ -12356,28 +12399,26 @@ function HubboApp() {
     savingsDuplicates.length > 0 && /*#__PURE__*/
     React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.duplicates, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
-    React.createElement("span", { className: "flex-shrink-0", style: { color: colors.textSecondary } }, /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.duplicates } }, /*#__PURE__*/
     React.createElement(Icon, { name: "layers", size: 15 })
     ), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsDuplicates)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsDuplicatesHint), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2" },
+
+    React.createElement("div", { className: "savings-grid" },
     savingsDuplicates.map((group) => /*#__PURE__*/
     React.createElement("div", { key: group.id, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-4" }, /*#__PURE__*/
-    React.createElement("div", { className: "flex items-baseline justify-between gap-2 mb-3" }, /*#__PURE__*/
-    React.createElement("div", { className: "flex items-center gap-2 min-w-0" }, /*#__PURE__*/
-    React.createElement("span", { className: "text-sm font-medium truncate" }, group.label), /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textFaint }, className: "text-xs flex-shrink-0" }, t.savingsActiveCount(group.items.length))
+    React.createElement("div", { className: "text-sm font-semibold" }, group.label), /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textOnGradient, fontSize: 12, marginTop: 4 } }, group.keepOne ? savingsLabels.keep : savingsLabels.rotate), /*#__PURE__*/
+    React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 14, marginTop: 16 } },
+    group.items.map(({ sub }) => /*#__PURE__*/React.createElement("button", { key: sub.id, type: "button", onClick: () => setDetailSub(sub), "aria-label": sub.name, style: { width: 66, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 } }, /*#__PURE__*/
+    React.createElement(ServiceLogo, { icon: serviceIcon(sub.name), domain: serviceDomain(sub.name), category: sub.category, letter: sub.name.charAt(0).toUpperCase(), serviceName: sub.name, color: (CATEGORIES.find((c) => c.id === sub.category) || CATEGORIES[CATEGORIES.length - 1]).color, size: 42 }), /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textOnGradient, fontSize: 10, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, sub.name)
+    ))
     ), /*#__PURE__*/
-    React.createElement("span", {
-      style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", color: legibleOn(ACCENT.green, colors.surface) },
-      className: "text-base font-bold flex-shrink-0" },
-    "\\u2212",
-    money(group.saving)
-    )
-    ), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2" },
+    React.createElement(SavingsValue, { monthly: group.saving, money: money, colors: colors, labels: savingsLabels }), /*#__PURE__*/
+    React.createElement(SavingsDetails, { label: savingsLabels.services, colors: colors }, /*#__PURE__*/
+    React.createElement("div", { className: "savings-grid" },
     group.items.map((item) => {
       const s = item.sub;
       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
@@ -12402,7 +12443,8 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("div", { style: { color: colors.textOnGradient, borderTop: \`1px solid \${colors.border}\` }, className: "text-xs mt-3 pt-2.5 leading-relaxed" },
     group.keepOne ? t.savingsOnlyOneHint : t.savingsRotateHint,
-    group.id === "antivirus" && /*#__PURE__*/React.createElement("span", null, " ", t.savingsAntivirusNote)
+    group.id.startsWith("antivirus|") && /*#__PURE__*/React.createElement("span", null, " ", t.savingsAntivirusNote)
+    )
     )
     )
     )
@@ -12416,7 +12458,7 @@ function HubboApp() {
     React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.opportunities } }, /*#__PURE__*/React.createElement(Icon, { name: "piggyBank", size: 15 })), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsOpportunity)
     ), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2" },
+    React.createElement("div", { className: "savings-grid" },
     savingsOpportunities.map((o) => {
       const targetService = savingsOpportunityService(o);
       const targetCategory = targetService ?
@@ -12434,7 +12476,7 @@ function HubboApp() {
           letter: targetService.name.charAt(0).toUpperCase(),
           serviceName: targetService.name,
           color: targetCategory.color,
-          size: 34 }
+          size: 44 }
         )
         ), /*#__PURE__*/
 
@@ -12442,7 +12484,16 @@ function HubboApp() {
         ), /*#__PURE__*/
         React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-2" },
         o.opportunityKind === "included" ? t.savingsCanRemove : t.savingsReplaces, ": ", (o.replacedSubs || o.subs).map((s) => s.name).join(', ')
-        ),
+        ), /*#__PURE__*/
+        React.createElement("div", { style: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, marginTop: 12 }, "aria-hidden": "true" },
+        (o.replacedSubs || o.subs).map((sub) => /*#__PURE__*/React.createElement(ServiceLogo, { key: sub.id, icon: serviceIcon(sub.name), domain: serviceDomain(sub.name), category: sub.category, letter: sub.name.charAt(0).toUpperCase(), serviceName: sub.name, color: colors.textSecondary, size: 28 })), /*#__PURE__*/
+        React.createElement(Icon, { name: "arrowRight", size: 16, color: colors.textFaint }),
+        targetService ? /*#__PURE__*/React.createElement(ServiceLogo, { icon: targetService.icon, domain: targetService.domain, category: targetService.category, letter: targetService.name.charAt(0).toUpperCase(), serviceName: targetService.name, color: targetCategory.color, size: 32 }) : /*#__PURE__*/React.createElement(Icon, { name: "package", size: 28, color: colors.textAccent || ACCENT.amber })
+        ), /*#__PURE__*/
+        React.createElement(SavingsValue, { monthly: o.saving, annual: o.saving12Months, firstYear: !!o.showDetailedEconomics, conditional: o.headlineEligible === false, money: money, colors: colors, labels: savingsLabels }),
+        o.headlineEligible === false && /*#__PURE__*/React.createElement("div", { style: { color: legibleOn(ACCENT.amber, colors.surface), fontSize: 12, marginTop: 9 } }, savingsLabels.check),
+        o.promoApplied && o.scade && /*#__PURE__*/React.createElement("div", { style: { color: colors.textOnGradient, fontSize: 11, marginTop: 7 } }, t.savingsBundleJoinBy(dateFmt(o.scade))), /*#__PURE__*/
+        React.createElement(SavingsDetails, { label: savingsLabels.details, colors: colors },
         o.nota && /*#__PURE__*/
         React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-1.5 leading-relaxed" }, o.nota),
 
@@ -12536,10 +12587,11 @@ function HubboApp() {
         React.createElement(Icon, { name: "arrowRight", size: 12, color: colors.textFaint }), /*#__PURE__*/
         React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700 } }, money(o.alternativeCost)), /*#__PURE__*/
         React.createElement("span", { style: { color: ACCENT.green }, className: "ml-auto font-semibold" }, "\\u2212", money(o.saving))
-        ),
+        )
 
+        ),
         (o.link || o.url) && /*#__PURE__*/
-        React.createElement("a", { href: o.link || o.url, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface) }, className: "inline-flex items-center gap-1.5 text-xs font-medium mt-3" }, /*#__PURE__*/
+        React.createElement("a", { href: o.link || o.url, target: "_blank", rel: "noopener noreferrer", className: "savings-cta" }, /*#__PURE__*/
         React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
         )
 
@@ -12553,18 +12605,18 @@ function HubboApp() {
     savingsIncludedBenefits.length > 0 && /*#__PURE__*/
     React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.benefits, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
-    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.benefits } }, /*#__PURE__*/React.createElement(Icon, { name: "users", size: 15 })), /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.benefits } }, /*#__PURE__*/React.createElement(Icon, { name: "gift", size: 15 })), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsIncludedBenefits)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsIncludedBenefitsHint), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2" },
+
+    React.createElement("div", { className: "savings-grid" },
     savingsIncludedBenefits.map((row) => {
       const s = row.sub;
       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
       return (/*#__PURE__*/
         React.createElement("div", { key: \`\${s.id}::\${row.name}\`, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl px-4 py-3.5 flex items-start gap-3" }, /*#__PURE__*/
         React.createElement("div", { className: "flex-shrink-0 mt-0.5" }, /*#__PURE__*/
-        React.createElement(ServiceLogo, { icon: serviceIcon(s.name), domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 34 })
+        React.createElement(ServiceLogo, { icon: serviceIcon(s.name), domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 44 })
         ), /*#__PURE__*/
         React.createElement("div", { className: "min-w-0 flex-1" }, /*#__PURE__*/
         React.createElement("div", { className: "flex items-start justify-between gap-2" }, /*#__PURE__*/
@@ -12578,7 +12630,7 @@ function HubboApp() {
         )
 
         ),
-        row.note && /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs mt-2 leading-relaxed" }, row.note),
+        row.note && /*#__PURE__*/React.createElement(SavingsDetails, { label: savingsLabels.more, colors: colors }, /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" }, row.note)),
         row.link && /*#__PURE__*/
         React.createElement("a", { href: row.link, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface2) }, className: "inline-flex items-center gap-1.5 mt-2 text-xs font-medium" }, /*#__PURE__*/
         React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
@@ -12598,38 +12650,33 @@ function HubboApp() {
     savingsPlanHints.length > 0 && /*#__PURE__*/
     React.createElement("div", { className: "rounded-2xl p-4 mb-6", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.plans, colors, effectiveTheme === "light") }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
-    React.createElement("span", { className: "flex-shrink-0", style: { color: colors.textSecondary } }, /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.plans } }, /*#__PURE__*/
     React.createElement(Icon, { name: "repeat", size: 15 })
     ), /*#__PURE__*/
     React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 17, color: colors.textAccent || ACCENT.amber } }, t.savingsPlans)
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed mb-2.5 px-1" }, t.savingsPlansHint), /*#__PURE__*/
-    React.createElement("div", { className: "flex flex-col gap-2" },
+
+    React.createElement("div", { className: "savings-grid" },
     savingsPlanHints.map((row) => {
       const s = row.sub;
       const cat = CATEGORIES.find((c) => c.id === s.category) || CATEGORIES[CATEGORIES.length - 1];
       const good = legibleOn("#4CAF7D", colors.surface);
+      const yearlyHint = row.hints.find((hint) => hint.id === "yearly" && hint.saving > 0.01);
+      const visualSaving = row.saving > 0.01 ? row.saving : yearlyHint?.saving || 0;
+      const actionLabel = row.saving > 0.01 ? savingsLabels.ads : yearlyHint ? savingsLabels.yearly : savingsLabels.options;
       return (/*#__PURE__*/
-        React.createElement("div", { key: s.id, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl px-4 py-3.5 flex items-start gap-3" }, /*#__PURE__*/
-        React.createElement("div", { className: "flex-shrink-0 mt-0.5" }, /*#__PURE__*/
-        React.createElement(ServiceLogo, { icon: serviceIcon(s.name), domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 34 })
-        ), /*#__PURE__*/
-        React.createElement("div", { className: "min-w-0 flex-1" }, /*#__PURE__*/
-        React.createElement("div", { className: "flex items-baseline justify-between gap-2" }, /*#__PURE__*/
-        React.createElement("span", { className: "text-sm font-medium truncate" }, s.name),
-        row.saving > 0 ? /*#__PURE__*/
-        React.createElement("span", {
-          style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", color: legibleOn(ACCENT.green, colors.surface) },
-          className: "text-sm font-bold flex-shrink-0" },
-        "\\u2212",
-        money(row.saving)
-        ) : /*#__PURE__*/
-
-        React.createElement("span", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", color: colors.textFaint }, className: "text-xs flex-shrink-0" },
-        money(row.monthly)
+        React.createElement("div", { key: s.id, style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-4" }, /*#__PURE__*/
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } }, /*#__PURE__*/
+        React.createElement(ServiceLogo, { icon: serviceIcon(s.name), domain: serviceDomain(s.name), category: s.category, letter: s.name.charAt(0).toUpperCase(), serviceName: s.name, color: cat.color, size: 46 }), /*#__PURE__*/
+        React.createElement("div", { style: { minWidth: 0 } }, /*#__PURE__*/
+        React.createElement("div", { className: "text-sm font-semibold" }, s.name), /*#__PURE__*/
+        React.createElement("div", { style: { color: colors.textOnGradient, fontSize: 12, marginTop: 3 } }, actionLabel)
         )
-
-        ),
+        ), /*#__PURE__*/
+        React.createElement(SavingsValue, { monthly: visualSaving, money: money, colors: colors, labels: savingsLabels }),
+        visualSaving <= 0.01 && /*#__PURE__*/React.createElement("div", { style: { background: colors.surface2, color: colors.textOnGradient, padding: "12px 14px", borderRadius: 12, marginTop: 14, fontSize: 13 } }, savingsLabels.unknown), /*#__PURE__*/
+        React.createElement(SavingsDetails, { label: savingsLabels.details, colors: colors },
+        row.hints.length > 1 && /*#__PURE__*/React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mb-2" }, savingsLabels.alternatives),
         row.hints.map((hint) => /*#__PURE__*/
         React.createElement("div", { key: hint.id, className: "mt-1.5" }, /*#__PURE__*/
         React.createElement("div", { className: "flex items-center gap-1.5", style: { color: good } }, /*#__PURE__*/
@@ -12644,20 +12691,14 @@ function HubboApp() {
         )
         ),
         row.note && /*#__PURE__*/
-        React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-1.5 leading-relaxed" }, row.note),
+        React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-1.5 leading-relaxed" }, row.note)
 
-
-
-
-
-
-
+        ),
         row.link && /*#__PURE__*/
-        React.createElement("a", { href: row.link, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface2) }, className: "inline-flex items-center gap-1.5 mt-1.5 text-xs font-medium" }, /*#__PURE__*/
+        React.createElement("a", { href: row.link, target: "_blank", rel: "noopener noreferrer", className: "savings-cta" }, /*#__PURE__*/
         React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
         )
 
-        )
         ));
 
     })
@@ -12746,7 +12787,7 @@ function HubboApp() {
         entry.trial.nota && /*#__PURE__*/React.createElement("div", { className: "mt-0.5" }, entry.trial.nota),
         entry.trial.poi && /*#__PURE__*/React.createElement("div", { className: "mt-0.5" }, t.watchlistTrialThen(entry.trial.poi)),
         (entry.trial.link || entry.planLink) && /*#__PURE__*/
-        React.createElement("a", { href: entry.trial.link || entry.planLink, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface2) }, className: "inline-flex items-center gap-1.5 mt-1.5 text-xs font-medium" }, /*#__PURE__*/
+        React.createElement("a", { href: entry.trial.link || entry.planLink, target: "_blank", rel: "noopener noreferrer", className: "savings-cta" }, /*#__PURE__*/
         React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
         )
 
@@ -12758,13 +12799,13 @@ function HubboApp() {
           return (/*#__PURE__*/
             React.createElement("div", { key: offerId(o), style: { borderTop: \`1px solid \${colors.border}\` }, className: "mt-3 pt-3" }, /*#__PURE__*/
             React.createElement("div", { className: "text-sm font-medium" }, o.titolo || entry.name),
-            o.dettaglio && /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs mt-1 leading-relaxed" }, o.dettaglio), /*#__PURE__*/
+            o.dettaglio && /*#__PURE__*/React.createElement(SavingsDetails, { label: savingsLabels.more, colors: colors }, /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" }, o.dettaglio)), /*#__PURE__*/
             React.createElement("div", { style: { color: colors.textOnGradient }, className: "text-xs mt-1.5 leading-relaxed" },
             t.watchlistFor(codes.map((c) => t.offerAudienceLabel(c)).join(", ")),
             " · ", t.savingsOfferUntil(dateFmt(o.scade))
             ),
             o.link && /*#__PURE__*/
-            React.createElement("a", { href: o.link, target: "_blank", rel: "noopener noreferrer", style: { color: legibleOn(ACCENT.amber, colors.surface) }, className: "inline-flex items-center gap-1.5 text-xs mt-1.5 font-medium" }, /*#__PURE__*/
+            React.createElement("a", { href: o.link, target: "_blank", rel: "noopener noreferrer", className: "savings-cta" }, /*#__PURE__*/
             React.createElement(Icon, { name: "externalLink", size: 12 }), " ", t.savingsOpenSite
             )
 
