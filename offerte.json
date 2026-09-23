@@ -1,6 +1,6 @@
 {
   "versione": 5,
-  "aggiornato": "2026-09-22",
+  "aggiornato": "2026-09-23",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente. `bundleCommerciali` censisce separatamente le offerte multi-servizio verificate: in Parte 9D restano deliberatamente non attive nel motore fino alle regole di idoneità 9E.",
@@ -4703,7 +4703,24 @@
         "disponibile": false
       },
       "link": "https://claude.ai/settings/billing",
-      "verificato": "2026-09-05"
+      "verificato": "2026-09-23",
+      "listino": [
+        {
+          "nome": "Mensile",
+          "prezzo": 20,
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0
+        },
+        {
+          "nome": "Annuale",
+          "prezzo": 200,
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12
+        }
+      ],
+      "nota": "Prezzi per l'Italia da claude.com/it/pricing, IVA inclusa."
     },
     {
       "servizio": "NordVPN",
