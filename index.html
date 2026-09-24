@@ -645,7 +645,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v313";
+const APP_VERSION = "v314";
 const APP_BUILD_DATE = "2026-09-24";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -1166,6 +1166,28 @@ function savingsOverlapGroup(sub) {
 }
 
 const FREE_LIMIT = 7;
+
+// v314 — interruttore Premium TEMPORANEO, solo per test interni prima che
+// esista il contenitore nativo con RevenueCat. La decisione presa in questa
+// stessa sede (vedi HUBBO-stato-progetto.md, "Da un interruttore dentro
+// l'app a due app separate" poi "Ripensato di nuovo: un'unica app, sblocco
+// in-app verificato lato server") resta valida per la versione REALE: il
+// diritto Premium definitivo dovrà arrivare da RevenueCat, verificato lato
+// server, non da un valore che l'app legge da sola nei propri dati. Per lo
+// stesso motivo questo flag di test:
+//  - vive in una chiave di storage separata (PREMIUM_TEST_STORAGE_KEY), MAI
+//    dentro \`settings\` — così resta fuori da backup/esportazione/importazione
+//    senza bisogno di un'esclusione esplicita, esattamente come l'assenza di
+//    \`isPremium\` da \`settings\` era già una scelta deliberata;
+//  - si attiva solo con un codice inserito nel pannello diagnostica nascosto
+//    (pressione lunga sulla riga di versione nelle Impostazioni), non con un
+//    interruttore visibile a chiunque apra l'app;
+//  - richiesto esplicitamente da Erny il 24 settembre per poter provare fin
+//    da ora la differenza Free/Premium, prima che Play Billing esista.
+// Quando arriverà il vero sblocco verificato server-side, questo blocco va
+// tolto e sostituito da quello — non esteso.
+const PREMIUM_TEST_CODE = "hubbo-test-premium";
+const PREMIUM_TEST_STORAGE_KEY = "abbly:devPremiumTest";
 
 const FONT_IMPORT = \`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');\`;
 
@@ -4863,6 +4885,74 @@ const TOUR_STRINGS = {
   }
 };
 
+const PREMIUM_GATE_STRINGS = {
+  it: {
+    savingsFreeTitle: "Risparmio è una funzione Premium",
+    savingsFreeBody: "Ecco un'idea di cosa troverai: abbonamenti che si sovrappongono, offerte in scadenza e piani più convenienti per i servizi che usi già.",
+    savingsFreeExample1: "Hai due abbonamenti che si sovrappongono: unendoli risparmi fino a 6 €/mese.",
+    savingsFreeExample2: "Passando all'annuale su un servizio che già usi risparmi circa 24 €/anno.",
+    savingsFreeDisclaimer: "Esempio illustrativo, non basato sui tuoi abbonamenti.",
+    premiumTestLabel: "Premium di test",
+    premiumTestActive: "Attivo — solo per provare l'app prima che esista il pagamento vero.",
+    premiumTestCodePlaceholder: "Codice",
+    premiumTestUnlock: "Attiva",
+    premiumTestLock: "Disattiva",
+    premiumTestWrongCode: "Codice sbagliato."
+  },
+  en: {
+    savingsFreeTitle: "Savings is a Premium feature",
+    savingsFreeBody: "Here's a preview of what you'll find: overlapping subscriptions, offers about to end, and better plans for services you already use.",
+    savingsFreeExample1: "You have two overlapping subscriptions: merging them saves up to €6/month.",
+    savingsFreeExample2: "Switching to annual billing on a service you already use saves about €24/year.",
+    savingsFreeDisclaimer: "Illustrative example, not based on your subscriptions.",
+    premiumTestLabel: "Test Premium",
+    premiumTestActive: "On — only to try the app before real payment exists.",
+    premiumTestCodePlaceholder: "Code",
+    premiumTestUnlock: "Activate",
+    premiumTestLock: "Deactivate",
+    premiumTestWrongCode: "Wrong code."
+  },
+  es: {
+    savingsFreeTitle: "Ahorro es una función Premium",
+    savingsFreeBody: "Así es una idea de lo que encontrarás: suscripciones que se solapan, ofertas por terminar y planes más convenientes para servicios que ya usas.",
+    savingsFreeExample1: "Tienes dos suscripciones que se solapan: uniéndolas ahorras hasta 6 €/mes.",
+    savingsFreeExample2: "Pasando a la facturación anual en un servicio que ya usas ahorras unos 24 €/año.",
+    savingsFreeDisclaimer: "Ejemplo ilustrativo, no basado en tus suscripciones.",
+    premiumTestLabel: "Premium de prueba",
+    premiumTestActive: "Activo — solo para probar la app antes de que exista el pago real.",
+    premiumTestCodePlaceholder: "Código",
+    premiumTestUnlock: "Activar",
+    premiumTestLock: "Desactivar",
+    premiumTestWrongCode: "Código incorrecto."
+  },
+  fr: {
+    savingsFreeTitle: "Économies est une fonctionnalité Premium",
+    savingsFreeBody: "Voici un aperçu de ce que vous trouverez : abonnements qui se recoupent, offres bientôt expirées et formules plus avantageuses pour des services que vous utilisez déjà.",
+    savingsFreeExample1: "Vous avez deux abonnements qui se recoupent : en les fusionnant, économisez jusqu'à 6 €/mois.",
+    savingsFreeExample2: "En passant à la facturation annuelle sur un service que vous utilisez déjà, économisez environ 24 €/an.",
+    savingsFreeDisclaimer: "Exemple illustratif, non basé sur vos abonnements.",
+    premiumTestLabel: "Premium de test",
+    premiumTestActive: "Actif — uniquement pour essayer l'app avant l'existence du vrai paiement.",
+    premiumTestCodePlaceholder: "Code",
+    premiumTestUnlock: "Activer",
+    premiumTestLock: "Désactiver",
+    premiumTestWrongCode: "Code incorrect."
+  },
+  de: {
+    savingsFreeTitle: "Sparen ist eine Premium-Funktion",
+    savingsFreeBody: "Hier siehst du, was dich erwartet: sich überschneidende Abos, bald endende Angebote und günstigere Tarife für Dienste, die du bereits nutzt.",
+    savingsFreeExample1: "Du hast zwei sich überschneidende Abos: durch Zusammenlegen sparst du bis zu 6 €/Monat.",
+    savingsFreeExample2: "Mit dem Wechsel zum Jahrestarif bei einem bereits genutzten Dienst sparst du etwa 24 €/Jahr.",
+    savingsFreeDisclaimer: "Veranschaulichendes Beispiel, nicht basierend auf deinen Abos.",
+    premiumTestLabel: "Test-Premium",
+    premiumTestActive: "Aktiv — nur zum Testen der App, bevor die echte Zahlung existiert.",
+    premiumTestCodePlaceholder: "Code",
+    premiumTestUnlock: "Aktivieren",
+    premiumTestLock: "Deaktivieren",
+    premiumTestWrongCode: "Falscher Code."
+  }
+};
+
 // The tour points at the live interface rather than at pictures of it, so no
 // position in here is ever written down. Sheets slide, the keyboard shoves the
 // viewport up, the phone rotates: every frame the hole is measured from the
@@ -7399,6 +7489,41 @@ function SavingsDetails({ label, colors, children }) {
   );
 }
 
+// v314 — quello che vede chi è nel piano Free aprendo la scheda Risparmio:
+// due esempi illustrativi (non calcolati sui suoi abbonamenti veri, per non
+// promettere un numero che poi in Premium potrebbe risultare diverso) più un
+// invito a sbloccare. Decisione di Erny del 24 settembre: "Esempi
+// illustrativi" invece di una sotto-sezione parziale della scheda reale.
+function SavingsFreeTeaser({ colors, t, onUpgrade }) {
+  return (/*#__PURE__*/
+    React.createElement("div", { className: "text-center py-14 px-5" }, /*#__PURE__*/
+    React.createElement("div", { className: "flex justify-center mb-3", style: { color: ACCENT.amber } }, /*#__PURE__*/
+    React.createElement(Icon, { name: "piggyBank", size: 44, strokeWidth: 1.5 })
+    ), /*#__PURE__*/
+    React.createElement("p", { className: "text-sm font-semibold mb-1.5" }, t.savingsFreeTitle), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed max-w-xs mx-auto mb-5" }, t.savingsFreeBody), /*#__PURE__*/
+    React.createElement("div", { className: "savings-grid max-w-sm mx-auto text-left mb-5" },
+    [t.savingsFreeExample1, t.savingsFreeExample2].map((example, i) => /*#__PURE__*/
+    React.createElement("div", { key: i, style: { background: colors.surface2, border: \`1px solid \${colors.border}\` }, className: "rounded-xl px-3.5 py-3 flex items-start gap-2.5" }, /*#__PURE__*/
+    React.createElement(Icon, { name: "piggyBank", size: 16, style: { color: ACCENT.amber, marginTop: 1 }, className: "flex-shrink-0" }), /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed" }, example)
+    )
+    )
+    ), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textFaint }, className: "text-[11px] mb-5 max-w-xs mx-auto" }, t.savingsFreeDisclaimer), /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: onUpgrade,
+      style: { background: \`linear-gradient(120deg, \${ACCENT.amber}, \${ACCENT.terracotta})\`, color: "#fff" },
+      className: "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold" }, /*#__PURE__*/
+
+    React.createElement(Icon, { name: "crown", size: 16 }),
+    t.upgrade
+    )
+    ));
+
+}
+
 // v306 — application journal lives with subscriptions: one durable write commits
 // the proposal, affected services and its immutable comparison baseline together.
 function savingsShape(sub) {
@@ -7987,7 +8112,7 @@ function HubboApp() {
   const langKey = STRINGS[settings.language] ? settings.language : "it";
   const savingsLabels = SAVINGS_VISUAL_TEXT[langKey];
   const applyLabels = SAVINGS_APPLY_TEXT[langKey];
-  const t = { ...STRINGS[langKey], ...LEDGER_STRINGS[langKey], ...TOUR_STRINGS[langKey] };
+  const t = { ...STRINGS[langKey], ...LEDGER_STRINGS[langKey], ...TOUR_STRINGS[langKey], ...PREMIUM_GATE_STRINGS[langKey] };
   const systemPrefersDark = useSystemPrefersDark();
   const effectiveTheme = settings.theme === "system" ? systemPrefersDark ? "dark" : "light" : settings.theme;
   const colors = THEMES[effectiveTheme];
@@ -8135,7 +8260,15 @@ function HubboApp() {
       } catch {
         setWatchlist([]);
       }
-      setPaymentsLoaded(true);
+      // v314 — chiave separata di proposito, vedi commento su
+      // PREMIUM_TEST_STORAGE_KEY: non deve mai passare da \`settings\`.
+      try {
+        const res = await window.storage.get(PREMIUM_TEST_STORAGE_KEY, false);
+        if (res) setIsPremiumTest(res.value === "true");
+      } catch {
+
+        // resta disattivato
+      }setPaymentsLoaded(true);
     })();
   }, []);
 
@@ -8652,13 +8785,15 @@ function HubboApp() {
     // permetteva di aggirare il limite mettendo in pausa un abbonamento per
     // liberare un posto, aggiungerne un altro, poi riprendere quello messo
     // in pausa: bastava ripetere per superare il limite senza fine.
-    // Niente interruttore Premium da controllare qui: la distinzione fra
-    // gratis e a pagamento è pensata per vivere fuori da questo file — due
-    // app diverse sul Play Store, non un valore modificabile nei dati
-    // dell'app stessa. Hubbo Plus, quando esisterà, sarà semplicemente una
-    // build con FREE_LIMIT più alto o assente, non questa stessa app con un
-    // interruttore acceso. Vedi §4 del documento di stato.
-    if (subs.length >= FREE_LIMIT) {
+    // v314 — \`isPremiumTest\` bypassa il limite qui: è il flag TEMPORANEO di
+    // solo test descritto sopra su PREMIUM_TEST_CODE, non l'architettura
+    // definitiva. Quando arriverà lo sblocco vero verificato da RevenueCat,
+    // sarà quel flag a comparire qui al posto di questo, nella stessa forma
+    // (un controllo booleano in questo punto) — vedi la cronologia in
+    // HUBBO-stato-progetto.md ("Da un interruttore dentro l'app a due app
+    // separate" poi "Ripensato di nuovo: un'unica app, sblocco in-app
+    // verificato lato server").
+    if (!isPremiumTest && subs.length >= FREE_LIMIT) {
       setShowPaywall(true);
       return;
     }
@@ -8684,7 +8819,7 @@ function HubboApp() {
   // servizio non è ancora nell'elenco — quindi si passa dal modulo normale
   // di aggiunta, che resta comunque modificabile prima di salvare.
   function openActivateFromWatchlist(entry, kind, offer) {
-    if (subs.length >= FREE_LIMIT) {
+    if (!isPremiumTest && subs.length >= FREE_LIMIT) {
       setShowPaywall(true);
       return;
     }
@@ -9409,14 +9544,14 @@ function HubboApp() {
         setImportIncludeSettings(!!data.settings);
         // Il backup sostituisce, non si somma: niente più "quanti posti
         // liberi restano rispetto a quello che ho già", perché quello che ho
-        // già sta per essere sostituito. Il tetto è quindi il limite pieno
-        // di questa build, sempre lo stesso: non c'è più un interruttore
-        // Premium da controllare, perché la distinzione sta in quale app hai
-        // scaricato, non in un dato dentro questa. Serve una scelta solo se
-        // il file stesso, da solo, supera il limite: il caso tipico è un
-        // backup esportato da Hubbo Plus (senza limite) importato in Hubbo.
+        // già sta per essere sostituito. Il tetto è quindi il limite pieno di
+        // questa build — a meno che il Premium di test (v314, vedi
+        // PREMIUM_TEST_CODE) sia attivo, nel qual caso non c'è tetto, come
+        // per aggiunta e ripristino. Serve una scelta solo se il file stesso,
+        // da solo, supera il limite: il caso tipico è un backup con più
+        // abbonamenti di quanti questo dispositivo ne permetta ora.
         const tutti = data.subscriptions;
-        const posti = FREE_LIMIT;
+        const posti = isPremiumTest ? Infinity : FREE_LIMIT;
         if (tutti.length > posti) {
           // Preselezionati i primi che entrano nel limite, nell'ordine in
           // cui compaiono nel file: una scelta di partenza sensata che
@@ -9509,7 +9644,7 @@ function HubboApp() {
     // dal cestino è, a tutti gli effetti, aggiungere un abbonamento in più.
     // Senza questo controllo, cestinare e ripristinare a raffica avrebbe
     // aggirato il limite tanto quanto la pausa.
-    if (subs.length >= FREE_LIMIT) {
+    if (!isPremiumTest && subs.length >= FREE_LIMIT) {
       setShowPaywall(true);
       return;
     }
@@ -9562,7 +9697,7 @@ function HubboApp() {
     // sempre: terminare non svuota uno dei dieci posti, quindi riattivare
     // non deve poterne aprire uno in più di quanti il piano gratuito ne
     // preveda.
-    if (isTerminated && subs.length >= FREE_LIMIT) {
+    if (!isPremiumTest && isTerminated && subs.length >= FREE_LIMIT) {
       setShowPaywall(true);
       return;
     }
@@ -9660,6 +9795,28 @@ function HubboApp() {
     diagnosticsTimer.current = setTimeout(() => setShowDiagnostics((on) => !on), 700);
   };
   const releaseVersion = () => clearTimeout(diagnosticsTimer.current);
+
+  // v314 — sblocco Premium TEMPORANEO di solo test, vedi commento su
+  // PREMIUM_TEST_CODE. Condivide lo stesso gesto nascosto (pressione lunga
+  // sulla riga di versione) usato già per la diagnostica, invece di
+  // aggiungerne uno nuovo: stesso posto, stesso pubblico (chi sa cercarlo).
+  const [isPremiumTest, setIsPremiumTest] = useState(false);
+  const [premiumTestCodeInput, setPremiumTestCodeInput] = useState("");
+  const [premiumTestError, setPremiumTestError] = useState(false);
+  const unlockPremiumTest = () => {
+    if (premiumTestCodeInput.trim() !== PREMIUM_TEST_CODE) {
+      setPremiumTestError(true);
+      return;
+    }
+    setPremiumTestError(false);
+    setPremiumTestCodeInput("");
+    setIsPremiumTest(true);
+    window.storage.set(PREMIUM_TEST_STORAGE_KEY, "true", false).catch(() => {});
+  };
+  const lockPremiumTest = () => {
+    setIsPremiumTest(false);
+    window.storage.set(PREMIUM_TEST_STORAGE_KEY, "false", false).catch(() => {});
+  };
 
   // Kept on the device, because it used to vanish on any reload and made the
   // record of the previous tap disappear exactly when it was being looked for.
@@ -12042,10 +12199,7 @@ function HubboApp() {
 
 
 
-
-
-
-    Number.isFinite(FREE_LIMIT) && /*#__PURE__*/
+    Number.isFinite(FREE_LIMIT) && !isPremiumTest && /*#__PURE__*/
     React.createElement("button", {
       type: "button",
       onClick: () => setShowPaywall(true),
@@ -12727,7 +12881,8 @@ function HubboApp() {
     React.createElement("style", null, \`
           [data-savings-view] .savings-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:12px; align-items:start; }
           [data-savings-view] summary:focus-visible, [data-savings-view] a:focus-visible { outline:2px solid \${ACCENT.amber}; outline-offset:3px; }
-        \`), /*#__PURE__*/
+        \`),
+    isPremiumTest ? /*#__PURE__*/
     React.createElement("div", { className: "px-5 pt-3 pb-28" },
     (() => {
       // In cima si mostra l'annuale: lo stesso risparmio ha più peso
@@ -13365,7 +13520,10 @@ function HubboApp() {
 
     )
     )
-    )
+    ) : /*#__PURE__*/
+
+    React.createElement(SavingsFreeTeaser, { colors: colors, t: t, onUpgrade: () => setShowPaywall(true) })
+
     )
 
 
@@ -14722,7 +14880,11 @@ function HubboApp() {
       className: "w-full rounded-xl py-2.5 text-xs font-medium mb-3" },
 
     t.deleteAllData
-    ), /*#__PURE__*/
+    ),
+
+
+
+    !isPremiumTest && /*#__PURE__*/
     React.createElement("button", {
       type: "button",
       onClick: () => closeSheet("settings", () => {setShowSettings(false);setShowPaywall(true);}),
@@ -14731,6 +14893,7 @@ function HubboApp() {
 
     t.upgrade
     ), /*#__PURE__*/
+
     React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-3 px-1 leading-relaxed" },
     rates ? t.ratesLive(ratesDate ? dateFmt(ratesDate) : "") : ratesSettled ? t.ratesNote : t.ratesChecking
     ), /*#__PURE__*/
@@ -14792,6 +14955,51 @@ function HubboApp() {
       className: "mx-auto mt-2 block rounded-lg px-3 py-1.5 text-xs" },
 
     t.workerForce
+    ), /*#__PURE__*/
+
+
+
+    React.createElement("div", { style: { marginTop: 14, paddingTop: 10, borderTop: \`1px solid \${colors.border}\` } }, /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs text-center mb-1.5" },
+    t.premiumTestLabel
+    ),
+    isPremiumTest ? /*#__PURE__*/
+    React.createElement("div", { className: "flex flex-col items-center gap-1.5" }, /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs text-center max-w-[240px] mx-auto" }, t.premiumTestActive), /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: lockPremiumTest,
+      style: { color: colors.textSecondary, border: \`1px solid \${colors.border}\` },
+      className: "rounded-lg px-3 py-1.5 text-xs" },
+
+    t.premiumTestLock
+    )
+    ) : /*#__PURE__*/
+
+    React.createElement("div", { className: "flex flex-col items-center gap-1.5" }, /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center justify-center gap-1.5" }, /*#__PURE__*/
+    React.createElement("input", {
+      type: "text",
+      value: premiumTestCodeInput,
+      onChange: (e) => {setPremiumTestCodeInput(e.target.value);setPremiumTestError(false);},
+      placeholder: t.premiumTestCodePlaceholder,
+      style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
+      className: "rounded-lg px-2.5 py-1.5 text-xs w-28" }
+    ), /*#__PURE__*/
+    React.createElement("button", {
+      type: "button",
+      onClick: unlockPremiumTest,
+      style: { color: colors.textSecondary, border: \`1px solid \${colors.border}\` },
+      className: "rounded-lg px-3 py-1.5 text-xs" },
+
+    t.premiumTestUnlock
+    )
+    ),
+    premiumTestError && /*#__PURE__*/
+    React.createElement("p", { style: { color: ACCENT.danger }, className: "text-xs text-center mt-1" }, t.premiumTestWrongCode)
+
+    )
+
     )
     ), /*#__PURE__*/
 
@@ -15559,10 +15767,10 @@ function HubboApp() {
     pendingImport && (() => {
       // Il backup sostituisce, non si somma: il tetto è il limite pieno,
       // non "quanto spazio resta rispetto a quello che ho già" — quello
-      // che ho già sta per sparire comunque. Nessun interruttore Premium
-      // da leggere: questa build ha sempre lo stesso FREE_LIMIT, punto.
+      // che ho già sta per sparire comunque. Stesso bypass di test del
+      // punto gemello sopra quando il Premium di test è attivo.
       const tutti = pendingImport.subscriptions;
-      const posti = FREE_LIMIT;
+      const posti = isPremiumTest ? Infinity : FREE_LIMIT;
       const needsSelection = importSelection !== null;
       const selectedCount = importSelection ? importSelection.size : 0;
       const canConfirm = !needsSelection || selectedCount >= 1 && selectedCount <= posti;
