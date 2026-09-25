@@ -645,7 +645,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v316";
+const APP_VERSION = "v317";
 const APP_BUILD_DATE = "2026-09-25";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -4888,9 +4888,10 @@ const TOUR_STRINGS = {
 const PREMIUM_GATE_STRINGS = {
   it: {
     savingsFreeTitle: "Risparmio è una funzione Premium",
-    savingsFreeBody: "Ecco un'idea di cosa troverai: abbonamenti che si sovrappongono, offerte in scadenza e piani più convenienti per i servizi che usi già.",
-    savingsFreeExample1: "Due abbonamenti che si sovrappongono: unendoli risparmi fino a 6 €/mese.",
-    savingsFreeExample2: "Anche se non hai ancora questo servizio, puoi tenerlo d'occhio: vedrai le sue offerte appena arrivano.",
+    savingsFreeBody: "Ecco un'idea di cosa troverai: piani più convenienti per i servizi che usi già, opportunità di risparmio da scoprire, e offerte anche per i servizi che ti interessano ma non hai ancora.",
+    savingsFreeExamplePlan: "Piano Famiglia più economico disponibile",
+    savingsFreeExampleOpportunity: "Pacchetto streaming unico",
+    savingsFreeExampleWatchlist: "Anche se non hai ancora questo servizio, puoi tenerlo d'occhio: vedrai le sue offerte appena arrivano.",
     savingsFreeDisclaimer: "Esempio illustrativo: servizi e cifre di fantasia, non i tuoi dati reali.",
     premiumTestLabel: "Premium di test",
     premiumTestActive: "Attivo — solo per provare l'app prima che esista il pagamento vero.",
@@ -4901,9 +4902,10 @@ const PREMIUM_GATE_STRINGS = {
   },
   en: {
     savingsFreeTitle: "Savings is a Premium feature",
-    savingsFreeBody: "Here's a preview of what you'll find: overlapping subscriptions, offers about to end, and better plans for services you already use.",
-    savingsFreeExample1: "Two subscriptions that overlap: merging them saves up to €6/month.",
-    savingsFreeExample2: "Even if you don't have this service yet, you can watch it: you'll see its offers as soon as they appear.",
+    savingsFreeBody: "Here's a preview of what you'll find: better plans for services you already use, savings opportunities to discover, and offers even for services you're interested in but don't have yet.",
+    savingsFreeExamplePlan: "Cheaper Family plan available",
+    savingsFreeExampleOpportunity: "One combined streaming bundle",
+    savingsFreeExampleWatchlist: "Even if you don't have this service yet, you can watch it: you'll see its offers as soon as they appear.",
     savingsFreeDisclaimer: "Illustrative example: fictional services and figures, not your real data.",
     premiumTestLabel: "Test Premium",
     premiumTestActive: "On — only to try the app before real payment exists.",
@@ -4914,9 +4916,10 @@ const PREMIUM_GATE_STRINGS = {
   },
   es: {
     savingsFreeTitle: "Ahorro es una función Premium",
-    savingsFreeBody: "Así es una idea de lo que encontrarás: suscripciones que se solapan, ofertas por terminar y planes más convenientes para servicios que ya usas.",
-    savingsFreeExample1: "Dos suscripciones que se solapan: uniéndolas ahorras hasta 6 €/mes.",
-    savingsFreeExample2: "Aunque todavía no tengas este servicio, puedes seguirlo: verás sus ofertas en cuanto aparezcan.",
+    savingsFreeBody: "Así es una idea de lo que encontrarás: planes más convenientes para servicios que ya usas, oportunidades de ahorro por descubrir, y ofertas incluso de los servicios que te interesan pero aún no tienes.",
+    savingsFreeExamplePlan: "Plan Familiar más económico disponible",
+    savingsFreeExampleOpportunity: "Paquete streaming único",
+    savingsFreeExampleWatchlist: "Aunque todavía no tengas este servicio, puedes seguirlo: verás sus ofertas en cuanto aparezcan.",
     savingsFreeDisclaimer: "Ejemplo ilustrativo: servicios y cifras de fantasía, no tus datos reales.",
     premiumTestLabel: "Premium de prueba",
     premiumTestActive: "Activo — solo para probar la app antes de que exista el pago real.",
@@ -4927,9 +4930,10 @@ const PREMIUM_GATE_STRINGS = {
   },
   fr: {
     savingsFreeTitle: "Économies est une fonctionnalité Premium",
-    savingsFreeBody: "Voici un aperçu de ce que vous trouverez : abonnements qui se recoupent, offres bientôt expirées et formules plus avantageuses pour des services que vous utilisez déjà.",
-    savingsFreeExample1: "Deux abonnements qui se recoupent : en les fusionnant, économisez jusqu'à 6 €/mois.",
-    savingsFreeExample2: "Même si vous n'avez pas encore ce service, vous pouvez le suivre : vous verrez ses offres dès qu'elles arrivent.",
+    savingsFreeBody: "Voici un aperçu de ce que vous trouverez : des formules plus avantageuses pour des services que vous utilisez déjà, des opportunités d'économies à découvrir, et des offres même pour les services qui vous intéressent mais que vous n'avez pas encore.",
+    savingsFreeExamplePlan: "Formule Famille plus économique disponible",
+    savingsFreeExampleOpportunity: "Un seul forfait streaming",
+    savingsFreeExampleWatchlist: "Même si vous n'avez pas encore ce service, vous pouvez le suivre : vous verrez ses offres dès qu'elles arrivent.",
     savingsFreeDisclaimer: "Exemple illustratif : services et chiffres fictifs, pas vos données réelles.",
     premiumTestLabel: "Premium de test",
     premiumTestActive: "Actif — uniquement pour essayer l'app avant l'existence du vrai paiement.",
@@ -4940,9 +4944,10 @@ const PREMIUM_GATE_STRINGS = {
   },
   de: {
     savingsFreeTitle: "Sparen ist eine Premium-Funktion",
-    savingsFreeBody: "Hier siehst du, was dich erwartet: sich überschneidende Abos, bald endende Angebote und günstigere Tarife für Dienste, die du bereits nutzt.",
-    savingsFreeExample1: "Zwei sich überschneidende Abos: durch Zusammenlegen sparst du bis zu 6 €/Monat.",
-    savingsFreeExample2: "Auch wenn du diesen Dienst noch nicht hast, kannst du ihn im Auge behalten: du siehst seine Angebote, sobald sie erscheinen.",
+    savingsFreeBody: "Hier siehst du, was dich erwartet: günstigere Tarife für Dienste, die du bereits nutzt, Sparmöglichkeiten zum Entdecken und Angebote sogar für Dienste, die dich interessieren, die du aber noch nicht hast.",
+    savingsFreeExamplePlan: "Günstigerer Familientarif verfügbar",
+    savingsFreeExampleOpportunity: "Ein einziges Streaming-Paket",
+    savingsFreeExampleWatchlist: "Auch wenn du diesen Dienst noch nicht hast, kannst du ihn im Auge behalten: du siehst seine Angebote, sobald sie erscheinen.",
     savingsFreeDisclaimer: "Veranschaulichendes Beispiel: erfundene Dienste und Zahlen, nicht deine echten Daten.",
     premiumTestLabel: "Test-Premium",
     premiumTestActive: "Aktiv — nur zum Testen der App, bevor die echte Zahlung existiert.",
@@ -7515,16 +7520,42 @@ function SavingsFreeTeaser({ colors, t, onUpgrade, money, savingsLabels, light, 
 
     React.createElement("div", { className: "max-w-sm mx-auto text-left" }, /*#__PURE__*/
 
-    React.createElement("div", { className: "rounded-2xl p-4 mb-4", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.duplicates, colors, light) }, /*#__PURE__*/
+
+
+
+    React.createElement("div", { className: "rounded-2xl p-4 mb-4", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.plans, colors, light) }, /*#__PURE__*/
     React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
-    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.duplicates } }, /*#__PURE__*/React.createElement(Icon, { name: "layers", size: 14 })), /*#__PURE__*/
-    React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 15, color: colors.textAccent || ACCENT.amber } }, t.savingsDuplicates)
+    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.plans } }, /*#__PURE__*/React.createElement(Icon, { name: "repeat", size: 14 })), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 15, color: colors.textAccent || ACCENT.amber } }, t.savingsPlans)
     ), /*#__PURE__*/
     React.createElement("div", { style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-3.5" }, /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs leading-relaxed" }, t.savingsFreeExample1), /*#__PURE__*/
-    React.createElement("div", { style: { display: "flex", gap: 14, marginTop: 12 } }, /*#__PURE__*/
-    React.createElement(ServiceLogo, { icon: serviceIcon("Netflix"), domain: serviceDomain("Netflix"), category: "streaming", letter: "N", serviceName: "Netflix", color: streaming.color, size: 34 }), /*#__PURE__*/
-    React.createElement(ServiceLogo, { icon: serviceIcon("Disney+"), domain: serviceDomain("Disney+"), category: "streaming", letter: "D", serviceName: "Disney+", color: streaming.color, size: 34 })
+    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } }, /*#__PURE__*/
+    React.createElement(ServiceLogo, { icon: serviceIcon("YouTube Premium"), domain: serviceDomain("YouTube Premium"), category: "streaming", letter: "Y", serviceName: "YouTube Premium", color: streaming.color, size: 40 }), /*#__PURE__*/
+    React.createElement("div", { style: { minWidth: 0 } }, /*#__PURE__*/
+    React.createElement("div", { className: "text-sm font-semibold" }, "YouTube Premium"), /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textOnGradient, fontSize: 12, marginTop: 3 } }, t.savingsFreeExamplePlan)
+    )
+    ), /*#__PURE__*/
+    React.createElement(SavingsValue, { monthly: 5, money: money, colors: colors, labels: savingsLabels })
+    )
+    ), /*#__PURE__*/
+
+
+
+
+    React.createElement("div", { className: "rounded-2xl p-4 mb-4", style: fixedAccentCardStyle(SAVINGS_SECTION_ACCENTS.opportunities, colors, light) }, /*#__PURE__*/
+    React.createElement("div", { className: "flex items-center gap-2 mb-2 px-1" }, /*#__PURE__*/
+    React.createElement("span", { className: "flex-shrink-0", style: { color: SAVINGS_SECTION_ACCENTS.opportunities } }, /*#__PURE__*/React.createElement(Icon, { name: "piggyBank", size: 14 })), /*#__PURE__*/
+    React.createElement("span", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontSize: 15, color: colors.textAccent || ACCENT.amber } }, t.savingsOpportunity)
+    ), /*#__PURE__*/
+    React.createElement("div", { style: { background: colors.surface, border: \`1px solid \${colors.border}\`, boxShadow: colors.cardShadow }, className: "rounded-2xl p-3.5" }, /*#__PURE__*/
+    React.createElement("div", { className: "text-sm font-medium" }, t.savingsFreeExampleOpportunity), /*#__PURE__*/
+    React.createElement("div", { style: { color: colors.textSecondary }, className: "text-xs mt-2" }, t.savingsReplaces, ": Netflix, Disney+"), /*#__PURE__*/
+    React.createElement("div", { style: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, marginTop: 12 } }, /*#__PURE__*/
+    React.createElement(ServiceLogo, { icon: serviceIcon("Netflix"), domain: serviceDomain("Netflix"), category: "streaming", letter: "N", serviceName: "Netflix", color: colors.textSecondary, size: 28 }), /*#__PURE__*/
+    React.createElement(ServiceLogo, { icon: serviceIcon("Disney+"), domain: serviceDomain("Disney+"), category: "streaming", letter: "D", serviceName: "Disney+", color: colors.textSecondary, size: 28 }), /*#__PURE__*/
+    React.createElement(Icon, { name: "arrowRight", size: 16, color: colors.textFaint }), /*#__PURE__*/
+    React.createElement(Icon, { name: "package", size: 28, color: colors.textAccent || ACCENT.amber })
     ), /*#__PURE__*/
     React.createElement(SavingsValue, { monthly: 6, money: money, colors: colors, labels: savingsLabels })
     )
@@ -7542,7 +7573,7 @@ function SavingsFreeTeaser({ colors, t, onUpgrade, money, savingsLabels, light, 
     React.createElement(ServiceLogo, { icon: serviceIcon("Spotify"), domain: serviceDomain("Spotify"), category: "streaming", letter: "S", serviceName: "Spotify", color: streaming.color, size: 30 }), /*#__PURE__*/
     React.createElement("span", { style: { color: colors.textPrimary }, className: "text-sm font-medium flex-1 truncate" }, "Spotify")
     ), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-2.5 leading-relaxed" }, t.savingsFreeExample2)
+    React.createElement("p", { style: { color: colors.textOnGradient }, className: "text-xs mt-2.5 leading-relaxed" }, t.savingsFreeExampleWatchlist)
     )
     )
     ), /*#__PURE__*/
