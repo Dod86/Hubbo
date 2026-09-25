@@ -645,7 +645,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v315";
+const APP_VERSION = "v316";
 const APP_BUILD_DATE = "2026-09-25";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -7503,8 +7503,8 @@ function SavingsDetails({ label, colors, children }) {
 // uno" (sovrapposizioni); il secondo mostra "Da tenere d'occhio", su
 // richiesta esplicita di Erny di specificare che anche i servizi che
 // interessano ma non si possiedono si possono seguire in Premium.
-function SavingsFreeTeaser({ colors, t, onUpgrade, money, savingsLabels, light }) {
-  const streaming = CATEGORIES.find((c) => c.id === "streaming") || CATEGORIES[CATEGORIES.length - 1];
+function SavingsFreeTeaser({ colors, t, onUpgrade, money, savingsLabels, light, categories }) {
+  const streaming = categories.find((c) => c.id === "streaming") || categories[categories.length - 1];
   return (/*#__PURE__*/
     React.createElement("div", { className: "text-center py-10 px-5" }, /*#__PURE__*/
     React.createElement("div", { className: "flex justify-center mb-3", style: { color: ACCENT.amber } }, /*#__PURE__*/
@@ -13566,7 +13566,7 @@ function HubboApp() {
     )
     ) : /*#__PURE__*/
 
-    React.createElement(SavingsFreeTeaser, { colors: colors, t: t, onUpgrade: () => setShowPaywall(true), money: money, savingsLabels: savingsLabels, light: effectiveTheme === "light" })
+    React.createElement(SavingsFreeTeaser, { colors: colors, t: t, onUpgrade: () => setShowPaywall(true), money: money, savingsLabels: savingsLabels, light: effectiveTheme === "light", categories: CATEGORIES })
 
     )
 
