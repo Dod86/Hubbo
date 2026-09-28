@@ -645,8 +645,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v317";
-const APP_BUILD_DATE = "2026-09-25";
+const APP_VERSION = "v318";
+const APP_BUILD_DATE = "2026-09-28";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -6274,6 +6274,15 @@ function CategoryLegend({ segments, total, colors, money, light, selected = null
   // ref. Un ref separato rende la legenda davvero one-shot anche quando Elenco
   // viene smontato e rimontato passando tra le schede.
   const [shouldAnimateLegend] = useState(() => animateOnceRef ? !animateOnceRef.current : animateOnLaunch);
+  // Se si tocca una voce mentre la comparsa sta ancora animando (es. al primo
+  // avvio dell'app), da qui in poi l'opacità deve seguire la selezione e non
+  // più l'animazione: altrimenti \`animationFillMode: "both"\` continua a
+  // imporre opacità piena per sempre a tutte le righe, e la categoria toccata
+  // non risultava mai evidenziata finché non si cambiava scheda o mese/anno
+  // (l'anello si rimonta e la comparsa riparte da zero) — segnalato da Erny
+  // il 28 settembre.
+  const [legendInteracted, setLegendInteracted] = useState(false);
+  const animatingEntrance = shouldAnimateLegend && !legendInteracted;
   useEffect(() => {
     if (animateOnceRef && shouldAnimateLegend) animateOnceRef.current = true;
   }, []);
@@ -6290,14 +6299,14 @@ function CategoryLegend({ segments, total, colors, money, light, selected = null
         React.createElement(Row, {
           key: seg.id,
           type: interactive ? "button" : undefined,
-          onClick: interactive ? () => onSelect(isSelected ? null : seg.id) : undefined,
+          onClick: interactive ? () => {setLegendInteracted(true);onSelect(isSelected ? null : seg.id);} : undefined,
           "aria-pressed": interactive ? isSelected : undefined,
           style: {
-            opacity: shouldAnimateLegend ? undefined : dimmed ? 0.5 : 1,
-            transition: shouldAnimateLegend ? undefined : "opacity 0.2s ease",
+            opacity: animatingEntrance ? undefined : dimmed ? 0.5 : 1,
+            transition: animatingEntrance ? undefined : "opacity 0.2s ease",
             background: "transparent",
             textAlign: "left",
-            ...(shouldAnimateLegend ? {
+            ...(animatingEntrance ? {
               animationName: "rb-legend-zoom-bounce",
               animationDuration: "450ms",
               animationTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
