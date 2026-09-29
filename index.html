@@ -645,8 +645,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v318";
-const APP_BUILD_DATE = "2026-09-28";
+const APP_VERSION = "v319";
+const APP_BUILD_DATE = "2026-09-29";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -6791,8 +6791,13 @@ function useSubscriptionNotifications(subscriptions, settings, t) {
           const when = renewal.daysLeft === 0 ? copy.todayWord : renewal.daysLeft === 1 ? copy.tomorrowWord : copy.inDays(renewal.daysLeft);
           const sent = await showNotification(copy.appName, {
             body: copy.notifBody(sub.name, when),
-            icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: "hubbo-" + id,
-            data: { id, cancelUrl: cancelSearchUrl(sub.name, current.settings.language) },
+            // Stesso schema di tag del promemoria nativo programmato in
+            // anticipo (\`nativeReminderTag\`, più sotto): se quello per questo
+            // stesso rinnovo era già stato programmato mentre l'app era
+            // chiusa, questo avviso "live" lo sostituisce invece di
+            // affiancarglisi — stesso tag, stessa notifica, mai doppia.
+            icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: nativeReminderTag(id, toLocalISO(renewal.renewal)),
+            data: { kind: "sub", id, cancelUrl: cancelSearchUrl(sub.name, current.settings.language) },
             actions: [{ action: "cancel", title: copy.notifActionCancel }]
           });
           if (sent) {
@@ -6843,6 +6848,122 @@ function useSubscriptionNotifications(subscriptions, settings, t) {
     return result;
   };
   return { permission, requestPermission };
+}
+
+// Promemoria di rinnovo programmati in anticipo, per quando l'app è chiusa
+// (Android nativo, tramite Capacitor). Il sistema qui sopra funziona solo ad
+// app aperta: controlla ogni minuto ed è quello che manda l'avviso "live" se
+// stai già usando Hubbo. Qui invece si prepara in anticipo, ogni volta che
+// l'app si apre o cambia qualcosa, l'intera lista dei prossimi rinnovi nei
+// prossimi 90 giorni e la si passa al sistema operativo, che la consegna
+// anche a telefono spento o app chiusa da giorni — l'involucro nativo se ne
+// occupa (vedi \`capacitor-bridge.js\`), qui si prepara solo la lista.
+//
+// Un promemoria per ogni rinnovo futuro nella finestra, non uno al giorno
+// come fa il controllo "live": un abbonamento mensile può avere due o tre
+// rinnovi nei prossimi 90 giorni, ciascuno con il proprio promemoria isolato
+// (tag \`sub-<id>-<data rinnovo>"\`), così restano programmati tutti insieme
+// senza che il secondo cancelli il primo.
+const NATIVE_REMINDER_HORIZON_DAYS = 90;
+// Limite prudente: Android impone un tetto al numero di allarmi
+// programmabili in anticipo per app. Se si superasse, si tengono i più
+// vicini nel tempo, quelli che contano davvero adesso.
+const NATIVE_REMINDER_MAX = 60;
+
+function nativeReminderTag(subId, renewalISO) {
+  return \`sub-\${subId}-\${renewalISO}\`;
+}
+
+function buildNativeReminderList(subscriptions, settings, t) {
+  const now = Date.now();
+  const todayISO = toLocalISO(new Date());
+  const items = [];
+  (subscriptions || []).forEach((sub) => {
+    // Un abbonamento in pausa non ha un prossimo rinnovo vero: niente da
+    // programmare finché non viene riattivato.
+    if (sub.paused) return;
+    const prefs = resolveSubscriptionNotifications(sub, settings);
+    if (!prefs.enabled) return;
+    const anchor = parseLocalDate(sub.renewalDate);
+    let steps = Math.max(0, periodsBetween(anchor, parseLocalDate(todayISO), sub.frequency));
+    let renewal = addPeriods(anchor, sub.frequency, steps);
+    let safety = 0;
+    while (daysBetween(parseLocalDate(todayISO), new Date(renewal)) < 0 && safety < 500) {
+      steps += 1;
+      renewal = addPeriods(anchor, sub.frequency, steps);
+      safety++;
+    }
+    let guard = 0;
+    while (guard < 200) {
+      const renewalISO = toLocalISO(renewal);
+      const daysUntilRenewal = daysBetween(parseLocalDate(todayISO), parseLocalDate(renewalISO));
+      if (daysUntilRenewal > NATIVE_REMINDER_HORIZON_DAYS) break;
+      // Un abbonamento con una data di fine impostata non rinnova oltre
+      // quella data: stessa regola di \`dueSubscriptionReminder\` qui sopra.
+      if (sub.endDate && renewalISO > sub.endDate) break;
+      const reminderDate = new Date(renewal);
+      reminderDate.setDate(reminderDate.getDate() - prefs.days);
+      const at = new Date(
+        reminderDate.getFullYear(), reminderDate.getMonth(), reminderDate.getDate(), prefs.hour, 0, 0, 0
+      ).getTime();
+      // Mai un orario già passato: quel rinnovo, se era già nella finestra di
+      // preavviso, è compito del controllo "live" ad app aperta; qui si
+      // programma solo ciò che deve ancora arrivare.
+      if (at > now) {
+        const when = prefs.days === 0 ? t.todayWord : prefs.days === 1 ? t.tomorrowWord : t.inDays(prefs.days);
+        items.push({
+          tag: nativeReminderTag(sub.id, renewalISO),
+          at,
+          title: t.appName,
+          body: t.notifBody(sub.name, when),
+          data: { kind: "sub", id: sub.id, cancelUrl: cancelSearchUrl(sub.name, settings.language) },
+          actions: [{ action: "cancel", title: t.notifActionCancel }]
+        });
+      }
+      steps += 1;
+      renewal = addPeriods(anchor, sub.frequency, steps);
+      guard++;
+    }
+  });
+  items.sort((a, b) => a.at - b.at);
+  return items.slice(0, NATIVE_REMINDER_MAX);
+}
+
+// Nessun effetto quando gira nel sito vero (browser, PWA): \`window.HubboNative\`
+// esiste solo dentro l'app Android generata da Capacitor, dove l'involucro
+// nativo lo espone (vedi \`capacitor-bridge.js\`). Se non c'è, questo hook non
+// fa assolutamente nulla di nuovo — il comportamento resta quello di sempre.
+function useNativeReminderScheduling(subscriptions, settings, t) {
+  const latestRef = useRef(null);
+  latestRef.current = { subscriptions, settings, t };
+
+  useEffect(() => {
+    const native = typeof window !== "undefined" ? window.HubboNative : null;
+    if (!native) return;
+    const fire = () => {
+      // Ogni chiamata sostituisce tutto: un abbonamento eliminato, messo in
+      // pausa o modificato non deve lasciarsi dietro promemoria vecchi.
+      if (typeof native.cancelAllReminders === "function") {
+        try {native.cancelAllReminders();} catch {}
+      }
+      const permission = typeof Notification === "undefined" ? "unsupported" : Notification.permission;
+      if (permission !== "granted") return;
+      const { subscriptions: subs, settings: st, t: copy } = latestRef.current;
+      if (!Array.isArray(subs)) return;
+      const list = buildNativeReminderList(subs, st, copy);
+      if (list.length > 0 && typeof native.scheduleReminders === "function") {
+        try {native.scheduleReminders(list);} catch {}
+      }
+    };
+    fire();
+    const onVisible = () => {if (document.visibilityState === "visible") fire();};
+    window.addEventListener("focus", fire);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", fire);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [subscriptions, settings.notifEnabled, settings.notifDays, settings.notifHour, settings.language]);
 }
 
 // Avvisi per le offerte dei servizi seguiti in "Da tenere d'occhio". Stesso
@@ -10186,6 +10307,10 @@ function HubboApp() {
   }, [anyModalOpen]);
 
   const notificationAccess = useSubscriptionNotifications(subs, settings, t);
+  // Solo per l'app Android nativa (Capacitor): programma in anticipo i
+  // promemoria di rinnovo dei prossimi 90 giorni, così arrivano anche ad app
+  // chiusa. Non fa nulla nella PWA nel browser (vedi la funzione stessa).
+  useNativeReminderScheduling(subs, settings, t);
   const offerNotifications = useOfferNotifications(watchlist, offersFile, settings.notifOffersEnabled === true, t, activeSubs);
 
   // Seguire/smettere di seguire un servizio in "Da tenere d'occhio". Non
