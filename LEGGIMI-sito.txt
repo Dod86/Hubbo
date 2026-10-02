@@ -1,0 +1,16 @@
+HUBBO v349 - SITO (PWA) da caricare su GitHub, repository Hubbo, nella cartella principale.
+
+Carica TUTTI questi file/cartelle mantenendo gli stessi nomi (sostituisci quelli esistenti):
+  index.html
+  sw.js
+  manifest.json
+  offerte.json
+  privacy.html, privacy-en.html
+  fonts/   (cartella intera)
+  icons/   (cartella intera)
+  vendor/  (cartella intera)
+
+NON toccare la cartella catalog/ (il catalogo v14 e' gia' online).
+Un solo commit. Dopo 1-2 minuti chi apre il sito riceve la versione nuova:
+la prima volta potrebbe vedere ancora la vecchia; alla riapertura successiva si aggiorna da sola.
+Controllo: in Impostazioni, in fondo, la versione deve essere v349.

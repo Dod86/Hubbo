@@ -1,36 +1,10 @@
 {
   "versione": 5,
-  "aggiornato": "2026-09-23",
+  "aggiornato": "2026-10-02",
   "paese": "IT",
   "valuta": "EUR",
   "note": "Catalogo prezzi Hubbo Italia. Schema v5: `listino` contiene le tariffe strutturate con cadenza/addebito/vincolo ed è la fonte primaria del selettore Piano; `opzioni` resta il fallback mensile per le schede non ancora migrate e per alcuni confronti Risparmio; `offerte` contiene esclusivamente promozioni temporanee con scadenza pubblica; `opportunita` contiene regole multi-servizio verificabili (bundle e ridondanze) calcolate sui costi reali inseriti dall'utente. `bundleCommerciali` censisce separatamente le offerte multi-servizio verificate: in Parte 9D restano deliberatamente non attive nel motore fino alle regole di idoneità 9E.",
   "offerte": [
-    {
-      "id": "spotify-2026-tre-mesi-gratis",
-      "servizio": "Spotify",
-      "titolo": "Tre mesi a 0 €",
-      "dettaglio": "Premium Individual gratis per 3 mesi; poi 11,99 €/mese. Solo per chi non ha mai avuto Premium.",
-      "tipo": "prova",
-      "prezzoPromozionale": 0,
-      "frequenzaPromozionale": "mensile",
-      "durataPromozionaleMesi": 3,
-      "prezzoSuccessivo": 11.99,
-      "frequenzaSuccessiva": "monthly",
-      "destinatari": [
-        "nuovi"
-      ],
-      "scade": "2026-09-23",
-      "soloNuoviClienti": true,
-      "requisiti": [
-        "Mai avuto Spotify Premium",
-        "Pagamento diretto a Spotify con metodo idoneo"
-      ],
-      "territorio": "IT",
-      "valuta": "EUR",
-      "link": "https://www.spotify.com/it/premium/",
-      "fonte": "spotify.com",
-      "verificato": "2026-09-19"
-    },
     {
       "id": "now-entertainment-499-12m-2026",
       "servizio": "Now",
@@ -46,7 +20,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2026-10-20",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo cliente NOW",
@@ -56,7 +30,7 @@
       "valuta": "EUR",
       "link": "https://www.nowtv.it/offerta-now",
       "fonte": "nowtv.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "now-cinema-entertainment-799-12m-2026",
@@ -73,7 +47,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2026-10-20",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo cliente NOW",
@@ -83,7 +57,7 @@
       "valuta": "EUR",
       "link": "https://www.nowtv.it/offerta-now",
       "fonte": "nowtv.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "now-sport-1999-12m-2026",
@@ -100,7 +74,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2026-10-26",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo cliente NOW",
@@ -110,7 +84,7 @@
       "valuta": "EUR",
       "link": "https://www.nowtv.it/offerta-now",
       "fonte": "nowtv.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "now-cinema-entertainment-sport-2799-12m-2026",
@@ -127,7 +101,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2026-10-26",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo cliente NOW",
@@ -137,7 +111,7 @@
       "valuta": "EUR",
       "link": "https://www.nowtv.it/offerta-now",
       "fonte": "nowtv.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "sky-prova-30-giorni-9-2026",
@@ -153,7 +127,7 @@
         "nuovi",
         "exclienti"
       ],
-      "scade": "2026-09-30",
+      "scade": "2026-12-31",
       "requisiti": [
         "Nuovo cliente Sky TV o ex cliente cessato da almeno 18 mesi",
         "Non aver già usato Prova Sky",
@@ -163,7 +137,7 @@
       "valuta": "EUR",
       "link": "https://www.sky.it/offerte/prova-sky",
       "fonte": "sky.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "apple-tv-plus-device-3-mesi-2026",
@@ -179,7 +153,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2027-09-30",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo iPhone, iPad, Apple TV o Mac idoneo",
@@ -190,7 +164,7 @@
       "valuta": "EUR",
       "link": "https://www.apple.com/it/promo/pdf/IT_ATV%2B_Promo_TandCs.pdf",
       "fonte": "apple.com",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "apple-music-device-3-mesi-2026",
@@ -206,7 +180,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2027-09-30",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo dispositivo Apple/Beats idoneo",
@@ -217,7 +191,7 @@
       "valuta": "EUR",
       "link": "https://www.apple.com/it/promo/pdf/IT_IT_Apple_Music_Promo_Terms_3_month_PDF.pdf",
       "fonte": "apple.com",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "apple-arcade-device-3-mesi-2026",
@@ -233,7 +207,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2027-09-30",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo iPhone, iPad, Apple TV o Mac idoneo",
@@ -244,7 +218,7 @@
       "valuta": "EUR",
       "link": "https://www.apple.com/it/promo/pdf/IT_IT_Arcade_Promo_TandCs_PDF.pdf",
       "fonte": "apple.com",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "apple-fitness-plus-device-3-mesi-2026",
@@ -260,7 +234,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2027-09-30",
       "soloNuoviClienti": true,
       "requisiti": [
         "Nuovo dispositivo Apple idoneo",
@@ -271,35 +245,7 @@
       "valuta": "EUR",
       "link": "https://www.apple.com/it/promo/pdf/IT_IT_Fitness_Plus_Promo_TandCs.pdf",
       "fonte": "apple.com",
-      "verificato": "2026-09-19"
-    },
-    {
-      "id": "telepass-sempre-autunno200-2026",
-      "servizio": "Telepass",
-      "titolo": "Telepass Sempre: 1 anno gratis + 200 € cashback",
-      "dettaglio": "Per nuovi clienti: 12 mesi di canone gratis, poi 4,90 €/mese. Con codice AUTUNNO200 fino a 150 € cashback carburante/ricarica e 50 € pedaggi.",
-      "tipo": "bonus",
-      "prezzoPromozionale": 0,
-      "frequenzaPromozionale": "mensile",
-      "durataPromozionaleMesi": 12,
-      "prezzoSuccessivo": 4.9,
-      "frequenzaSuccessiva": "monthly",
-      "valoreBonusMassimo": 200.0,
-      "destinatari": [
-        "nuovi"
-      ],
-      "scade": "2026-09-24",
-      "soloNuoviClienti": true,
-      "requisiti": [
-        "Nuovo cliente Telepass",
-        "Codice AUTUNNO200 in app",
-        "Cashback soggetto a soglie e massimali mensili"
-      ],
-      "territorio": "IT",
-      "valuta": "EUR",
-      "link": "https://www.telepass.com/it/privati/offerte/sempre",
-      "fonte": "telepass.com",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "telepass-pay-x-6-mesi-gratis-2026",
@@ -313,7 +259,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-30",
+      "scade": "2026-12-31",
       "soloNuoviClienti": true,
       "fasi": [
         {
@@ -343,7 +289,7 @@
       "valuta": "EUR",
       "link": "https://www.telepass.com/it/privati/offerte/telepass-pay-x",
       "fonte": "telepass.com",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "unipolmove-base-1-anno-gratis-2026",
@@ -369,33 +315,7 @@
       "valuta": "EUR",
       "link": "https://www.unipolmove.it/promo/",
       "fonte": "unipolmove.it",
-      "verificato": "2026-09-19"
-    },
-    {
-      "id": "unipolmove-europeo-1-anno-gratis-2026",
-      "servizio": "UnipolMove",
-      "titolo": "UnipolMove Europeo: 1 anno gratis",
-      "dettaglio": "12 mesi gratis; poi 2,90 €/mese per il primo dispositivo e 1 €/mese per l’eventuale secondo. Già cliente? Il passaggio va richiesto tramite assistenza/agenzia.",
-      "tipo": "sconto",
-      "prezzoPromozionale": 0,
-      "frequenzaPromozionale": "mensile",
-      "durataPromozionaleMesi": 12,
-      "prezzoSuccessivo": 2.9,
-      "frequenzaSuccessiva": "monthly",
-      "destinatari": [
-        "nuovi",
-        "esistenti"
-      ],
-      "scade": "2026-09-30",
-      "requisiti": [
-        "Cliente privato con veicolo leggero a uso personale",
-        "Per clienti già attivi: contattare assistenza o agenzia per il passaggio"
-      ],
-      "territorio": "IT",
-      "valuta": "EUR",
-      "link": "https://www.unipolmove.it/piani/privati/europeo/",
-      "fonte": "unipolmove.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "iliad-top230-999-finestra-2026",
@@ -417,37 +337,13 @@
       "valuta": "EUR",
       "link": "https://www.iliad.it/offerta-iliad-top230-999.html",
       "fonte": "iliad.it",
-      "verificato": "2026-09-19"
-    },
-    {
-      "id": "ho-tantiamici-extra-ricarica-settembre-2026",
-      "servizio": "ho. Mobile",
-      "titolo": "ho. Tanti amici: 15 € di ricarica all’invitato",
-      "dettaglio": "Con invito ho. e portabilità: 10 € extra + 5 € previsti dall’iniziativa, per un totale di 15 € dopo il primo rinnovo. Anche l’invitante riceve 15 €.",
-      "tipo": "bonus",
-      "valoreBonus": 15.0,
-      "destinatari": [
-        "nuovi"
-      ],
-      "scade": "2026-09-30",
-      "soloNuoviClienti": true,
-      "requisiti": [
-        "Invito ho. Tanti amici",
-        "Nuova SIM/eSIM",
-        "Portabilità del numero",
-        "Primo rinnovo effettuato"
-      ],
-      "territorio": "IT",
-      "valuta": "EUR",
-      "link": "https://supporto.ho-mobile.it/entro-in-ho/regolamenti",
-      "fonte": "ho-mobile.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
     },
     {
       "id": "tim-wifi-casa-fisso-mobile-2490-2026",
       "servizio": "TIM WiFi Casa",
       "titolo": "TIM WiFi Casa a 24,90 €/mese con fisso + mobile",
-      "dettaglio": "Per nuovo impianto/passaggio a TIM, online con domiciliazione e mobile TIM: 24,90 €/mese invece di 31,90 €. Durata 24 mesi; modem/attivazione hanno condizioni rateali dedicate.",
+      "dettaglio": "24,90 EUR/mese per attivazioni idonee online con domiciliazione e sconto fisso-mobile. SIM mobile separata; modem, attivazione e chiamate hanno rate e sconti di durata diversa. Verificare il riepilogo TIM, comprese rate residue in caso di recesso.",
       "tipo": "sconto",
       "prezzoPromozionale": 24.9,
       "frequenzaPromozionale": "mensile",
@@ -457,7 +353,7 @@
       "destinatari": [
         "nuovi"
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "requisiti": [
         "Nuovo impianto o passaggio a TIM Fisso",
         "Attivazione online",
@@ -468,7 +364,35 @@
       "valuta": "EUR",
       "link": "https://www.tim.it/fisso-e-mobile/fibra-e-adsl/fibra-mobile",
       "fonte": "tim.it",
-      "verificato": "2026-09-19"
+      "verificato": "2026-10-02"
+    },
+    {
+      "id": "spotify-student-quattro-mesi-2026",
+      "servizio": "Spotify",
+      "titolo": "Student: quattro mesi a 0 EUR",
+      "dettaglio": "Quattro mesi gratuiti per nuovi iscritti Premium Student idonei; poi 6,49 EUR/mese. Stato di studente da verificare. Iscrizione Student valida 12 mesi, rinnovabile secondo i requisiti Spotify.",
+      "tipo": "prova",
+      "piano": "Student",
+      "prezzoPromozionale": 0,
+      "frequenzaPromozionale": "mensile",
+      "durataPromozionaleMesi": 4,
+      "prezzoSuccessivo": 6.49,
+      "frequenzaSuccessiva": "monthly",
+      "destinatari": [
+        "nuovi"
+      ],
+      "scade": "2026-10-04",
+      "soloNuoviClienti": true,
+      "requisiti": [
+        "Studente presso istituto di studi superiori accreditato",
+        "Prima iscrizione a Premium",
+        "Verifica dello stato di studente"
+      ],
+      "territorio": "IT",
+      "valuta": "EUR",
+      "link": "https://www.spotify.com/it/premium/",
+      "fonte": "spotify.com",
+      "verificato": "2026-10-02"
     }
   ],
   "opportunita": [
@@ -892,7 +816,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -945,10 +869,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-netflix",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -991,7 +915,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1050,10 +974,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-disney",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -1096,7 +1020,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1162,10 +1086,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -1208,7 +1132,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1274,10 +1198,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -1320,7 +1244,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1392,10 +1316,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -1438,7 +1362,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1517,10 +1441,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -1563,7 +1487,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1629,10 +1553,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -1675,7 +1599,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1747,10 +1671,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -1793,7 +1717,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1872,10 +1796,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "nota": "La card marketing TIM visualizza 29,99 €/mese, ma il totale ufficiale del primo anno è 348 € e il dettaglio economico ufficiale indica 29,00 €/mese per 12 mesi. Hubbo usa 29,00 € per coerenza con il totale e con le condizioni economiche.",
       "minServizi": 2,
@@ -1919,7 +1843,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -1985,10 +1909,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -2031,7 +1955,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -2103,10 +2027,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -2123,7 +2047,7 @@
       "nome": "TIMVISION L con DAZN Family · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": true,
+      "motoreAttivo": false,
       "prezzoStandard": 77.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2227,7 +2151,7 @@
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-amazon-prime",
       "verificato": "2026-09-20",
-      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "notaAudit": "Verifica del 2 ottobre 2026: proposta sospesa. La variante L con DAZN Family non è confermata tra le condizioni correnti consultate.",
       "nota": "TIM usa ancora in alcune pagine la dicitura DAZN Plus: il piano corrente corrispondente è DAZN Family. Nessun prezzo promozionale corrente è stato applicato a questa variante.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -2236,7 +2160,8 @@
       ],
       "scadenzaBloccaMotore": true,
       "canaleCalcoloAttivazione": "online_o_scenario_base",
-      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L con DAZN Family · annuale"
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION L con DAZN Family · annuale",
+      "motoreBloccoMotivo": "La variante L con DAZN Family non è confermata tra le condizioni correnti consultate."
     },
     {
       "id": "timvision-dazn-full-prime-annuale-2026",
@@ -2248,9 +2173,9 @@
       "prezzoStandard": 36.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
-      "prezzoPromozionale": 19.99,
+      "prezzoPromozionale": 29.99,
       "frequenzaPromozionale": "monthly",
-      "durataPromozionaleMesi": 3,
+      "durataPromozionaleMesi": 8,
       "prezzoSuccessivo": 36.99,
       "frequenzaSuccessiva": "monthly",
       "fasiPrezzo": [
@@ -2267,7 +2192,7 @@
           "frequenza": "monthly"
         }
       ],
-      "costoPrimoAnno": 392.88,
+      "costoPrimoAnno": 387.88,
       "costoAttivazione": 0,
       "costiAttivazione": [
         {
@@ -2340,11 +2265,11 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
-      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "verificato": "2026-10-02",
+      "notaAudit": "29,99 EUR/mese per 8 mesi + 36,99 EUR/mese per 4 mesi = 387,88 EUR. Le note generiche della pagina riportano ancora 3 mesi; il dato usa il dettaglio economico e il totale annuale tra loro coerenti.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
       "escludiSePossiedi": [
@@ -2360,7 +2285,7 @@
       "nome": "TIMVISION con DAZN MyClubPass e Prime · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": true,
+      "motoreAttivo": false,
       "prezzoStandard": 29.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2460,7 +2385,7 @@
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "notaAudit": "Verifica del 2 ottobre 2026: proposta sospesa. TIM mostra 24,99 EUR per 8 mesi e totale 319,88 EUR, ma nel dettaglio scrive 3 mesi: costi contraddittori. Nessuna durata viene dedotta come certa.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
       "escludiSePossiedi": [
@@ -2468,7 +2393,8 @@
       ],
       "scadenzaBloccaMotore": true,
       "canaleCalcoloAttivazione": "online_o_scenario_base",
-      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN MyClubPass e Prime · annuale"
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN MyClubPass e Prime · annuale",
+      "motoreBloccoMotivo": "TIM mostra 24,99 EUR per 8 mesi e totale 319,88 EUR, ma nel dettaglio scrive 3 mesi: costi contraddittori. Nessuna durata viene dedotta come certa."
     },
     {
       "id": "timvision-dazn-family-prime-annuale-2026",
@@ -2476,7 +2402,7 @@
       "nome": "TIMVISION con DAZN Family e Prime · annuale",
       "categoria": "multi-servizio",
       "periodicitaCommerciale": "annuale",
-      "motoreAttivo": true,
+      "motoreAttivo": false,
       "prezzoStandard": 59.99,
       "frequenzaStandard": "monthly",
       "valuta": "EUR",
@@ -2576,7 +2502,7 @@
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
       "verificato": "2026-09-20",
-      "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
+      "notaAudit": "Verifica del 2 ottobre 2026: proposta sospesa. La variante DAZN Family con Prime non è confermata tra le condizioni correnti consultate.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
       "escludiSePossiedi": [
@@ -2584,7 +2510,8 @@
       ],
       "scadenzaBloccaMotore": true,
       "canaleCalcoloAttivazione": "online_o_scenario_base",
-      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN Family e Prime · annuale"
+      "titoloMotore": "Riunisci i tuoi abbonamenti con TIMVISION con DAZN Family e Prime · annuale",
+      "motoreBloccoMotivo": "La variante DAZN Family con Prime non è confermata tra le condizioni correnti consultate."
     },
     {
       "id": "timvision-s-mensile-2026",
@@ -2612,7 +2539,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -2665,10 +2592,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-netflix",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -2705,7 +2632,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -2764,10 +2691,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-disney",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -2804,7 +2731,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -2870,10 +2797,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-netflix",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -2910,7 +2837,7 @@
           "scenario": "linea_mobile_TIM_o_senza_linea_TIM",
           "tipo": "promo",
           "importo": 0,
-          "scade": "2026-09-26",
+          "scade": "2026-10-24",
           "nota": "Contributo di attivazione in promozione a 0 €; lo sconto compensativo non si applica."
         }
       ],
@@ -2989,10 +2916,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -3085,10 +3012,10 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-26",
+      "scade": "2026-10-24",
       "fonte": "TIM (fonte ufficiale italiana)",
       "link": "https://www.tim.it/offerte-tv/timvision-dazn",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "notaAudit": "Parte 9E: bundle abilitato alla valutazione intelligente. La proposta resta subordinata a scadenza, stato cliente TIMVISION, requisiti verificabili, almeno due servizi sostituiti e convenienza reale a 12 mesi.",
       "minServizi": 2,
       "gruppoMotore": "timvision-da-attivare",
@@ -3107,7 +3034,7 @@
       "periodicitaCommerciale": "mensile",
       "motoreAttivo": true,
       "valuta": "EUR",
-      "prezzoPromozionale": 14.99,
+      "prezzoPromozionale": 16.99,
       "frequenzaPromozionale": "monthly",
       "durataPromozionaleMesi": 18,
       "prezzoRiferimentoListino": 31.99,
@@ -3175,11 +3102,11 @@
           "confrontaPianoIncluso": true
         }
       ],
-      "scade": "2026-09-27",
+      "scade": "2026-11-22",
       "fonte": "Sky (fonte ufficiale italiana)",
       "link": "https://www.sky.it/tv/sky-tv",
-      "verificato": "2026-09-21",
-      "notaAudit": "Parte 9F: bundle attivo nel motore in modo prudenziale. Il prezzo promozionale copre l'intero orizzonte Hubbo di 12 mesi; il prezzo dopo il 18° mese non è fissato oggi e non viene inventato. Requisiti Sky Stream/metodo di pagamento restano da verificare, quindi la card non gonfia il risparmio certo finché Hubbo non può dimostrarli.",
+      "verificato": "2026-10-02",
+      "notaAudit": "16,99 EUR/mese per 18 mesi + attivazione 19 EUR. Prezzo dopo il mese 18 non fissato.",
       "minServizi": 2,
       "gruppoMotore": "sky-smart-da-attivare",
       "scadenzaBloccaMotore": true,
@@ -3193,10 +3120,10 @@
       "periodicitaCommerciale": "mensile",
       "motoreAttivo": true,
       "valuta": "EUR",
-      "prezzoPromozionale": 14.99,
+      "prezzoPromozionale": 16.99,
       "frequenzaPromozionale": "monthly",
       "durataPromozionaleMesi": 6,
-      "prezzoSuccessivo": 24.99,
+      "prezzoSuccessivo": 26.99,
       "frequenzaSuccessiva": "monthly",
       "prezzoRiferimentoListino": 50.99,
       "costoAttivazione": 19,
@@ -3231,7 +3158,7 @@
       ],
       "vincoloMesi": 18,
       "vincoli": [
-        "14,99 €/mese per i primi 6 mesi e 24,99 €/mese dal 7° al 18° mese, con permanenza minima Sky Smart di 18 mesi.",
+        "16,99 EUR/mese per 6 mesi, poi 26,99 EUR/mese dal 7° al 18° mese. Permanenza minima Sky Smart: 18 mesi.",
         "In caso di recesso anticipato può essere richiesta la restituzione degli sconti fruiti; dopo il 18° mese vale il prezzo Sky Open vigente allora."
       ],
       "serviziInclusi": [
@@ -3268,11 +3195,11 @@
           "confrontaPianoIncluso": false
         }
       ],
-      "scade": "2026-09-27",
+      "scade": "2026-11-22",
       "fonte": "Sky (fonte ufficiale italiana)",
       "link": "https://www.sky.it/tv/sky-cinema",
-      "verificato": "2026-09-21",
-      "notaAudit": "Parte 9F: bundle attivo nel motore. Il confronto a 12 mesi usa 6 mesi a 14,99 € + 6 mesi a 24,99 € + 19 € di attivazione; il prezzo oltre il 18° mese non serve all'orizzonte di 12 mesi e non viene inventato.",
+      "verificato": "2026-10-02",
+      "notaAudit": "Il confronto a 12 mesi usa 6 mesi a 16,99 EUR + 6 mesi a 26,99 EUR + attivazione 19 EUR. Prezzo dopo il mese 18 non fissato.",
       "minServizi": 2,
       "gruppoMotore": "sky-smart-da-attivare",
       "scadenzaBloccaMotore": true,
@@ -3463,7 +3390,7 @@
         "disponibile": false
       },
       "link": "https://www.netflix.com/account",
-      "verificato": "2026-09-05",
+      "verificato": "2026-10-02",
       "opzioni": [
         {
           "nome": "Standard con pubblicità",
@@ -3478,7 +3405,8 @@
           "prezzo": 19.99
         }
       ],
-      "opzioniVerificato": "2026-09-10"
+      "opzioniVerificato": "2026-10-02",
+      "fontePrezzi": "https://qr.netflix.com/it/title/81001887"
     },
     {
       "servizio": "Disney+",
@@ -3499,7 +3427,7 @@
         "disponibile": false
       },
       "link": "https://www.disneyplus.com/account",
-      "verificato": "2026-09-19",
+      "verificato": "2026-10-02",
       "opzioni": [
         {
           "nome": "Standard con pubblicità",
@@ -3514,45 +3442,56 @@
           "prezzo": 15.99
         }
       ],
-      "opzioniVerificato": "2026-09-19",
-      "fontePrezzi": "https://www.disneyplus.com/it-it",
+      "opzioniVerificato": "2026-10-02",
+      "fontePrezzi": "https://help.disneyplus.com/it/article/disneyplus-price",
       "listino": [
         {
           "nome": "Standard con pubblicità",
           "prezzo": 6.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://help.disneyplus.com/it/article/disneyplus-price"
         },
         {
           "nome": "Standard",
           "prezzo": 10.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://help.disneyplus.com/it/article/disneyplus-price"
         },
         {
           "nome": "Premium",
           "prezzo": 15.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://help.disneyplus.com/it/article/disneyplus-price"
         },
         {
           "nome": "Standard · annuale",
           "prezzo": 109.9,
           "frequenza": "annuale",
           "addebito": "annuale",
-          "vincoloMesi": 12
+          "vincoloMesi": 12,
+          "verificato": "2026-10-02",
+          "fonte": "https://help.disneyplus.com/it/article/disneyplus-price"
         },
         {
           "nome": "Premium · annuale",
           "prezzo": 159.9,
           "frequenza": "annuale",
           "addebito": "annuale",
-          "vincoloMesi": 12
+          "vincoloMesi": 12,
+          "verificato": "2026-10-02",
+          "fonte": "https://help.disneyplus.com/it/article/disneyplus-price"
         }
-      ]
+      ],
+      "listinoVerificato": "2026-10-02"
     },
     {
       "servizio": "Spotify",
@@ -3577,7 +3516,7 @@
         "prezzo": 6.49
       },
       "link": "https://www.spotify.com/account/subscription/",
-      "verificato": "2026-09-05",
+      "verificato": "2026-10-02",
       "opzioni": [
         {
           "nome": "Individual",
@@ -3596,7 +3535,17 @@
           "prezzo": 6.49
         }
       ],
-      "opzioniVerificato": "2026-09-10"
+      "opzioniVerificato": "2026-10-02",
+      "fontePrezzi": "https://www.spotify.com/it/premium/",
+      "provaGratuita": {
+        "disponibile": true,
+        "giorni": 30,
+        "poi": "11,99 EUR/mese (Individual)",
+        "piano": "Individual",
+        "nota": "Un mese per chi non ha mai provato Premium. La promozione Student di quattro mesi è separata e scade il 4 ottobre 2026.",
+        "link": "https://www.spotify.com/it/premium/",
+        "verificato": "2026-10-02"
+      }
     },
     {
       "servizio": "YouTube Premium",
@@ -3874,9 +3823,9 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "I piani TIMVISION corrispondono ai bundle commerciali ufficiali già censiti. Il selettore usa il prezzo ordinario; eventuali promo vanno registrate nel campo Offerta per non renderle permanenti nello storico.",
+      "nota": "I piani TIMVISION corrispondono ai pacchetti commerciali ufficiali. Il modulo usa il prezzo ordinario: se hai una promozione, indicala nel campo Offerta, così non diventa un prezzo fisso nello storico.",
       "link": "https://www.tim.it/offerte-tv",
-      "verificato": "2026-09-20",
+      "verificato": "2026-10-02",
       "fontePrezzi": "https://www.tim.it/offerte-tv",
       "listino": [
         {
@@ -3885,7 +3834,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Infinity+. Promo nuovi clienti TIMVISION: 8.00 €/mese per 12 mesi, poi 14.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Infinity+. Promo nuovi clienti TIMVISION: 8.00 €/mese per 12 mesi, poi 14.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-netflix"
         },
         {
           "nome": "TIMVISION M · annuale",
@@ -3893,7 +3844,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Infinity+. Promo nuovi clienti TIMVISION: 12.00 €/mese per 12 mesi, poi 18.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Infinity+. Promo nuovi clienti TIMVISION: 12.00 €/mese per 12 mesi, poi 18.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-disney"
         },
         {
           "nome": "TIMVISION L · annuale",
@@ -3901,7 +3854,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 14.00 €/mese per 12 mesi, poi 20.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 14.00 €/mese per 12 mesi, poi 20.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv"
         },
         {
           "nome": "TIMVISION S con DAZN Full · annuale",
@@ -3909,7 +3864,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 38.00 €/mese per 12 mesi, poi 46.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 38.00 €/mese per 12 mesi, poi 46.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION M con DAZN Full · annuale",
@@ -3917,7 +3874,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 42.00 €/mese per 12 mesi, poi 50.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 42.00 €/mese per 12 mesi, poi 50.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION L con DAZN Full · annuale",
@@ -3925,7 +3884,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 44.00 €/mese per 12 mesi, poi 52.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FULL), Infinity+. Promo nuovi clienti TIMVISION: 44.00 €/mese per 12 mesi, poi 52.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION S con DAZN MyClubPass · annuale",
@@ -3933,7 +3894,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 23.00 €/mese per 12 mesi, poi 39.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 23.00 €/mese per 12 mesi, poi 39.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION M con DAZN MyClubPass · annuale",
@@ -3941,7 +3904,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 27.00 €/mese per 12 mesi, poi 43.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 27.00 €/mese per 12 mesi, poi 43.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION L con DAZN MyClubPass · annuale",
@@ -3949,7 +3914,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 29.00 €/mese per 12 mesi, poi 45.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (MYCLUBPASS), Infinity+. Promo nuovi clienti TIMVISION: 29.00 €/mese per 12 mesi, poi 45.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION S con DAZN Family · annuale",
@@ -3957,7 +3924,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (FAMILY), Infinity+. Promo nuovi clienti TIMVISION: 53.00 €/mese per 12 mesi, poi 71.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), DAZN (FAMILY), Infinity+. Promo nuovi clienti TIMVISION: 53.00 €/mese per 12 mesi, poi 71.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION M con DAZN Family · annuale",
@@ -3965,7 +3934,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (FAMILY), Infinity+. Promo nuovi clienti TIMVISION: 57.00 €/mese per 12 mesi, poi 75.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), DAZN (FAMILY), Infinity+. Promo nuovi clienti TIMVISION: 57.00 €/mese per 12 mesi, poi 75.99 €/mese; adesione fino al 2026-10-24. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION L con DAZN Family · annuale",
@@ -3973,7 +3944,7 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FAMILY), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26. Vincolo commerciale: 12 mesi."
+          "nota": "Condizioni storiche; attivabilità e costo da confermare. La variante L con DAZN Family non è confermata tra le condizioni correnti consultate."
         },
         {
           "nome": "TIMVISION con DAZN Full e Prime · annuale",
@@ -3981,7 +3952,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: DAZN (FULL), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 19.99 €/mese per 3 mesi, poi 36.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Include TIMVISION Play, DAZN Full, Amazon Prime e Infinity+. Promo: 29,99 EUR/mese per 8 mesi, poi 36,99 EUR/mese. Impegno annuale, attivazione online gratuita, adesione entro 24/10/2026. Il selettore mantiene il prezzo ordinario: registrare la propria promo nel campo Offerta.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION con DAZN MyClubPass e Prime · annuale",
@@ -3989,7 +3962,7 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: DAZN (MYCLUBPASS), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 14.99 €/mese per 3 mesi, poi 29.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Condizioni storiche; attivabilità e costo da confermare. TIM mostra 24,99 EUR per 8 mesi e totale 319,88 EUR, ma nel dettaglio scrive 3 mesi: costi contraddittori. Nessuna durata viene dedotta come certa."
         },
         {
           "nome": "TIMVISION con DAZN Family e Prime · annuale",
@@ -3997,7 +3970,7 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 12,
-          "nota": "Include: DAZN (FAMILY), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Promo nuovi clienti TIMVISION: 49.99 €/mese per 6 mesi, poi 59.99 €/mese; adesione fino al 2026-09-26. Nel modulo Hubbo il prezzo del piano resta quello ordinario: se stai pagando la promo, attiva 'Offerta' e inserisci il prezzo e la data di fine effettivi. Vincolo commerciale: 12 mesi."
+          "nota": "Condizioni storiche; attivabilità e costo da confermare. La variante DAZN Family con Prime non è confermata tra le condizioni correnti consultate."
         },
         {
           "nome": "TIMVISION S · mensile",
@@ -4005,7 +3978,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 0,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-10-24.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-netflix"
         },
         {
           "nome": "TIMVISION M · mensile",
@@ -4013,7 +3988,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 0,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-10-24.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-disney"
         },
         {
           "nome": "TIMVISION L · mensile",
@@ -4021,7 +3998,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 0,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-10-24.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-netflix"
         },
         {
           "nome": "TIMVISION L con DAZN Full · mensile",
@@ -4029,7 +4008,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 0,
-          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FULL), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+          "nota": "Include: HBO Max (Base con pubblicità), Netflix (Standard con pubblicità), Disney+ (Standard con pubblicità), Amazon Prime (Prime (Prime Video con pubblicità)), DAZN (FULL), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-10-24.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         },
         {
           "nome": "TIMVISION con DAZN Full e Prime · mensile",
@@ -4037,7 +4018,9 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 0,
-          "nota": "Include: DAZN (FULL), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-09-26."
+          "nota": "Include: DAZN (FULL), Amazon Prime (Prime (Prime Video con pubblicità)), Infinity+. Condizioni commerciali verificate con adesione fino al 2026-10-24.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.tim.it/offerte-tv/timvision-dazn"
         }
       ]
     },
@@ -4055,8 +4038,8 @@
         "disponibile": false
       },
       "link": "https://www.nowtv.it/offerta-now",
-      "verificato": "2026-09-19",
-      "nota": "Prezzi di listino senza vincolo verificati sul sito NOW. Le offerte 12 mesi per nuovi clienti scadono/cambiano e saranno gestite come promozioni temporanee nella Parte 5.",
+      "verificato": "2026-10-02",
+      "nota": "Prezzi di listino senza vincolo, verificati sul sito NOW. Le offerte da 12 mesi per i nuovi clienti hanno una scadenza e possono cambiare: qui non sono incluse.",
       "fontePrezzi": "https://www.nowtv.it/offerta-now",
       "opzioni": [
         {
@@ -4069,7 +4052,7 @@
         },
         {
           "nome": "Cinema + Entertainment + Premium",
-          "prezzo": 19.99
+          "prezzo": 21.99
         },
         {
           "nome": "Sport",
@@ -4080,42 +4063,52 @@
           "prezzo": 41.99
         }
       ],
-      "opzioniVerificato": "2026-09-19",
+      "opzioniVerificato": "2026-10-02",
       "listino": [
         {
           "nome": "Entertainment",
           "prezzo": 8.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.nowtv.it/offerta-now"
         },
         {
           "nome": "Cinema + Entertainment",
           "prezzo": 11.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.nowtv.it/offerta-now"
         },
         {
           "nome": "Cinema + Entertainment + Premium",
-          "prezzo": 19.99,
+          "prezzo": 21.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.nowtv.it/offerta-now"
         },
         {
           "nome": "Sport",
           "prezzo": 29.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.nowtv.it/offerta-now"
         },
         {
           "nome": "Cinema + Entertainment + Sport",
           "prezzo": 41.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.nowtv.it/offerta-now"
         },
         {
           "nome": "Premium (add-on)",
@@ -4123,9 +4116,12 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 0,
-          "nota": "Prezzo di listino dell’opzione Premium; richiede un Pass NOW."
+          "nota": "Prezzo di listino dell’opzione Premium; richiede un Pass NOW.",
+          "verificato": "2026-10-02",
+          "fonte": "https://www.nowtv.it/offerta-now"
         }
-      ]
+      ],
+      "listinoVerificato": "2026-10-02"
     },
     {
       "servizio": "Amazon Prime",
@@ -4229,12 +4225,12 @@
         "giorni": 30,
         "poi": "11,99 €/mese (piano Individuale)",
         "nota": "Chi ha acquistato di recente un dispositivo o degli auricolari Apple idonei può ottenere fino a 3 mesi gratuiti invece di 1.",
-        "link": "https://www.apple.com/apple-music/",
-        "verificato": "2026-09-17"
+        "link": "https://www.apple.com/it/apple-music/",
+        "verificato": "2026-10-02"
       },
       "nota": "Dentro Apple One costa meno se usi anche iCloud+ e Apple TV+.",
       "link": "https://apps.apple.com/account/subscriptions",
-      "verificato": "2026-09-19",
+      "verificato": "2026-10-02",
       "opzioni": [
         {
           "nome": "Studenti",
@@ -4249,7 +4245,7 @@
           "prezzo": 19.99
         }
       ],
-      "opzioniVerificato": "2026-09-19",
+      "opzioniVerificato": "2026-10-02",
       "fontePrezzi": "https://www.apple.com/it/apple-music/",
       "listino": [
         {
@@ -4257,23 +4253,30 @@
           "prezzo": 6.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-music/"
         },
         {
           "nome": "Individuale",
           "prezzo": 11.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-music/"
         },
         {
           "nome": "Famiglia",
           "prezzo": 19.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-music/"
         }
-      ]
+      ],
+      "listinoVerificato": "2026-10-02"
     },
     {
       "servizio": "Apple TV+",
@@ -4294,28 +4297,31 @@
         "giorni": 7,
         "poi": "9,99 €/mese",
         "nota": "Per nuovi abbonati. Con un nuovo dispositivo Apple idoneo può essere disponibile una prova di 3 mesi, secondo i requisiti Apple.",
-        "link": "https://tv.apple.com/it",
-        "verificato": "2026-09-19"
+        "link": "https://www.apple.com/it/apple-tv/",
+        "verificato": "2026-10-02"
       },
       "link": "https://tv.apple.com/it",
-      "verificato": "2026-09-19",
-      "fontePrezzi": "https://www.apple.com/it/newsroom/2026/08/leagues-cup-kicks-off-tomorrow-august-4-on-apple-tv/",
+      "verificato": "2026-10-02",
+      "fontePrezzi": "https://www.apple.com/it/apple-tv/",
       "opzioni": [
         {
           "nome": "Apple TV",
           "prezzo": 9.99
         }
       ],
-      "opzioniVerificato": "2026-09-19",
+      "opzioniVerificato": "2026-10-02",
       "listino": [
         {
           "nome": "Apple TV",
           "prezzo": 9.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-tv/"
         }
-      ]
+      ],
+      "listinoVerificato": "2026-10-02"
     },
     {
       "servizio": "HBO Max",
@@ -4330,13 +4336,13 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Sbarcato in Italia il 13 gennaio 2026 (Warner Bros. Discovery), al posto di Discovery+: include contenuti HBO, Warner Bros., DC Universe, produzioni originali ed Eurosport. Pacchetto Sport aggiuntivo a 3 €/mese, su qualsiasi piano base.",
+      "nota": "Piani italiani HBO Max. Base con pubblicità: 6,99 EUR/mese; i costi di eventuali componenti aggiuntive vanno verificati separatamente.",
       "link": "https://www.hbomax.com/it/it",
-      "verificato": "2026-09-17",
+      "verificato": "2026-10-02",
       "opzioni": [
         {
           "nome": "Base con pubblicità",
-          "prezzo": 5.99
+          "prezzo": 6.99
         },
         {
           "nome": "Standard",
@@ -4347,7 +4353,8 @@
           "prezzo": 16.99
         }
       ],
-      "opzioniVerificato": "2026-09-17"
+      "opzioniVerificato": "2026-10-02",
+      "fontePrezzi": "https://www.hbomax.com/it/it"
     },
     {
       "servizio": "iCloud",
@@ -4526,10 +4533,10 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 30,
-        "poi": "10,00 €/mese o 99,00 €/anno (Personal); 13,00 €/mese o 129,00 €/anno (Family); 22,00 €/mese o 219,00 €/anno (Premium)",
+        "poi": "Prezzo del piano e del canale mostrato al momento dell’attivazione.",
         "nota": "Non disponibile per chi ha già avuto un abbonamento allo stesso piano.",
-        "link": "https://www.microsoft.com/it-it/microsoft-365",
-        "verificato": "2026-09-17"
+        "link": "https://www.microsoft.com/it-it/microsoft-365/try",
+        "verificato": "2026-10-02"
       },
       "link": "https://www.microsoft.com/it-it/microsoft-365/personal-family",
       "verificato": "2026-09-19",
@@ -4651,11 +4658,11 @@
         "poi": "il prezzo del piano scelto",
         "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
         "link": "https://www.adobe.com/it/creativecloud/free-trial-download.html",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02"
       },
       "link": "https://www.adobe.com/it/creativecloud/plans.html",
       "verificato": "2026-09-19",
-      "nota": "Creative Cloud Pro e Fotografia hanno un impegno annuale nei prezzi pubblici verificati; per questo non sono inseriti in `opzioni` del form corrente.",
+      "nota": "Creative Cloud Pro e Fotografia hanno un impegno annuale nei prezzi pubblici verificati: per questo non compaiono tra i piani selezionabili nel modulo.",
       "fontePrezzi": "https://www.adobe.com/it/creativecloud/plans.html",
       "listino": [
         {
@@ -4694,7 +4701,7 @@
         "poi": "il prezzo del piano scelto",
         "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
         "link": "https://www.adobe.com/it/products/photoshop/free-trial-download.html",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02"
       },
       "link": "https://www.adobe.com/it/products/photoshop.html",
       "verificato": "2026-09-19",
@@ -4727,13 +4734,13 @@
         "disponibile": true,
         "giorni": 30,
         "poi": "il prezzo del piano scelto (mensile o annuale)",
-        "nota": "Utilizzabile una sola volta per account.",
-        "link": "https://www.canva.com/it_it/canva-pro/",
-        "verificato": "2026-09-17"
+        "nota": "Prova per account idonei; Canva Pro è destinato a una sola persona.",
+        "link": "https://www.canva.com/it_it/prezzi/",
+        "verificato": "2026-10-02"
       },
       "link": "https://www.canva.com/it_it/pricing/",
       "verificato": "2026-09-19",
-      "nota": "Il prezzo visualizzato da Canva varia per località/account e non viene fissato nel catalogo senza un EUR Italia stabile verificabile.",
+      "nota": "Il prezzo mostrato da Canva cambia in base a località e account, quindi qui non è indicato un prezzo fisso in euro.",
       "listino": [
         {
           "nome": "Pro · App Store Italia",
@@ -4831,19 +4838,36 @@
         "disponibile": false
       },
       "link": "https://openai.com/chatgpt/pricing/",
-      "verificato": "2026-09-05",
-      "opzioni": [
+      "verificato": "2026-10-02",
+      "nota": "Prezzi in euro, IVA inclusa, come mostrati in Italia: Go 8 €/mese, Plus 23 €/mese. Su App Store e Google Play le tariffe possono essere diverse.",
+      "listino": [
         {
           "nome": "Go",
-          "prezzo": 8.0
+          "prezzo": 8.0,
+          "valuta": "EUR",
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Prezzo italiano IVA inclusa.",
+          "fonte": "https://www.zeusnews.it/n.php?c=31652",
+          "verificato": "2026-10-02",
+          "confrontoAutomatico": false
         },
         {
           "nome": "Plus",
-          "prezzo": 23.0
+          "prezzo": 23.0,
+          "valuta": "EUR",
+          "frequenza": "mensile",
+          "addebito": "mensile",
+          "vincoloMesi": 0,
+          "nota": "Prezzo italiano IVA inclusa (20 USD sul listino internazionale).",
+          "fonte": "https://www.zeusnews.it/n.php?c=31652",
+          "verificato": "2026-10-02",
+          "confrontoAutomatico": false
         }
       ],
-      "opzioniVerificato": "2026-09-17",
-      "nota": "Prezzo in dollari (20$ per Plus) convertito in euro con IVA italiana inclusa; Go ha invece un listino fisso per l'Italia."
+      "listinoVerificato": "2026-10-02",
+      "fontePrezzi": "https://www.zeusnews.it/n.php?c=31652"
     },
     {
       "servizio": "Claude Pro",
@@ -4931,9 +4955,9 @@
         "disponibile": true,
         "giorni": 7,
         "poi": "il prezzo del piano scelto",
-        "nota": "Solo su app mobile (iOS/Android); sul resto vale la garanzia di rimborso di 30 giorni, non una prova vera e propria.",
-        "link": "https://surfshark.com/vpn-free-trial",
-        "verificato": "2026-09-17"
+        "nota": "Per nuovi utenti: prova di 7 giorni tramite sottoscrizione di un piano da 12 o 24 mesi, secondo il canale e i requisiti del checkout. La garanzia di rimborso resta distinta dalla prova.",
+        "link": "https://surfshark.com/download",
+        "verificato": "2026-10-02"
       },
       "link": "https://my.surfshark.com/",
       "verificato": "2026-09-10",
@@ -5006,7 +5030,7 @@
       },
       "link": "https://www.xbox.com/it-IT/xbox-game-pass",
       "verificato": "2026-09-19",
-      "nota": "Tier correnti: Essential, Premium, PC Game Pass e Ultimate. Ultimate include anche Fortnite Crew, EA Play e Ubisoft+ Classics: le opportunità bundle saranno gestite nella Parte 6.",
+      "nota": "Livelli attuali: Essential, Premium, PC Game Pass e Ultimate. Ultimate include anche Fortnite Crew, EA Play e Ubisoft+ Classics.",
       "fontePrezzi": "https://www.xbox.com/it-IT/games/store/pc-game-pass/cfq7ttc0kgq8/0002",
       "opzioni": [
         {
@@ -5069,7 +5093,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Abbonamento mensile. La pagina ufficiale localizzata mostra 11,99 USD e avverte che il prezzo locale può dipendere dalla piattaforma: nessun EUR viene convertito o inventato. Incluso in Xbox Game Pass Ultimate secondo il listino Xbox corrente.",
+      "nota": "Abbonamento mensile. La pagina ufficiale mostra 11,99 USD e avverte che il prezzo locale può dipendere dalla piattaforma: per questo non è indicato un prezzo in euro. Incluso in Xbox Game Pass Ultimate secondo il listino Xbox attuale.",
       "link": "https://www.fortnite.com/fortnite-crew-subscription?lang=it",
       "fontePrezzi": "https://store.epicgames.com/it/p/fortnite",
       "verificato": "2026-09-19",
@@ -5215,10 +5239,10 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 30,
-        "poi": "9,99 €/mese o 59,99 €/anno",
-        "nota": "Nessun obbligo di rinnovo al termine della prova.",
+        "poi": "Prezzo del piano e del canale mostrato al momento dell’attivazione.",
+        "nota": "30 giorni di prova. Verificare rinnovo e condizioni nel proprio checkout; la pagina può localizzare prezzi e valuta.",
         "link": "https://www.strava.com/subscribe",
-        "verificato": "2026-09-17",
+        "verificato": "2026-10-02",
         "piano": "Individuale"
       },
       "link": "https://www.strava.com/settings",
@@ -5564,9 +5588,9 @@
         "disponibile": true,
         "giorni": 30,
         "poi": "il prezzo del piano scelto",
-        "nota": "Non esiste una versione gratuita permanente, solo la prova a tempo.",
+        "nota": "Sul sito italiano compare soprattutto la garanzia di rimborso di 30 giorni. La prova gratuita di 30 giorni, dove offerta, chiede la carta e si rinnova a pagamento se non disdetta almeno 7 giorni prima.",
         "link": "https://www.mcafee.com/it-it/antivirus.html",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02"
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://home.mcafee.com/",
@@ -5657,11 +5681,12 @@
         "giorni": 30,
         "poi": "il prezzo del piano Premium Security scelto",
         "link": "https://www.avast.com/it-it/premium-security",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02",
+        "nota": "Premium Security: 30 giorni su Windows senza carta di credito; il canale Mac propone una prova di 60 giorni con condizioni proprie. Non confondere con la garanzia di rimborso."
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://my.avast.com/",
-      "verificato": "2026-09-06",
+      "verificato": "2026-10-02",
       "pubblicita": {
         "disponibile": true,
         "nome": "Versione gratuita",
@@ -5678,7 +5703,7 @@
           "vincoloMesi": 12,
           "nota": "Rinnovo annuale ordinario; sconto del primo anno escluso.",
           "fonte": "https://www.avast.com/it-it/premium-security",
-          "verificato": "2026-09-23",
+          "verificato": "2026-10-02",
           "confrontoAutomatico": false
         },
         {
@@ -5690,16 +5715,16 @@
           "vincoloMesi": 12,
           "nota": "Rinnovo annuale ordinario; sconto del primo anno escluso.",
           "fonte": "https://www.avast.com/it-it/premium-security",
-          "verificato": "2026-09-23",
+          "verificato": "2026-10-02",
           "confrontoAutomatico": false
         }
       ],
-      "listinoVerificato": "2026-09-23",
+      "listinoVerificato": "2026-10-02",
       "fontePrezzi": "https://www.avast.com/it-it/premium-security",
       "notaPrezzi": "Tariffe del piano e del canale indicati. Controllare idoneità, quantità, imposte ed extra prima di applicare. Fonte e condizioni sono riportate in ogni riga.",
       "statoPrezzi": {
         "stato": "strutturato",
-        "aggiornato": "2026-09-23",
+        "aggiornato": "2026-10-02",
         "origine": "fonte-pubblica"
       }
     },
@@ -5719,9 +5744,10 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 30,
-        "poi": "59,99 €/anno primo anno per 10 dispositivi (34,99 €/anno un solo PC), piano Internet Security",
+        "poi": "Prezzo del piano e del canale mostrato al momento dell’attivazione.",
         "link": "https://www.avg.com/it-it/internet-security",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02",
+        "nota": "AVG Internet Security per PC: 30 giorni senza carta di credito. Prezzo finale da verificare nel checkout; garanzia di rimborso distinta dalla prova."
       },
       "nota": "Il primo anno è scontato, il rinnovo automatico va al prezzo di listino: spesso il doppio o il triplo. Controlla prima della scadenza.",
       "link": "https://my.avg.com/",
@@ -5759,7 +5785,7 @@
         "link": "https://www.eset.com/it/home/",
         "verificato": "2026-09-17"
       },
-      "nota": "Il catalogo registra solo la configurazione verificata direttamente; sconti e bundle ulteriori restano fuori finché non sono univoci.",
+      "nota": "Sono indicate solo le configurazioni verificate direttamente; eventuali sconti e pacchetti aggiuntivi non sono inclusi.",
       "link": "https://www.eset.com/it/privati/protection-plans/",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.eset.com/it/privati/protection-plans/",
@@ -5901,7 +5927,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "In Hubbo Italia Prime Video è trattato come beneficio incluso in Amazon Prime e non viene proposto come nuovo abbonamento autonomo. La voce resta nel catalogo per compatibilità con dati storici già salvati.",
+      "nota": "In Italia Prime Video è incluso in Amazon Prime e non viene proposto come abbonamento separato. La voce resta disponibile per i dati già salvati in precedenza.",
       "link": "https://www.amazon.it/gp/primecentral",
       "verificato": "2026-09-09",
       "inclusoIn": "Amazon Prime",
@@ -6357,7 +6383,7 @@
         "poi": "il prezzo del piano Premium scelto",
         "nota": "Non richiede carta di credito per iniziare.",
         "link": "https://trello.com/it/free-trial",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02"
       },
       "famiglia": {
         "disponibile": false
@@ -6562,11 +6588,12 @@
         "disponibile": true,
         "giorni": 14,
         "poi": "3,99 $/mese piano Individuale o 5,99 $/mese piano Famiglie (prezzo mostrato in valuta locale al momento dell'attivazione)",
-        "link": "https://1password.com/it/pricing",
-        "verificato": "2026-09-17"
+        "link": "https://1password.com/it/personal-family-security",
+        "verificato": "2026-10-02",
+        "nota": "Individual e Families: prova di 14 giorni. Le condizioni di fatturazione possono dipendere da paese, canale e offerta di iscrizione. Lo sconto iniziale web dura un anno e non è il prezzo di rinnovo."
       },
       "link": "https://my.1password.com/",
-      "verificato": "2026-09-09",
+      "verificato": "2026-10-02",
       "listino": [
         {
           "nome": "Individual · rinnovo standard · annuale",
@@ -6576,8 +6603,8 @@
           "addebito": "annuale",
           "vincoloMesi": 12,
           "nota": "Tariffa ordinaria annuale: 3,99 USD × 12; sconto iniziale escluso. Imposte da verificare.",
-          "fonte": "https://1password.com/pricing/personal",
-          "verificato": "2026-09-23",
+          "fonte": "https://1password.com/it/personal-family-security",
+          "verificato": "2026-10-02",
           "confrontoAutomatico": false
         },
         {
@@ -6588,17 +6615,17 @@
           "addebito": "annuale",
           "vincoloMesi": 12,
           "nota": "Tariffa ordinaria annuale: 5,99 USD × 12; sconto iniziale escluso. Imposte da verificare.",
-          "fonte": "https://1password.com/pricing/personal",
-          "verificato": "2026-09-23",
+          "fonte": "https://1password.com/it/personal-family-security",
+          "verificato": "2026-10-02",
           "confrontoAutomatico": false
         }
       ],
-      "listinoVerificato": "2026-09-23",
-      "fontePrezzi": "https://1password.com/pricing/personal",
+      "listinoVerificato": "2026-10-02",
+      "fontePrezzi": "https://1password.com/it/personal-family-security",
       "notaPrezzi": "Tariffe del piano e del canale indicati. Controllare idoneità, quantità, imposte ed extra prima di applicare. Fonte e condizioni sono riportate in ogni riga.",
       "statoPrezzi": {
         "stato": "strutturato",
-        "aggiornato": "2026-09-23",
+        "aggiornato": "2026-10-02",
         "origine": "fonte-pubblica"
       }
     },
@@ -6671,7 +6698,8 @@
         "giorni": 30,
         "poi": "il prezzo del piano Premium o Families scelto",
         "link": "https://www.lastpass.com/it/pricing",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02",
+        "nota": "Piani personali Premium/Families: 30 giorni senza carta di credito; alla fine si può scegliere un piano a pagamento o proseguire con Free."
       },
       "link": "https://lastpass.com/",
       "verificato": "2026-09-09",
@@ -6705,7 +6733,7 @@
           "frequenza": "mensile",
           "addebito": "mensile",
           "vincoloMesi": 0,
-          "nota": "Per singolo utente, consumi Actions/Codespaces esclusi; imposte da verificare al pagamento.",
+          "nota": "Per singolo utente. Sulla pagina ufficiale i 4 USD sono indicati «per i primi 12 mesi»: il prezzo successivo va controllato. Consumi Actions/Codespaces esclusi; imposte al pagamento.",
           "fonte": "https://docs.github.com/en/get-started/learning-about-github/faq-about-changes-to-githubs-plans",
           "verificato": "2026-09-23",
           "confrontoAutomatico": false
@@ -6729,10 +6757,10 @@
       "provaGratuita": {
         "disponibile": true,
         "giorni": 7,
-        "poi": "7 $/mese o 60 $/anno (piano Pro)",
+        "poi": "7 €/mese o 60 €/anno (piano Pro)",
         "nota": "Una sola prova per account; il piano Business ha invece 14 giorni di prova.",
-        "link": "https://www.todoist.com/help/articles/start-a-todoist-pro-trial-LAVIT1Xm3",
-        "verificato": "2026-09-17"
+        "link": "https://www.todoist.com/help/account-and-billing/plans/start-a-todoist-pro-trial-LAVIT1Xm3",
+        "verificato": "2026-10-02"
       },
       "famiglia": {
         "disponibile": false
@@ -7206,8 +7234,8 @@
         "giorni": 15,
         "poi": "9 $/mese (backup illimitato)",
         "nota": "Non richiede un metodo di pagamento per iniziare.",
-        "link": "https://www.backblaze.com/cloud-backup/personal/free-trial",
-        "verificato": "2026-09-17"
+        "link": "https://www.backblaze.com/cloud-backup/personal",
+        "verificato": "2026-10-02"
       },
       "famiglia": {
         "disponibile": false
@@ -7216,7 +7244,7 @@
         "disponibile": false
       },
       "link": "https://www.backblaze.com/",
-      "verificato": "2026-09-09",
+      "verificato": "2026-10-02",
       "listino": [
         {
           "nome": "Computer Backup · 1 computer",
@@ -7226,8 +7254,8 @@
           "addebito": "mensile",
           "vincoloMesi": 0,
           "nota": "Per computer; imposte da verificare. Archiviazione B2 a consumo esclusa.",
-          "fonte": "https://www.backblaze.com/partners/msp-guide-faq",
-          "verificato": "2026-09-23",
+          "fonte": "https://www.backblaze.com/cloud-backup/personal",
+          "verificato": "2026-10-02",
           "confrontoAutomatico": false
         },
         {
@@ -7238,17 +7266,17 @@
           "addebito": "annuale",
           "vincoloMesi": 12,
           "nota": "Per computer; imposte da verificare. Archiviazione B2 a consumo esclusa.",
-          "fonte": "https://www.backblaze.com/partners/msp-guide-faq",
-          "verificato": "2026-09-23",
+          "fonte": "https://www.backblaze.com/cloud-backup/personal",
+          "verificato": "2026-10-02",
           "confrontoAutomatico": false
         }
       ],
-      "listinoVerificato": "2026-09-23",
-      "fontePrezzi": "https://www.backblaze.com/partners/msp-guide-faq",
+      "listinoVerificato": "2026-10-02",
+      "fontePrezzi": "https://www.backblaze.com/cloud-backup/personal",
       "notaPrezzi": "Tariffe del piano e del canale indicati. Controllare idoneità, quantità, imposte ed extra prima di applicare. Fonte e condizioni sono riportate in ogni riga.",
       "statoPrezzi": {
         "stato": "strutturato",
-        "aggiornato": "2026-09-23",
+        "aggiornato": "2026-10-02",
         "origine": "fonte-pubblica"
       }
     },
@@ -7464,7 +7492,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Piani Free, Performance e Ultimate. Performance/Ultimate hanno formule a durata estesa; il vecchio testo sui blocchi da 6 mesi era obsoleto.",
+      "nota": "Piani Free, Performance e Ultimate. Performance e Ultimate hanno formule a durata estesa.",
       "link": "https://www.nvidia.com/it-it/geforce-now/",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.nvidia.com/it-it/geforce-now/faq/",
@@ -7671,7 +7699,7 @@
       },
       "nota": "Incluso nei piani Apple One.",
       "link": "https://www.apple.com/it/apple-arcade/",
-      "verificato": "2026-09-19",
+      "verificato": "2026-10-02",
       "fontePrezzi": "https://www.apple.com/it/apple-arcade/",
       "opzioni": [
         {
@@ -7679,23 +7707,28 @@
           "prezzo": 6.99
         }
       ],
-      "opzioniVerificato": "2026-09-19",
+      "opzioniVerificato": "2026-10-02",
       "listino": [
         {
           "nome": "Mensile",
           "prezzo": 6.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-arcade/"
         },
         {
           "nome": "Annuale",
           "prezzo": 49.99,
           "frequenza": "annuale",
           "addebito": "annuale",
-          "vincoloMesi": 12
+          "vincoloMesi": 12,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-arcade/"
         }
-      ]
+      ],
+      "listinoVerificato": "2026-10-02"
     },
     {
       "servizio": "Apple Fitness+",
@@ -7718,35 +7751,40 @@
         "poi": "9,99 €/mese o 79,99 €/anno",
         "nota": "Prima iscrizione: 1 mese gratuito. Con un dispositivo Apple idoneo e i requisiti previsti, 3 mesi gratuiti.",
         "link": "https://www.apple.com/it/apple-fitness-plus/",
-        "verificato": "2026-09-19"
+        "verificato": "2026-10-02"
       },
       "nota": "Incluso in Apple One Premium.",
       "link": "https://www.apple.com/it/apple-fitness-plus/",
       "fontePrezzi": "https://www.apple.com/it/apple-fitness-plus/",
-      "verificato": "2026-09-19",
+      "verificato": "2026-10-02",
       "opzioni": [
         {
           "nome": "Mensile",
           "prezzo": 9.99
         }
       ],
-      "opzioniVerificato": "2026-09-19",
+      "opzioniVerificato": "2026-10-02",
       "listino": [
         {
           "nome": "Mensile",
           "prezzo": 9.99,
           "frequenza": "mensile",
           "addebito": "mensile",
-          "vincoloMesi": 0
+          "vincoloMesi": 0,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-fitness-plus/"
         },
         {
           "nome": "Annuale",
           "prezzo": 79.99,
           "frequenza": "annuale",
           "addebito": "annuale",
-          "vincoloMesi": 12
+          "vincoloMesi": 12,
+          "verificato": "2026-10-02",
+          "fonte": "https://www.apple.com/it/apple-fitness-plus/"
         }
-      ]
+      ],
+      "listinoVerificato": "2026-10-02"
     },
     {
       "servizio": "Google Play Pass",
@@ -7764,7 +7802,7 @@
       },
       "link": "https://play.google.com/store/account/subscriptions",
       "verificato": "2026-09-19",
-      "nota": "Prezzi non strutturati in questa fase: il catalogo evita di importare valori in valuta/mercato non chiaramente italiano.",
+      "nota": "Prezzi non indicati: non c'è un listino italiano chiaro e verificabile.",
       "statoPrezzi": {
         "stato": "da-verificare",
         "motivo": "Prezzo ricorrente, valuta e durata non verificati insieme da una fonte ufficiale accessibile. Scheda ancora incompleta; richiede controllo del listino/checkout.",
@@ -7861,7 +7899,7 @@
         "poi": "il prezzo del piano scelto",
         "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
         "link": "https://www.adobe.com/it/products/photoshop-lightroom/free-trial-download.html",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02"
       },
       "link": "https://www.adobe.com/it/products/photoshop-lightroom/plans.html",
       "verificato": "2026-09-19",
@@ -7903,7 +7941,7 @@
         "poi": "il prezzo del piano scelto",
         "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
         "link": "https://www.adobe.com/it/products/premiere/free-trial-download.html",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02"
       },
       "link": "https://www.adobe.com/it/creativecloud/plans.html",
       "verificato": "2026-09-19",
@@ -7937,7 +7975,7 @@
         "poi": "il prezzo del piano scelto",
         "nota": "Dopo i 7 giorni di prova restano altri 14 giorni per annullare con rimborso completo (fonte ufficiale: adobe.com).",
         "link": "https://www.adobe.com/it/products/illustrator/free-trial-download.html",
-        "verificato": "2026-09-17"
+        "verificato": "2026-10-02"
       },
       "link": "https://www.adobe.com/it/products/illustrator/plans.html",
       "verificato": "2026-09-19",
@@ -8453,7 +8491,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Piani Google AI in evoluzione. Nessun prezzo EUR inserito finché il checkout/pagina Italia non espone valori e capacità in modo coerente; evitare conversioni da USD o altri mercati.",
+      "nota": "Piani Google AI in evoluzione. Il prezzo in euro non è indicato finché la pagina italiana non mostra valori e funzioni in modo chiaro.",
       "link": "https://one.google.com/intl/it_it/about/google-ai-plans/",
       "verificato": "2026-09-19",
       "statoPrezzi": {
@@ -9678,7 +9716,10 @@
         "nota": "L'annuale costa sensibilmente meno di dodici mensilità."
       },
       "famiglia": {
-        "disponibile": false
+        "disponibile": true,
+        "persone": 4,
+        "nome": "Famiglia",
+        "nota": "Solo annuale, fino a quattro account."
       },
       "studenti": {
         "disponibile": false
@@ -9720,6 +9761,18 @@
           "nota": "Riservato agli studenti universitari con idoneità da verificare.",
           "fonte": "https://info.ilpost.it/hc/it/articles/4935039600273-Come-mi-abbono-al-Post",
           "verificato": "2026-09-23",
+          "confrontoAutomatico": false
+        },
+        {
+          "nome": "Famiglia · annuale",
+          "prezzo": 170.0,
+          "valuta": "EUR",
+          "frequenza": "annuale",
+          "addebito": "annuale",
+          "vincoloMesi": 12,
+          "nota": "Solo annuale, fino a quattro account.",
+          "fonte": "https://info.ilpost.it/hc/it/articles/35167983573394-L-abbonamento-Famiglia-come-funziona",
+          "verificato": "2026-10-02",
           "confrontoAutomatico": false
         }
       ],
@@ -10516,7 +10569,7 @@
         "link": "https://www.adobe.com/it/acrobat/pricing/pricing.html",
         "verificato": "2026-09-19"
       },
-      "nota": "Le eventuali promo per nuovi abbonati sono escluse dai prezzi stabili e saranno gestite in `offerte` nella Parte 5.",
+      "nota": "Le eventuali promozioni per i nuovi abbonati non sono comprese nei prezzi indicati.",
       "link": "https://www.adobe.com/it/acrobat/pricing/pricing.html",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.adobe.com/it/acrobat/pricing/pricing.html",
@@ -11141,7 +11194,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "HubSpot espone EUR, ma il totale cambia per Hub, seat, contatti, onboarding e crediti. Nessun importo unico viene usato dal motore Risparmio.",
+      "nota": "HubSpot mostra i prezzi in euro, ma il totale cambia in base a Hub, utenti, contatti, onboarding e crediti: per questo non è indicato un importo unico.",
       "link": "https://www.hubspot.com/pricing/bundle?currencyCode=EUR",
       "verificato": "2026-09-19",
       "statoPrezzi": {
@@ -11253,7 +11306,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Rinnovi annuali per le estensioni più comuni; importi IVA esclusa. Le promo primo anno con scadenza sono escluse e saranno trattate nella Parte 5.",
+      "nota": "Rinnovi annuali per le estensioni più comuni; importi IVA esclusa. Le promozioni del primo anno, che hanno una scadenza, non sono comprese.",
       "link": "https://www.aruba.it/listino-hosting.aspx",
       "verificato": "2026-09-19",
       "listino": [
@@ -11303,7 +11356,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "La localizzazione del listino può cambiare valuta e le offerte iniziali differiscono dai rinnovi; nessun prezzo unico viene fissato nel catalogo stabile.",
+      "nota": "Il listino può cambiare valuta in base alla località e le offerte iniziali sono diverse dai rinnovi: per questo non è indicato un prezzo unico.",
       "link": "https://www.godaddy.com/it/hosting/web-hosting",
       "verificato": "2026-09-19",
       "statoPrezzi": {
@@ -11720,7 +11773,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Prezzi ufficiali EUR per utente. `opzioni` usa solo il flessibile senza impegno annuale; l’impegno annuale resta nel listino.",
+      "nota": "Prezzi ufficiali in euro per utente. Nel modulo è proposto il piano flessibile, senza impegno annuale; l’impegno annuale è indicato nel listino.",
       "link": "https://workspace.google.com/intl/it/business/",
       "verificato": "2026-09-19",
       "provaGratuita": {
@@ -11808,7 +11861,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Listino mobile TIM verificato. TIM Mobile Digital è mostrata oggi in promo a 9,99 €/mese ma il prezzo di riferimento barrato è 12,99 €; la promo corrente resta fuori dal listino stabile e sarà gestita nella Parte 5.",
+      "nota": "Listino mobile TIM verificato. TIM Mobile Digital è oggi in promozione a 9,99 €/mese (prezzo di riferimento 12,99 €): la promozione non è inclusa nel listino.",
       "link": "https://www.tim.it/fisso-e-mobile/mobile",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.tim.it/fisso-e-mobile/mobile",
@@ -11873,7 +11926,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Prezzi di riferimento TIM: le riduzioni attive fino al 26/09/2026 sono promozioni e non vengono mescolate al listino stabile. L’opzione Fibra 10 GIGA aggiunge 5 €/mese.",
+      "nota": "Prezzi di riferimento TIM: le riduzioni temporanee sono promozioni e non sono incluse nel listino. L’opzione Fibra 10 GIGA aggiunge 5 €/mese.",
       "link": "https://www.tim.it/fisso-e-mobile/fibra-e-adsl/fibra-internet-casa",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.tim.it/fisso-e-mobile/fibra-e-adsl/fibra-internet-casa",
@@ -11983,7 +12036,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Canoni base rete fissa Vodafone. Sconti Casa+Mobile e altre promo sono condizioni separate e saranno trattati nella Parte 5/opportunità combinate.",
+      "nota": "Canoni base della rete fissa Vodafone. Gli sconti Casa+Mobile e le altre promozioni sono condizioni separate e non sono incluse.",
       "link": "https://privati.vodafone.it/casa/fibra",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://privati.vodafone.it/casa/fibra",
@@ -12123,7 +12176,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Sono incluse solo offerte sottoscrivibili senza una data di fine pubblicata. TOP 230 a 9,99 € termina il 29/10/2026 e viene rimandata alla Parte 5 come offerta temporanea.",
+      "nota": "Sono indicate solo le offerte senza data di fine. L’offerta TOP 230 a 9,99 € termina il 29/10/2026 ed è trattata come offerta temporanea.",
       "link": "https://www.iliad.it/trasparenza-tariffaria-mobile.html",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.iliad.it/trasparenza-tariffaria-mobile.html",
@@ -12431,7 +12484,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Scheda censita ma senza opzioni stabili: le offerte pubbliche correnti sono fortemente promozionali/target e cambiano con scadenze ravvicinate. Saranno trattate nella Parte 5.",
+      "nota": "Non sono indicati piani fissi: le offerte pubbliche attuali sono promozionali o riservate a particolari clienti e cambiano spesso, con scadenze ravvicinate.",
       "link": "https://www.postemobile.it/offerte-privati",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.postemobile.it/offerte-privati",
@@ -12454,7 +12507,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Scheda censita ma senza opzioni stabili: i prezzi mobile correnti sono legati a provenienza/portabilità, iniziative online e countdown. Niente canone “universale” inventato; Parte 5 gestirà le promo.",
+      "nota": "Non sono indicati piani fissi: i prezzi mobile dipendono dall’operatore di provenienza, dalla portabilità e da iniziative online a tempo.",
       "link": "https://www.ho-mobile.it/",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.ho-mobile.it/",
@@ -12629,7 +12682,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Fasce di canone ricorrente censite; Giga e accessibilità dipendono dall’offerta e dall’operatore di provenienza. Il nome evita di attribuire un bundle universale dove non esiste.",
+      "nota": "Sono indicate le fasce di canone ricorrente; Giga e condizioni dipendono dall’offerta e dall’operatore di provenienza.",
       "link": "https://verymobile.it/offerte/",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://verymobile.it/offerte/",
@@ -12772,7 +12825,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Canoni ordinari “salvo promozioni”. Le promozioni attuali (mesi/anno gratis) non alterano il listino stabile e saranno censite nella Parte 5.",
+      "nota": "Canoni ordinari, salvo promozioni. Le promozioni attuali (mesi o anno gratis) non sono incluse.",
       "link": "https://www.telepass.com/it/privati/offerte",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.telepass.com/it/privati/offerte",
@@ -12845,7 +12898,7 @@
       "studenti": {
         "disponibile": false
       },
-      "nota": "Canoni ordinari dopo la promozione: Base 2,50 €/mese, Europeo 2,90 €/mese. Il primo anno gratis e gli sconti di attivazione in corso hanno scadenza e sono rimandati alla Parte 5.",
+      "nota": "Canoni ordinari dopo la promozione: Base 2,50 €/mese, Europeo 2,90 €/mese. Il primo anno gratis e gli sconti di attivazione hanno una scadenza e non sono inclusi.",
       "link": "https://www.unipolmove.it/piani/privati/",
       "verificato": "2026-09-19",
       "fontePrezzi": "https://www.unipolmove.it/piani/privati/",
@@ -15405,6 +15458,10 @@
           {
             "id": "plan-il-post-studenti-annuale",
             "nome": "Studenti · annuale"
+          },
+          {
+            "id": "plan-il-post-famiglia-annuale",
+            "nome": "Famiglia · annuale"
           }
         ]
       },

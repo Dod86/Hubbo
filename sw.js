@@ -1,5 +1,5 @@
 // Bump this string whenever you upload a new version of the app.
-const CACHE = "hubbo-v319";
+const CACHE = "hubbo-v349";
 
 const CORE = [
   "./",
@@ -11,6 +11,10 @@ const CORE = [
   "./offerte.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  // v330: caratteri inclusi (prima venivano da Google Fonts)
+  "./fonts/fraunces-latin-opsz.woff2",
+  "./fonts/inter-latin-wght.woff2",
+  "./fonts/jetbrains-mono-latin-wght.woff2",
   "./icons/icon-maskable-512.png",
 ];
 
