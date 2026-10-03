@@ -732,7 +732,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
 const APP_VERSION = "v350";
-const APP_BUILD_DATE = "2026-10-03";
+const APP_BUILD_DATE = "2026-10-04";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -4717,6 +4717,23 @@ function costOn(sub, iso) {
 // subscription started from.
 function inPromo(sub, iso) {
   return !!(sub && sub.promoUntil && iso && iso < sub.promoUntil);
+}
+
+// v350 — l'importo davvero pagato durante l'offerta, letto dai pagamenti
+// registrati (il più frequente). Serve quando il prezzo scontato salvato manca
+// o è zero: lo Storico prezzi mostrava «offerta 3,99» (dai pagamenti) mentre
+// il modulo Modifica apriva il campo a zero — segnalato da Erny il 4/10 su Disney+.
+function promoPaidAmount(sub, payments) {
+  if (!sub || !sub.promoUntil) return null;
+  const counts = new Map();
+  (payments || []).forEach((p) => {
+    if (p.subId !== sub.id || p.extra || p.status === "skipped" || !p.date || p.date >= sub.promoUntil) return;
+    if (!(typeof p.amount === "number" && p.amount > 0)) return;
+    counts.set(p.amount, (counts.get(p.amount) || 0) + 1);
+  });
+  let best = null;let bestN = 0;
+  counts.forEach((n, amount) => {if (n > bestN) {best = amount;bestN = n;}});
+  return best;
 }
 
 // Il nome scelto dal catalogo può arrivare fino a qui con un numero in più:
@@ -9669,6 +9686,11 @@ function HubboApp() {
   // sull'azione più seria dell'app.
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  // v350 — campo da mettere a fuoco SOLO quando l'utente accende l'interruttore
+  // (offerta, scadenza, condiviso). Con autoFocus fisso, aprendo un abbonamento
+  // che aveva già un'offerta il modulo saltava in fondo con la data selezionata
+  // (segnalato da Erny il 3/10 su Disney+).
+  const [formFocusField, setFormFocusField] = useState(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   // Cosa ha appena corretto reconcileCycleDates, se qualcosa — null quando
@@ -10707,6 +10729,7 @@ function HubboApp() {
     setDateAutoFixNote(null);
     setPickerOpen(false);
     setServiceSearch("");
+    setFormFocusField(null);
     setShowForm(true);
   }
 
@@ -10802,6 +10825,7 @@ function HubboApp() {
     setDateAutoFixNote(null);
     setPickerOpen(false);
     setServiceSearch("");
+    setFormFocusField(null);
     setShowForm(true);
   }
 
@@ -10979,9 +11003,12 @@ function HubboApp() {
       // il campo con scritto letteralmente "null" — segnalato da Erny il
       // 17 settembre. Resta vuoto, come un'offerta di cui va solo
       // riscritto l'importo, non tolta.
-      promoDiscount: sub.promoUntil && sub.promoCost != null ?
-      String(sub.sharedTotalCost != null ? sub.promoCost * (sub.sharedPeople || 1) : sub.promoCost) :
-      "",
+      promoDiscount: (() => {
+        if (!sub.promoUntil) return "";
+        const saved = sub.promoCost != null && sub.promoCost > 0 ? sub.promoCost : promoPaidAmount(sub, payments);
+        if (saved == null) return "";
+        return String(sub.sharedTotalCost != null ? Math.round(saved * (sub.sharedPeople || 1) * 100) / 100 : saved);
+      })(),
       promoUntil: sub.promoUntil || "",
       currency: sub.currency || settings.currency,
       frequency: sub.frequency,
@@ -11000,6 +11027,7 @@ function HubboApp() {
     setDateAutoFixNote(null);
     setPickerOpen(false);
     setServiceSearch("");
+    setFormFocusField(null);
     setShowForm(true);
   }
 
@@ -16334,7 +16362,7 @@ function HubboApp() {
       onClick: openDatePicker,
       style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
       className: "w-full rounded-xl px-3 py-2.5 text-sm outline-none",
-      autoFocus: true }
+      autoFocus: formFocusField === "end" }
     )
     ) : /*#__PURE__*/
 
@@ -16342,7 +16370,7 @@ function HubboApp() {
     React.createElement(ScrollingLabel, { style: { color: "transparent" }, className: "text-xs mb-1.5" }, "\\xB7"), /*#__PURE__*/
     React.createElement("button", {
       type: "button",
-      onClick: () => setForm({ ...form, hasEndDate: true }),
+      onClick: () => {setFormFocusField("end");setForm({ ...form, hasEndDate: true });},
       style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textSecondary },
       className: "w-full h-[42px] rounded-xl px-3 text-[13px] leading-tight text-left flex items-center" },
 
@@ -16402,7 +16430,7 @@ function HubboApp() {
     React.createElement("div", { style: { background: colors.surface2, border: \`1px solid \${colors.border}\` }, className: "rounded-xl overflow-hidden mb-3.5" }, /*#__PURE__*/
     React.createElement("button", {
       type: "button",
-      onClick: () => setForm({ ...form, isShared: !form.isShared }),
+      onClick: () => {setFormFocusField(form.isShared ? null : "shared");setForm({ ...form, isShared: !form.isShared });},
       className: "w-full px-3.5 py-3 flex items-center justify-between text-sm" }, /*#__PURE__*/
 
     React.createElement("span", { style: { color: colors.textPrimary } }, t.sharedOption), /*#__PURE__*/
@@ -16429,7 +16457,7 @@ function HubboApp() {
     ), /*#__PURE__*/
     React.createElement("button", {
       type: "button",
-      onClick: () => setForm({ ...form, hasPromo: !form.hasPromo }),
+      onClick: () => {setFormFocusField(form.hasPromo ? null : "promo");setForm({ ...form, hasPromo: !form.hasPromo });},
       style: { borderTop: \`1px solid \${colors.border}\` },
       className: "w-full px-3.5 py-3 flex items-center justify-between text-sm" }, /*#__PURE__*/
 
@@ -16479,7 +16507,7 @@ function HubboApp() {
       type: "number", min: "2", step: "1",
       style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary, fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" },
       className: "w-full rounded-xl px-3.5 py-2.5 text-sm mb-1.5 outline-none",
-      autoFocus: true }
+      autoFocus: formFocusField === "shared" }
     ),
     form.cost && form.peopleCount && parseInt(form.peopleCount, 10) >= 2 && /*#__PURE__*/
     React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs" },
@@ -16528,7 +16556,7 @@ function HubboApp() {
       onClick: openDatePicker,
       style: { background: colors.surface2, border: \`1px solid \${colors.border}\`, color: colors.textPrimary },
       className: "w-full rounded-xl px-3 py-2.5 text-sm outline-none",
-      autoFocus: true }
+      autoFocus: formFocusField === "promo" }
     )
     ), /*#__PURE__*/
     React.createElement("div", { className: "flex-1 min-w-0" }, /*#__PURE__*/
@@ -18994,6 +19022,5 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-<script src="capacitor-bridge.js"></script>
 </body>
 </html>
