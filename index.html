@@ -330,7 +330,10 @@ const THEMES = {
     // uno sfondo già scuro — richiesta da Erny il 10 settembre, per le
     // card di contenuto (non le schede a comparsa, che si staccano già
     // dalla sovrapposizione con lo sfondo attenuato).
-    cardShadow: "0 1px 2px rgba(0,0,0,0.20), 0 6px 16px rgba(0,0,0,0.24)"
+    // v350 — più netta e più corta (versione B del confronto, scelta da Erny
+    // il 3/10), alla pari con l'ombra interna del buco dell'anello
+    // (Erny, 3 ottobre: "uniformare le ombre di tutte le card").
+    cardShadow: "0 1px 2px rgba(0,0,0,0.45), 0 3px 10px rgba(0,0,0,0.40)"
   },
   light: {
     bg: "#F6F5F2",
@@ -349,7 +352,8 @@ const THEMES = {
     textOnGradient: "#51483C",
     textFaint: "#A39B8C",
     overlay: "rgba(30,26,20,0.45)",
-    cardShadow: "0 1px 2px rgba(30,26,20,0.06), 0 6px 16px rgba(30,26,20,0.08)"
+    // v350 — più netta e più corta (versione B, scelta da Erny il 3/10).
+    cardShadow: "0 1px 2px rgba(60,40,20,0.14), 0 3px 10px rgba(60,40,20,0.12)"
   }
 };
 
@@ -506,8 +510,10 @@ function serviceCardBackground(ringColor, colors, light) {
   };
   if (!base || !rgb) return style;
   const grey = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
-  const tint = rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.50 - base[i]) * (light ? 0.19 : 0.21)));
-  style.backgroundImage = \`linear-gradient(90deg, rgb(\${tint.join(",")}) 0%, \${colors.surface} 78%)\`;
+  // v350 — nel tema chiaro la sfumatura è dimezzata e si ferma a metà card
+  // (lista più leggera); nel tema scuro resta com'era (Erny, 3 ottobre).
+  const tint = rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.50 - base[i]) * (light ? 0.095 : 0.21)));
+  style.backgroundImage = \`linear-gradient(90deg, rgb(\${tint.join(",")}) 0%, \${colors.surface} \${light ? 55 : 78}%)\`;
   return style;
 }
 
@@ -724,7 +730,7 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v349";
+const APP_VERSION = "v350";
 const APP_BUILD_DATE = "2026-10-03";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
@@ -1431,6 +1437,13 @@ const ANIMATIONS = \`
   72% { opacity: 1; transform: scale(1.1); }
   100% { opacity: 1; transform: scale(1); }
 }
+/* v350 — legenda a pagine: le righe vecchie e quelle nuove scorrono insieme,
+   stessa distanza e stessa durata, come un nastro (Erny, 3 ottobre). */
+@keyframes rb-legend-scroll-out { from { transform: translateY(0); } to { transform: translateY(var(--rb-shift)); } }
+@keyframes rb-legend-scroll-in { from { transform: translateY(var(--rb-shift)); } to { transform: translateY(0); } }
+.rb-legend-scroll-out { animation: rb-legend-scroll-out 0.46s cubic-bezier(0.45, 0, 0.2, 1) forwards; pointer-events: none; }
+.rb-legend-scroll-in { animation: rb-legend-scroll-in 0.46s cubic-bezier(0.45, 0, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .rb-legend-scroll-out, .rb-legend-scroll-in { animation: none; } .rb-legend-scroll-out { display: none; } }
 
 
 .rb-overlay { animation: rb-fade-in 0.2s ease-out; }
@@ -2104,6 +2117,10 @@ const STRINGS = {
     ringAriaLabel: (amount) => \`Totale \${amount}, suddiviso per categoria\`,
     ringSegmentAriaLabel: (label, amount) => \`\${label}, \${amount}\`,
     ringClearSelection: "Torna al totale",
+    ringLegendMore: (n) => \`Altre \${n}\`,
+    ringLegendBack: "Torna su",
+    ringLegendMoreAria: "Mostra le altre categorie",
+    ringLegendBackAria: "Torna alle prime categorie",
     ringPctOfSpend: (n) => \`\${n}% della spesa\`,
     equivPerDay: (n, item) => \`come \${n} \${item}\`,
     equivEveryDays: (item, d) => \`come un \${item} ogni \${d} giorni\`,
@@ -2213,6 +2230,8 @@ const STRINGS = {
     errNoEndDate: "Inserisci la data di fine abbonamento, oppure disattiva l'opzione.",
     errUnexpected: "Errore imprevisto: ",
     paywallTitle: "Hai raggiunto il limite del piano gratuito",
+    paywallBodyLimited: (n) => \`Il piano gratuito include fino a \${n} abbonamenti in totale — anche quelli in pausa o terminati contano — salvati sul tuo dispositivo. Sblocca Premium con un pagamento unico: abbonamenti illimitati e la sezione Risparmio con le promozioni in scadenza e i servizi doppi, per sempre — niente altri canoni. Le offerte e i piani più convenienti per il tuo paese arriveranno più avanti: per ora il catalogo copre l'Italia.\`,
+    paywallOpenBodyLimited: (n) => \`Premium si paga una volta sola e non ha altri canoni: abbonamenti illimitati e la sezione Risparmio con le promozioni in scadenza e i servizi doppi. Le offerte e i piani più convenienti per il tuo paese arriveranno più avanti: per ora il catalogo copre l'Italia. Il piano gratuito include fino a \${n} abbonamenti in totale, anche quelli in pausa o terminati.\`,
     paywallBody: (n) => \`Il piano gratuito include fino a \${n} abbonamenti in totale — anche quelli in pausa o terminati contano — salvati sul tuo dispositivo. Sblocca Premium con un pagamento unico: abbonamenti illimitati e la sezione Risparmio con piani più convenienti e offerte, per sempre — niente altri canoni ricorrenti.\`,
     paywallOpenTitle: "Hubbo Premium",
     paywallOpenBody: (n) => \`Premium si paga una volta sola e non ha altri canoni: abbonamenti illimitati e la sezione Risparmio con piani più convenienti e offerte, per sempre. Il piano gratuito include fino a \${n} abbonamenti in totale, anche quelli in pausa o terminati.\`,
@@ -2422,6 +2441,10 @@ const STRINGS = {
     ringAriaLabel: (amount) => \`Total \${amount}, split by category\`,
     ringSegmentAriaLabel: (label, amount) => \`\${label}, \${amount}\`,
     ringClearSelection: "Back to total",
+    ringLegendMore: (n) => \`\${n} more\`,
+    ringLegendBack: "Back to top",
+    ringLegendMoreAria: "Show more categories",
+    ringLegendBackAria: "Back to the first categories",
     ringPctOfSpend: (n) => \`\${n}% of spending\`,
     equivPerDay: (n, item) => \`like \${n} \${item}\`,
     equivEveryDays: (item, d) => \`like a \${item} every \${d} days\`,
@@ -2528,6 +2551,8 @@ const STRINGS = {
     errNoEndDate: "Enter the end date, or turn off the option.",
     errUnexpected: "Unexpected error: ",
     paywallTitle: "You've reached the free plan limit",
+    paywallBodyLimited: (n) => \`The free plan includes up to \${n} subscriptions in total — paused or ended ones count too — stored on your device. Unlock Premium with a one-time payment: unlimited subscriptions and the Savings section with promotions about to end and overlapping services, forever — no recurring fees. Deals and cheaper plans for your country will come later: for now the catalog covers Italy.\`,
+    paywallOpenBodyLimited: (n) => \`Premium is a single payment with no recurring fees: unlimited subscriptions and the Savings section with promotions about to end and overlapping services. Deals and cheaper plans for your country will come later: for now the catalog covers Italy. The free plan includes up to \${n} subscriptions in total, paused or ended ones included.\`,
     paywallBody: (n) => \`The free plan includes up to \${n} subscriptions in total — paused or ended ones count too — stored on your device. Unlock Premium with a one-time payment: unlimited subscriptions and the Savings section with cheaper plans and deals, forever — no recurring fees.\`,
     paywallOpenTitle: "Hubbo Premium",
     paywallOpenBody: (n) => \`Premium is a single payment with no recurring fees: unlimited subscriptions and the Savings section with cheaper plans and deals, forever. The free plan includes up to \${n} subscriptions in total, paused or ended ones included.\`,
@@ -2737,6 +2762,10 @@ const STRINGS = {
     ringAriaLabel: (amount) => \`Total \${amount}, dividido por categoría\`,
     ringSegmentAriaLabel: (label, amount) => \`\${label}, \${amount}\`,
     ringClearSelection: "Volver al total",
+    ringLegendMore: (n) => \`\${n} más\`,
+    ringLegendBack: "Volver arriba",
+    ringLegendMoreAria: "Mostrar más categorías",
+    ringLegendBackAria: "Volver a las primeras categorías",
     ringPctOfSpend: (n) => \`\${n}% del gasto\`,
     equivPerDay: (n, item) => \`como \${n} \${item}\`,
     equivEveryDays: (item, d) => \`como un \${item} cada \${d} días\`,
@@ -2843,6 +2872,8 @@ const STRINGS = {
     errNoEndDate: "Introduce la fecha de fin o desactiva la opción.",
     errUnexpected: "Error inesperado: ",
     paywallTitle: "Has alcanzado el límite del plan gratuito",
+    paywallBodyLimited: (n) => \`El plan gratuito incluye hasta \${n} suscripciones en total — las pausadas o finalizadas también cuentan — guardadas en tu dispositivo. Desbloquea Premium con un pago único: suscripciones ilimitadas y la sección Ahorro con las promociones a punto de terminar y los servicios duplicados, para siempre, sin cuotas recurrentes. Las ofertas y los planes más baratos para tu país llegarán más adelante: por ahora el catálogo cubre Italia.\`,
+    paywallOpenBodyLimited: (n) => \`Premium se paga una sola vez y no tiene cuotas recurrentes: suscripciones ilimitadas y la sección Ahorro con las promociones a punto de terminar y los servicios duplicados. Las ofertas y los planes más baratos para tu país llegarán más adelante: por ahora el catálogo cubre Italia. El plan gratuito incluye hasta \${n} suscripciones en total, también las pausadas o finalizadas.\`,
     paywallBody: (n) => \`El plan gratuito incluye hasta \${n} suscripciones en total — las pausadas o finalizadas también cuentan — guardadas en tu dispositivo. Desbloquea Premium con un pago único: suscripciones ilimitadas y la sección Ahorro con planes más baratos y ofertas, para siempre, sin cuotas recurrentes.\`,
     paywallOpenTitle: "Hubbo Premium",
     paywallOpenBody: (n) => \`Premium se paga una sola vez y no tiene cuotas recurrentes: suscripciones ilimitadas y la sección Ahorro con planes más baratos y ofertas, para siempre. El plan gratuito incluye hasta \${n} suscripciones en total, también las pausadas o finalizadas.\`,
@@ -3052,6 +3083,10 @@ const STRINGS = {
     ringAriaLabel: (amount) => \`Total \${amount}, réparti par catégorie\`,
     ringSegmentAriaLabel: (label, amount) => \`\${label}, \${amount}\`,
     ringClearSelection: "Revenir au total",
+    ringLegendMore: (n) => \`\${n} de plus\`,
+    ringLegendBack: "Revenir en haut",
+    ringLegendMoreAria: "Afficher d'autres catégories",
+    ringLegendBackAria: "Revenir aux premières catégories",
     ringPctOfSpend: (n) => \`\${n}% des dépenses\`,
     equivPerDay: (n, item) => \`comme \${n} \${item}\`,
     equivEveryDays: (item, d) => \`comme un \${item} tous les \${d} jours\`,
@@ -3158,6 +3193,8 @@ const STRINGS = {
     errNoEndDate: "Saisissez la date de fin ou désactivez l'option.",
     errUnexpected: "Erreur inattendue : ",
     paywallTitle: "Vous avez atteint la limite de l'offre gratuite",
+    paywallBodyLimited: (n) => \`L'offre gratuite comprend jusqu'à \${n} abonnements au total — ceux en pause ou terminés comptent aussi — stockés sur votre appareil. Débloquez Premium avec un paiement unique : abonnements illimités et la section Économies avec les promotions qui se terminent et les services en double, pour toujours, sans frais récurrents. Les offres et les formules moins chères pour votre pays arriveront plus tard : pour l'instant, le catalogue couvre l'Italie.\`,
+    paywallOpenBodyLimited: (n) => \`Premium se paie une seule fois, sans frais récurrents : abonnements illimités et la section Économies avec les promotions qui se terminent et les services en double. Les offres et les formules moins chères pour votre pays arriveront plus tard : pour l'instant, le catalogue couvre l'Italie. L'offre gratuite comprend jusqu'à \${n} abonnements au total, y compris ceux en pause ou terminés.\`,
     paywallBody: (n) => \`L'offre gratuite comprend jusqu'à \${n} abonnements au total — ceux en pause ou terminés comptent aussi — stockés sur votre appareil. Débloquez Premium avec un paiement unique : abonnements illimités et la section Économies avec des offres plus avantageuses, pour toujours, sans frais récurrents.\`,
     paywallOpenTitle: "Hubbo Premium",
     paywallOpenBody: (n) => \`Premium se paie une seule fois, sans frais récurrents : abonnements illimités et la section Économies avec des offres plus avantageuses, pour toujours. L'offre gratuite comprend jusqu'à \${n} abonnements au total, y compris ceux en pause ou terminés.\`,
@@ -3367,6 +3404,10 @@ const STRINGS = {
     ringAriaLabel: (amount) => \`Gesamt \${amount}, nach Kategorie aufgeteilt\`,
     ringSegmentAriaLabel: (label, amount) => \`\${label}, \${amount}\`,
     ringClearSelection: "Zurück zur Gesamtsumme",
+    ringLegendMore: (n) => \`\${n} weitere\`,
+    ringLegendBack: "Zurück nach oben",
+    ringLegendMoreAria: "Weitere Kategorien anzeigen",
+    ringLegendBackAria: "Zurück zu den ersten Kategorien",
     ringPctOfSpend: (n) => \`\${n}% der Ausgaben\`,
     equivPerDay: (n, item) => \`wie \${n} \${item}\`,
     equivEveryDays: (item, d) => \`wie ein \${item} alle \${d} Tage\`,
@@ -3473,6 +3514,8 @@ const STRINGS = {
     errNoEndDate: "Gib das Enddatum ein oder deaktiviere die Option.",
     errUnexpected: "Unerwarteter Fehler: ",
     paywallTitle: "Du hast das Limit des Gratis-Tarifs erreicht",
+    paywallBodyLimited: (n) => \`Der Gratis-Tarif umfasst bis zu \${n} Abos insgesamt — auch pausierte oder beendete zählen mit — gespeichert auf deinem Gerät. Schalte Premium mit einer einmaligen Zahlung frei: unbegrenzte Abos und der Bereich Sparen mit bald endenden Aktionen und doppelten Diensten, für immer – ohne laufende Gebühren. Angebote und günstigere Tarife für dein Land kommen später: Vorerst deckt der Katalog Italien ab.\`,
+    paywallOpenBodyLimited: (n) => \`Premium wird einmalig bezahlt, ohne laufende Gebühren: unbegrenzte Abos und der Bereich Sparen mit bald endenden Aktionen und doppelten Diensten. Angebote und günstigere Tarife für dein Land kommen später: Vorerst deckt der Katalog Italien ab. Der Gratis-Tarif umfasst bis zu \${n} Abos insgesamt, auch pausierte oder beendete.\`,
     paywallBody: (n) => \`Der Gratis-Tarif umfasst bis zu \${n} Abos insgesamt — auch pausierte oder beendete zählen mit — gespeichert auf deinem Gerät. Schalte Premium mit einer einmaligen Zahlung frei: unbegrenzte Abos und der Bereich Sparen mit günstigeren Tarifen und Angeboten, für immer – ohne laufende Gebühren.\`,
     paywallOpenTitle: "Hubbo Premium",
     paywallOpenBody: (n) => \`Premium wird einmalig bezahlt, ohne laufende Gebühren: unbegrenzte Abos und der Bereich Sparen mit günstigeren Tarifen und Angeboten, für immer. Der Gratis-Tarif umfasst bis zu \${n} Abos insgesamt, auch pausierte oder beendete.\`,
@@ -5334,7 +5377,7 @@ const TOUR_STRINGS = {
       service: { title: "Di che servizio si tratta", text: "Scegli dal catalogo: sono oltre duecento, con il logo già pronto. Se il tuo non c'è, puoi scriverlo a mano. Per alcuni trovi anche il piano da scegliere, prezzo incluso." },
       cost: { title: "Importo, frequenza e date", text: "Inserisci importo, valuta e frequenza. Poi controlla le due date: «Abbonato dal» indica quando hai iniziato e serve a ricostruire correttamente lo storico; deve essere oggi o una data precedente. «Prossimo rinnovo» indica il prossimo pagamento e può essere nel futuro." },
       save: { title: "Salvalo", text: "Tocca il pulsante e il tuo primo abbonamento è dentro." },
-      ring: { title: "Ecco a cosa serve l'anello", text: "Mostra come si divide la spesa fra le categorie — tocca una fetta per vedere quanto pesa da sola. Sotto trovi quanto ti costa al giorno." }
+      ring: { title: "Ecco a cosa serve l'anello", text: "Mostra come si divide la spesa fra le categorie — tocca una fetta per vedere quanto pesa da sola. Sotto trovi quanto ti costa al giorno. Per modificare un abbonamento, toccalo nell'elenco." }
     }
   },
   en: {
@@ -5357,7 +5400,7 @@ const TOUR_STRINGS = {
       service: { title: "Which service is it", text: "Pick from the catalogue: over two hundred, logo included. If yours isn't there, you can type it in. For some you'll also find the plan to pick, price included." },
       cost: { title: "Amount, frequency and dates", text: "Enter the amount, currency and frequency. Then check both dates: ‘Subscribed since’ is when your subscription started and lets Hubbo rebuild your history correctly; it must be today or earlier. ‘Next renewal’ is the next payment and may be in the future." },
       save: { title: "Save it", text: "Tap the button and your first subscription is in." },
-      ring: { title: "What the ring is for", text: "It shows how your spending splits across categories — tap a slice to see it on its own. Underneath is what it costs you per day." }
+      ring: { title: "What the ring is for", text: "It shows how your spending splits across categories — tap a slice to see it on its own. Underneath is what it costs you per day. To edit a subscription, tap it in the list." }
     }
   },
   es: {
@@ -5380,7 +5423,7 @@ const TOUR_STRINGS = {
       service: { title: "Qué servicio es", text: "Elige del catálogo: más de doscientos, con el logo incluido. Si el tuyo no está, puedes escribirlo a mano. Para algunos encontrarás también el plan a elegir, con el precio incluido." },
       cost: { title: "Importe, frecuencia y fechas", text: "Introduce el importe, la moneda y la frecuencia. Después revisa las dos fechas: «Suscrito desde» indica cuándo empezó la suscripción y permite reconstruir correctamente el historial; debe ser hoy o una fecha anterior. «Próxima renovación» indica el próximo pago y puede estar en el futuro." },
       save: { title: "Guárdala", text: "Toca el botón y tu primera suscripción ya está dentro." },
-      ring: { title: "Para qué sirve el anillo", text: "Muestra cómo se reparte tu gasto entre las categorías — toca una porción para verla por separado. Debajo tienes cuánto te cuesta al día." }
+      ring: { title: "Para qué sirve el anillo", text: "Muestra cómo se reparte tu gasto entre las categorías — toca una porción para verla por separado. Debajo tienes cuánto te cuesta al día. Para modificar una suscripción, tócala en la lista." }
     }
   },
   fr: {
@@ -5403,7 +5446,7 @@ const TOUR_STRINGS = {
       service: { title: "Quel service", text: "Choisissez dans le catalogue : plus de deux cents, logo compris. Si le vôtre n'y est pas, vous pouvez le saisir. Pour certains, vous trouverez aussi la formule à choisir, prix compris." },
       cost: { title: "Montant, fréquence et dates", text: "Saisissez le montant, la devise et la fréquence. Vérifiez ensuite les deux dates : «Abonné depuis» indique le début de l’abonnement et permet de reconstruire correctement l’historique ; cette date doit être aujourd’hui ou antérieure. «Prochain renouvellement» indique le prochain paiement et peut être dans le futur." },
       save: { title: "Enregistrez-le", text: "Touchez le bouton et votre premier abonnement est enregistré." },
-      ring: { title: "À quoi sert l'anneau", text: "Il montre la répartition de vos dépenses par catégorie — touchez une part pour la voir seule. En dessous, ce que cela vous coûte par jour." }
+      ring: { title: "À quoi sert l'anneau", text: "Il montre la répartition de vos dépenses par catégorie — touchez une part pour la voir seule. En dessous, ce que cela vous coûte par jour. Pour modifier un abonnement, touchez-le dans la liste." }
     }
   },
   de: {
@@ -5426,7 +5469,7 @@ const TOUR_STRINGS = {
       service: { title: "Welcher Dienst", text: "Wähle aus dem Katalog: über zweihundert, Logo inklusive. Fehlt deiner, kannst du ihn von Hand eintragen. Bei manchen findest du auch den Tarif zur Auswahl, Preis inklusive." },
       cost: { title: "Betrag, Häufigkeit und Daten", text: "Trage Betrag, Währung und Häufigkeit ein. Prüfe dann beide Daten: „Abonniert seit“ zeigt, wann das Abo begonnen hat, und hilft Hubbo, den Verlauf korrekt zu rekonstruieren; dieses Datum muss heute oder früher sein. „Nächste Verlängerung“ ist die nächste Zahlung und darf in der Zukunft liegen." },
       save: { title: "Speichern", text: "Tippe auf die Taste, und dein erstes Abo ist drin." },
-      ring: { title: "Wozu der Ring dient", text: "Er zeigt, wie sich deine Ausgaben auf die Kategorien verteilen — tippe auf ein Segment, um es einzeln zu sehen. Darunter steht, was dich das pro Tag kostet." }
+      ring: { title: "Wozu der Ring dient", text: "Er zeigt, wie sich deine Ausgaben auf die Kategorien verteilen — tippe auf ein Segment, um es einzeln zu sehen. Darunter steht, was dich das pro Tag kostet. Um ein Abo zu bearbeiten, tippe es in der Liste an." }
     }
   }
 };
@@ -6475,7 +6518,11 @@ function annularSectorPath(cx, cy, ri, ro, a0, a1, k) {
   join(" ");
 }
 
-function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner = 3, selected = null, onSelect = null, animateOnceRef = null, onOpened = null, money, t }) {
+// v350 — \`focusIds\`: le categorie della pagina di legenda in vista; le altre
+// si attenuano, ma solo quando nessuna fetta è scelta (la scelta ha la
+// precedenza). \`hideTrack\`: niente traccia grigia, perché nell'Elenco la
+// forma dell'anello la disegna già il buco scavato nella card.
+function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner = 3, selected = null, onSelect = null, animateOnceRef = null, onOpened = null, money, t, focusIds = null, hideTrack = false }) {
   const r = (size - stroke) / 2;
   const ri = r - stroke / 2;
   const ro = r + stroke / 2;
@@ -6565,8 +6612,8 @@ function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner
   const toggle = (id) => {if (onSelect) onSelect(selected === id ? null : id);};
 
   return (/*#__PURE__*/
-    React.createElement("svg", { width: size, height: size, style: { transform: "rotate(-90deg)" }, role: "img", "aria-label": t ? t.ringAriaLabel(money ? money(total) : total) : undefined }, /*#__PURE__*/
-    React.createElement("path", { d: annularSectorPath(cx, cy, ri, ro, 0, sweepAngle, corner), fill: colors.surface2 }),
+    React.createElement("svg", { width: size, height: size, style: { transform: "rotate(-90deg)" }, role: "img", "aria-label": t ? t.ringAriaLabel(money ? money(total) : total) : undefined },
+    !hideTrack && /*#__PURE__*/React.createElement("path", { d: annularSectorPath(cx, cy, ri, ro, 0, sweepAngle, corner), fill: colors.surface2 }),
     total > 0 &&
     finalArcs.map(({ seg, a0: a0f, a1: a1f }) => {
       const a0 = a0f * progress;
@@ -6574,6 +6621,7 @@ function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner
       if (a1 <= a0) return null;
       const isSelected = selected === seg.id;
       const dimmed = selected != null && !isSelected;
+      const outOfPage = selected == null && Array.isArray(focusIds) && !focusIds.includes(seg.id);
       // La fetta scelta si ispessisce leggermente verso il centro
       // dell'anello, non più verso l'esterno: \`ro\` resta sempre lo
       // stesso, identico al disegno a riposo, per qualunque fetta —
@@ -6604,8 +6652,8 @@ function CategoryRing({ segments, total, colors, size = 160, stroke = 15, corner
         React.createElement("path", {
           d: annularSectorPath(cx, cy, segRi, ro, a0, a1, corner),
           fill: seg.color,
-          opacity: dimmed ? 0.4 : 1,
-          style: { transition: "opacity 0.2s ease" } }
+          opacity: dimmed ? 0.4 : outOfPage ? 0.3 : 1,
+          style: { transition: "opacity 0.3s ease" } }
         ),
 
 
@@ -6719,18 +6767,279 @@ function RingCenterBox({ children, className = "", style = {} }) {
 // falso alla primissima volta, vero da lì in poi — esattamente lo stesso
 // valore che CategoryRing sta per decidere per sé, letto nello stesso
 // istante, mai in conflitto.
-function ListRingArea({ children, animateOnceRef, ringProps }) {
+// v350 — il "buco" scavato nella card sotto l'anello dell'Elenco, proposta
+// di Erny del 3 ottobre: un cerchio sotto la cifra più una fascia che è un
+// vero offset dell'anello. Le due estremità sono linee parallele all'inizio
+// e alla fine dell'anello, alla stessa distanza (WELL_PAD), con spigoli poco
+// arrotondati come quelli dell'anello; dove incontrano il cerchio c'è un
+// piccolo raccordo, così non si forma una punta. Dentro, un'ombra netta.
+const WELL_PAD = 11;
+let ringWellSeq = 0;
+function ringWellPath(c) {
+  const ro = RING_DIAMETER / 2;
+  const rw = ro - RING_STROKE + 4;
+  const ro2 = ro + WELL_PAD;
+  const fo = 5;
+  const fi = 4;
+  const pad = WELL_PAD;
+  const f = (p) => \`\${p[0].toFixed(2)} \${p[1].toFixed(2)}\`;
+  const end = (a, sgn) => {
+    const u = [Math.cos(a), Math.sin(a)];
+    const n = sgn < 0 ? [Math.sin(a), -Math.cos(a)] : [-Math.sin(a), Math.cos(a)];
+    const at = (t, d) => [c + n[0] * d + u[0] * t, c + n[1] * d + u[1] * t];
+    const tq = Math.sqrt((ro2 - fo) ** 2 - (pad - fo) ** 2);
+    const q = at(tq, pad - fo);
+    const lo = at(tq, pad);
+    const co = [c + (q[0] - c) * ro2 / (ro2 - fo), c + (q[1] - c) * ro2 / (ro2 - fo)];
+    const ti = Math.sqrt((rw + fi) ** 2 - (pad + fi) ** 2);
+    const qi = at(ti, pad + fi);
+    const li = at(ti, pad);
+    const ci = [c + (qi[0] - c) * rw / (rw + fi), c + (qi[1] - c) * rw / (rw + fi)];
+    return { lo, co, li, ci };
+  };
+  const s = end(-Math.PI / 2, -1);
+  const e = end(-Math.PI / 2 + 2 * Math.PI * RING_SWEEP, 1);
+  return \`M\${f(s.ci)} A\${fi} \${fi} 0 0 0 \${f(s.li)} L\${f(s.lo)} A\${fo} \${fo} 0 0 1 \${f(s.co)} A\${ro2} \${ro2} 0 1 1 \${f(e.co)} A\${fo} \${fo} 0 0 1 \${f(e.lo)} L\${f(e.li)} A\${fi} \${fi} 0 0 0 \${f(e.ci)} A\${rw} \${rw} 0 0 1 \${f(s.ci)} Z\`;
+}
+function RingWell({ light, bg = null }) {
+  const [id] = useState(() => \`rbwell\${++ringWellSeq}\`);
+  const size = 2 * (RING_DIAMETER / 2 + WELL_PAD + 8);
+  const c = size / 2;
+  const d = ringWellPath(c);
+  return (/*#__PURE__*/
+    React.createElement("svg", {
+      "aria-hidden": "true",
+      "data-ring-well": "true",
+      width: size,
+      height: size,
+      style: { position: "absolute", left: RING_CENTER_X - c, top: RING_CENTER_Y - c, pointerEvents: "none", overflow: "visible" } }, /*#__PURE__*/
+
+    React.createElement("defs", null, /*#__PURE__*/
+    React.createElement("mask", { id: \`\${id}m\` }, /*#__PURE__*/
+    React.createElement("rect", { width: size, height: size, fill: "black" }), /*#__PURE__*/
+    React.createElement("path", { d: d, fill: "white" })
+    ), /*#__PURE__*/
+    React.createElement("filter", { id: \`\${id}f\`, x: "-20%", y: "-20%", width: "140%", height: "140%" }, /*#__PURE__*/
+    React.createElement("feFlood", { floodColor: light ? "#4A2E1C" : "#000", floodOpacity: light ? 0.3 : 0.7, result: "c" }), /*#__PURE__*/
+    React.createElement("feComposite", { in: "c", in2: "SourceAlpha", operator: "out", result: "inv" }), /*#__PURE__*/
+    React.createElement("feOffset", { dx: "0", dy: "2.5", in: "inv", result: "o" }), /*#__PURE__*/
+    React.createElement("feGaussianBlur", { in: "o", stdDeviation: "1.8", result: "b" }), /*#__PURE__*/
+    React.createElement("feComposite", { in: "b", in2: "SourceAlpha", operator: "in", result: "sh" }), /*#__PURE__*/
+    React.createElement("feFlood", { floodColor: "#fff", floodOpacity: light ? 0.85 : 0.06, result: "w" }), /*#__PURE__*/
+    React.createElement("feComposite", { in: "w", in2: "SourceAlpha", operator: "out", result: "wi" }), /*#__PURE__*/
+    React.createElement("feOffset", { dx: "0", dy: "-1.2", in: "wi", result: "wo" }), /*#__PURE__*/
+    React.createElement("feGaussianBlur", { in: "wo", stdDeviation: "0.6", result: "wb" }), /*#__PURE__*/
+    React.createElement("feComposite", { in: "wb", in2: "SourceAlpha", operator: "in", result: "hi" }), /*#__PURE__*/
+    React.createElement("feMerge", null, /*#__PURE__*/
+    React.createElement("feMergeNode", { in: "sh" }), /*#__PURE__*/
+    React.createElement("feMergeNode", { in: "hi" })
+    )
+    )
+    ), /*#__PURE__*/
+
+
+    React.createElement("rect", { width: size, height: size, fill: bg || (light ? "rgba(120,92,70,0.13)" : "rgba(0,0,0,0.32)"), mask: \`url(#\${id}m)\` }), /*#__PURE__*/
+    React.createElement("g", { filter: \`url(#\${id}f)\` }, /*#__PURE__*/
+    React.createElement("path", { d: d, fill: "#000" })
+    )
+    ));
+
+}
+
+// v350 — legenda dell'Elenco che segue la curva dell'anello. Al massimo sei
+// righe accanto all'anello: se le categorie sono di più, la sesta riga
+// diventa "Altre N" e sfoglia le pagine (cinque categorie per pagina), con
+// le righe che scorrono tutte insieme come un nastro. Niente swipe: quello
+// laterale sulla card cambia già Mese/Anno. Regole decise con Erny il 3
+// ottobre: cambiando pagina la categoria scelta si deseleziona; se invece
+// si tocca sull'anello una categoria di un'altra pagina, la legenda va lì
+// e la scelta resta.
+const CURVE_LEGEND_ROW = 27;
+const CURVE_LEGEND_SLOTS = 6;
+const CURVE_LEGEND_PER = 5;
+const CURVE_LEGEND_SHIFT = 28;
+const CURVE_LEGEND_GAP = 12;
+const CURVE_LEGEND_MIN_ROW = 300;
+function curvedLegendPages(count) {
+  return count <= CURVE_LEGEND_SLOTS ? 1 : Math.ceil(count / CURVE_LEGEND_PER);
+}
+function curvedLegendPageOf(index, count) {
+  return count <= CURVE_LEGEND_SLOTS ? 0 : Math.floor(index / CURVE_LEGEND_PER);
+}
+function curvedLegendPageIds(segments, page) {
+  if (!segments || segments.length <= CURVE_LEGEND_SLOTS) return null;
+  const p = Math.min(page, curvedLegendPages(segments.length) - 1);
+  return segments.slice(p * CURVE_LEGEND_PER, p * CURVE_LEGEND_PER + CURVE_LEGEND_PER).map((s) => s.id);
+}
+
+function CurvedRingLegend({ segments, colors, money, light, selected = null, onSelect, page = 0, onPage, animateOnceRef = null, t }) {
+  const [shouldAnimate] = useState(() => animateOnceRef ? !animateOnceRef.current : false);
+  const [interacted, setInteracted] = useState(false);
+  const [scroll, setScroll] = useState(null);
+  const timerRef = useRef(null);
+  useEffect(() => {
+    if (animateOnceRef && shouldAnimate) animateOnceRef.current = true;
+    return () => clearTimeout(timerRef.current);
+  }, []);
+  const count = segments ? segments.length : 0;
+  const pages = curvedLegendPages(count);
+  const current = Math.min(page, pages - 1);
+  const reduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const go = (next, keepSelection) => {
+    if (next === current) return;
+    if (!keepSelection && selected != null) onSelect(null);
+    setInteracted(true);
+    onPage(next);
+    if (scroll || reduced) return;
+    setScroll({ from: current, dir: next > current ? 1 : -1 });
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setScroll(null), 480);
+  };
+  // Una fetta scelta sull'anello che sta in un'altra pagina: la legenda la
+  // raggiunge, e la scelta resta.
+  useEffect(() => {
+    if (selected == null) return;
+    const index = segments.findIndex((s) => s.id === selected);
+    if (index < 0) return;
+    const target = curvedLegendPageOf(index, count);
+    if (target !== current) go(target, true);
+  }, [selected]);
+
+  if (!count) return null;
+  const k = count <= CURVE_LEGEND_SLOTS ? count : CURVE_LEGEND_SLOTS;
+  const legendLeft = RING_BOX_WIDTH + CURVE_LEGEND_GAP - CURVE_LEGEND_SHIFT;
+  const limit = RING_DIAMETER / 2 + WELL_PAD + 12;
+  const top = RING_CENTER_Y - k * CURVE_LEGEND_ROW / 2;
+  const slotX = (j) => {
+    const dy = top + j * CURVE_LEGEND_ROW + CURVE_LEGEND_ROW / 2 - RING_CENTER_Y;
+    const xr = Math.abs(dy) < limit ? RING_CENTER_X + Math.sqrt(limit * limit - dy * dy) : RING_CENTER_X;
+    return Math.max(0, xr + 2 - legendLeft);
+  };
+  const rowsFor = (p) => {
+    if (count <= CURVE_LEGEND_SLOTS) return segments.map((seg) => ({ seg }));
+    const from = p * CURVE_LEGEND_PER;
+    const to = Math.min(count, from + CURVE_LEGEND_PER);
+    const items = segments.slice(from, to).map((seg) => ({ seg }));
+    items.push({ more: true, up: p === pages - 1, left: count - to });
+    return items;
+  };
+  const shift = k * CURVE_LEGEND_ROW;
+  const entrance = shouldAnimate && !interacted;
+  const renderRows = (p, mode) => {
+    const items = rowsFor(p);
+    const total = items.length;
+    return items.map((item, j) => {
+      const x = slotX(j);
+      const animStyle = mode === "out" ?
+      { "--rb-shift": \`\${-shift * scroll.dir}px\` } :
+      mode === "in" ?
+      { "--rb-shift": \`\${shift * scroll.dir}px\` } :
+      entrance ?
+      {
+        animationName: "rb-legend-zoom-bounce",
+        animationDuration: "450ms",
+        animationTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        animationFillMode: "both",
+        animationDelay: \`\${total > 1 ? j * 250 / (total - 1) : 250}ms\`
+      } :
+      {};
+      const base = {
+        position: "absolute",
+        left: x,
+        top: j * CURVE_LEGEND_ROW,
+        width: \`calc(100% - \${x}px)\`,
+        height: CURVE_LEGEND_ROW,
+        display: "flex",
+        alignItems: "center",
+        gap: 7,
+        background: "transparent",
+        border: 0,
+        padding: 0,
+        textAlign: "left",
+        pointerEvents: mode === "out" ? "none" : "auto",
+        ...animStyle
+      };
+      const cls = mode === "out" ? "rb-legend-scroll-out rounded-lg" : mode === "in" ? "rb-legend-scroll-in rounded-lg" : "rounded-lg";
+      if (item.more) {
+        return (/*#__PURE__*/
+          React.createElement("button", {
+            key: \`\${p}-more\`,
+            type: "button",
+            "data-legend-more": "true",
+            onClick: () => go((current + 1) % pages, false),
+            "aria-label": item.up ? t.ringLegendBackAria : t.ringLegendMoreAria,
+            style: base,
+            className: cls }, /*#__PURE__*/
+
+          React.createElement("span", { "aria-hidden": "true", style: { width: 16, height: 16, borderRadius: 999, flex: "0 0 16px", marginLeft: -3, display: "grid", placeItems: "center", background: colors.surface2, color: colors.textOnGradient, fontSize: 9 } }, item.up ? "▲" : "▼"), /*#__PURE__*/
+          React.createElement("span", { style: { color: colors.textOnGradient, opacity: 0.82, fontWeight: 500, whiteSpace: "nowrap" }, className: "text-xs" }, item.up ? t.ringLegendBack : t.ringLegendMore(item.left)), /*#__PURE__*/
+          React.createElement("span", { style: { marginLeft: "auto", color: colors.textOnGradient, opacity: 0.7, fontSize: 11, fontVariantNumeric: "tabular-nums" } }, p + 1, "/", pages)
+          ));
+
+      }
+      const seg = item.seg;
+      const isSelected = selected === seg.id;
+      const dimmed = selected != null && !isSelected;
+      return (/*#__PURE__*/
+        React.createElement("button", {
+          key: \`\${p}-\${seg.id}\`,
+          type: "button",
+          "data-legend-row": seg.id,
+          onClick: () => {setInteracted(true);onSelect(isSelected ? null : seg.id);},
+          "aria-pressed": isSelected,
+          style: {
+            ...base,
+            opacity: entrance && !mode ? undefined : dimmed ? 0.5 : 1,
+            transition: entrance && !mode ? undefined : "opacity 0.2s ease"
+          },
+          className: cls }, /*#__PURE__*/
+
+        React.createElement("span", { style: { background: seg.color, width: 9, height: 9, borderRadius: 999, flex: "0 0 9px" } }), /*#__PURE__*/
+        React.createElement("span", { style: { color: colors.textOnGradient, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }, className: "text-xs" }, seg.label), /*#__PURE__*/
+        React.createElement("span", { style: { marginLeft: "auto", paddingLeft: 6, color: light ? shadeForLight(seg.color, 0.32) : seg.color, fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace" }, className: "text-xs font-semibold flex-shrink-0" },
+        money(seg.total)
+        )
+        ));
+
+    });
+  };
+  const mask = "linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%)";
+  return (/*#__PURE__*/
+    React.createElement("div", {
+      "data-curved-legend": "true",
+      style: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        top,
+        height: shift,
+        ...(scroll ? { WebkitMaskImage: mask, maskImage: mask } : {})
+      } },
+
+    scroll && renderRows(scroll.from, "out"),
+    renderRows(current, scroll ? "in" : null)
+    ));
+
+}
+
+function ListRingArea({ children, animateOnceRef, ringProps, well = null, wellBg = null }) {
   const [shouldAnimateHere] = useState(() => !animateOnceRef.current);
   const [textReady, setTextReady] = useState(() => !shouldAnimateHere);
   return (/*#__PURE__*/
-    React.createElement(React.Fragment, null, /*#__PURE__*/
+    React.createElement(React.Fragment, null,
+    well && /*#__PURE__*/React.createElement(RingWell, { light: well === "light", bg: wellBg }), /*#__PURE__*/
     React.createElement(RingCenterBox, {
       style: { opacity: textReady ? 1 : 0 },
       className: shouldAnimateHere && textReady ? "rb-ring-figure-in" : "" },
 
     children
     ), /*#__PURE__*/
-    React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP } }, /*#__PURE__*/
+
+
+
+
+    React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP, filter: well ? well === "light" ? "drop-shadow(0 2px 1.5px rgba(90,60,40,0.28))" : "drop-shadow(0 2px 1.5px rgba(0,0,0,0.55))" : undefined } }, /*#__PURE__*/
     React.createElement(CategoryRing, _extends({}, ringProps, { animateOnceRef: animateOnceRef, onOpened: () => setTextReady(true) }))
     )
     ));
@@ -6749,7 +7058,11 @@ function shadeForLight(hex, amount) {
 //
 // Centred on the ring rather than pinned to a fixed height, so the smaller sizes
 // used for longer figures do not ride up towards the top of the opening.
-function TotalFigure({ value, lead, colors, moneyParts, animKey, animClass }) {
+// v350 — \`maxSize\` e \`shadow\`: nell'Elenco la cifra è un po' più piccola
+// (non sfiora più l'anello a destra) e proietta un'ombra leggera sul fondo
+// del buco. drop-shadow e non text-shadow: il numero è dipinto con
+// background-clip:text e un text-shadow finirebbe sopra il gradiente.
+function TotalFigure({ value, lead, colors, moneyParts, animKey, animClass, maxSize = 32, shadow = null }) {
   const parts = moneyParts(value);
   // La dimensione più grande il cui testo, su una riga sola, resta
   // interamente dentro il cerchio del buco — non più una soglia scritta a
@@ -6762,7 +7075,7 @@ function TotalFigure({ value, lead, colors, moneyParts, animKey, animClass }) {
   // margine di sicurezza di 6px oltre la larghezza del testo, non di più:
   // deve restare dentro, non minuscolo. Corregge lo sconfinamento a
   // sinistra segnalato da Erny il 12 settembre.
-  const size = [32, 29, 25, 23, 21, 18, 16, 14].find((candidate) => {
+  const size = [32, 29, 27, 25, 23, 21, 18, 16, 14].filter((candidate) => candidate <= maxSize).find((candidate) => {
     const halfH = candidate / 2;
     const availSq = RING_HOLE_R * RING_HOLE_R - halfH * halfH;
     if (availSq <= 0) return false;
@@ -6780,7 +7093,8 @@ function TotalFigure({ value, lead, colors, moneyParts, animKey, animClass }) {
         fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace",
         fontWeight: 700,
         fontSize: size,
-        gap: 2
+        gap: 2,
+        filter: shadow ? \`drop-shadow(\${shadow})\` : undefined
       },
       className: \`leading-none flex items-baseline \${animClass || ""}\` },
 
@@ -6815,7 +7129,7 @@ function TotalFigure({ value, lead, colors, moneyParts, animKey, animClass }) {
 // calcola qui, non altrove: mai un numero scritto a mano, punto 5 del
 // documento di Erny sull'anello (11 settembre) — "non inserire valori
 // hardcoded".
-function SelectedCategoryFigure({ seg, total, colors, moneyParts, light, t }) {
+function SelectedCategoryFigure({ seg, total, colors, moneyParts, light, t, shadow = null }) {
   const parts = moneyParts(seg.total);
   const pct = total > 0 ? Math.round(seg.total / total * 100) : 0;
   const dotColor = light ? shadeForLight(seg.color, 0.32) : seg.color;
@@ -6839,7 +7153,7 @@ function SelectedCategoryFigure({ seg, total, colors, moneyParts, light, t }) {
 
   return (/*#__PURE__*/
     React.createElement("div", { className: "flex flex-col items-center" }, /*#__PURE__*/
-    React.createElement("div", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700, fontSize: size, color: dotColor }, className: "leading-none flex items-baseline" },
+    React.createElement("div", { style: { fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace", fontWeight: 700, fontSize: size, color: dotColor, filter: shadow ? \`drop-shadow(\${shadow})\` : undefined }, className: "leading-none flex items-baseline" },
     parts.symbolFirst && mark, /*#__PURE__*/
     React.createElement("span", null, parts.number),
     !parts.symbolFirst && mark
@@ -9501,6 +9815,24 @@ function HubboApp() {
   // volta che si tornava sull'Elenco — segnalato da Erny il 12 settembre.
   const ringHasAnimatedRef = useRef(false);
   const listLegendHasAnimatedRef = useRef(false);
+  // v350 — legenda curva dell'Elenco: pagina in vista (vive qui perché la
+  // legenda si rimonta a ogni cambio Mese/Anno) e se c'è spazio per tenerla
+  // accanto all'anello. Sotto ~300px di riga torna la legenda classica sotto.
+  const [listLegendPage, setListLegendPage] = useState(0);
+  const [listLegendCurved, setListLegendCurved] = useState(true);
+  const listRingObserverRef = useRef(null);
+  // Ref a funzione (stabile): misura la riga quando compare e la segue con
+  // un ResizeObserver, senza ricrearlo a ogni render dell'app.
+  const listRingRowRef = useRef((el) => {
+    if (listRingObserverRef.current) {listRingObserverRef.current.disconnect();listRingObserverRef.current = null;}
+    if (!el) return;
+    const measure = () => setListLegendCurved(el.clientWidth >= CURVE_LEGEND_MIN_ROW);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    listRingObserverRef.current = ro;
+  }).current;
   // The search box is per-opening, so it clears once the sheet is dismissed.
   useEffect(() => {
     if (!optionPicker) setOptionSearch("");
@@ -13831,9 +14163,11 @@ function HubboApp() {
       dark: effectiveTheme === "dark" }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { className: "flex items-center gap-3 ring-row" }, /*#__PURE__*/
+    React.createElement("div", { ref: listRingRowRef, style: listLegendCurved ? { flexWrap: "nowrap" } : undefined, className: "flex items-center gap-3 ring-row" }, /*#__PURE__*/
     React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0 ring-box" }, /*#__PURE__*/
     React.createElement(ListRingArea, {
+      well: effectiveTheme === "light" ? "light" : "dark",
+      wellBg: colors.bg,
       animateOnceRef: ringHasAnimatedRef,
       ringProps: {
         segments: categoryTotals,
@@ -13844,14 +14178,17 @@ function HubboApp() {
         selected: ringSelectedList,
         onSelect: setRingSelectedList,
         money: moneyRound,
-        t
+        t,
+        hideTrack: true,
+        focusIds: listLegendCurved ? curvedLegendPageIds(categoryTotals, listLegendPage) : null
       } },
 
     (() => {
       const legendSegments = showYear ? categoryTotals.map((s) => ({ ...s, total: s.total * 12 })) : categoryTotals;
       const selectedSeg = ringSelectedList ? legendSegments.find((s) => s.id === ringSelectedList) : null;
+      const figureShadow = effectiveTheme === "light" ? "0 2px 1.5px rgba(90,60,40,0.28)" : "0 2px 1.5px rgba(0,0,0,0.55)";
       return selectedSeg ? /*#__PURE__*/
-      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: headlineTotal, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
+      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: headlineTotal, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t, shadow: figureShadow }) : /*#__PURE__*/
 
       React.createElement(TotalFigure, {
         value: headlineTotal,
@@ -13859,12 +14196,34 @@ function HubboApp() {
         colors: colors,
         moneyParts: moneyParts,
         animKey: totalPeriod,
-        animClass: periodAnim }
+        animClass: periodAnim,
+        maxSize: 27,
+        shadow: figureShadow }
       );
 
     })()
     )
-    ), /*#__PURE__*/
+    ),
+    listLegendCurved ? /*#__PURE__*/
+    React.createElement("div", {
+      key: totalPeriod,
+      className: periodAnim,
+      style: { position: "relative", height: RING_BOX_HEIGHT, marginLeft: -CURVE_LEGEND_SHIFT, flex: "1 1 0px", minWidth: 0, pointerEvents: "none" } }, /*#__PURE__*/
+
+    React.createElement(CurvedRingLegend, {
+      segments: showYear ? categoryTotals.map((s) => ({ ...s, total: s.total * 12 })) : categoryTotals,
+      colors: colors,
+      money: moneyRound,
+      light: effectiveTheme === "light",
+      selected: ringSelectedList,
+      onSelect: setRingSelectedList,
+      page: listLegendPage,
+      onPage: setListLegendPage,
+      animateOnceRef: listLegendHasAnimatedRef,
+      t: t }
+    )
+    ) : /*#__PURE__*/
+
     React.createElement("div", { key: totalPeriod, className: \`ring-legend \${periodAnim}\` }, /*#__PURE__*/
     React.createElement(CategoryLegend, {
       segments: showYear ? categoryTotals.map((s) => ({ ...s, total: s.total * 12 })) : categoryTotals,
@@ -13877,6 +14236,7 @@ function HubboApp() {
       animateOnceRef: listLegendHasAnimatedRef }
     )
     )
+
     ),
 
 
@@ -13938,11 +14298,14 @@ function HubboApp() {
     React.createElement("button", {
       type: "button",
       onClick: () => openPaywall(false),
-      style: { background: colors.surface2, border: \`1px solid \${colors.border}\` },
-      className: "w-full mt-3 rounded-xl px-4 py-2 flex items-center gap-2.5 text-left" }, /*#__PURE__*/
+      "data-free-plan-row": "true"
+      // v350 — non più una pillola con riquadro: una riga di testo
+      // centrata, più leggera dentro la card dell'anello (Erny, 3/10).
+      , style: { background: "transparent", border: 0 },
+      className: "w-full mt-2.5 rounded-xl px-2 py-1.5 flex items-center justify-center gap-2 text-center" }, /*#__PURE__*/
 
-    React.createElement(Icon, { name: "crown", size: 18, color: ACCENT.amber, className: "flex-shrink-0" }), /*#__PURE__*/
-    React.createElement("span", { style: { color: colors.textOnGradient }, className: "flex-1 min-w-0 text-xs leading-snug" },
+    React.createElement(Icon, { name: "crown", size: 15, color: ACCENT.amber, className: "flex-shrink-0" }), /*#__PURE__*/
+    React.createElement("span", { style: { color: colors.textOnGradient }, className: "min-w-0 text-xs leading-snug" },
 
 
 
@@ -14039,8 +14402,7 @@ function HubboApp() {
 
 
     React.createElement("div", { className: "px-5 mt-3" },
-    visibleSubs.length > 0 && !listSearch && /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textFaint }, className: "text-[11px] mb-2 px-1" }, t.tapSubToEdit),
+
 
     enriched.length === 0 ? /*#__PURE__*/
     React.createElement("div", { style: { border: \`1px dashed \${colors.border}\`, color: colors.textSecondary }, className: "rounded-2xl p-8 text-center text-sm mt-6" },
@@ -16564,13 +16926,7 @@ function HubboApp() {
     )
     )
     ),
-    settings.notifOffersEnabled && /*#__PURE__*/React.createElement(NotifPermissionNote, { permission: notificationAccess.permission, onAllow: notificationAccess.requestPermission, t: t, colors: colors }),
-    settings.notifOffersEnabled && canBackgroundOffers && /*#__PURE__*/
-    React.createElement("div", { className: "mt-2 px-1 flex flex-col items-start gap-1.5" }, /*#__PURE__*/
-    React.createElement("button", { type: "button", onClick: () => runOffersAction("check"), style: { color: ACCENT.terracotta }, className: "text-xs font-medium" }, t.offersCheckNow), /*#__PURE__*/
-    React.createElement("button", { type: "button", onClick: () => runOffersAction("test"), style: { color: ACCENT.terracotta }, className: "text-xs font-medium" }, t.offersTestLink),
-    offersMsg && /*#__PURE__*/React.createElement("p", { style: { color: colors.textSecondary }, className: "text-xs leading-relaxed" }, offersMsg)
-    ), /*#__PURE__*/
+    settings.notifOffersEnabled && /*#__PURE__*/React.createElement(NotifPermissionNote, { permission: notificationAccess.permission, onAllow: notificationAccess.requestPermission, t: t, colors: colors }), /*#__PURE__*/
 
     React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-2 px-1 leading-relaxed" }, canBackgroundOffers ? t.offersBackgroundNote : t.notifNote)
     ), /*#__PURE__*/
@@ -18535,7 +18891,7 @@ function HubboApp() {
     React.createElement(Icon, { name: "lock", size: 22, color: ACCENT.amber })
     ), /*#__PURE__*/
     React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium mb-2" }, paywallLimit ? t.paywallTitle : t.paywallOpenTitle), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm leading-relaxed" }, paywallLimit ? t.paywallBody(FREE_LIMIT) : t.paywallOpenBody(FREE_LIMIT))
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm leading-relaxed" }, savingsCatalogCovered ? paywallLimit ? t.paywallBody(FREE_LIMIT) : t.paywallOpenBody(FREE_LIMIT) : paywallLimit ? t.paywallBodyLimited(FREE_LIMIT) : t.paywallOpenBodyLimited(FREE_LIMIT))
     ),
     (() => {
       // v331 — acquisto vero solo nell'app Android (window.HubboBilling
