@@ -510,10 +510,11 @@ function serviceCardBackground(ringColor, colors, light) {
   };
   if (!base || !rgb) return style;
   const grey = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
-  // v350 — nel tema chiaro la sfumatura è dimezzata e si ferma a metà card
-  // (lista più leggera); nel tema scuro resta com'era (Erny, 3 ottobre).
-  const tint = rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.50 - base[i]) * (light ? 0.095 : 0.21)));
-  style.backgroundImage = \`linear-gradient(90deg, rgb(\${tint.join(",")}) 0%, \${colors.surface} \${light ? 55 : 78}%)\`;
+  // v350 — dopo la prova sul telefono (Erny, 3/10 16:24): nel chiaro un filo
+  // più colorata della versione alleggerita ma meno di prima (0.19/78%); nello
+  // scuro un filo meno di prima (era 0.21/78%).
+  const tint = rgb.map((v, i) => Math.round(base[i] + (grey + (v - grey) * 0.50 - base[i]) * (light ? 0.14 : 0.17)));
+  style.backgroundImage = \`linear-gradient(90deg, rgb(\${tint.join(",")}) 0%, \${colors.surface} \${light ? 66 : 72}%)\`;
   return style;
 }
 
@@ -7023,6 +7024,58 @@ function CurvedRingLegend({ segments, colors, money, light, selected = null, onS
 
 }
 
+// v350 — la stessa card anello dell'Elenco (buco, ombre, legenda curva a
+// pagine) per Calendario, Storico e Risparmio. La pagina della legenda vive
+// nel genitore perché la riga si rimonta a ogni cambio di modalità/mese.
+const RING_FIGURE_SHADOW_LIGHT = "0 2px 1.5px rgba(90,60,40,0.28)";
+const RING_FIGURE_SHADOW_DARK = "0 2px 1.5px rgba(0,0,0,0.55)";
+function WellRingRow({ rowKey, animClass = "", segments, total, colors, light, selected, onSelect, money, t, page, onPage, renderFigure }) {
+  const rowRef = useRef(null);
+  const [curved, setCurved] = useState(true);
+  useLayoutEffect(() => {
+    const el = rowRef.current;
+    if (!el) return undefined;
+    const measure = () => setCurved(el.clientWidth >= CURVE_LEGEND_MIN_ROW);
+    measure();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const segs = segments || [];
+  const shadow = light ? RING_FIGURE_SHADOW_LIGHT : RING_FIGURE_SHADOW_DARK;
+  return (/*#__PURE__*/
+    React.createElement("div", { key: rowKey, ref: rowRef, "data-well-ring-row": "true", style: curved ? { flexWrap: "nowrap" } : undefined, className: \`flex items-center gap-3 ring-row \${animClass}\` }, /*#__PURE__*/
+    React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0 ring-box" }, /*#__PURE__*/
+    React.createElement(RingWell, { light: light, bg: colors.bg }), /*#__PURE__*/
+    React.createElement(RingCenterBox, null, renderFigure(shadow)), /*#__PURE__*/
+    React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP, filter: \`drop-shadow(\${shadow})\` } }, /*#__PURE__*/
+    React.createElement(CategoryRing, {
+      segments: segs,
+      total: total,
+      colors: colors,
+      size: RING_DIAMETER,
+      stroke: RING_STROKE,
+      selected: selected,
+      onSelect: onSelect,
+      money: money,
+      t: t,
+      hideTrack: true,
+      focusIds: curved ? curvedLegendPageIds(segs, page) : null }
+    )
+    )
+    ),
+    curved ? /*#__PURE__*/
+    React.createElement("div", { style: { position: "relative", height: RING_BOX_HEIGHT, marginLeft: -CURVE_LEGEND_SHIFT, flex: "1 1 0px", minWidth: 0, pointerEvents: "none" } }, /*#__PURE__*/
+    React.createElement(CurvedRingLegend, { segments: segs, colors: colors, money: money, light: light, selected: selected, onSelect: onSelect, page: page, onPage: onPage, t: t })
+    ) : /*#__PURE__*/
+
+    React.createElement(CategoryLegend, { segments: segs, total: total, colors: colors, money: money, light: light, selected: selected, onSelect: onSelect })
+
+    ));
+
+}
+
 function ListRingArea({ children, animateOnceRef, ringProps, well = null, wellBg = null }) {
   const [shouldAnimateHere] = useState(() => !animateOnceRef.current);
   const [textReady, setTextReady] = useState(() => !shouldAnimateHere);
@@ -9819,6 +9872,9 @@ function HubboApp() {
   // legenda si rimonta a ogni cambio Mese/Anno) e se c'è spazio per tenerla
   // accanto all'anello. Sotto ~300px di riga torna la legenda classica sotto.
   const [listLegendPage, setListLegendPage] = useState(0);
+  const [calendarLegendPage, setCalendarLegendPage] = useState(0);
+  const [historyLegendPage, setHistoryLegendPage] = useState(0);
+  const [savingsLegendPage, setSavingsLegendPage] = useState(0);
   const [listLegendCurved, setListLegendCurved] = useState(true);
   const listRingObserverRef = useRef(null);
   // Ref a funzione (stabile): misura la riga quando compare e la segue con
@@ -14521,47 +14577,28 @@ function HubboApp() {
       dark: effectiveTheme === "dark" }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`stats-\${calendarOffset}-\${calendarSpendMode}\`, className: \`flex items-center gap-2 ring-row \${calendarModeAnim || monthAnim}\` }, /*#__PURE__*/
-    React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0 ring-box" }, /*#__PURE__*/
-    React.createElement(RingCenterBox, null,
-    (() => {
-      const segs = calendarDisplayedCategories || [];
-      const selectedSeg = ringSelectedCalendar ? segs.find((s) => s.id === ringSelectedCalendar) : null;
-      return selectedSeg ? /*#__PURE__*/
-      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: calendarDisplayedTotal, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
-
-      React.createElement(TotalFigure, {
-        value: calendarDisplayedTotal,
-        lead: (segs[0] || {}).color || colors.textPrimary,
-        colors: colors,
-        moneyParts: moneyParts }
-      );
-
-    })()
-    ), /*#__PURE__*/
-    React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP } }, /*#__PURE__*/
-    React.createElement(CategoryRing, {
+    React.createElement(WellRingRow, {
+      key: \`stats-\${calendarOffset}-\${calendarSpendMode}\`,
+      animClass: calendarModeAnim || monthAnim,
       segments: calendarDisplayedCategories || [],
       total: calendarDisplayedTotal,
       colors: colors,
-      size: RING_DIAMETER,
-      stroke: RING_STROKE,
+      light: effectiveTheme === "light",
       selected: ringSelectedCalendar,
       onSelect: setRingSelectedCalendar,
       money: moneyRound,
-      t: t }
-    )
-    )
-    ), /*#__PURE__*/
-    React.createElement(CategoryLegend, {
-      segments: calendarDisplayedCategories || [],
-      total: calendarDisplayedTotal,
-      colors: colors,
-      money: moneyRound,
-      light: effectiveTheme === "light",
-      selected: ringSelectedCalendar,
-      onSelect: setRingSelectedCalendar }
-    )
+      t: t,
+      page: calendarLegendPage,
+      onPage: setCalendarLegendPage,
+      renderFigure: (shadow) => {
+        const segs = calendarDisplayedCategories || [];
+        const selectedSeg = ringSelectedCalendar ? segs.find((s) => s.id === ringSelectedCalendar) : null;
+        return selectedSeg ? /*#__PURE__*/
+        React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: calendarDisplayedTotal, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t, shadow: shadow }) : /*#__PURE__*/
+
+        React.createElement(TotalFigure, { value: calendarDisplayedTotal, lead: (segs[0] || {}).color || colors.textPrimary, colors: colors, moneyParts: moneyParts, maxSize: 27, shadow: shadow });
+
+      } }
     ), /*#__PURE__*/
     React.createElement("div", { key: \`count-\${calendarOffset}-\${calendarSpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs mt-2 \${calendarModeAnim || monthAnim}\` },
     t.monthPayments(calendarDisplayedCount)
@@ -14679,46 +14716,27 @@ function HubboApp() {
       dark: effectiveTheme === "dark" }
     )
     ), /*#__PURE__*/
-    React.createElement("div", { key: \`history-stats-\${historySpendMode}\`, className: \`flex items-center gap-2 ring-row \${historyModeAnim}\` }, /*#__PURE__*/
-    React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0 ring-box" }, /*#__PURE__*/
-    React.createElement(RingCenterBox, null,
-    (() => {
-      const selectedSeg = ringSelectedHistory ? historyActiveCategoryTotals.find((s) => s.id === ringSelectedHistory) : null;
-      return selectedSeg ? /*#__PURE__*/
-      React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: historyActiveTotals.total, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
-
-      React.createElement(TotalFigure, {
-        value: historyActiveTotals.total,
-        lead: (historyActiveCategoryTotals[0] || {}).color || colors.textPrimary,
-        colors: colors,
-        moneyParts: moneyParts }
-      );
-
-    })()
-    ), /*#__PURE__*/
-    React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP } }, /*#__PURE__*/
-    React.createElement(CategoryRing, {
+    React.createElement(WellRingRow, {
+      key: \`history-stats-\${historySpendMode}\`,
+      animClass: historyModeAnim,
       segments: historyActiveCategoryTotals,
       total: historyActiveTotals.total,
       colors: colors,
-      size: RING_DIAMETER,
-      stroke: RING_STROKE,
+      light: effectiveTheme === "light",
       selected: ringSelectedHistory,
       onSelect: setRingSelectedHistory,
       money: moneyRound,
-      t: t }
-    )
-    )
-    ), /*#__PURE__*/
-    React.createElement(CategoryLegend, {
-      segments: historyActiveCategoryTotals,
-      total: historyActiveTotals.total,
-      colors: colors,
-      money: moneyRound,
-      light: effectiveTheme === "light",
-      selected: ringSelectedHistory,
-      onSelect: setRingSelectedHistory }
-    )
+      t: t,
+      page: historyLegendPage,
+      onPage: setHistoryLegendPage,
+      renderFigure: (shadow) => {
+        const selectedSeg = ringSelectedHistory ? historyActiveCategoryTotals.find((s) => s.id === ringSelectedHistory) : null;
+        return selectedSeg ? /*#__PURE__*/
+        React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: historyActiveTotals.total, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t, shadow: shadow }) : /*#__PURE__*/
+
+        React.createElement(TotalFigure, { value: historyActiveTotals.total, lead: (historyActiveCategoryTotals[0] || {}).color || colors.textPrimary, colors: colors, moneyParts: moneyParts, maxSize: 27, shadow: shadow });
+
+      } }
     ), /*#__PURE__*/
     React.createElement("div", { key: \`history-count-\${historySpendMode}\`, style: { color: colors.textOnGradient }, className: \`text-xs mt-2 \${historyModeAnim}\` }, historyActiveTotals.count, " \\xB7 ", t.historyPaymentsCount)
     ),
@@ -15005,46 +15023,27 @@ function HubboApp() {
         React.createElement("div", { style: { color: colors.textOnGradient, fontSize: 12 } }, savingsMode === "applied" ? applyLabels.forecast : t.savingsPotentialLabel), /*#__PURE__*/
         React.createElement(RingModeSwitch, { value: savingsMode, onChange: changeSavingsMode, options: [{ id: "potential", label: applyLabels.potential }, { id: "applied", label: applyLabels.applied }], colors: colors, dark: effectiveTheme === "dark" })
         ), /*#__PURE__*/
-        React.createElement("div", { key: \`saving-ring-\${savingsMode}\`, className: \`flex items-center gap-3 ring-row \${savingsModeAnim}\` }, /*#__PURE__*/
-        React.createElement("div", { style: { position: "relative", width: RING_BOX_WIDTH, height: RING_BOX_HEIGHT }, className: "flex-shrink-0 ring-box" }, /*#__PURE__*/
-        React.createElement(RingCenterBox, null,
-        (() => {
-          const selectedSeg = ringSelectedSavings ? annualCategoryTotals.find((s) => s.id === ringSelectedSavings) : null;
-          return selectedSeg ? /*#__PURE__*/
-          React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: annualAmount, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t }) : /*#__PURE__*/
-
-          React.createElement(TotalFigure, {
-            value: annualAmount,
-            lead: (annualCategoryTotals[0] || {}).color || ACCENT.green,
-            colors: colors,
-            moneyParts: moneyParts }
-          );
-
-        })()
-        ), /*#__PURE__*/
-        React.createElement("div", { style: { position: "absolute", left: RING_INSET_LEFT, top: RING_INSET_TOP } }, /*#__PURE__*/
-        React.createElement(CategoryRing, {
+        React.createElement(WellRingRow, {
+          key: \`saving-ring-\${savingsMode}\`,
+          animClass: savingsModeAnim,
           segments: annualCategoryTotals,
           total: annualAmount,
           colors: colors,
-          size: RING_DIAMETER,
-          stroke: RING_STROKE,
+          light: effectiveTheme === "light",
           selected: ringSelectedSavings,
           onSelect: setRingSelectedSavings,
           money: moneyRound,
-          t: t }
-        )
-        )
-        ), /*#__PURE__*/
-        React.createElement(CategoryLegend, {
-          segments: annualCategoryTotals,
-          total: annualAmount,
-          colors: colors,
-          money: moneyRound,
-          light: effectiveTheme === "light",
-          selected: ringSelectedSavings,
-          onSelect: setRingSelectedSavings }
-        )
+          t: t,
+          page: savingsLegendPage,
+          onPage: setSavingsLegendPage,
+          renderFigure: (shadow) => {
+            const selectedSeg = ringSelectedSavings ? annualCategoryTotals.find((s) => s.id === ringSelectedSavings) : null;
+            return selectedSeg ? /*#__PURE__*/
+            React.createElement(SelectedCategoryFigure, { seg: selectedSeg, total: annualAmount, colors: colors, moneyParts: moneyParts, light: effectiveTheme === "light", t: t, shadow: shadow }) : /*#__PURE__*/
+
+            React.createElement(TotalFigure, { value: annualAmount, lead: (annualCategoryTotals[0] || {}).color || ACCENT.green, colors: colors, moneyParts: moneyParts, maxSize: 27, shadow: shadow });
+
+          } }
         ), /*#__PURE__*/
         React.createElement("div", { key: \`saving-caption-\${savingsMode}\`, className: savingsModeAnim },
         savingsMode === "potential" ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/
