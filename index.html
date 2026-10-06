@@ -731,8 +731,8 @@ const LOCALES = { it: "it-IT", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE
 
 // Keep this in step with the CACHE name in sw.js: it is how you can tell at a
 // glance whether an update actually landed on the device.
-const APP_VERSION = "v350";
-const APP_BUILD_DATE = "2026-10-04";
+const APP_VERSION = "v351";
+const APP_BUILD_DATE = "2026-10-06";
 
 // Parte 8A/8B/8C/8D — dati commerciali separati dall'app. Da v243 il manifest
 // live punta sempre a uno snapshot immutabile sotto \`catalog/versions/\`: per un
@@ -1283,6 +1283,14 @@ const LEGACY_PREMIUM_TEST_STORAGE_KEY = "abbly:devPremiumTest";
 // solo una copia salvata dell'ultima risposta di Google, cosi' l'app funziona
 // anche senza rete; ad ogni avvio Google e' richiesto di nuovo e ha l'ultima parola.
 const PREMIUM_OWNED_STORAGE_KEY = "abbly:premiumOwned";
+// v351 — vendita di Premium sospesa finché Erny non ha sistemato la parte
+// fiscale (partita IVA). Con \`false\` la scheda Premium diventa "In arrivo":
+// niente prezzo, niente acquisto, solo un pulsante che apre un modulo Google
+// (PREMIUM_WAITLIST_URL) dove chi vuole lascia la propria email. L'app non
+// invia nulla da sola: apre solo il link nel browser. Per riaprire le vendite
+// basta rimettere \`true\` (tutto il codice di acquisto è rimasto com'era).
+const PREMIUM_SALES_OPEN = false;
+const PREMIUM_WAITLIST_URL = "https://docs.google.com/forms/d/e/1FAIpQLSftvy2R1O9E5b6ZfiwPx8ZbR4OQD7ZgKcJr-s7szMJys4DU4Q/viewform";
 // v336 — elenco di cio' che l'utente ha gia' visto in Risparmio (per il numero che brilla).
 const SAVINGS_SEEN_STORAGE_KEY = "abbly:savingsSeen";
 
@@ -2254,6 +2262,12 @@ const STRINGS = {
     premiumRevoked: "Premium non risulta più attivo su questo account Google.",
     premiumActiveLine: "Premium attivo",
     maybeLater: "Forse più tardi",
+    premiumSoonTag: "In arrivo",
+    upgradeSoon: "Premium in arrivo",
+    paywallSoonBody: (n) => \`Premium è in arrivo: abbonamenti illimitati e la sezione Risparmio, con un solo pagamento e nessun canone. Nel frattempo il piano gratuito include fino a \${n} abbonamenti in totale, anche quelli in pausa o terminati.\`,
+    premiumNotify: "Avvisami quando sarà disponibile",
+    premiumNotifyNote: "Si apre un modulo Google: lascia la tua email solo se vuoi essere avvisato. La useremo solo per questo avviso.",
+    premiumSoonNoLink: "Ti avviseremo con un prossimo aggiornamento dell'app.",
     filterAll: "Tutti",
     filterAllCategories: "Tutte le categorie",
     filterNCategories: (n) => \`\${n} categorie\`,
@@ -2575,6 +2589,12 @@ const STRINGS = {
     premiumRevoked: "Premium is no longer active on this Google account.",
     premiumActiveLine: "Premium active",
     maybeLater: "Maybe later",
+    premiumSoonTag: "Coming soon",
+    upgradeSoon: "Premium coming soon",
+    paywallSoonBody: (n) => \`Premium is on its way: unlimited subscriptions and the Savings section, with a single payment and no recurring fees. Meanwhile the free plan includes up to \${n} subscriptions in total, paused or ended ones included.\`,
+    premiumNotify: "Let me know when it's available",
+    premiumNotifyNote: "A Google form opens: leave your email only if you want to be notified. It will be used for this notice only.",
+    premiumSoonNoLink: "We'll let you know in a future app update.",
     filterAll: "All",
     filterAllCategories: "All categories",
     filterNCategories: (n) => \`\${n} categories\`,
@@ -2896,6 +2916,12 @@ const STRINGS = {
     premiumRevoked: "Premium ya no está activo en esta cuenta de Google.",
     premiumActiveLine: "Premium activo",
     maybeLater: "Quizá más tarde",
+    premiumSoonTag: "Próximamente",
+    upgradeSoon: "Premium muy pronto",
+    paywallSoonBody: (n) => \`Premium está en camino: suscripciones ilimitadas y la sección Ahorro, con un único pago y sin cuotas. Mientras tanto, el plan gratuito incluye hasta \${n} suscripciones en total, también las pausadas o terminadas.\`,
+    premiumNotify: "Avísame cuando esté disponible",
+    premiumNotifyNote: "Se abre un formulario de Google: deja tu email solo si quieres recibir el aviso. Solo lo usaremos para esto.",
+    premiumSoonNoLink: "Te avisaremos en una próxima actualización de la app.",
     filterAll: "Todas",
     filterAllCategories: "Todas las categorías",
     filterNCategories: (n) => \`\${n} categorías\`,
@@ -3217,6 +3243,12 @@ const STRINGS = {
     premiumRevoked: "Premium n'est plus actif sur ce compte Google.",
     premiumActiveLine: "Premium actif",
     maybeLater: "Plus tard",
+    premiumSoonTag: "Bientôt",
+    upgradeSoon: "Premium bientôt disponible",
+    paywallSoonBody: (n) => \`Premium arrive bientôt : abonnements illimités et la section Économies, avec un paiement unique et sans frais récurrents. En attendant, l'offre gratuite inclut jusqu'à \${n} abonnements au total, y compris ceux en pause ou terminés.\`,
+    premiumNotify: "Prévenez-moi quand il sera disponible",
+    premiumNotifyNote: "Un formulaire Google s'ouvre : laissez votre e-mail seulement si vous souhaitez être prévenu. Il ne servira qu'à cet avis.",
+    premiumSoonNoLink: "Nous vous préviendrons dans une prochaine mise à jour de l'app.",
     filterAll: "Tous",
     filterAllCategories: "Toutes les catégories",
     filterNCategories: (n) => \`\${n} catégories\`,
@@ -3538,6 +3570,12 @@ const STRINGS = {
     premiumRevoked: "Premium ist auf diesem Google-Konto nicht mehr aktiv.",
     premiumActiveLine: "Premium aktiv",
     maybeLater: "Vielleicht später",
+    premiumSoonTag: "Demnächst",
+    upgradeSoon: "Premium kommt bald",
+    paywallSoonBody: (n) => \`Premium kommt bald: unbegrenzte Abos und der Bereich Sparen, mit einer einmaligen Zahlung ohne laufende Gebühren. Bis dahin umfasst der kostenlose Plan bis zu \${n} Abos insgesamt, auch pausierte oder beendete.\`,
+    premiumNotify: "Benachrichtige mich, wenn es verfügbar ist",
+    premiumNotifyNote: "Ein Google-Formular öffnet sich: Gib deine E-Mail nur an, wenn du benachrichtigt werden möchtest. Sie wird nur dafür verwendet.",
+    premiumSoonNoLink: "Wir informieren dich in einem kommenden App-Update.",
     filterAll: "Alle",
     filterAllCategories: "Alle Kategorien",
     filterNCategories: (n) => \`\${n} Kategorien\`,
@@ -9339,7 +9377,7 @@ function SavingsFreeTeaser({ colors, t, onUpgrade, money, savingsLabels, light, 
       className: "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold" }, /*#__PURE__*/
 
     React.createElement(Icon, { name: "crown", size: 16 }),
-    t.upgrade
+    PREMIUM_SALES_OPEN ? t.upgrade : t.upgradeSoon
     )
     ));
 
@@ -9717,7 +9755,7 @@ function FirstRunSetup({ colors, light, onDone }) {
     setCur(code === OTHER_COUNTRY ? "EUR" : currencyForCountry(code));
   }
   return (/*#__PURE__*/
-    React.createElement("div", { "data-hubbo-pad120": "true",
+    React.createElement("div", { "data-first-run": "", "data-hubbo-pad120": "true",
       style: { background: \`linear-gradient(180deg, \${colors.bgGradTop} 0%, \${colors.bg} 320px)\`, color: colors.textPrimary, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", overflowY: "auto", paddingBottom: "calc(120px + env(safe-area-inset-bottom, 0px))" },
       className: "rb-dvh w-full" }, /*#__PURE__*/
 
@@ -12062,6 +12100,7 @@ function HubboApp() {
   useEffect(() => {
     if (!showPaywall) return;
     setPremiumMsg("");
+    if (!PREMIUM_SALES_OPEN) return;
     const billing = window.HubboBilling;
     if (!billing) return;
     let alive = true;
@@ -12306,7 +12345,11 @@ function HubboApp() {
 
   const anyModalOpen = !!dayPopup || otherModalOpen;
 
-  const headerMotion = useCollapsingHeader(subs !== null, anyModalOpen || tourActive || !!resumePrompt || !!cancelPrompt || !!duplicateConfirm);
+  // v351: l'intestazione si misura solo quando esiste davvero. Al primo avvio
+  // c'è prima la configurazione iniziale (needsSetup): prima la misura partiva
+  // lì, senza intestazione, e non ripartiva più → titolo tagliato a 60px
+  // fino al riavvio dell'app.
+  const headerMotion = useCollapsingHeader(subs !== null && !needsSetup, anyModalOpen || tourActive || !!resumePrompt || !!cancelPrompt || !!duplicateConfirm);
 
   // v300: completa il cambio scheda dopo il commit del nuovo DOM, prima del
   // paint. In questo modo scroll e quantità di header raccolto vengono
@@ -14202,7 +14245,11 @@ function HubboApp() {
             CATEGORIES.find((c2) => c2.id === s2.category) || CATEGORIES[CATEGORIES.length - 1];
             const dotColor = icon2 && BRAND_COLORS[icon2] || SERVICE_COLORS[s2.name] || cat2.color;
             return /*#__PURE__*/React.createElement("span", { key: s2.id, style: { width: 5, height: 5, borderRadius: 999, background: dotColor } });
-          })
+          }),
+
+          dayRenewals.length > 3 && /*#__PURE__*/
+          React.createElement("span", { "data-calendar-more": "", "aria-hidden": "true", style: { color: colors.textSecondary, fontSize: 10, fontWeight: 700, lineHeight: "5px", marginLeft: 0.5 } }, "+")
+
           )
           ));
 
@@ -17302,7 +17349,7 @@ function HubboApp() {
       style: { background: \`linear-gradient(120deg, \${ACCENT.amber}, \${ACCENT.terracotta})\`, color: INK },
       className: "w-full rounded-xl py-3 text-sm font-semibold" },
 
-    t.upgrade
+    PREMIUM_SALES_OPEN ? t.upgrade : t.upgradeSoon
     ), /*#__PURE__*/
 
     React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs mt-3 px-1 leading-relaxed" },
@@ -19164,13 +19211,35 @@ function HubboApp() {
     React.createElement("div", { style: { background: colors.overlay, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }, className: \`fixed inset-0 flex items-end z-50 \${closingSheet === "paywall" ? "rb-overlay-out" : "rb-overlay"}\`, onClick: () => closeSheet("paywall", () => setShowPaywall(false)) }, /*#__PURE__*/
     React.createElement("div", { onClick: (e) => e.stopPropagation(), style: { background: colors.surface, border: \`1px solid \${colors.border}\` }, className: \`w-full rounded-t-3xl p-5 pb-8 \${closingSheet === "paywall" ? "rb-dialog-out" : "rb-dialog"}\` }, /*#__PURE__*/
     React.createElement("div", { className: "flex flex-col items-center text-center mb-5 mt-2" }, /*#__PURE__*/
-    React.createElement("div", { style: { background: "rgba(227,168,87,0.15)" }, className: "w-14 h-14 rounded-full flex items-center justify-center mb-3" }, /*#__PURE__*/
-    React.createElement(Icon, { name: "lock", size: 22, color: ACCENT.amber })
-    ), /*#__PURE__*/
-    React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium mb-2" }, paywallLimit ? t.paywallTitle : t.paywallOpenTitle), /*#__PURE__*/
-    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm leading-relaxed" }, savingsCatalogCovered ? paywallLimit ? t.paywallBody(FREE_LIMIT) : t.paywallOpenBody(FREE_LIMIT) : paywallLimit ? t.paywallBodyLimited(FREE_LIMIT) : t.paywallOpenBodyLimited(FREE_LIMIT))
+    React.createElement("div", { style: { background: "rgba(227,168,87,0.15)" }, className: "w-14 h-14 rounded-full flex items-center justify-center mb-3" },
+    PREMIUM_SALES_OPEN || paywallLimit ? /*#__PURE__*/React.createElement(Icon, { name: "lock", size: 22, color: ACCENT.amber }) : /*#__PURE__*/React.createElement(Icon, { name: "sparkles", size: 22, color: ACCENT.amber })
     ),
-    (() => {
+    !PREMIUM_SALES_OPEN && /*#__PURE__*/
+    React.createElement("span", { "data-premium-soon": "", style: { background: "rgba(227,168,87,0.15)", color: ACCENT.amber }, className: "text-[11px] font-semibold uppercase tracking-wide rounded-full px-2.5 py-0.5 mb-2" }, t.premiumSoonTag), /*#__PURE__*/
+
+    React.createElement("h2", { style: { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" }, className: "text-lg font-medium mb-2" }, paywallLimit ? t.paywallTitle : t.paywallOpenTitle), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textSecondary }, className: "text-sm leading-relaxed" }, !PREMIUM_SALES_OPEN ? t.paywallSoonBody(FREE_LIMIT) : savingsCatalogCovered ? paywallLimit ? t.paywallBody(FREE_LIMIT) : t.paywallOpenBody(FREE_LIMIT) : paywallLimit ? t.paywallBodyLimited(FREE_LIMIT) : t.paywallOpenBodyLimited(FREE_LIMIT))
+    ),
+    !PREMIUM_SALES_OPEN && (
+    PREMIUM_WAITLIST_URL ? /*#__PURE__*/
+    React.createElement(React.Fragment, null, /*#__PURE__*/
+    React.createElement("a", {
+      "data-premium-waitlist": "",
+      href: PREMIUM_WAITLIST_URL,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: { background: \`linear-gradient(120deg, \${ACCENT.amber}, \${ACCENT.terracotta})\`, color: INK },
+      className: "block w-full text-center rounded-xl py-3 text-sm font-semibold mb-2" },
+
+    t.premiumNotify
+    ), /*#__PURE__*/
+    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs text-center mb-2.5 px-2 leading-relaxed" }, t.premiumNotifyNote)
+    ) : /*#__PURE__*/
+
+    React.createElement("p", { style: { color: colors.textFaint }, className: "text-xs text-center mb-3" }, t.premiumSoonNoLink)),
+
+
+    PREMIUM_SALES_OPEN && (() => {
       // v331 — acquisto vero solo nell'app Android (window.HubboBilling
       // lo mette il bridge). Nel sito non si compra: si dice dove.
       const canBuy = typeof window !== "undefined" && !!window.HubboBilling;
@@ -19272,6 +19341,5 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-<script src="capacitor-bridge.js"></script>
 </body>
 </html>
